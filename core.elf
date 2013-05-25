@@ -1,0 +1,45 @@
+% Types
+
+ty : type.
+nat : ty.
+arrow : ty -> ty -> ty.
+
+% Expressions and computations
+
+expr : type.
+comp : type.
+0 : expr.
+S : expr -> expr.
+lam : (expr -> comp) -> expr.
+
+val : expr -> comp.
+app : expr -> expr -> comp.
+let : comp -> (expr -> comp) -> comp.
+
+% Static semantics
+
+eof : expr -> ty -> type.
+cof : comp -> ty -> type.
+
+eof/0 : eof 0 nat.
+eof/S : eof (S E) nat
+     <- eof E nat.
+eof/lam : eof (lam E) (arrow A B)
+      <- ({x} eof x A -> cof (E x) B).
+
+cof/val : cof (val E) A
+       <- eof E A.
+cof/app : cof (app E1 E2) B
+      <- eof E2 A
+      <- eof E1 (arrow A B).
+cof/let : cof (let C1 C2) B
+       <- ({x} eof x A -> cof (C2 x) B)
+       <- cof C1 A.
+
+% Dynamic semantics
+
+step : comp -> comp -> type.
+step/app : step (app (lam E1) E2) (E1 E2).
+step/let-val : step (let (val E) C2) (C2 E).
+step/let-step : step (let C1 C2) (let C1' C2)
+         <- step C1 C1'.
