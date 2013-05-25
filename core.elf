@@ -7,6 +7,7 @@
 ty : type.
 
 nat   : ty.
+bool  : ty.
 arrow : ty -> ty -> ty.
 
 
@@ -17,11 +18,14 @@ comp : type.
 
 zro : expr.
 suc : expr -> expr.
+tru : expr.
+fls : expr.
 fun : (expr -> comp) -> expr.
 
-val : expr -> comp.
-app : expr -> expr -> comp.
-let : comp -> (expr -> comp) -> comp.
+val  : expr -> comp.
+cond : expr -> comp -> comp -> comp.
+app  : expr -> expr -> comp.
+let  : comp -> (expr -> comp) -> comp.
 
 
 
@@ -33,17 +37,23 @@ cof : comp -> ty -> type.
 eof/zro : eof zro nat.
 eof/suc : eof (suc E) nat
 	   <- eof E nat.
+eof/tru : eof tru bool.
+eof/fls : eof fls bool.
 eof/fun : eof (fun E) (arrow A B)
 	   <- ({x} eof x A -> cof (E x) B).
 
-cof/val : cof (val E) A
-	   <- eof E A.
-cof/app : cof (app E1 E2) B
-	   <- eof E2 A
-	   <- eof E1 (arrow A B).
-cof/let : cof (let C1 C2) B
-	   <- ({x} eof x A -> cof (C2 x) B)
-	   <- cof C1 A.
+cof/val  : cof (val E) A
+	    <- eof E A.
+cof/cond : cof (cond E C1 C2) A
+	    <- cof C2 A
+	    <- cof C1 A
+	    <- eof E bool.
+cof/app  : cof (app E1 E2) B
+	    <- eof E2 A
+	    <- eof E1 (arrow A B).
+cof/let  : cof (let C1 C2) B
+	    <- ({x} eof x A -> cof (C2 x) B)
+	    <- cof C1 A.
 
 
 
@@ -51,6 +61,8 @@ cof/let : cof (let C1 C2) B
 
 step : comp -> comp -> type.
 
+step/cond-tru : step (cond tru C1 C2) C1.
+step/cond-fls : step (cond fls C1 C2) C2.
 step/app      : step (app (fun E1) E2) (E1 E2).
 step/let-val  : step (let (val E) C2) (C2 E).
 step/let-step : step (let C1 C2) (let C1' C2)
