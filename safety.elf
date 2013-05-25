@@ -1,41 +1,48 @@
-non-stuck : comp -> type.
-non-stuck/val : non-stuck (val E).
-non-stuck/step : non-stuck C
-          <- step C C'.
-
-% Progress
+%%%%{ Progress theorem }%%%%%
 
 progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.
 %mode progress-let +C2 +NS1 -NS.
 
-progress-let/val : progress-let _ (non-stuck/val : non-stuck (val E)) (non-stuck/step (step/let-val : step (let (val E) C2) (C2 E))).
-progress-let/step : progress-let _ (non-stuck/step S1) (non-stuck/step (step/let-step S1)).
+- : progress-let _
+     non-stuck/val
+     (non-stuck/step step/let-val).
+
+- : progress-let _
+     (non-stuck/step S1)
+     (non-stuck/step (step/let-step S1)).
+
 %worlds () (progress-let _ _ _).
 %total {} (progress-let _ _ _).
 
-progress : cof C A -> non-stuck C -> type.
-%mode progress +O -NS.
 
-progress/val : progress (cof/val E) (non-stuck/val).
-progress/app : progress (cof/app E1 E2) (non-stuck/step step/app).
-progress/let : progress (cof/let C1 C2) NS
-            <- progress C1 NS1
-            <- progress-let _ NS1 NS.
+progress : cof C A -> non-stuck C -> type.
+%mode progress +CO -NS.
+
+- : progress (cof/val E) non-stuck/val.
+
+- : progress (cof/app E1 E2) (non-stuck/step step/app).
+
+- : progress (cof/let C1 C2) NS
+     <- progress C1 NS1
+     <- progress-let _ NS1 NS.
 
 %worlds () (progress _ _).
-%total {O} (progress O _).
+%total {CO} (progress CO _).
 
 
-% Preservation
+
+%%%%{ Preservation theorem }%%%%%
 
 preservation : cof C A -> step C C' -> cof C' A -> type.
-%mode preservation +O +S -O'.
+%mode preservation +CO +S -CO'.
 
-preservation/app : preservation (cof/app (eof/lam E1) E2) (step/app) (E1 _ E2).
-preservation/let-val : preservation (cof/let (cof/val E1) C2) (step/let-val) (C2 _ E1).
-preservation/let-step : preservation (cof/let C1 C2) (step/let-step S1) (cof/let C1' C2)
-             <- preservation C1 S1 C1'.
+- : preservation (cof/app (eof/fun E1) E2) (step/app) (E1 _ E2).
+
+- : preservation (cof/let (cof/val E1) C2) (step/let-val) (C2 _ E1).
+
+- : preservation (cof/let C1 C2) (step/let-step S1) (cof/let C1' C2)
+     <- preservation C1 S1 C1'.
 
 
 %worlds () (preservation _ _ _).
-%total {O S} (preservation O S _).
+%total {CO S} (preservation CO S _).
