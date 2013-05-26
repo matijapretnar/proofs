@@ -8,6 +8,8 @@ ty : type.
 
 nat   : ty.
 bool  : ty.
+unit  : ty.
+empty : ty.
 arrow : ty -> ty -> ty.
 
 
@@ -20,12 +22,14 @@ zro : expr.
 suc : expr -> expr.
 tru : expr.
 fls : expr.
+unt : expr.
 fun : (expr -> comp) -> expr.
 
 val  : expr -> comp.
 let  : comp -> (expr -> comp) -> comp.
 zro? : expr -> comp.
 cond : expr -> comp -> comp -> comp.
+absd : expr -> comp.
 app  : expr -> expr -> comp.
 
 
@@ -40,6 +44,7 @@ eof/suc : eof (suc E) nat
 	   <- eof E nat.
 eof/tru : eof tru bool.
 eof/fls : eof fls bool.
+eof/unt : eof unt unit.
 eof/fun : eof (fun E) (arrow A B)
 	   <- ({x} eof x A -> cof (E x) B).
 
@@ -54,6 +59,8 @@ cof/cond : cof (cond E C1 C2) A
 	    <- cof C2 A
 	    <- cof C1 A
 	    <- eof E bool.
+cof/absd : cof (absd E) A
+	    <- eof E empty.
 cof/app  : cof (app E1 E2) B
 	    <- eof E2 A
 	    <- eof E1 (arrow A B).
