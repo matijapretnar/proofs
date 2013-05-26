@@ -27,6 +27,7 @@ fun : (expr -> comp) -> expr.
 
 val  : expr -> comp.
 let  : comp -> (expr -> comp) -> comp.
+letr : (expr -> expr -> comp) -> (expr -> comp) -> comp.
 zro? : expr -> comp.
 cond : expr -> comp -> comp -> comp.
 absd : expr -> comp.
@@ -53,6 +54,9 @@ cof/val  : cof (val E) A
 cof/let  : cof (let C1 C2) B
 	    <- ({x} eof x A -> cof (C2 x) B)
 	    <- cof C1 A.
+cof/letr : cof (letr C1 C2) B
+	    <- ({f} eof f (arrow A A') -> cof (C2 f) B)
+	    <- ({f} {x} eof f (arrow A A') -> eof x A -> cof (C1 f x) A').
 cof/zro? : cof (zro? E) bool
 	    <- eof E nat.
 cof/cond : cof (cond E C1 C2) A
@@ -74,6 +78,7 @@ step : comp -> comp -> type.
 step/let-val  : step (let (val E) C2) (C2 E).
 step/let-step : step (let C1 C2) (let C1' C2)
 		 <- step C1 C1'.
+step/letr     : step (letr C1 C2) (C2 (fun ([y] letr C1 ([f] C1 f y)))).
 step/zro?-zro : step (zro? zro) (val tru).
 step/zro?-suc : step (zro? (suc _)) (val fls).
 step/cond-tru : step (cond tru C1 _) C1.
