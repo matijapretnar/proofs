@@ -20,6 +20,10 @@ progress : cof C A -> non-stuck C -> type.
 
 - : progress (cof/val E) non-stuck/val.
 
+- : progress (cof/zro? eof/zro) (non-stuck/step step/zro?-zro).
+
+- : progress (cof/zro? (eof/suc _)) (non-stuck/step step/zro?-suc).
+
 - : progress (cof/cond eof/tru C1 C2) (non-stuck/step step/cond-tru).
 
 - : progress (cof/cond eof/fls C1 C2) (non-stuck/step step/cond-fls).
@@ -39,6 +43,10 @@ progress : cof C A -> non-stuck C -> type.
 
 preservation : cof C A -> step C C' -> cof C' A -> type.
 %mode preservation +CO +S -CO'.
+
+- : preservation (cof/zro? eof/zro) step/zro?-zro (cof/val eof/tru).
+
+- : preservation (cof/zro? (eof/suc _)) step/zro?-suc (cof/val eof/fls).
 
 - : preservation (cof/cond eof/tru C1 C2) step/cond-tru C1.
 
