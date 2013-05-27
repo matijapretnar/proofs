@@ -10,7 +10,7 @@ nat   : ty.
 bool  : ty.
 unit  : ty.
 empty : ty.
-arrow : ty -> ty -> ty.
+--> : ty -> ty -> ty. %infix right 50 -->.
 
 
 %%%%{ Expressions and computations }%%%%%
@@ -46,7 +46,7 @@ eof/suc : eof (suc E) nat
 eof/tru : eof tru bool.
 eof/fls : eof fls bool.
 eof/unt : eof unt unit.
-eof/fun : eof (fun E) (arrow A B)
+eof/fun : eof (fun E) (A --> B)
 	   <- ({x} eof x A -> cof (E x) B).
 
 cof/val  : cof (val E) A
@@ -55,8 +55,8 @@ cof/let  : cof (let C1 C2) B
 	    <- ({x} eof x A -> cof (C2 x) B)
 	    <- cof C1 A.
 cof/letr : cof (letr C1 C2) B
-	    <- ({f} eof f (arrow A A') -> cof (C2 f) B)
-	    <- ({f} {x} eof f (arrow A A') -> eof x A -> cof (C1 f x) A').
+	    <- ({f} eof f (A --> A') -> cof (C2 f) B)
+	    <- ({f} {x} eof f (A --> A') -> eof x A -> cof (C1 f x) A').
 cof/zro? : cof (zro? E) bool
 	    <- eof E nat.
 cof/cond : cof (cond E C1 C2) A
@@ -67,7 +67,7 @@ cof/absd : cof (absd E) A
 	    <- eof E empty.
 cof/app  : cof (app E1 E2) B
 	    <- eof E2 A
-	    <- eof E1 (arrow A B).
+	    <- eof E1 (A --> B).
 
 
 

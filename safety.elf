@@ -46,7 +46,7 @@ progress : cof C _ -> non-stuck C -> type.
 preservation : cof C A -> step C C' -> cof C' A -> type.
 %mode preservation +CO +S -CO'.
 
-- : preservation (cof/let (cof/val E1) C2) (step/let-val) (C2 _ E1).
+- : preservation (cof/let (cof/val E1) C2) step/let-val (C2 _ E1).
 
 - : preservation (cof/let C1 C2) (step/let-step S1) (cof/let C1' C2)
      <- preservation C1 S1 C1'.
@@ -61,7 +61,7 @@ preservation : cof C A -> step C C' -> cof C' A -> type.
 
 - : preservation (cof/cond eof/fls _ C2) step/cond-fls C2.
 
-- : preservation (cof/app (eof/fun E1) E2) (step/app) (E1 _ E2).
+- : preservation (cof/app (eof/fun E1) E2) step/app (E1 _ E2).
 
 
 %worlds () (preservation _ _ _).
