@@ -48,6 +48,21 @@ dirt/empty : dirt.
 dirt/cons  : region E -> operation E -> dirt -> dirt.
 
 
+in-dirt-instance : instance E -> operation E -> dirt -> type.
+
+in-dirt-instance/here  : in-dirt-instance I O (dirt/cons R O D)
+			  <- in-region I R.
+in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
+			  <- in-dirt-instance I O D.
+
+in-dirt : region E -> operation E -> dirt -> type.
+
+in-dirt/empty : in-dirt region/empty _ _.
+in-dirt/cons  : in-dirt (region/cons I R) O D
+		 <- in-dirt R O D
+		 <- in-dirt-instance I O D.
+
+
 ty : type.
 dirty : type.
 
