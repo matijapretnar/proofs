@@ -1,3 +1,13 @@
+%%%%{ Non-stuckness }%%%%%
+
+non-stuck : comp -> type.
+
+non-stuck/val  : non-stuck (val _).
+non-stuck/op   : non-stuck (op _ _ _ _).
+non-stuck/step : non-stuck C
+		  <- step C _.
+
+
 %%%%{ Progress theorem }%%%%%
 
 progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.

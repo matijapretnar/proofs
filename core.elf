@@ -167,11 +167,3 @@ step/zro?-suc : step (zro? (suc _)) (val fls).
 step/cond-tru : step (cond tru C1 _) C1.
 step/cond-fls : step (cond fls _ C2) C2.
 step/app      : step (app (fun E1) E2) (E1 E2).
-
-
-non-stuck : comp -> type.
-
-non-stuck/val  : non-stuck (val _).
-non-stuck/op   : non-stuck (op _ _ _ _).
-non-stuck/step : non-stuck C
-		  <- step C _.
