@@ -35,6 +35,13 @@ region/empty : region E.
 region/cons  : instance E -> region E -> region E.
 
 
+in-region : instance E -> region E -> type.
+
+in-region/here  : in-region I (region/cons I R).
+in-region/there : in-region I (region/cons _ R)
+		   <- in-region I R.
+
+
 dirt : type.
 
 dirt/empty : dirt.
@@ -64,6 +71,7 @@ suc : expr -> expr.
 tru : expr.
 fls : expr.
 unt : expr.
+ins : instance E -> expr.
 fun : (expr -> comp) -> expr.
 
 val  : expr -> comp.
@@ -87,6 +95,8 @@ eof/suc : eof (suc E) nat
 eof/tru : eof tru bool.
 eof/fls : eof fls bool.
 eof/unt : eof unt unit.
+eof/ins : eof (ins I) (inst R)
+	   <- in-region I R.
 eof/fun : eof (fun E) (A --> B)
 	   <- ({x} eof x A -> cof (E x) B).
 
