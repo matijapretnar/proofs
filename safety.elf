@@ -8,6 +8,10 @@ progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.
      (non-stuck/step step/let-val).
 
 - : progress-let _
+     non-stuck/op
+     (non-stuck/step step/let-op).
+
+- : progress-let _
      (non-stuck/step S1)
      (non-stuck/step (step/let-step S1)).
 
@@ -19,6 +23,8 @@ progress : cof C _ -> non-stuck C -> type.
 %mode progress +CO -NS.
 
 - : progress (cof/val _) non-stuck/val.
+
+- : progress (cof/op _ _ _ _ _) non-stuck/op.
 
 - : progress (cof/let C1 _) NS
      <- progress C1 NS1
@@ -47,6 +53,8 @@ preservation : cof C A -> step C C' -> cof C' A -> type.
 %mode preservation +CO +S -CO'.
 
 - : preservation (cof/let (cof/val E1) C2) step/let-val (C2 _ E1).
+
+- : preservation (cof/let (cof/op Ei O Ep K D) C2) step/let-op (cof/op Ei O Ep ([_] [y] (cof/let (K _ y) C2)) D).
 
 - : preservation (cof/let C1 C2) (step/let-step S1) (cof/let C1' C2)
      <- preservation C1 S1 C1'.
