@@ -61,6 +61,15 @@ inst  : region E -> ty.
 
 ! : ty -> dirt -> dirty. %infix none 60 !.
 
+
+sig : operation E -> ty -> ty -> type.
+
+sig/choose : sig choose unit bool.
+sig/lookup : sig lookup unit nat.
+sig/update : sig update nat unit.
+sig/read   : sig read unit nat.
+sig/write  : sig write nat unit.
+
 %%%%{ Expressions and computations }%%%%%
 
 expr : type.
