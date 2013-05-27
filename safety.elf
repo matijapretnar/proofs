@@ -16,7 +16,7 @@ progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.
      (non-stuck/step (step/let-step S1)).
 
 %worlds () (progress-let _ _ _).
-%total {} (progress-let _ _ _).
+%total {C2 NS1} (progress-let C2 NS1 _).
 
 
 progress : cof C _ -> non-stuck C -> type.
