@@ -6,19 +6,9 @@
 
 effect : type.
 
-choice  : effect.
-state   : effect.
-channel : effect.
-
+%block var-effect : block {eff : effect}.
 
 operation : effect -> type.
-
-choose    : operation choice.
-lookup    : operation state.
-update    : operation state.
-read      : operation channel.
-write     : operation channel.
-
 
 instance : effect -> type.
 
@@ -75,11 +65,8 @@ inst  : region E -> ty.
 
 sig : operation E -> ty -> ty -> type.
 
-sig/choose : sig choose unit bool.
-sig/lookup : sig lookup unit nat.
-sig/update : sig update nat unit.
-sig/read   : sig read unit nat.
-sig/write  : sig write nat unit.
+%block var-operation : some {E : effect} {A : ty} {B : ty} block {op : operation E}{_ : sig op A B}.
+%block vars = (var-effect | var-instance | var-operation).
 
 %%%%{ Expressions and computations }%%%%%
 
