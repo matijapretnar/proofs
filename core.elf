@@ -28,6 +28,13 @@ in-region/here  : in-region I (region/cons I R).
 in-region/there : in-region I (region/cons _ R)
 		   <- in-region I R.
 
+<=r : region E -> region E -> type. %infix none 30 <=r.
+
+<=r/empty : region/empty <=r R.
+<=r/cons : region/cons I R <=r R'
+	    <- R <=r R'
+	    <- in-region I R.
+
 
 dirt : type.
 
@@ -40,6 +47,13 @@ in-dirt-instance : instance E -> operation E -> dirt -> type.
 in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
 in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
 			  <- in-dirt-instance I O D.
+
+<=d : dirt -> dirt -> type. %infix none 30 <=d.
+
+<=d/empty : dirt/empty <=d D.
+<=d/cons : dirt/cons I O D <=d D'
+	    <- D <=d D'
+	    <- in-dirt-instance I O D.
 
 in-dirt : region E -> operation E -> dirt -> type.
 
@@ -61,6 +75,24 @@ inst  : region E -> ty.
 ==> : dirty -> dirty -> ty. %infix right 55 ==>.
 
 ! : ty -> dirt -> dirty. %infix none 60 !.
+
+<=t : ty -> ty -> type. % infix none 30 <=t.
+<=dt : dirty -> dirty -> type. % infix none 30 <=dt.
+
+<=t/refl : A <=t A.
+<=t/inst : inst R <=t inst R'
+	    <- R <=r R'.
+<=t/--> : (A --> B) <=t (A' --> B')
+	   <- B <=dt B'
+	   <- A' <=t A.
+<=t/==> : (A ==> B) <=t (A' ==> B')
+	   <- B <=dt B'
+	   <- A' <=dt A.
+<=dt/! : (A ! D) <=dt (A' ! D')
+	  <- D <=d D'
+	  <- A <=t A'.
+
+
 
 
 sig : operation E -> ty -> ty -> type.
