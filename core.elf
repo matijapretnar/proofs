@@ -92,10 +92,12 @@ inst  : region E -> ty.
 	  <- D <=d D'
 	  <- A <=t A'.
 
-
-
-
 sig : operation E -> ty -> ty -> type.
+
+sig-<=t : sig O A B
+     <- A' <=t A
+     <- B <=t B'
+     <- sig O A' B'.
 
 %block var-operation : some {E : effect} {A : ty} {B : ty} block {op : operation E}{_ : sig op A B}.
 %block vars = (var-effect | var-instance | var-operation).
@@ -165,7 +167,6 @@ cof/absd : cof (absd E) A
 cof/app  : cof (app E1 E2) B
 	    <- eof E2 A
 	    <- eof E1 (A --> B).
-
 
 
 %%%%{ Operational semantics }%%%%%

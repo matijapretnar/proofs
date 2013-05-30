@@ -1,0 +1,35 @@
+% Properties of the subtyping relation
+
+in-dirt-instance-<=d : (D <=d D') -> in-dirt-instance I O D -> in-dirt-instance I O D' -> type.
+%mode in-dirt-instance-<=d +DD' +IOD -IOD'.
+
+in-dirt-<=d : (D <=d D') -> in-dirt R O D -> in-dirt R O D' -> type.
+%mode in-dirt-<=d +DD' +ROD -ROD'.
+
+- : in-dirt-<=d _  in-dirt/empty in-dirt/empty.
+- : in-dirt-<=d DD' (in-dirt/cons IOD ROD) (in-dirt/cons IOD' ROD')
+     <- in-dirt-instance-<=d DD' IOD IOD'
+     <- in-dirt-<=d DD' ROD ROD'.
+
+in-region-<=r :  (R <=r R') -> in-region I R -> in-region I R' -> type.
+%mode in-region-<=r  +RR' +IR -IR'.
+
+- : in-region-<=r (<=r/cons IR' _) in-region/here IR'. 
+- : in-region-<=r (<=r/cons _ RR')  (in-region/there IR) IR'
+     <- in-region-<=r RR' IR IR'.
+
+% We derive the subsumption rules.
+
+eof/<=t : (A <=t A') -> eof E A -> eof E A' -> type.
+%mode eof/<=t +AA' +EA -EA'.
+
+- : eof/<=t <=t/refl EA EA.
+
+- : eof/<=t (<=t/inst RS) (eof/ins IR) (eof/ins IS)
+     <- in-region-<=r RS IR IS.
+
+% - : eof/<=t (<=t/--> A'A BB') (eof/fun F) (eof/fun ([yA'] CoBB' (F (CoA'A yA'))))
+
+cof/<=dt : (D <=dt D') -> cof C D -> cof C D' -> type.
+
+- : cof/<=dt _ (cof/val EA) (cof/val EA).
