@@ -22,10 +22,7 @@ write     : operation channel.
 
 instance : effect -> type.
 
-oracle   : instance choice.
-ref      : instance state.
-std      : instance channel.
-
+%block var-instance : some {E : effect} block {inst : instance E}.
 
 %%%%{ Types }%%%%%
 
