@@ -1,88 +1,88 @@
 % The core language of Eff
 
+%%% Operations and instances
 
+operation : type. %name operation Op.
+operation/z : operation.
+operation/s : operation -> operation.
 
-%%%%{ Effect signature }%%%%%
+instance : type. %name instance Iota.
+instance/z : instance.
+instance/s : instance -> instance.
 
-effect : type.
+%%% Regions
 
-%block var-effect : block {eff : effect}.
+region : type. %name region Rho.
 
-operation : effect -> type.
+region/empty : region.
+region/cons  : instance -> region -> region.
 
-instance : effect -> type.
-
-%block var-instance : some {E : effect} block {inst : instance E}.
-
-%%%%{ Types }%%%%%
-
-region : effect -> type.
-
-region/empty : region E.
-region/cons  : instance E -> region E -> region E.
-
-
-in-region : instance E -> region E -> type.
+in-region : instance -> region -> type.
 
 in-region/here  : in-region I (region/cons I R).
 in-region/there : in-region I (region/cons _ R)
 		   <- in-region I R.
 
+%%% Dirt
 
-dirt : type.
+dirt : type. %name dirt Delta.
 
 dirt/empty : dirt.
-dirt/cons  : instance E -> operation E -> dirt -> dirt.
+dirt/cons  : instance -> operation -> dirt -> dirt.
 
 
-in-dirt-instance : instance E -> operation E -> dirt -> type.
+in-dirt-instance : instance -> operation -> dirt -> type.
 
 in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
 in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
 			  <- in-dirt-instance I O D.
 
-in-dirt : region E -> operation E -> dirt -> type.
+in-dirt : region -> operation -> dirt -> type.
 
 in-dirt/empty : in-dirt region/empty _ _.
 in-dirt/cons  : in-dirt (region/cons I R) O D
 		 <- in-dirt R O D
 		 <- in-dirt-instance I O D.
 
+%%% Types
 
-ty : type.
-dirty : type.
+ty : type. %name ty A.
+effty : type. %name effty E.
+dirty : type. %name dirty D.
+
+effty/empty : effty.
+effty/cons : operation -> ty -> ty -> effty -> effty.
+
+in-effty : operation -> ty -> ty -> effty -> type.
+in-effty/here : in-effty O A B (effty/cons O A B _).
+in-effty/there : in-effty O A B (effty/cons _ _ _ E)
+                  <- in-effty O A B E.
 
 nat   : ty.
 bool  : ty.
 unit  : ty.
 empty : ty.
-inst  : region E -> ty.
+eff  : effty -> region -> ty.
 --> : ty -> dirty -> ty. %infix right 50 -->.
 ==> : dirty -> dirty -> ty. %infix right 55 ==>.
 
 ! : ty -> dirt -> dirty. %infix none 60 !.
 
+%%%% Expressions and computations
 
-sig : operation E -> ty -> ty -> type.
-
-%block var-operation : some {E : effect} {A : ty} {B : ty} block {op : operation E}{_ : sig op A B}.
-%block vars = (var-effect | var-instance | var-operation).
-
-%%%%{ Expressions and computations }%%%%%
-
-expr : type.
-comp : type.
+expr : type. %name expr E.
+comp : type. %name comp C.
 
 zro : expr.
 suc : expr -> expr.
 tru : expr.
 fls : expr.
 unt : expr.
-ins : instance E -> expr.
+ins : instance -> expr.
 fun : (expr -> comp) -> expr.
 
 val  : expr -> comp.
-op   : expr -> operation E -> expr -> (expr -> comp) -> comp.
+op   : expr -> operation -> expr -> (expr -> comp) -> comp.
 let  : comp -> (expr -> comp) -> comp.
 letr : (expr -> expr -> comp) -> (expr -> comp) -> comp.
 zro? : expr -> comp.
@@ -90,10 +90,9 @@ cond : expr -> comp -> comp -> comp.
 absd : expr -> comp.
 app  : expr -> expr -> comp.
 
+%%%% Typing judgments
 
-
-%%%%{ Typing judgements }%%%%%
-
+iof : instance -> effty -> type.
 eof : expr -> ty -> type.
 cof : comp -> dirty -> type.
 
@@ -103,7 +102,8 @@ eof/suc : eof (suc E) nat
 eof/tru : eof tru bool.
 eof/fls : eof fls bool.
 eof/unt : eof unt unit.
-eof/ins : eof (ins I) (inst R)
+eof/ins : eof (ins I) (eff E R)
+           <- iof I E
 	   <- in-region I R.
 eof/fun : eof (fun E) (A --> B)
 	   <- ({x} eof x A -> cof (E x) B).
@@ -114,8 +114,8 @@ cof/op   : cof (op Ei O Ep K) (B ! D)
 	    <- in-dirt R O D
 	    <- ({x} eof x A' -> cof (K x) (B ! D))
 	    <- eof Ep A
-	    <- sig O A A'
-	    <- eof Ei (inst (R : region E)).
+	    <- in-effty O A A' E
+	    <- eof Ei (eff E R).
 cof/let  : cof (let C1 C2) (B ! D)
 	    <- ({x} eof x A -> cof (C2 x) (B ! D))
 	    <- cof C1 (A ! D).
@@ -134,9 +134,7 @@ cof/app  : cof (app E1 E2) B
 	    <- eof E2 A
 	    <- eof E1 (A --> B).
 
-
-
-%%%%{ Operational semantics }%%%%%
+%%%% Operational semantics
 
 step : comp -> comp -> type.
 
@@ -150,3 +148,7 @@ step/zro?-suc : step (zro? (suc _)) (val fls).
 step/cond-tru : step (cond tru C1 _) C1.
 step/cond-fls : step (cond fls _ C2) C2.
 step/app      : step (app (fun E1) E2) (E1 E2).
+
+%block var-effty : block {e : effty}.
+%block var-instance : some {E : effty} block {i : instance}{_ : iof i E}.
+%block vars = (var-effty | var-instance).
