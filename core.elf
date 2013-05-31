@@ -96,6 +96,12 @@ iof : instance -> effty -> type.
 eof : expr -> ty -> type.
 cof : comp -> dirty -> type.
 
+region-ok : region -> effty -> type.
+region-ok/empty : region-ok region/empty _.
+region-ok/cons : region-ok (region/cons I R) E
+                  <- region-ok R E
+                  <- iof I E.
+
 eof/zro : eof zro nat.
 eof/suc : eof (suc E) nat
 	   <- eof E nat.
@@ -104,7 +110,8 @@ eof/fls : eof fls bool.
 eof/unt : eof unt unit.
 eof/ins : eof (ins I) (eff E R)
            <- iof I E
-	   <- in-region I R.
+	   <- in-region I R
+           <- region-ok R E.
 eof/fun : eof (fun E) (A --> B)
 	   <- ({x} eof x A -> cof (E x) B).
 
