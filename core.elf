@@ -6,9 +6,31 @@ operation : type. %name operation Op.
 operation/z : operation.
 operation/s : operation -> operation.
 
+eq-operation : operation -> operation -> type.
+- : eq-operation operation/z operation/z.
+- : eq-operation (operation/s I1) (operation/s I2)
+     <- eq-operation I1 I2.
+
+uneq-operation : operation -> operation -> type.
+- : uneq-operation operation/z (operation/s _).
+- : uneq-operation (operation/s _) operation/z.
+- : uneq-operation (operation/s I1) (operation/s I2)
+     <- uneq-operation I1 I2.
+
 instance : type. %name instance Iota.
 instance/z : instance.
 instance/s : instance -> instance.
+
+eq-instance : instance -> instance -> type.
+- : eq-instance instance/z instance/z.
+- : eq-instance (instance/s I1) (instance/s I2)
+     <- eq-instance I1 I2.
+
+uneq-instance : instance -> instance -> type.
+- : uneq-instance instance/z (instance/s _).
+- : uneq-instance (instance/s _) instance/z.
+- : uneq-instance (instance/s I1) (instance/s I2)
+     <- uneq-instance I1 I2.
 
 %%% Regions
 
@@ -73,6 +95,10 @@ eff  : effty -> region -> ty.
 expr : type. %name expr E.
 comp : type. %name comp C.
 
+handler : type.
+handler/val : (expr -> comp) -> handler.
+handler/op : expr -> operation -> (expr -> (expr -> comp) -> comp) -> handler -> handler.
+
 zro : expr.
 suc : expr -> expr.
 tru : expr.
@@ -80,6 +106,7 @@ fls : expr.
 unt : expr.
 ins : instance -> expr.
 fun : (expr -> comp) -> expr.
+hnd : handler -> expr.
 
 val  : expr -> comp.
 op   : expr -> operation -> expr -> (expr -> comp) -> comp.
@@ -89,6 +116,7 @@ zro? : expr -> comp.
 cond : expr -> comp -> comp -> comp.
 absd : expr -> comp.
 app  : expr -> expr -> comp.
+handle : expr -> comp -> comp.
 
 %%%% Typing judgments
 
@@ -112,8 +140,18 @@ eof/ins : eof (ins I) (eff E R)
            <- iof I E
 	   <- in-region I R
            <- region-ok R E.
-eof/fun : eof (fun E) (A --> B)
-	   <- ({x} eof x A -> cof (E x) B).
+eof/fun : eof (fun C) (A --> B)
+	   <- ({x} eof x A -> cof (C x) B).
+
+eof/hnd-val : eof (hnd (handler/val C)) ((A ! D) ==> B)
+               <- ({x} eof x A -> cof (C x) B).
+
+eof/hnd-op : eof (hnd (handler/op E O C H)) (A ==> B)
+              <- eof (hnd H) (A ==> B)
+              <- ({x} eof x A' -> {k : expr -> comp} ({y} eof y B' -> cof (k y) B) -> cof (C x k) B)
+              <- in-effty O A' B' Eff
+              <- region-ok R Eff
+              <- eof E (eff Eff R).
 
 cof/val  : cof (val E) (A ! D)
 	    <- eof E A.
@@ -140,8 +178,29 @@ cof/absd : cof (absd E) A
 cof/app  : cof (app E1 E2) B
 	    <- eof E2 A
 	    <- eof E1 (A --> B).
+cof/handle : cof (handle H C) B
+              <- cof C A
+              <- eof H (A ==> B).
 
 %%%% Operational semantics
+
+handler-get-val : handler -> (expr -> comp) -> type.
+handler-get-val/val : handler-get-val (handler/val C) C.
+handler-get-val/op : handler-get-val (handler/op _ _ _ H) C
+                      <- handler-get-val H C.
+
+handler-get-op : handler -> instance -> operation -> (expr -> (expr -> comp) -> comp) -> type.
+handler-get-op/hit : handler-get-op (handler/op (ins I) O K H) I' O' K
+                      <- eq-instance I I'
+                      <- eq-operation O O'.
+
+handler-get-val/miss-I : handler-get-op (handler/op (ins I) O K H) I' O' K
+                           <- handler-get-op H I' O' K
+                           <- uneq-instance I I'.
+
+handler-get-val/misso-O : handler-get-op (handler/op I O K H) I' O' K
+                      <- handler-get-op H I' O' K
+                      <- uneq-operation O O'.
 
 step : comp -> comp -> type.
 
@@ -155,6 +214,15 @@ step/zro?-suc : step (zro? (suc _)) (val fls).
 step/cond-tru : step (cond tru C1 _) C1.
 step/cond-fls : step (cond fls _ C2) C2.
 step/app      : step (app (fun E1) E2) (E1 E2).
+
+step/handle-step : step (handle H C) (handle H C')
+                    <- step C C'.
+
+step/handle-val : step (handle (hnd H) (val E)) (C E)
+                   <- handler-get-val H C.
+
+step/handle-op : step (handle (hnd H) (op (ins I) O E K)) (C E ([y] handle (hnd H) (K y)))
+                  <- handler-get-op H I O C.
 
 %block var-effty : block {e : effty}.
 %block var-instance : some {E : effty} block {i : instance}{_ : iof i E}.
