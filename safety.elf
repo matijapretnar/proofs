@@ -1,4 +1,4 @@
-%%%%{ Non-stuckness }%%%%%
+%%%% Non-stuckness
 
 non-stuck : comp -> type.
 
@@ -7,8 +7,7 @@ non-stuck/op   : non-stuck (op _ _ _ _).
 non-stuck/step : non-stuck C
 		  <- step C _.
 
-
-%%%%{ Progress theorem }%%%%%
+%%%% Progress theorem
 
 progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.
 %mode progress-let +C2 +NS1 -NS.
@@ -52,15 +51,14 @@ progress : cof C _ -> non-stuck C -> type.
 
 - : progress (cof/app _ _) (non-stuck/step step/app).
 
-- : progress (cof/<=dt CA _) NS
-     <- progress CA NS.
+- : progress (cof/<=dt _ C) NS
+     <- progress C NS.
 
 %worlds (vars) (progress _ _).
 %total {CO} (progress CO _).
 
 
-
-%%%%{ Preservation theorem }%%%%%
+%%%% Preservation
 
 preservation : cof C A -> step C C' -> cof C' A -> type.
 %mode preservation +CO +S -CO'.
@@ -84,7 +82,7 @@ preservation : cof C A -> step C C' -> cof C' A -> type.
 
 - : preservation (cof/app (eof/fun E1) E2) step/app (E1 _ E2).
 
-- : preservation (cof/<=dt C S) NS (cof/<=dt C' S)
+- : preservation (cof/<=dt S C) NS (cof/<=dt S C')
      <- preservation C NS C'.
 
 %worlds (vars) (preservation _ _ _).

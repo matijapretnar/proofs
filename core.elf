@@ -1,8 +1,6 @@
 % The core language of Eff
 
-
-
-%%%%{ Effect signature }%%%%%
+%%%% Effect signature
 
 effect : type.
 
@@ -14,13 +12,12 @@ instance : effect -> type.
 
 %block var-instance : some {E : effect} block {inst : instance E}.
 
-%%%%{ Types }%%%%%
+%%%% Types
 
 region : effect -> type.
 
 region/empty : region E.
 region/cons  : instance E -> region E -> region E.
-
 
 in-region : instance E -> region E -> type.
 
@@ -35,12 +32,10 @@ in-region/there : in-region I (region/cons _ R)
 	    <- R <=r R'
 	    <- in-region I R'.
 
-
 dirt : type.
 
 dirt/empty : dirt.
 dirt/cons  : instance E -> operation E -> dirt -> dirt.
-
 
 in-dirt-instance : instance E -> operation E -> dirt -> type.
 
@@ -62,7 +57,6 @@ in-dirt/cons  : in-dirt (region/cons I R) O D
 		 <- in-dirt R O D
 		 <- in-dirt-instance I O D.
 
-
 ty : type.
 dirty : type.
 
@@ -79,7 +73,10 @@ inst  : region E -> ty.
 <=t : ty -> ty -> type. %infix none 30 <=t.
 <=dt : dirty -> dirty -> type. %infix none 30 <=dt.
 
-<=t/refl : A <=t A.
+<=t/nat : nat <=t nat.
+<=t/bool : bool <=t bool.
+<=t/unit : unit <=t unit.
+<=t/empty : empty <=t empty.
 <=t/inst : inst R <=t inst R'
 	    <- R <=r R'.
 <=t/--> : (A --> B) <=t (A' --> B')
@@ -102,7 +99,7 @@ sig-<=t : sig O A B
 %block var-operation : some {E : effect} {A : ty} {B : ty} block {op : operation E}{_ : sig op A B}.
 %block vars = (var-effect | var-instance | var-operation).
 
-%%%%{ Expressions and computations }%%%%%
+%%%% Expressions and computations
 
 expr : type.
 comp : type.
@@ -124,12 +121,12 @@ cond : expr -> comp -> comp -> comp.
 absd : expr -> comp.
 app  : expr -> expr -> comp.
 
-
-
-%%%%{ Typing judgements }%%%%%
+%%%% Typing judgements
 
 eof : expr -> ty -> type.
+
 cof : comp -> dirty -> type.
+
 
 eof/zro : eof zro nat.
 eof/suc : eof (suc E) nat
@@ -141,6 +138,9 @@ eof/ins : eof (ins I) (inst R)
 	   <- in-region I R.
 eof/fun : eof (fun E) (A --> B)
 	   <- ({x} eof x A -> cof (E x) B).
+eof/<=t : eof E A
+           <- eof E A'
+           <- A' <=t A.
 
 cof/val  : cof (val E) (A ! D)
 	    <- eof E A.
@@ -156,7 +156,7 @@ cof/let  : cof (let C1 C2) (B ! D)
 cof/letr : cof (letr C1 C2) B
 	    <- ({f} eof f (A --> A') -> cof (C2 f) B)
 	    <- ({f} {x} eof f (A --> A') -> eof x A -> cof (C1 f x) A').
-cof/zro? : cof (zro? E) (bool ! D)
+cof/zro? : cof (zro? E) (bool ! dirt/empty)
 	    <- eof E nat.
 cof/cond : cof (cond E C1 C2) A
 	    <- cof C2 A
@@ -167,9 +167,11 @@ cof/absd : cof (absd E) A
 cof/app  : cof (app E1 E2) B
 	    <- eof E2 A
 	    <- eof E1 (A --> B).
+cof/<=dt : cof C AD
+           <- cof C AD'
+           <- AD' <=dt AD.
 
-
-%%%%{ Operational semantics }%%%%%
+%%%% Operational semantics
 
 step : comp -> comp -> type.
 
@@ -183,3 +185,25 @@ step/zro?-suc : step (zro? (suc _)) (val fls).
 step/cond-tru : step (cond tru C1 _) C1.
 step/cond-fls : step (cond fls _ C2) C2.
 step/app      : step (app (fun E1) E2) (E1 E2).
+
+foo : type.
+a : foo.
+b : foo.
+c : foo.
+
+eq : foo -> foo -> type.
+eq/refl : eq X X.
+
+f : foo -> foo -> type.
+faa : f a a.
+fcc : f c c.
+fbb : f b b.
+fab : f a b.
+
+single-valued : f X Y -> f X Z -> eq Y Z -> type.
+- : single-valued F F eq/refl.
+%mode single-valued +A +B -C.
+%mode f +X -Y.
+%worlds () (f _ _).
+%worlds () (single-valued _ _ _).
+%total {} (single-valued _ _ _).
