@@ -1,36 +1,34 @@
 % The core language of Eff
 
+decide : type.
+yes : decide.
+no : decide.
+
 %%% Operations and instances
 
 operation : type. %name operation Op.
 operation/z : operation.
 operation/s : operation -> operation.
 
-eq-operation : operation -> operation -> type.
-- : eq-operation operation/z operation/z.
-- : eq-operation (operation/s I1) (operation/s I2)
-     <- eq-operation I1 I2.
-
-uneq-operation : operation -> operation -> type.
-- : uneq-operation operation/z (operation/s _).
-- : uneq-operation (operation/s _) operation/z.
-- : uneq-operation (operation/s I1) (operation/s I2)
-     <- uneq-operation I1 I2.
+eq-operation : operation -> operation -> decide -> type.
+- : eq-operation operation/z operation/z yes.
+- : eq-operation operation/z (operation/s _) no.
+- : eq-operation (operation/s _) operation/z no.
+- : eq-operation (operation/s O) (operation/s O') D
+     <- eq-operation O O' D.
+%mode eq-operation +O +O' -D.
 
 instance : type. %name instance Iota.
 instance/z : instance.
 instance/s : instance -> instance.
 
-eq-instance : instance -> instance -> type.
-- : eq-instance instance/z instance/z.
-- : eq-instance (instance/s I1) (instance/s I2)
-     <- eq-instance I1 I2.
-
-uneq-instance : instance -> instance -> type.
-- : uneq-instance instance/z (instance/s _).
-- : uneq-instance (instance/s _) instance/z.
-- : uneq-instance (instance/s I1) (instance/s I2)
-     <- uneq-instance I1 I2.
+eq-instance : instance -> instance -> decide -> type.
+- : eq-instance instance/z instance/z yes.
+- : eq-instance instance/z (instance/s _) no.
+- : eq-instance (instance/s _) instance/z no.
+- : eq-instance (instance/s I) (instance/s I') D
+     <- eq-instance I I' D.
+%mode eq-instance +I +I' -D.
 
 %%% Regions
 
@@ -178,9 +176,9 @@ cof/absd : cof (absd E) A
 cof/app  : cof (app E1 E2) B
 	    <- eof E2 A
 	    <- eof E1 (A --> B).
-cof/handle : cof (handle H C) B
+cof/handle : cof (handle E C) B
               <- cof C A
-              <- eof H (A ==> B).
+              <- eof E (A ==> B).
 
 %%%% Operational semantics
 
@@ -190,17 +188,20 @@ handler-get-val/op : handler-get-val (handler/op _ _ _ H) C
                       <- handler-get-val H C.
 
 handler-get-op : handler -> instance -> operation -> (expr -> (expr -> comp) -> comp) -> type.
+
+handler-get-op/empty : handler-get-op (handler/val C) I' O' ([x] [k] op (ins I') O' x k).
+
 handler-get-op/hit : handler-get-op (handler/op (ins I) O K H) I' O' K
-                      <- eq-instance I I'
-                      <- eq-operation O O'.
+                      <- eq-instance I I' yes
+                      <- eq-operation O O' yes.
 
 handler-get-val/miss-I : handler-get-op (handler/op (ins I) O K H) I' O' K
                            <- handler-get-op H I' O' K
-                           <- uneq-instance I I'.
+                           <- eq-instance I I' no.
 
 handler-get-val/misso-O : handler-get-op (handler/op I O K H) I' O' K
                       <- handler-get-op H I' O' K
-                      <- uneq-operation O O'.
+                      <- eq-operation O O' no.
 
 step : comp -> comp -> type.
 
@@ -215,7 +216,7 @@ step/cond-tru : step (cond tru C1 _) C1.
 step/cond-fls : step (cond fls _ C2) C2.
 step/app      : step (app (fun E1) E2) (E1 E2).
 
-step/handle-step : step (handle H C) (handle H C')
+step/handle-step : step (handle E C) (handle E C')
                     <- step C C'.
 
 step/handle-val : step (handle (hnd H) (val E)) (C E)
