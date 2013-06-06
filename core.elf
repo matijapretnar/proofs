@@ -79,7 +79,10 @@ inst  : region E -> ty.
 <=t : ty -> ty -> type. %infix none 30 <=t.
 <=dt : dirty -> dirty -> type. %infix none 30 <=dt.
 
-<=t/refl : A <=t A.
+<=t/nat : nat <=t nat.
+<=t/bool : bool <=t bool.
+<=t/unit : unit <=t unit.
+<=t/empty : empty <=t empty.
 <=t/inst : inst R <=t inst R'
 	    <- R <=r R'.
 <=t/--> : (A --> B) <=t (A' --> B')
