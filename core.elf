@@ -142,6 +142,9 @@ eof/ins : eof (ins I) (inst R)
 	   <- in-region I R.
 eof/fun : eof (fun E) (A --> B)
 	   <- ({x} eof x A -> cof (E x) B).
+eof/sub : eof E A'
+	   <- A <=t A'
+	   <- eof E A.
 
 cof/val  : cof (val E) (A ! D)
 	    <- eof E A.
@@ -168,6 +171,9 @@ cof/absd : cof (absd E) A
 cof/app  : cof (app E1 E2) B
 	    <- eof E2 A
 	    <- eof E1 (A --> B).
+cof/sub  : cof C B'
+	    <- B <=dt B'
+	    <- cof C B.
 
 
 
