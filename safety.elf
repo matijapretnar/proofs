@@ -26,8 +26,56 @@ progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.
      (non-stuck/step (step/let-step S1)).
 
 %worlds (vars) (progress-let _ _ _).
-%total {C2 NS1} (progress-let C2 NS1 _).
+%total {NS1} (progress-let _ NS1 _).
 
+
+
+progress-zro? : eof E nat -> non-stuck (zro? E) -> type.
+%mode progress-zro? +E -NS.
+
+- : progress-zro? eof/zro (non-stuck/step step/zro?-zro).
+- : progress-zro? (eof/suc _) (non-stuck/step step/zro?-suc).
+- : progress-zro? (eof/sub E _) NS
+     <- progress-zro? E NS.
+
+%worlds (vars) (progress-zro? _ _).
+%total {E} (progress-zro? E _).
+
+
+
+progress-cond : {C1} {C2} eof E bool -> non-stuck (cond E C1 C2) -> type.
+%mode progress-cond +C1 +C2 +E -NS.
+
+- : progress-cond _ _ eof/tru (non-stuck/step step/cond-tru).
+- : progress-cond _ _ eof/fls (non-stuck/step step/cond-fls).
+- : progress-cond _ _ (eof/sub E _) NS
+     <- progress-cond _ _ E NS.
+
+%worlds (vars) (progress-cond _ _ _ _).
+%total {E} (progress-cond _ _ E _).
+
+
+
+progress-absd : eof E empty -> non-stuck (absd E) -> type.
+%mode progress-absd +E -NS.
+
+- : progress-absd (eof/sub E _) NS
+     <- progress-absd E NS.
+
+%worlds (vars) (progress-absd _ _).
+%total {E} (progress-absd E _).
+
+
+
+progress-app : eof E1 (A --> B) -> {E2} non-stuck (app E1 E2) -> type.
+%mode progress-app +E1 +E2 -NS.
+
+- : progress-app (eof/fun _) _ (non-stuck/step step/app).
+- : progress-app (eof/sub E1 _) E2 NS
+     <- progress-app E1 E2 NS.
+
+%worlds (vars) (progress-app _ _ _).
+%total {E1} (progress-app E1 _ _).
 
 progress : cof C _ -> non-stuck C -> type.
 %mode progress +CO -NS.
@@ -42,18 +90,23 @@ progress : cof C _ -> non-stuck C -> type.
 
 - : progress (cof/letr _ _) (non-stuck/step step/letr).
 
-- : progress (cof/zro? eof/zro) (non-stuck/step step/zro?-zro).
+- : progress (cof/zro? E) NS
+     <- progress-zro? E NS.
 
-- : progress (cof/zro? (eof/suc _)) (non-stuck/step step/zro?-suc).
+- : progress (cof/cond E _ _) NS
+     <- progress-cond _ _ E NS.
 
-- : progress (cof/cond eof/tru _ _) (non-stuck/step step/cond-tru).
+- : progress (cof/absd E) NS
+     <- progress-absd E NS.
 
-- : progress (cof/cond eof/fls _ _) (non-stuck/step step/cond-fls).
+- : progress (cof/app E1 E2) NS
+     <- progress-app E1 _ NS.
 
-- : progress (cof/app _ _) (non-stuck/step step/app).
+- : progress (cof/sub C CC') NS
+     <- progress C NS.
 
 %worlds (vars) (progress _ _).
-%total {CO} (progress CO _).
+%total {C} (progress C _).
 
 
 
