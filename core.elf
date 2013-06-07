@@ -146,7 +146,7 @@ eof/sub : eof E A'
 	   <- A <=t A'
 	   <- eof E A.
 
-cof/val  : cof (val E) (A ! D)
+cof/val  : cof (val E) (A ! dirt/empty)
 	    <- eof E A.
 cof/op   : cof (op Ei O Ep K) (B ! D)
 	    <- in-dirt R O D
