@@ -108,21 +108,38 @@ progress : cof C _ -> non-stuck C -> type.
 %worlds (vars) (progress _ _).
 %total {C} (progress C _).
 
-preservation-let-val : cof (val E) (A ! dirt/empty) -> ({x} eof x A -> cof (C x) (B ! D)) -> cof (C E) (B ! D) -> type.
-%mode preservation-let-val +E +C -B.
 
-- : preservation-let-val (cof/val E) C (C _ E).
-- : preservation-let-val (cof/sub E (<=dt/! AA' _)) C B
-     <- preservation-let-val E ([x] [e] (C x (eof/sub e AA'))) B.
+preservation-let-val : cof (val E) (A ! D) -> D <=d D' -> ({x} eof x A -> cof (C x) (B ! D')) -> cof (C E) (B ! D') -> type.
+%mode preservation-let-val +E +DD' +C -B.
 
-%worlds (vars) (preservation-let-val _ _ _).
-%total {E} (preservation-let-val E _ _).
+- : preservation-let-val (cof/val E) _ C (C _ E).
+- : preservation-let-val (cof/sub E (<=dt/! AA' DD')) D'D'' C B
+     <- <=d/trans DD' D'D'' DD''
+     <- preservation-let-val E DD'' ([x] [e] (C x (eof/sub e AA'))) B.
+
+%worlds (vars) (preservation-let-val _ _ _ _).
+%total {E} (preservation-let-val E _ _ _).
+
+preservation-let-op : cof (op Ei O Ep K) (A ! D) -> D <=d D' -> ({x} eof x A -> cof (C x) (B ! D')) -> cof (op Ei O Ep ([y] let (K y) C)) (B ! D') -> type.
+%mode preservation-let-op +E +DD' +C -B.
+
+- : preservation-let-op (cof/op Ei O Ep K RiD) DD' C (cof/op Ei O Ep ([y] [yO] (cof/let (cof/sub (K y yO) (<=dt/! AA DD')) C)) RiD')
+     <- <=d/in-dirt RiD DD' RiD'
+     <- <=t/refl A AA.
+- : preservation-let-op (cof/sub E (<=dt/! AA' DD')) D'D'' C B
+     <- <=d/trans DD' D'D'' DD''
+     <- preservation-let-op E DD'' ([x] [e] (C x (eof/sub e AA'))) B.
+
+%worlds (vars) (preservation-let-op _ _ _ _).
+%total {E} (preservation-let-op E _ _ _).
+
 
 preservation-let/val : cof (let (val E) C) B -> cof (C E) B -> type.
 %mode preservation-let/val +C -C'.
 
 - : preservation-let/val (cof/let E C) B
-     <- preservation-let-val E C B.
+     <- <=d/refl _ AA
+     <- preservation-let-val E AA C B.
 - : preservation-let/val (cof/sub C1 CC') (cof/sub C2 CC')
      <- preservation-let/val C1 C2.
 
@@ -134,6 +151,9 @@ preservation-let/op : cof (let (op Ei O Ep K) C2) B -> cof (op Ei O Ep ([y] let 
 
 - : preservation-let/op (cof/sub C1 CC') (cof/sub C2 CC')
      <- preservation-let/op C1 C2.
+- : preservation-let/op (cof/let E C) B
+     <- <=d/refl _ AA
+     <- preservation-let-op E AA C B.
 
 %worlds (vars) (preservation-let/op _ _).
 %total {C} (preservation-let/op C _).
