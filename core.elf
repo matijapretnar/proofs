@@ -18,6 +18,9 @@ eq-operation : operation -> operation -> decide -> type.
      <- eq-operation O O' D.
 %mode eq-operation +O +O' -D.
 
+%worlds () (eq-operation _ _ _).
+%total {O O'} (eq-operation O O' _).
+
 instance : type. %name instance Iota.
 instance/z : instance.
 instance/s : instance -> instance.
@@ -29,6 +32,9 @@ eq-instance : instance -> instance -> decide -> type.
 - : eq-instance (instance/s I) (instance/s I') D
      <- eq-instance I I' D.
 %mode eq-instance +I +I' -D.
+
+%worlds () (eq-instance _ _ _).
+%total {I I'} (eq-instance I I' _).
 
 %%% Regions
 
@@ -93,9 +99,17 @@ eff  : effty -> region -> ty.
 expr : type. %name expr E.
 comp : type. %name comp C.
 
+handler-val-case : type. %name handler-val-case HVC.
+handler-val-case/make : (expr -> comp) -> handler-val-case.
+%abbrev hvc = handler-val-case/make.
+
+handler-op-case : type. %name handler-op-case HOC.
+handler-op-case/make : (expr -> (expr -> comp) -> comp) -> handler-op-case.
+%abbrev hoc = handler-op-case/make.
+
 handler : type.
-handler/val : (expr -> comp) -> handler.
-handler/op : expr -> operation -> (expr -> (expr -> comp) -> comp) -> handler -> handler.
+handler/val : handler-val-case -> handler.
+handler/op : expr -> operation -> handler-op-case -> handler -> handler.
 
 zro : expr.
 suc : expr -> expr.
@@ -141,12 +155,12 @@ eof/ins : eof (ins I) (eff E R)
 eof/fun : eof (fun C) (A --> B)
 	   <- ({x} eof x A -> cof (C x) B).
 
-eof/hnd-val : eof (hnd (handler/val C)) ((A ! D) ==> B)
+eof/hnd-val : eof (hnd (handler/val (hvc C))) ((A ! D) ==> B)
                <- ({x} eof x A -> cof (C x) B).
 
-eof/hnd-op : eof (hnd (handler/op E O C H)) (A ==> B)
+eof/hnd-op : eof (hnd (handler/op E O (hoc HC) H)) (A ==> B)
               <- eof (hnd H) (A ==> B)
-              <- ({x} eof x A' -> {k : expr -> comp} ({y} eof y B' -> cof (k y) B) -> cof (C x k) B)
+              <- ({x} eof x A' -> {k : expr -> comp} ({y} eof y B' -> cof (k y) B) -> cof (HC x k) B)
               <- in-effty O A' B' Eff
               <- region-ok R Eff
               <- eof E (eff Eff R).
@@ -182,14 +196,20 @@ cof/handle : cof (handle E C) B
 
 %%%% Operational semantics
 
-handler-get-val : handler -> (expr -> comp) -> type.
+handler-get-val : handler -> handler-val-case -> type.
+%mode handler-get-val +H -HVC.
+
 handler-get-val/val : handler-get-val (handler/val C) C.
 handler-get-val/op : handler-get-val (handler/op _ _ _ H) C
                       <- handler-get-val H C.
 
-handler-get-op : handler -> instance -> operation -> (expr -> (expr -> comp) -> comp) -> type.
+%worlds () (handler-get-val _ _).
+%total {H} (handler-get-val H _).
 
-handler-get-op/empty : handler-get-op (handler/val C) I' O' ([x] [k] op (ins I') O' x k).
+handler-get-op : handler -> instance -> operation -> handler-op-case -> type.
+%mode handler-get-op +H +I +O -HOC.
+
+handler-get-op/empty : handler-get-op (handler/val C) I' O' (hoc [x] [k] op (ins I') O' x k).
 
 handler-get-op/hit : handler-get-op (handler/op (ins I) O K H) I' O' K
                       <- eq-instance I I' yes
@@ -202,6 +222,10 @@ handler-get-val/miss-I : handler-get-op (handler/op (ins I) O K H) I' O' K
 handler-get-val/misso-O : handler-get-op (handler/op I O K H) I' O' K
                       <- handler-get-op H I' O' K
                       <- eq-operation O O' no.
+
+%worlds () (handler-get-op _ _ _ _).
+%total {H I O} (handler-get-op H I O _).
+
 
 step : comp -> comp -> type.
 
@@ -219,11 +243,11 @@ step/app      : step (app (fun E1) E2) (E1 E2).
 step/handle-step : step (handle E C) (handle E C')
                     <- step C C'.
 
-step/handle-val : step (handle (hnd H) (val E)) (C E)
-                   <- handler-get-val H C.
+step/handle-val : {C} step (handle (hnd H) (val E)) (C E)
+                   <- handler-get-val H (hvc C).
 
 step/handle-op : step (handle (hnd H) (op (ins I) O E K)) (C E ([y] handle (hnd H) (K y)))
-                  <- handler-get-op H I O C.
+                  <- handler-get-op H I O (hoc C).
 
 %block var-effty : block {e : effty}.
 %block var-instance : some {E : effty} block {i : instance}{_ : iof i E}.

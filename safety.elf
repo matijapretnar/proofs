@@ -27,9 +27,17 @@ progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.
 %worlds (vars) (progress-let _ _ _).
 %total {C2 NS1} (progress-let C2 NS1 _).
 
+progress-handle : eof E (A ==> B) -> cof C A -> non-stuck (handle E C) -> type.
+%mode progress-handle +EO +CO -NS.
 
 progress : cof C _ -> non-stuck C -> type.
 %mode progress +CO -NS.
+
+- : progress-handle _ CO (non-stuck/step (step/handle-step S))
+     <- progress CO (non-stuck/step S).
+
+- : progress-handle _ CO (non-stuck/step (step/handle-val C _))
+     <- progress CO non-stuck/val.
 
 - : progress (cof/val _) non-stuck/val.
 
@@ -51,8 +59,11 @@ progress : cof C _ -> non-stuck C -> type.
 
 - : progress (cof/app _ _) (non-stuck/step step/app).
 
-%worlds (vars) (progress _ _).
-%total {CO} (progress CO _).
+- : progress (cof/handle H C) NS
+     <- progress-handle H C NS.
+
+%worlds (vars) (progress _ _) (progress-handle _ _ _).
+%total {EO CO CO'} (progress CO _) (progress-handle EO CO' _).
 
 %%%% Preservation theorem
 
@@ -77,7 +88,6 @@ preservation : cof C A -> step C C' -> cof C' A -> type.
 - : preservation (cof/cond eof/fls _ C2) step/cond-fls C2.
 
 - : preservation (cof/app (eof/fun E1) E2) step/app (E1 _ E2).
-
 
 %worlds (vars) (preservation _ _ _).
 %total {CO S} (preservation CO S _).
