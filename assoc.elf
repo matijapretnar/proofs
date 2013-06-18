@@ -1,0 +1,96 @@
+% Testing how lookup in an associative list works.
+
+% We consider associative lists with keys of type key and values
+% of type value.
+%
+% Ideally, we want key to be any type with decidable
+% equality and value to be any type. However, we use natural numbers
+% as keys so that we can convince Twelf that key has decidable equality.
+% Is there a way to tell Twelf "assume key has decidable equality"?
+%
+% Even more annoyingly, code breaks depending on how complicated
+% the type of values is. If we keep value abstract, it works.
+% If we make value = a -> b for some types a and b, then it works.
+% But if we make value = (a -> b) -> a then it stops working, unless
+% we add a worlds declaration for a, or make a wrapper type, see below.
+
+% Booleans, so we can compare stuff.
+bool : type.
+true : bool.
+false : bool.
+
+% We use natural numbers as keys. We would prefer to hypothesise a
+% type with decidable equality, but how can we do that in Twelf?
+key : type.
+z : key.
+s : key -> key.
+
+% Auxiliary types, just to have something to play with.
+a : type.
+b : type.
+dog : a -> b.
+cat : b -> a.
+
+% We are interested in the case when the values are functions.
+% We present three options here. Why do some work and others not?
+
+% OPTION I (works)
+% %abbrev value = a -> b.
+
+% OPTION II (does not work)
+% %abbrev value = (a -> b) -> a.
+
+% OPTION III (works)
+% Add a worlds declaration for a and b.
+% %worlds () (a) (b).
+% %abbrev value = (a -> b) -> a.
+
+% OPTION IV (works)
+% Wrap (a -> b) -> a in a constructor
+value : type.
+value/make : ((a -> b) -> a) -> value.
+
+%block key-var : block {k : key}.
+%block value-var : block {v : value}.
+
+% Associative lists holding (key, value) pairs
+list : type.
+nil : list.
+cons : key -> value -> list -> list.
+
+% Equality of keys is decidable.
+key-equal : key -> key -> bool -> type.
+%mode key-equal +K +K' -B.
+
+key-equal/zz : key-equal z z true.
+key-equal/zs : key-equal z (s _) false.
+key-equal/sz : key-equal (s _) z false.
+key-equal/ss : key-equal (s K) (s K') B <- key-equal K K' B.
+
+%worlds () (key-equal _ _ _).
+%total {K K'} (key-equal K K' _).
+
+if-then-else : bool -> value -> value -> value -> type.
+%mode if-then-else +B +V1 +V2 -V.
+
+- : if-then-else true  V _ V.
+- : if-then-else false _ V V.
+
+%worlds () (if-then-else _ _ _ _).
+%total {B} (if-then-else B _ _ _).
+
+% Finally, here is lookup in an associative array,
+% with default value if key not found.
+
+lookup : key -> list -> value -> value -> type.
+%mode lookup +Key +List +Default -Value.
+
+lookup/nil : lookup K nil D D.
+
+lookup/cons : lookup K (cons K' V L) D V''
+               <- lookup K L D V'
+               <- key-equal K K' B
+               <- if-then-else B V V' V''.
+                     
+%worlds () (lookup _ _ _ _).
+%total {L} (lookup _ L _ _).

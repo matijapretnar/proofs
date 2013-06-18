@@ -4,10 +4,9 @@ non-stuck : comp -> type.
 
 non-stuck/val  : non-stuck (val _).
 non-stuck/op   : non-stuck (op _ _ _ _).
-non-stuck/step : non-stuck C
-		  <- step C _.
+non-stuck/step : non-stuck C <- step C _.
 
-%%%% Progress theorem
+%%%% Auxiliary progress theorem for let-statements
 
 progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.
 %mode progress-let +C2 +NS1 -NS.
@@ -24,8 +23,11 @@ progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.
      (non-stuck/step S1)
      (non-stuck/step (step/let-step S1)).
 
-%worlds (vars) (progress-let _ _ _).
+%worlds () (progress-let _ _ _).
 %total {C2 NS1} (progress-let C2 NS1 _).
+
+% The main progress theorem is mutually recursive with an auxiliary
+% progress theorem for the handling construct.
 
 progress-handle : eof E (A ==> B) -> cof C A -> non-stuck (handle E C) -> type.
 %mode progress-handle +EO +CO -NS.
@@ -33,10 +35,25 @@ progress-handle : eof E (A ==> B) -> cof C A -> non-stuck (handle E C) -> type.
 progress : cof C _ -> non-stuck C -> type.
 %mode progress +CO -NS.
 
+% Progress for the handling construct
+
+% Effectiveness lemmas for looking up cases in a handler
+
+can-handler-get-val : {H} eof (hnd H) (A ==> B) ->  handler-get-val H K -> type.
+%mode can-handler-get-val +H +HO -K.
+
+- : can-handler-get-val (handler/val _) _ handler-get-val/val.
+- : can-handler-get-val (handler/op _ _ _ H) (eof/hnd-op _ _ _ _ EO) (handler-get-val/op K)
+     <- can-handler-get-val H EO K.
+
+%worlds () (can-handler-get-val _ _ _).
+%total {H} (can-handler-get-val H _ _).
+
+
 - : progress-handle _ CO (non-stuck/step (step/handle-step S))
      <- progress CO (non-stuck/step S).
 
-- : progress-handle _ CO (non-stuck/step (step/handle-val C _))
+- : {K} progress-handle _ CO (non-stuck/step (step/handle-val K))
      <- progress CO non-stuck/val.
 
 - : progress (cof/val _) non-stuck/val.
@@ -62,7 +79,7 @@ progress : cof C _ -> non-stuck C -> type.
 - : progress (cof/handle H C) NS
      <- progress-handle H C NS.
 
-%worlds (vars) (progress _ _) (progress-handle _ _ _).
+%worlds () (progress _ _) (progress-handle _ _ _).
 %total {EO CO CO'} (progress CO _) (progress-handle EO CO' _).
 
 %%%% Preservation theorem
