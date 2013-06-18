@@ -67,11 +67,15 @@ region : type. %name region Rho.
 region/empty : region.
 region/cons  : instance -> region -> region.
 
+%worlds () (region).
+
 in-region : instance -> region -> type.
 
 in-region/here  : in-region I (region/cons I R).
 in-region/there : in-region I (region/cons _ R)
 		   <- in-region I R.
+
+%worlds () (in-region _ _).
 
 %%% Dirt
 
@@ -80,6 +84,7 @@ dirt : type. %name dirt Delta.
 dirt/empty : dirt.
 dirt/cons  : instance -> operation -> dirt -> dirt.
 
+%worlds () (dirt).
 
 in-dirt-instance : instance -> operation -> dirt -> type.
 
@@ -87,12 +92,16 @@ in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
 in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
 			  <- in-dirt-instance I O D.
 
+%worlds () (in-dirt-instance _ _ _).
+
 in-dirt : region -> operation -> dirt -> type.
 
 in-dirt/empty : in-dirt region/empty _ _.
 in-dirt/cons  : in-dirt (region/cons I R) O D
 		 <- in-dirt R O D
 		 <- in-dirt-instance I O D.
+
+%worlds () (in-dirt _ _ _).
 
 %%% Types
 
@@ -103,11 +112,6 @@ dirty : type. %name dirty D.
 effty/empty : effty.
 effty/cons : operation -> ty -> ty -> effty -> effty.
 
-in-effty : operation -> ty -> ty -> effty -> type.
-in-effty/here : in-effty O A B (effty/cons O A B _).
-in-effty/there : in-effty O A B (effty/cons _ _ _ E)
-                  <- in-effty O A B E.
-
 nat   : ty.
 bool  : ty.
 unit  : ty.
@@ -117,6 +121,8 @@ eff  : effty -> region -> ty.
 ==> : dirty -> dirty -> ty. %infix right 55 ==>.
 
 ! : ty -> dirt -> dirty. %infix none 60 !.
+
+%worlds () (effty) (ty) (dirty).
 
 %%%% Expressions and computations
 
@@ -157,16 +163,17 @@ absd : expr -> comp.
 app  : expr -> expr -> comp.
 handle : expr -> comp -> comp.
 
+%block comp-var : block {y : comp}.
+%block expr-var : block {x : expr}.
+%block cont-var : block {k : expr -> comp}.
+%worlds (expr-var | comp-var | cont-var) (cont) (handler-case) (handler) (expr) (comp).
+
 %%%% Typing judgments
 
 % Primitive assignment of types to instances.
 iof : instance -> effty -> type.
 
-%block iof-var : some {I : instance} {E : effty} block {i : iof I E}.
-%worlds (iof-var) (iof _ _).
-
-eof : expr -> ty -> type.
-cof : comp -> dirty -> type.
+%worlds () (iof _ _).
 
 region-ok : region -> effty -> type.
 region-ok/empty : region-ok region/empty _.
@@ -174,7 +181,15 @@ region-ok/cons : region-ok (region/cons I R) E
                   <- region-ok R E
                   <- iof I E.
 
-%worlds (iof-var) (region-ok _ _).
+%worlds () (region-ok _ _).
+
+in-effty : operation -> ty -> ty -> effty -> type.
+in-effty/here : in-effty O A B (effty/cons O A B _).
+in-effty/there : in-effty O A B (effty/cons _ _ _ E)
+                  <- in-effty O A B E.
+
+eof : expr -> ty -> type.
+cof : comp -> dirty -> type.
 
 eof/zro : eof zro nat.
 eof/suc : eof (suc E) nat
@@ -186,6 +201,7 @@ eof/ins : eof (ins I) (eff E R)
            <- iof I E
 	   <- in-region I R
            <- region-ok R E.
+
 eof/fun : eof (fun C) (A --> B)
 	   <- ({x} eof x A -> cof (C x) B).
 
@@ -194,7 +210,7 @@ eof/hnd-val : eof (hnd (handler/val (cc C))) ((A ! D) ==> B)
 
 eof/hnd-op : eof (hnd (handler/op E O (hc HC) H)) (A ==> B)
               <- eof (hnd H) (A ==> B)
-              <- ({x} eof x A' -> {k : expr -> comp} ({y} eof y B' -> cof (k y) B) -> cof (HC x k) B)
+              <- ({x} eof x A' -> {k : expr -> comp} {y} eof y B' -> cof (k y) B -> cof (HC x k) B)
               <- in-effty O A' B' Eff
               <- region-ok R Eff
               <- eof E (eff Eff R).
@@ -212,7 +228,7 @@ cof/let  : cof (let C1 C2) (B ! D)
 	    <- cof C1 (A ! D).
 cof/letr : cof (letr C1 C2) B
 	    <- ({f} eof f (A --> A') -> cof (C2 f) B)
-	    <- ({f} {x} eof f (A --> A') -> eof x A -> cof (C1 f x) A').
+	    <- ({f} eof f (A --> A') -> {x} eof x A -> cof (C1 f x) A').
 cof/zro? : cof (zro? E) (bool ! D)
 	    <- eof E nat.
 cof/cond : cof (cond E C1 C2) A
@@ -228,7 +244,11 @@ cof/handle : cof (handle E C) B
               <- cof C A
               <- eof E (A ==> B).
 
-%worlds () (eof _ _) (cof _ _).
+%block eof-var : some {a : ty} {x : expr} block {_ : eof x a}.
+%block cof-var : some {c : dirty} {y : comp} block {_ : cof y c}.
+%block vars = (expr-var | comp-var | eof-var | cont-var | cof-var).
+
+%worlds (vars) (in-effty _ _ _ _) (eof _ _) (cof _ _).
 
 %%%% Operational semantics
 
