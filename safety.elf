@@ -26,17 +26,6 @@ progress-let : {C2} non-stuck C1 -> non-stuck (let C1 C2) -> type.
 %worlds () (progress-let _ _ _).
 %total {C2 NS1} (progress-let C2 NS1 _).
 
-% The main progress theorem is mutually recursive with an auxiliary
-% progress theorem for the handling construct.
-
-progress-handle : eof E (A ==> B) -> cof C A -> non-stuck (handle E C) -> type.
-%mode progress-handle +EO +CO -NS.
-
-progress : cof C _ -> non-stuck C -> type.
-%mode progress +CO -NS.
-
-% Progress for the handling construct
-
 % Effectiveness lemmas for looking up cases in a handler
 
 can-handler-get-val : {H} eof (hnd H) (A ==> B) ->  handler-get-val H K -> type.
@@ -49,12 +38,31 @@ can-handler-get-val : {H} eof (hnd H) (A ==> B) ->  handler-get-val H K -> type.
 %worlds () (can-handler-get-val _ _ _).
 %total {H} (can-handler-get-val H _ _).
 
+% can-handler-get-op : {H} {I} {O} eof (hnd H) (A ==> B) -> handler-get-op H I O K -> type.
+% %mode can-handler-get-op +H +I +O +HO -K.
 
+% - : can-handler-get-op (handler/val _) _ _ _ handler-get-op/val.
+% - : can-handler-get-op (handler/op (ins I) O HK H) _ _ (eof/hnd-op (eof/ins _ _ _) _ _ _ _) (handler-get-op/op _  _ _).
+
+% %worlds () (can-handler-get-op _ _ _ _ _).
+% %total {H} (can-handler-get-op H _ _ _ _).
+
+% The main progress theorem is mutually recursive with an auxiliary
+% progress theorem for the handling construct.
+
+progress-handle : eof E (A ==> B) -> cof C A -> non-stuck (handle E C) -> type.
+%mode progress-handle +EO +CO -NS.
+
+progress : cof C _ -> non-stuck C -> type.
+%mode progress +CO -NS.
+
+% Progress for the handling construct
 - : progress-handle _ CO (non-stuck/step (step/handle-step S))
      <- progress CO (non-stuck/step S).
 
-- : {K} progress-handle _ CO (non-stuck/step (step/handle-val K))
-     <- progress CO non-stuck/val.
+- : {K} progress-handle (eof (hnd H) (A ==> B)) (cof/val EA) (non-stuck/step (step/handle-val K))
+     <- 
+     <- progress (cof non-stuck/val.
 
 - : progress (cof/val _) non-stuck/val.
 
