@@ -297,3 +297,16 @@ step/app      : step (app (fun E1) E2) (E1 E2).
 %total {RiD} (<=d/in-dirt RiD _ _).
 
 
+instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance I O D -> type.
+%mode instance-in-region-in-dirt +IinR +ROinD -IOinD.
+
+%worlds (vars) (instance-in-region-in-dirt _ _ _).
+%trustme %total {} (instance-in-region-in-dirt _ _ _).
+
+
+<=r/in-dirt : R <=r R' -> in-dirt R' O D -> in-dirt R O D -> type.
+%mode <=r/in-dirt +RR' +R'OinD -ROinD.
+
+%worlds (vars) (<=r/in-dirt _ _ _).
+%trustme %total {} (<=r/in-dirt _ _ _).
+
