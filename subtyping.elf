@@ -1,25 +1,3 @@
-
-% Properties of the subtyping relation
-
-in-dirt-instance-<=d : (D <=d D') -> in-dirt-instance I O D -> in-dirt-instance I O D' -> type.
-%mode in-dirt-instance-<=d +DD' +IOD -IOD'.
-
-in-dirt-<=d : (D <=d D') -> in-dirt R O D -> in-dirt R O D' -> type.
-%mode in-dirt-<=d +DD' +ROD -ROD'.
-
-- : in-dirt-<=d _  in-dirt/empty in-dirt/empty.
-- : in-dirt-<=d DD' (in-dirt/cons IOD ROD) (in-dirt/cons IOD' ROD')
-     <- in-dirt-instance-<=d DD' IOD IOD'
-     <- in-dirt-<=d DD' ROD ROD'.
-
-in-region-<=r :  (R <=r R') -> in-region I R -> in-region I R' -> type.
-%mode in-region-<=r  +RR' +IR -IR'.
-
-- : in-region-<=r (<=r/cons IR' _) in-region/here IR'. 
-- : in-region-<=r (<=r/cons _ RR')  (in-region/there IR) IR'
-     <- in-region-<=r RR' IR IR'.
-
-
 <=r/rest : {E} {I : instance E} {R : region E} R <=r (region/cons I R) -> type. 
 %mode <=r/rest +E +I +R -RIR.
 
@@ -111,18 +89,6 @@ in-region-<=r :  (R <=r R') -> in-region I R -> in-region I R' -> type.
 
 %worlds (vars) (<=d/trans _ _ _).
 %total {DD'} (<=d/trans DD' _ _).
-
-<=d/in-dirt : in-dirt R O D -> D <=d D' -> in-dirt R O D' -> type.
-%mode <=d/in-dirt +RiD +DD' -RiD'.
-
-- : <=d/in-dirt in-dirt/empty _ in-dirt/empty.
-- : <=d/in-dirt (in-dirt/cons IiD RiD) DD' (in-dirt/cons IiD' RiD')
-     <- <=d/in-dirt RiD DD' RiD'
-     <- <=d/in-dirt-instance IiD DD' IiD'.
-
-%worlds (vars) (<=d/in-dirt _ _ _).
-%total {RiD} (<=d/in-dirt RiD _ _).
-
 
 instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance I O D -> type.
 %mode instance-in-region-in-dirt +IinR +ROinD -IOinD.
