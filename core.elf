@@ -28,14 +28,6 @@ in-region/here  : in-region I (region/cons I R).
 in-region/there : in-region I (region/cons _ R)
 		   <- in-region I R.
 
-<=r : region E -> region E -> type. %infix none 30 <=r.
-
-<=r/empty : region/empty <=r R.
-<=r/cons : region/cons I R <=r R'
-	    <- R <=r R'
-	    <- in-region I R'.
-
-
 dirt : type.
 
 dirt/empty : dirt.
@@ -47,13 +39,6 @@ in-dirt-instance : instance E -> operation E -> dirt -> type.
 in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
 in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
 			  <- in-dirt-instance I O D.
-
-<=d : dirt -> dirt -> type. %infix none 30 <=d.
-
-<=d/empty : dirt/empty <=d D.
-<=d/cons : dirt/cons I O D <=d D'
-	    <- D <=d D'
-	    <- in-dirt-instance I O D'.
 
 in-dirt : region E -> operation E -> dirt -> type.
 
@@ -75,26 +60,6 @@ inst  : region E -> ty.
 ==> : dirty -> dirty -> ty. %infix right 55 ==>.
 
 ! : ty -> dirt -> dirty. %infix none 60 !.
-
-<=t : ty -> ty -> type. %infix none 30 <=t.
-<=dt : dirty -> dirty -> type. %infix none 30 <=dt.
-
-<=t/nat : nat <=t nat.
-<=t/bool : bool <=t bool.
-<=t/unit : unit <=t unit.
-<=t/empty : empty <=t empty.
-<=t/inst : inst R <=t inst R'
-	    <- R <=r R'.
-<=t/--> : (A --> B) <=t (A' --> B')
-	   <- B <=dt B'
-	   <- A' <=t A.
-<=t/==> : (A ==> B) <=t (A' ==> B')
-	   <- B <=dt B'
-	   <- A' <=dt A.
-<=dt/! : (A ! D) <=dt (A' ! D')
-	  <- D <=d D'
-	  <- A <=t A'.
-
 
 
 
@@ -125,6 +90,43 @@ pred : expr -> comp.
 cond : expr -> comp -> comp -> comp.
 absd : expr -> comp.
 app  : expr -> expr -> comp.
+
+
+
+<=r : region E -> region E -> type. %infix none 30 <=r.
+
+<=r/empty : region/empty <=r R.
+<=r/cons : region/cons I R <=r R'
+         <- R <=r R'
+         <- in-region I R'.
+
+
+<=d : dirt -> dirt -> type. %infix none 30 <=d.
+
+<=d/empty : dirt/empty <=d D.
+<=d/cons : dirt/cons I O D <=d D'
+         <- D <=d D'
+         <- in-dirt-instance I O D'.
+
+
+<=t : ty -> ty -> type. %infix none 30 <=t.
+<=dt : dirty -> dirty -> type. %infix none 30 <=dt.
+
+<=t/nat : nat <=t nat.
+<=t/bool : bool <=t bool.
+<=t/unit : unit <=t unit.
+<=t/empty : empty <=t empty.
+<=t/inst : inst R <=t inst R'
+         <- R <=r R'.
+<=t/--> : (A --> B) <=t (A' --> B')
+        <- B <=dt B'
+        <- A' <=t A.
+<=t/==> : (A ==> B) <=t (A' ==> B')
+        <- B <=dt B'
+        <- A' <=dt A.
+<=dt/! : (A ! D) <=dt (A' ! D')
+       <- D <=d D'
+       <- A <=t A'.
 
 
 
@@ -197,121 +199,10 @@ step/cond-tru : step (cond tru C1 _) C1.
 step/cond-fls : step (cond fls _ C2) C2.
 step/app      : step (app (fun E1) E2) (E1 E2).
 
+non-stuck : comp -> dirt -> type.
 
-<=r/rest : {E} {I : instance E} {R : region E} R <=r (region/cons I R) -> type. 
-%mode <=r/rest +E +I +R -RIR.
-
-- : <=r/rest _ _ _ <=r/empty.
-
-%worlds (vars) (<=r/rest _ _ _ _).
-%trustme %total {} (<=r/rest _ _ _ _).
-
-<=r/refl : {R} R <=r R -> type.
-%mode <=r/refl +R -RR.
-
-- : <=r/refl region/empty <=r/empty.
-- : <=r/refl (region/cons I R) (<=r/cons in-region/here RIR)
-     <- <=r/rest _ _ R RIR.
-
-%worlds (vars) (<=r/refl _ _).
-%total {} (<=r/refl _ _).
-
-<=d/rest : {E} {D} {I : instance E} {O} D <=d (dirt/cons I O D) -> type. 
-%mode <=d/rest +E +D +I +O -DIOD.
-
-- : <=d/rest _ _ _ _ <=d/empty.
-
-%worlds (vars) (<=d/rest _ _ _ _ _).
-%trustme %total {} (<=d/rest _ _ _ _ _).
-
-<=d/refl : {D} D <=d D -> type.
-%mode <=d/refl +D -DD.
-
-- : <=d/refl dirt/empty <=d/empty.
-- : <=d/refl (dirt/cons I O D) (<=d/cons in-dirt-instance/here DIOD)
-     <- <=d/rest _ D I O DIOD.
-
-%worlds (vars) (<=d/refl _ _).
-%total {} (<=d/refl _ _).
-
-<=t/refl : {A} A <=t A -> type.
-%mode <=t/refl +A -AA.
-<=dt/refl : {B} B <=dt B -> type.
-%mode <=dt/refl +B -BB.
-
-- : <=t/refl nat <=t/nat.
-- : <=t/refl bool <=t/bool.
-- : <=t/refl unit <=t/unit.
-- : <=t/refl empty <=t/empty.
-- : <=t/refl (inst R) (<=t/inst RR)
-     <- <=r/refl R RR.
-- : <=t/refl (A --> B) (<=t/--> AA BB)
-     <- <=t/refl A AA
-     <- <=dt/refl B BB.
-- : <=t/refl (A ==> B) (<=t/==> AA BB)
-     <- <=dt/refl A AA
-     <- <=dt/refl B BB.
-- : <=dt/refl (A ! D) (<=dt/! AA DD)
-     <- <=t/refl A AA
-     <- <=d/refl D DD.
-
-%worlds (vars) (<=t/refl _ _) (<=dt/refl _ _).
-%total {(A B)} (<=t/refl A _) (<=dt/refl B _).
-
-<=d/in-dirt-instance : in-dirt-instance I O D -> D <=d D' -> in-dirt-instance I O D' -> type.
-%mode <=d/in-dirt-instance +IiD +DD' -IiD'.
-
-- : <=d/in-dirt-instance in-dirt-instance/here (<=d/cons IiD' _) IiD'.
-- : <=d/in-dirt-instance (in-dirt-instance/there IiD) (<=d/cons _ DD') IiD'
-     <- <=d/in-dirt-instance IiD DD' IiD'.
-
-%worlds (vars) (<=d/in-dirt-instance _ _ _).
-%total {IiD} (<=d/in-dirt-instance IiD _ _).
-
-<=d/in-dirt : in-dirt R O D -> D <=d D' -> in-dirt R O D' -> type.
-%mode <=d/in-dirt +RiD +DD' -RiD'.
-
-- : <=d/in-dirt in-dirt/empty _ in-dirt/empty.
-- : <=d/in-dirt (in-dirt/cons IiD RiD) DD' (in-dirt/cons IiD' RiD')
-     <- <=d/in-dirt-instance IiD DD' IiD'
-     <- <=d/in-dirt RiD DD' RiD'.
-
-%worlds (vars) (<=d/in-dirt _ _ _).
-%total {IiR} (<=d/in-dirt IiR _ _).
-
-<=d/trans : D <=d D' -> D' <=d D'' -> D <=d D'' -> type.
-%mode <=d/trans +DD' +D'D'' -DD''.
-
-- : <=d/trans <=d/empty _ <=d/empty.
-- : <=d/trans (<=d/cons IOD' DD') D'D'' (<=d/cons IOD'' DD'')
-     <- <=d/trans DD' D'D'' DD''
-     <- <=d/in-dirt-instance IOD' D'D'' IOD''.
-
-%worlds (vars) (<=d/trans _ _ _).
-%total {DD'} (<=d/trans DD' _ _).
-
-<=d/in-dirt : in-dirt R O D -> D <=d D' -> in-dirt R O D' -> type.
-%mode <=d/in-dirt +RiD +DD' -RiD'.
-
-- : <=d/in-dirt in-dirt/empty _ in-dirt/empty.
-- : <=d/in-dirt (in-dirt/cons IiD RiD) DD' (in-dirt/cons IiD' RiD')
-     <- <=d/in-dirt RiD DD' RiD'
-     <- <=d/in-dirt-instance IiD DD' IiD'.
-
-%worlds (vars) (<=d/in-dirt _ _ _).
-%total {RiD} (<=d/in-dirt RiD _ _).
-
-
-instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance I O D -> type.
-%mode instance-in-region-in-dirt +IinR +ROinD -IOinD.
-
-%worlds (vars) (instance-in-region-in-dirt _ _ _).
-%trustme %total {} (instance-in-region-in-dirt _ _ _).
-
-
-<=r/in-dirt : R <=r R' -> in-dirt R' O D -> in-dirt R O D -> type.
-%mode <=r/in-dirt +RR' +R'OinD -ROinD.
-
-%worlds (vars) (<=r/in-dirt _ _ _).
-%trustme %total {} (<=r/in-dirt _ _ _).
-
+non-stuck/val  : non-stuck (val _) D.
+non-stuck/op   : non-stuck (op (ins I) O _ _) D
+          <- in-dirt-instance I O D.
+non-stuck/step : non-stuck C D
+          <- step C _.

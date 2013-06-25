@@ -1,3 +1,4 @@
+
 % Properties of the subtyping relation
 
 in-dirt-instance-<=d : (D <=d D') -> in-dirt-instance I O D -> in-dirt-instance I O D' -> type.
@@ -18,18 +19,122 @@ in-region-<=r :  (R <=r R') -> in-region I R -> in-region I R' -> type.
 - : in-region-<=r (<=r/cons _ RR')  (in-region/there IR) IR'
      <- in-region-<=r RR' IR IR'.
 
-% We derive the subsumption rules.
 
-eof/<=t : (A <=t A') -> eof E A -> eof E A' -> type.
-%mode eof/<=t +AA' +EA -EA'.
+<=r/rest : {E} {I : instance E} {R : region E} R <=r (region/cons I R) -> type. 
+%mode <=r/rest +E +I +R -RIR.
 
-- : eof/<=t <=t/refl EA EA.
+- : <=r/rest _ _ _ <=r/empty.
 
-- : eof/<=t (<=t/inst RS) (eof/ins IR) (eof/ins IS)
-     <- in-region-<=r RS IR IS.
+%worlds (vars) (<=r/rest _ _ _ _).
+%trustme %total {} (<=r/rest _ _ _ _).
 
-% - : eof/<=t (<=t/--> A'A BB') (eof/fun F) (eof/fun ([yA'] CoBB' (F (CoA'A yA'))))
+<=r/refl : {R} R <=r R -> type.
+%mode <=r/refl +R -RR.
 
-cof/<=dt : (D <=dt D') -> cof C D -> cof C D' -> type.
+- : <=r/refl region/empty <=r/empty.
+- : <=r/refl (region/cons I R) (<=r/cons in-region/here RIR)
+     <- <=r/rest _ _ R RIR.
 
-- : cof/<=dt _ (cof/val EA) (cof/val EA).
+%worlds (vars) (<=r/refl _ _).
+%total {} (<=r/refl _ _).
+
+<=d/rest : {E} {D} {I : instance E} {O} D <=d (dirt/cons I O D) -> type. 
+%mode <=d/rest +E +D +I +O -DIOD.
+
+- : <=d/rest _ _ _ _ <=d/empty.
+
+%worlds (vars) (<=d/rest _ _ _ _ _).
+%trustme %total {} (<=d/rest _ _ _ _ _).
+
+<=d/refl : {D} D <=d D -> type.
+%mode <=d/refl +D -DD.
+
+- : <=d/refl dirt/empty <=d/empty.
+- : <=d/refl (dirt/cons I O D) (<=d/cons in-dirt-instance/here DIOD)
+     <- <=d/rest _ D I O DIOD.
+
+%worlds (vars) (<=d/refl _ _).
+%total {} (<=d/refl _ _).
+
+<=t/refl : {A} A <=t A -> type.
+%mode <=t/refl +A -AA.
+<=dt/refl : {B} B <=dt B -> type.
+%mode <=dt/refl +B -BB.
+
+- : <=t/refl nat <=t/nat.
+- : <=t/refl bool <=t/bool.
+- : <=t/refl unit <=t/unit.
+- : <=t/refl empty <=t/empty.
+- : <=t/refl (inst R) (<=t/inst RR)
+     <- <=r/refl R RR.
+- : <=t/refl (A --> B) (<=t/--> AA BB)
+     <- <=t/refl A AA
+     <- <=dt/refl B BB.
+- : <=t/refl (A ==> B) (<=t/==> AA BB)
+     <- <=dt/refl A AA
+     <- <=dt/refl B BB.
+- : <=dt/refl (A ! D) (<=dt/! AA DD)
+     <- <=t/refl A AA
+     <- <=d/refl D DD.
+
+%worlds (vars) (<=t/refl _ _) (<=dt/refl _ _).
+%total {(A B)} (<=t/refl A _) (<=dt/refl B _).
+
+<=d/in-dirt-instance : in-dirt-instance I O D -> D <=d D' -> in-dirt-instance I O D' -> type.
+%mode <=d/in-dirt-instance +IiD +DD' -IiD'.
+
+- : <=d/in-dirt-instance in-dirt-instance/here (<=d/cons IiD' _) IiD'.
+- : <=d/in-dirt-instance (in-dirt-instance/there IiD) (<=d/cons _ DD') IiD'
+     <- <=d/in-dirt-instance IiD DD' IiD'.
+
+%worlds (vars) (<=d/in-dirt-instance _ _ _).
+%total {IiD} (<=d/in-dirt-instance IiD _ _).
+
+<=d/in-dirt : in-dirt R O D -> D <=d D' -> in-dirt R O D' -> type.
+%mode <=d/in-dirt +RiD +DD' -RiD'.
+
+- : <=d/in-dirt in-dirt/empty _ in-dirt/empty.
+- : <=d/in-dirt (in-dirt/cons IiD RiD) DD' (in-dirt/cons IiD' RiD')
+     <- <=d/in-dirt-instance IiD DD' IiD'
+     <- <=d/in-dirt RiD DD' RiD'.
+
+%worlds (vars) (<=d/in-dirt _ _ _).
+%total {IiR} (<=d/in-dirt IiR _ _).
+
+<=d/trans : D <=d D' -> D' <=d D'' -> D <=d D'' -> type.
+%mode <=d/trans +DD' +D'D'' -DD''.
+
+- : <=d/trans <=d/empty _ <=d/empty.
+- : <=d/trans (<=d/cons IOD' DD') D'D'' (<=d/cons IOD'' DD'')
+     <- <=d/trans DD' D'D'' DD''
+     <- <=d/in-dirt-instance IOD' D'D'' IOD''.
+
+%worlds (vars) (<=d/trans _ _ _).
+%total {DD'} (<=d/trans DD' _ _).
+
+<=d/in-dirt : in-dirt R O D -> D <=d D' -> in-dirt R O D' -> type.
+%mode <=d/in-dirt +RiD +DD' -RiD'.
+
+- : <=d/in-dirt in-dirt/empty _ in-dirt/empty.
+- : <=d/in-dirt (in-dirt/cons IiD RiD) DD' (in-dirt/cons IiD' RiD')
+     <- <=d/in-dirt RiD DD' RiD'
+     <- <=d/in-dirt-instance IiD DD' IiD'.
+
+%worlds (vars) (<=d/in-dirt _ _ _).
+%total {RiD} (<=d/in-dirt RiD _ _).
+
+
+instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance I O D -> type.
+%mode instance-in-region-in-dirt +IinR +ROinD -IOinD.
+
+%worlds (vars) (instance-in-region-in-dirt _ _ _).
+%trustme %total {} (instance-in-region-in-dirt _ _ _).
+
+
+<=r/in-dirt : R <=r R' -> in-dirt R' O D -> in-dirt R O D -> type.
+%mode <=r/in-dirt +RR' +R'OinD -ROinD.
+
+%worlds (vars) (<=r/in-dirt _ _ _).
+%trustme %total {} (<=r/in-dirt _ _ _).
+
+
