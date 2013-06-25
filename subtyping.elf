@@ -93,8 +93,12 @@
 instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance I O D -> type.
 %mode instance-in-region-in-dirt +IinR +ROinD -IOinD.
 
+- : instance-in-region-in-dirt in-region/here (in-dirt/cons IinD _) IinD.
+- : instance-in-region-in-dirt (in-region/there IinR) (in-dirt/cons _ RinD) IinD
+     <- instance-in-region-in-dirt IinR RinD IinD.
+
 %worlds (vars) (instance-in-region-in-dirt _ _ _).
-%trustme %total {} (instance-in-region-in-dirt _ _ _).
+%total {IinR} (instance-in-region-in-dirt IinR _ _).
 
 
 <=r/in-dirt : R <=r R' -> in-dirt R' O D -> in-dirt R O D -> type.
