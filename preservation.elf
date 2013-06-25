@@ -1,3 +1,45 @@
+preservation-cond : eof E bool -> cof C1 C -> cof C2 C -> step (cond E C1 C2) C' -> cof C' C -> type.
+%mode preservation-cond +E +C1 +C2 +S -C'.
+
+- : preservation-cond eof/tru C1 _ step/cond-tru C1.
+- : preservation-cond eof/fls _ C2 step/cond-fls C2.
+- : preservation-cond (eof/sub E _) C1 C2 S C'
+     <- preservation-cond E C1 C2 S C'.
+
+%worlds (vars) (preservation-cond _ _ _ _ _).
+%total {E} (preservation-cond E _ _ _ _).
+
+preservation-zro? : {D} eof E nat -> step (zro? E) C' -> cof C' (bool ! D) -> type.
+%mode preservation-zro? +D +E +S -C'.
+
+- : preservation-zro? _ eof/zro step/zro?-zro (cof/val eof/tru).
+- : preservation-zro? _ (eof/suc _) step/zro?-suc (cof/val eof/fls).
+- : preservation-zro? D (eof/sub E _) S C'
+     <- preservation-zro? D E S C'.
+
+%worlds (vars) (preservation-zro? _ _ _ _).
+%total {E} (preservation-zro? _ E _ _).
+
+preservation-pred : {D} eof E nat -> step (pred E) C' -> cof C' (nat ! D) -> type.
+%mode preservation-pred +D +E +S -C'.
+
+- : preservation-pred _ eof/zro step/pred-zro (cof/val eof/zro).
+- : preservation-pred _ (eof/suc E) step/pred-suc (cof/val E).
+- : preservation-pred D (eof/sub E _) S C'
+     <- preservation-pred D E S C'.
+
+%worlds (vars) (preservation-pred _ _ _ _).
+%total {E} (preservation-pred _ E _ _).
+
+preservation-app : eof E1 (A --> B) -> eof E2 A -> step (app E1 E2) C -> cof C B -> type.
+%mode preservation-app +E1 +E2 +S -C.
+
+- : preservation-app (eof/fun E1) E2 step/app (E1 _ E2).
+- : preservation-app (eof/sub E1 (<=t/--> A'A BB')) E2 S (cof/sub C BB')
+     <- preservation-app E1 (eof/sub E2 A'A) S C.
+
+%worlds (vars) (preservation-app _ _ _ _).
+%total {E1} (preservation-app E1 _ _ _).
 
 preservation-let-val : cof (val E) (A ! D) -> D <=d D' -> ({x} eof x A -> cof (C x) (B ! D')) -> cof (C E) (B ! D') -> type.
 %mode preservation-let-val +E +DD' +C -B.
@@ -23,165 +65,35 @@ preservation-let-op : cof (op Ei O Ep K) (A ! D) -> D <=d D' -> ({x} eof x A -> 
 %worlds (vars) (preservation-let-op _ _ _ _).
 %total {E} (preservation-let-op E _ _ _).
 
-
-preservation-let/val : cof (let (val E) C) B -> cof (C E) B -> type.
-%mode preservation-let/val +C -C'.
-
-- : preservation-let/val (cof/let E C) B
-     <- <=d/refl _ AA
-     <- preservation-let-val E AA C B.
-- : preservation-let/val (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-let/val C1 C2.
-
-%worlds (vars) (preservation-let/val _ _).
-%total {C} (preservation-let/val C _).
-
-preservation-let/op : cof (let (op Ei O Ep K) C2) B -> cof (op Ei O Ep ([y] let (K y) C2)) B -> type.
-%mode preservation-let/op +C -C'.
-
-- : preservation-let/op (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-let/op C1 C2.
-- : preservation-let/op (cof/let E C) B
-     <- <=d/refl _ AA
-     <- preservation-let-op E AA C B.
-
-%worlds (vars) (preservation-let/op _ _).
-%total {C} (preservation-let/op C _).
-
-preservation-letr : cof (letr C1 C2) B -> cof (C2 (fun ([y] letr C1 ([f] C1 f y)))) B -> type.
-%mode preservation-letr +C -C'.
-
-- : preservation-letr (cof/letr C1 C2) (C2 _ (eof/fun ([_] [y] (cof/letr C1 ([_] [f] C1 _ _ f y))))).
-- : preservation-letr (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-letr C1 C2.
-
-%worlds (vars) (preservation-letr _ _).
-%total {C} (preservation-letr C _).
-
-preservation-zro?/zro : cof (zro? zro) C -> cof (val tru) C -> type.
-%mode preservation-zro?/zro +C -C'.
-
-- : preservation-zro?/zro (cof/zro? eof/zro) (cof/val eof/tru).
-- : preservation-zro?/zro (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-zro?/zro C1 C2.
-- : preservation-zro?/zro (cof/zro? (eof/sub _ _)) (cof/val eof/tru).
-
-%worlds (vars) (preservation-zro?/zro _ _).
-%total {C} (preservation-zro?/zro C _).
-
-preservation-zro?/suc : cof (zro? (suc E)) C -> cof (val fls) C -> type.
-%mode preservation-zro?/suc +C -C'.
-
-- : preservation-zro?/suc (cof/zro? (eof/suc E)) (cof/val eof/fls).
-- : preservation-zro?/suc (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-zro?/suc C1 C2.
-- : preservation-zro?/suc (cof/zro? (eof/sub _ _)) (cof/val eof/fls).
-
-%worlds (vars) (preservation-zro?/suc _ _).
-%total {C} (preservation-zro?/suc C _).
-
-preservation-pred/zro : cof (pred zro) C -> cof (val zro) C -> type.
-%mode preservation-pred/zro +C -C'.
-
-- : preservation-pred/zro (cof/pred eof/zro) (cof/val eof/zro).
-- : preservation-pred/zro (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-pred/zro C1 C2.
-- : preservation-pred/zro (cof/pred (eof/sub _ _)) (cof/val eof/zro).
-
-%worlds (vars) (preservation-pred/zro _ _).
-%total {C} (preservation-pred/zro C _).
-
-suc-inversion : eof (suc E) A -> eof E A -> type.
-%mode suc-inversion +A -A'.
-
-- : suc-inversion (eof/suc E) E.
-- : suc-inversion (eof/sub E AA') (eof/sub E' AA') 
-     <- suc-inversion E E'.
-
-%worlds (vars) (suc-inversion _ _).
-%total {A} (suc-inversion A _).
-
-preservation-pred/suc : cof (pred (suc E)) C -> cof (val E) C -> type.
-%mode preservation-pred/suc +C -C'.
-
-- : preservation-pred/suc (cof/pred A) (cof/val A')
-     <- suc-inversion A A'.
-- : preservation-pred/suc (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-pred/suc C1 C2.
-
-%worlds (vars) (preservation-pred/suc _ _).
-%total {C} (preservation-pred/suc C _).
-
-preservation-cond/tru : cof (cond tru C1 _) C -> cof C1 C -> type.
-%mode preservation-cond/tru +C -C'.
-
-- : preservation-cond/tru (cof/cond _ C1 _) C1.
-- : preservation-cond/tru (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-cond/tru C1 C2.
-
-%worlds (vars) (preservation-cond/tru _ _).
-%total {C} (preservation-cond/tru C _).
-
-preservation-cond/fls : cof (cond fls _ C2) C -> cof C2 C -> type.
-%mode preservation-cond/fls +C -C'.
-
-- : preservation-cond/fls (cof/cond _ _ C2) C2.
-- : preservation-cond/fls (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-cond/fls C1 C2.
-
-%worlds (vars) (preservation-cond/fls _ _).
-%total {C} (preservation-cond/fls C _).
-
-preservation-app-fun : eof (fun E1) (A --> B) -> eof E2 A -> cof (E1 E2) B -> type.
-%mode preservation-app-fun +E1 +E2 -C.
-
-- : preservation-app-fun (eof/fun E1) E2 (E1 _ E2).
-- : preservation-app-fun (eof/sub E1 (<=t/--> A'A BB')) E2 (cof/sub C BB')
-     <- preservation-app-fun E1 (eof/sub E2 A'A) C.
-
-%worlds (vars) (preservation-app-fun _ _ _).
-%total {E1} (preservation-app-fun E1 _ _).
-
-preservation-app : cof (app (fun E1) E2) C -> cof (E1 E2) C -> type.
-%mode preservation-app +C -C'.
-
-- : preservation-app (cof/app E1 E2) C
-     <- preservation-app-fun E1 E2 C.
-- : preservation-app (cof/sub C1 CC') (cof/sub C2 CC')
-     <- preservation-app C1 C2.
-
-%worlds (vars) (preservation-app _ _).
-%total {C} (preservation-app C _).
-
+preservation-let : cof C1 (A ! D) -> ({x} eof x A -> cof (C2 x) (B ! D)) -> step (let C1 C2) C' -> cof C' (B ! D) -> type.
+%mode preservation-let +C1 +C2 +S -C.
 
 preservation : cof C A -> step C C' -> cof C' A -> type.
 %mode preservation +C +S -C'.
 
-- : preservation C step/let-val C'
-     <- preservation-let/val C C'.
-- : preservation C step/let-op C'
-     <- preservation-let/op C C'.
-- : preservation (cof/let C1 C2) (step/let-step S) (cof/let C1' C2)
+- : preservation-let C1 C2 step/let-val C'
+     <- <=d/refl _ DD
+     <- preservation-let-val C1 DD C2 C'.
+- : preservation-let C1 C2 step/let-op C'
+     <- <=d/refl _ DD
+     <- preservation-let-op C1 DD C2 C'.
+- : preservation-let C1 C2 (step/let-step S) (cof/let C1' C2)
      <- preservation C1 S C1'.
-- : preservation (cof/sub C1 CC') (step/let-step S) (cof/sub C2 CC')
-     <- preservation C1 (step/let-step S) C2.
-- : preservation C step/letr C'
-     <- preservation-letr C C'.
-- : preservation C step/zro?-zro C'
-     <- preservation-zro?/zro C C'.
-- : preservation C step/zro?-suc C'
-     <- preservation-zro?/suc C C'.
-- : preservation C step/pred-zro C'
-     <- preservation-pred/zro C C'.
-- : preservation C step/pred-suc C'
-     <- preservation-pred/suc C C'.
-- : preservation C step/cond-tru C'
-     <- preservation-cond/tru C C'.
-- : preservation C step/cond-fls C'
-     <- preservation-cond/fls C C'.
-- : preservation C step/app C'
-     <- preservation-app C C'.
 
-%worlds (vars) (preservation _ _ _).
-%total {S C} (preservation C S _).
+- : preservation (cof/cond E C1 C2) S C
+     <- preservation-cond E C1 C2 S C.
+- : preservation (cof/app E1 E2) S C
+     <- preservation-app E1 E2 S C.
+- : preservation (cof/zro? E) S C
+     <- preservation-zro? _ E S C.
+- : preservation (cof/pred E) S C
+     <- preservation-pred _ E S C.
+- : preservation (cof/sub C CC') S (cof/sub C' CC')
+     <- preservation C S C'.
+- : preservation (cof/letr C1 C2) S
+     (C2 _ (eof/fun ([_] [y] (cof/letr C1 ([_] [f] C1 _ _ f y))))).
+- : preservation (cof/let C1 C2) S C
+     <- preservation-let C1 C2 S C.
 
+%worlds (vars) (preservation _ _ _) (preservation-let _ _ _ _).
+%total {(C1 C2) (S1 S2)} (preservation C1 S1 _) (preservation-let C2 _ S2 _).
