@@ -1,0 +1,73 @@
+%%% Effect signature
+
+effect : type.
+%name effect Eff eff.
+
+operation : effect -> type.
+%name operation O o.
+
+instance : effect -> type.
+%name instance I i.
+
+
+
+%%% Dirt
+
+dirt : type.
+%name dirt Drt drt.
+
+dirt/empty : dirt.
+dirt/cons  : instance Eff -> operation Eff -> dirt -> dirt.
+
+
+in-dirt-instance : instance Eff -> operation Eff -> dirt -> type.
+
+in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
+in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
+                         <- in-dirt-instance I O D.
+
+
+
+region : effect -> type.
+%name region R r.
+
+region/empty : region Eff.
+region/cons  : instance Eff -> region Eff -> region Eff.
+
+
+
+in-region : instance Eff -> region Eff -> type.
+
+in-region/here  : in-region I (region/cons I R).
+in-region/there : in-region I (region/cons _ R)
+                  <- in-region I R.
+
+
+in-dirt : region Eff -> operation Eff -> dirt -> type.
+
+in-dirt/empty : in-dirt region/empty _ _.
+in-dirt/cons  : in-dirt (region/cons I R) O D
+                <- in-dirt R O D
+                <- in-dirt-instance I O D.
+
+
+
+<=r : region Eff -> region Eff -> type.
+%infix none 30 <=r.
+
+<=r/empty : region/empty <=r R.
+<=r/cons  : region/cons I R <=r R'
+          <- R <=r R'
+          <- in-region I R'.
+
+
+<=d : dirt -> dirt -> type.
+%infix none 30 <=d.
+
+<=d/empty : dirt/empty <=d D.
+<=d/cons  : dirt/cons I O D <=d D'
+          <- D <=d D'
+          <- in-dirt-instance I O D'.
+
+
+

@@ -1,208 +1,161 @@
-% The core language of Eff
+%%%% The core language of Eff
 
 
 
-%%%%{ Effect signature }%%%%%
-
-effect : type.
-
-%block var-effect : block {eff : effect}.
-
-operation : effect -> type.
-
-instance : effect -> type.
-
-%block var-instance : some {E : effect} block {inst : instance E}.
-
-%%%%{ Types }%%%%%
-
-region : effect -> type.
-
-region/empty : region E.
-region/cons  : instance E -> region E -> region E.
-
-
-in-region : instance E -> region E -> type.
-
-in-region/here  : in-region I (region/cons I R).
-in-region/there : in-region I (region/cons _ R)
-		   <- in-region I R.
-
-dirt : type.
-
-dirt/empty : dirt.
-dirt/cons  : instance E -> operation E -> dirt -> dirt.
-
-
-in-dirt-instance : instance E -> operation E -> dirt -> type.
-
-in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
-in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
-			  <- in-dirt-instance I O D.
-
-in-dirt : region E -> operation E -> dirt -> type.
-
-in-dirt/empty : in-dirt region/empty _ _.
-in-dirt/cons  : in-dirt (region/cons I R) O D
-		 <- in-dirt R O D
-		 <- in-dirt-instance I O D.
-
-
-ty : type.
-dirty : type.
-
-nat   : ty.
-bool  : ty.
-unit  : ty.
-empty : ty.
-inst  : region E -> ty.
---> : ty -> dirty -> ty. %infix right 50 -->.
-==> : dirty -> dirty -> ty. %infix right 55 ==>.
-
-! : ty -> dirt -> dirty. %infix none 60 !.
-
-
-
-sig : operation E -> ty -> ty -> type.
-
-%block var-operation : some {E : effect} {A : ty} {B : ty} block {op : operation E}{_ : sig op A B}.
-%block vars = (var-effect | var-instance | var-operation).
-
-%%%%{ Expressions and computations }%%%%%
+%%% Expressions and computations
 
 expr : type.
 comp : type.
+%name expr E.
+%name comp C.
 
-zro : expr.
-suc : expr -> expr.
 tru : expr.
 fls : expr.
+zro : expr.
+suc : expr -> expr.
 unt : expr.
-ins : instance E -> expr.
 fun : (expr -> comp) -> expr.
+ins : instance Eff -> expr.
 
-val  : expr -> comp.
-op   : expr -> operation E -> expr -> (expr -> comp) -> comp.
-let  : comp -> (expr -> comp) -> comp.
-letr : (expr -> expr -> comp) -> (expr -> comp) -> comp.
+cond : expr -> comp -> comp -> comp.
 zro? : expr -> comp.
 pred : expr -> comp.
-cond : expr -> comp -> comp -> comp.
 absd : expr -> comp.
 app  : expr -> expr -> comp.
+val  : expr -> comp.
+op   : expr -> operation Eff -> expr -> (expr -> comp) -> comp.
+let  : comp -> (expr -> comp) -> comp.
+letr : (expr -> expr -> comp) -> (expr -> comp) -> comp.
 
 
 
-<=r : region E -> region E -> type. %infix none 30 <=r.
-
-<=r/empty : region/empty <=r R.
-<=r/cons : region/cons I R <=r R'
-         <- R <=r R'
-         <- in-region I R'.
-
-
-<=d : dirt -> dirt -> type. %infix none 30 <=d.
-
-<=d/empty : dirt/empty <=d D.
-<=d/cons : dirt/cons I O D <=d D'
-         <- D <=d D'
-         <- in-dirt-instance I O D'.
-
-
-<=t : ty -> ty -> type. %infix none 30 <=t.
-<=dt : dirty -> dirty -> type. %infix none 30 <=dt.
-
-<=t/nat : nat <=t nat.
-<=t/bool : bool <=t bool.
-<=t/unit : unit <=t unit.
-<=t/empty : empty <=t empty.
-<=t/inst : inst R <=t inst R'
-         <- R <=r R'.
-<=t/--> : (A --> B) <=t (A' --> B')
-        <- B <=dt B'
-        <- A' <=t A.
-<=t/==> : (A ==> B) <=t (A' ==> B')
-        <- B <=dt B'
-        <- A' <=dt A.
-<=dt/! : (A ! D) <=dt (A' ! D')
-       <- D <=d D'
-       <- A <=t A'.
-
-
-
-%%%%{ Typing judgements }%%%%%
-
-eof : expr -> ty -> type.
-cof : comp -> dirty -> type.
-
-eof/zro : eof zro nat.
-eof/suc : eof (suc E) nat
-	   <- eof E nat.
-eof/tru : eof tru bool.
-eof/fls : eof fls bool.
-eof/unt : eof unt unit.
-eof/ins : eof (ins I) (inst R)
-	   <- in-region I R.
-eof/fun : eof (fun E) (A --> B)
-	   <- ({x} eof x A -> cof (E x) B).
-eof/sub : eof E A'
-	   <- A <=t A'
-	   <- eof E A.
-
-cof/val  : cof (val E) (A ! D)
-	    <- eof E A.
-cof/op   : cof (op Ei O Ep K) (B ! D)
-	    <- in-dirt R O D
-	    <- ({x} eof x A' -> cof (K x) (B ! D))
-	    <- eof Ep A
-	    <- sig O A A'
-	    <- eof Ei (inst (R : region E)).
-cof/let  : cof (let C1 C2) (B ! D)
-	    <- ({x} eof x A -> cof (C2 x) (B ! D))
-	    <- cof C1 (A ! D).
-cof/letr : cof (letr C1 C2) B
-	    <- ({f} eof f (A --> A') -> cof (C2 f) B)
-	    <- ({f} {x} eof f (A --> A') -> eof x A -> cof (C1 f x) A').
-cof/zro? : cof (zro? E) (bool ! D)
-	    <- eof E nat.
-cof/pred : cof (pred E) (nat ! D)
-	    <- eof E nat.
-cof/cond : cof (cond E C1 C2) A
-	    <- cof C2 A
-	    <- cof C1 A
-	    <- eof E bool.
-cof/absd : cof (absd E) A
-	    <- eof E empty.
-cof/app  : cof (app E1 E2) B
-	    <- eof E2 A
-	    <- eof E1 (A --> B).
-cof/sub  : cof C B'
-	    <- B <=dt B'
-	    <- cof C B.
-
-
-
-%%%%{ Operational semantics }%%%%%
+%%% Small step operational semantics
 
 step : comp -> comp -> type.
 
-step/let-val  : step (let (val E) C2) (C2 E).
-step/let-op   : step (let (op Ei O Ep K) C2) (op Ei O Ep ([y] let (K y) C2)).
-step/let-step : step (let C1 C2) (let C1' C2)
-		 <- step C1 C1'.
-step/letr     : step (letr C1 C2) (C2 (fun ([y] letr C1 ([f] C1 f y)))).
+step/cond-tru : step (cond tru C1 _) C1.
+step/cond-fls : step (cond fls _ C2) C2.
 step/zro?-zro : step (zro? zro) (val tru).
 step/zro?-suc : step (zro? (suc _)) (val fls).
 step/pred-zro : step (pred zro) (val zro).
 step/pred-suc : step (pred (suc E)) (val E).
-step/cond-tru : step (cond tru C1 _) C1.
-step/cond-fls : step (cond fls _ C2) C2.
 step/app      : step (app (fun E1) E2) (E1 E2).
+step/let-val  : step (let (val E) C2) (C2 E).
+step/let-op   : step (let (op Ei O Ep K) C2) (op Ei O Ep ([x] let (K x) C2)).
+step/let-step : step (let C1 C2) (let C1' C2)
+                <- step C1 C1'.
+step/letr     : step (letr C1 C2) (C2 (fun ([x] letr C1 ([f] C1 f x)))).
+
 
 non-stuck : comp -> dirt -> type.
 
-non-stuck/val  : non-stuck (val _) D.
-non-stuck/op   : non-stuck (op (ins I) O _ _) D
-          <- in-dirt-instance I O D.
-non-stuck/step : non-stuck C D
-          <- step C _.
+non-stuck/val  : non-stuck (val _) _.
+non-stuck/op   : non-stuck (op (ins I) O _ _) Drt
+                 <- in-dirt-instance I O Drt.
+non-stuck/step : non-stuck C _
+                 <- step C _.
+
+
+
+%%% Types
+
+ty    : type.
+dirty : type.
+%name ty A.
+%name dirty B.
+
+bool  : ty.
+nat   : ty.
+unit  : ty.
+empty : ty.
+-->   : ty -> dirty -> ty.
+inst  : region Eff -> ty.
+==>   : dirty -> dirty -> ty.
+!     : ty -> dirt -> dirty.
+%infix right 50 -->.
+%infix right 55 ==>.
+%infix none 60 !.
+
+
+
+sig : operation Eff -> ty -> ty -> type.
+
+%block var-effect : block {eff : effect}.
+%block var-instance : some {eff : effect} block {inst : instance eff}.
+%block var-operation : some {eff : effect} {par : ty} {res : ty} block {op : operation eff}{_ : sig op par res}.
+%block vars = (var-effect | var-instance | var-operation).
+
+
+
+%%% Subtyping
+
+<=t       : ty -> ty -> type. %infix none 30 <=t.
+<=dt      : dirty -> dirty -> type. %infix none 30 <=dt.
+
+<=t/bool  : bool <=t bool.
+<=t/nat   : nat <=t nat.
+<=t/unit  : unit <=t unit.
+<=t/empty : empty <=t empty.
+<=t/-->   : A --> B <=t A' --> B'
+            <- B <=dt B'
+            <- A' <=t A.
+<=t/inst  : inst R <=t inst R'
+            <- R <=r R'.
+<=t/==>   : B1 ==> B2 <=t B1' ==> B2'
+            <- B2 <=dt B2'
+            <- B1' <=dt B1.
+<=dt/!    : A ! Drt <=dt A' ! Drt'
+            <- Drt <=d Drt'
+            <- A <=t A'.
+
+
+
+%%% Typing judgements
+
+eof : expr -> ty -> type.
+cof : comp -> dirty -> type.
+
+eof/tru : eof tru bool.
+eof/fls : eof fls bool.
+eof/zro : eof zro nat.
+eof/suc : eof (suc E) nat
+          <- eof E nat.
+eof/unt : eof unt unit.
+eof/fun : eof (fun E) (A --> B)
+          <- ({x} eof x A -> cof (E x) B).
+eof/ins : eof (ins I) (inst R)
+          <- in-region I R.
+eof/sub : eof E A'
+          <- A <=t A'
+          <- eof E A.
+
+cof/cond : cof (cond E C1 C2) B
+           <- cof C2 B
+           <- cof C1 B
+           <- eof E bool.
+cof/zro? : cof (zro? E) (bool ! Drt)
+           <- eof E nat.
+cof/pred : cof (pred E) (nat ! Drt)
+           <- eof E nat.
+cof/absd : cof (absd E) B
+           <- eof E empty.
+cof/app  : cof (app E1 E2) B
+           <- eof E2 A
+           <- eof E1 (A --> B).
+cof/val  : cof (val E) (A ! Drt)
+           <- eof E A.
+cof/op   : cof (op Ei O Ep K) (B ! Drt)
+           <- in-dirt R O Drt
+           <- ({x} eof x A2 -> cof (K x) (B ! Drt))
+           <- eof Ep A1
+           <- sig O A1 A2
+           <- eof Ei (inst (R : region Eff)).
+cof/let  : cof (let C1 C2) (A' ! Drt)
+           <- ({x} eof x A -> cof (C2 x) (A' ! Drt))
+           <- cof C1 (A ! Drt).
+cof/letr : cof (letr C1 C2) B'
+           <- ({f} eof f (A --> B) -> cof (C2 f) B')
+           <- ({f} {x} eof f (A --> B) -> eof x A -> cof (C1 f x) B).
+cof/sub  : cof C B'
+           <- B <=dt B'
+           <- cof C B.
