@@ -52,21 +52,21 @@ in-dirt/cons  : in-dirt (region/cons I R) O D
 
 
 
-<=r : region Eff -> region Eff -> type.
-%infix none 30 <=r.
+<r : region Eff -> region Eff -> type.
+%infix none 30 <r.
 
-<=r/empty : region/empty <=r R.
-<=r/cons  : region/cons I R <=r R'
-          <- R <=r R'
+<r/empty : region/empty <r R.
+<r/cons  : region/cons I R <r R'
+          <- R <r R'
           <- in-region I R'.
 
 
-<=d : dirt -> dirt -> type.
-%infix none 30 <=d.
+<d : dirt -> dirt -> type.
+%infix none 30 <d.
 
-<=d/empty : dirt/empty <=d D.
-<=d/cons  : dirt/cons I O D <=d D'
-          <- D <=d D'
+<d/empty : dirt/empty <d D.
+<d/cons  : dirt/cons I O D <d D'
+          <- D <d D'
           <- in-dirt-instance I O D'.
 
 

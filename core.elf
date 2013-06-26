@@ -51,13 +51,13 @@ final : comp -> dirt -> type.
 
 final/val : final (val _) _.
 final/op  : final (op (ins I) O _ _) Drt
-                 <- in-dirt-instance I O Drt.
+             <- in-dirt-instance I O Drt.
 
 
 
 %%% Types
 
-ty    : type.
+ty : type.
 dirty : type.
 %name ty A.
 %name dirty B.
@@ -75,7 +75,6 @@ inst  : region Eff -> ty.
 %infix none 60 !.
 
 
-
 sig : operation Eff -> ty -> ty -> type.
 
 %block var-effect : block {eff : effect}.
@@ -87,24 +86,24 @@ sig : operation Eff -> ty -> ty -> type.
 
 %%% Subtyping
 
-<=t       : ty -> ty -> type. %infix none 30 <=t.
-<=dt      : dirty -> dirty -> type. %infix none 30 <=dt.
+<t : ty -> ty -> type. %infix none 30 <t.
+<dt : dirty -> dirty -> type. %infix none 30 <dt.
 
-<=t/bool  : bool <=t bool.
-<=t/nat   : nat <=t nat.
-<=t/unit  : unit <=t unit.
-<=t/empty : empty <=t empty.
-<=t/-->   : A --> B <=t A' --> B'
-            <- B <=dt B'
-            <- A' <=t A.
-<=t/inst  : inst R <=t inst R'
-            <- R <=r R'.
-<=t/==>   : B1 ==> B2 <=t B1' ==> B2'
-            <- B2 <=dt B2'
-            <- B1' <=dt B1.
-<=dt/!    : A ! Drt <=dt A' ! Drt'
-            <- Drt <=d Drt'
-            <- A <=t A'.
+<t/bool  : bool <t bool.
+<t/nat   : nat <t nat.
+<t/unit  : unit <t unit.
+<t/empty : empty <t empty.
+<t/-->   : A --> B <t A' --> B'
+            <- B <dt B'
+            <- A' <t A.
+<t/inst  : inst R <t inst R'
+            <- R <r R'.
+<t/==>   : B1 ==> B2 <t B1' ==> B2'
+            <- B2 <dt B2'
+            <- B1' <dt B1.
+<dt/!    : A ! Drt <dt A' ! Drt'
+            <- Drt <d Drt'
+            <- A <t A'.
 
 
 
@@ -117,43 +116,43 @@ eof/tru : eof tru bool.
 eof/fls : eof fls bool.
 eof/zro : eof zro nat.
 eof/suc : eof (suc E) nat
-          <- eof E nat.
+           <- eof E nat.
 eof/unt : eof unt unit.
 eof/fun : eof (fun E) (A --> B)
-          <- ({x} eof x A -> cof (E x) B).
+           <- ({x} eof x A -> cof (E x) B).
 eof/ins : eof (ins I) (inst R)
-          <- in-region I R.
+           <- in-region I R.
 eof/sub : eof E A'
-          <- A <=t A'
-          <- eof E A.
+           <- A <t A'
+           <- eof E A.
 
 cof/cond : cof (cond E C1 C2) B
-           <- cof C2 B
-           <- cof C1 B
-           <- eof E bool.
+            <- cof C2 B
+            <- cof C1 B
+            <- eof E bool.
 cof/zro? : cof (zro? E) (bool ! Drt)
-           <- eof E nat.
+            <- eof E nat.
 cof/pred : cof (pred E) (nat ! Drt)
-           <- eof E nat.
+            <- eof E nat.
 cof/absd : cof (absd E) B
-           <- eof E empty.
+            <- eof E empty.
 cof/app  : cof (app E1 E2) B
-           <- eof E2 A
-           <- eof E1 (A --> B).
+            <- eof E2 A
+            <- eof E1 (A --> B).
 cof/val  : cof (val E) (A ! Drt)
-           <- eof E A.
+            <- eof E A.
 cof/op   : cof (op Ei O Ep K) (B ! Drt)
-           <- in-dirt R O Drt
-           <- ({x} eof x A2 -> cof (K x) (B ! Drt))
-           <- eof Ep A1
-           <- sig O A1 A2
-           <- eof Ei (inst (R : region Eff)).
+            <- in-dirt R O Drt
+            <- ({x} eof x A2 -> cof (K x) (B ! Drt))
+            <- eof Ep A1
+            <- sig O A1 A2
+            <- eof Ei (inst (R : region Eff)).
 cof/let  : cof (let C1 C2) (A' ! Drt)
-           <- ({x} eof x A -> cof (C2 x) (A' ! Drt))
-           <- cof C1 (A ! Drt).
+            <- ({x} eof x A -> cof (C2 x) (A' ! Drt))
+            <- cof C1 (A ! Drt).
 cof/letr : cof (letr C1 C2) B'
-           <- ({f} eof f (A --> B) -> cof (C2 f) B')
-           <- ({f} {x} eof f (A --> B) -> eof x A -> cof (C1 f x) B).
+            <- ({f} eof f (A --> B) -> cof (C2 f) B')
+            <- ({f} {x} eof f (A --> B) -> eof x A -> cof (C1 f x) B).
 cof/sub  : cof C B'
-           <- B <=dt B'
-           <- cof C B.
+            <- B <dt B'
+            <- cof C B.

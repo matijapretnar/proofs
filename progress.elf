@@ -8,16 +8,16 @@ non-stuck/step  : non-stuck C _
                   <- step C _.
 
 
-non-stuck/<=d : non-stuck C Drt -> Drt <=d Drt' -> non-stuck C Drt' -> type.
-%mode non-stuck/<=d +NS +DD' -NS'.
+non-stuck/<d : non-stuck C Drt -> Drt <d Drt' -> non-stuck C Drt' -> type.
+%mode non-stuck/<d +NS +DD' -NS'.
 
-- : non-stuck/<=d (non-stuck/final final/val) _ (non-stuck/final final/val).
-- : non-stuck/<=d (non-stuck/step S) _ (non-stuck/step S).
-- : non-stuck/<=d (non-stuck/final (final/op IOinD)) DD' (non-stuck/final (final/op IOinD'))
-     <- <=d/in-dirt-instance IOinD DD' IOinD'.
+- : non-stuck/<d (non-stuck/final final/val) _ (non-stuck/final final/val).
+- : non-stuck/<d (non-stuck/step S) _ (non-stuck/step S).
+- : non-stuck/<d (non-stuck/final (final/op IOinD)) DD' (non-stuck/final (final/op IOinD'))
+     <- <d/in-dirt-instance IOinD DD' IOinD'.
 
-%worlds (vars) (non-stuck/<=d _ _ _).
-%total {NS} (non-stuck/<=d NS _ _).
+%worlds (vars) (non-stuck/<d _ _ _).
+%total {NS} (non-stuck/<d NS _ _).
 
 
 
@@ -85,8 +85,8 @@ progress-op : {Drt} {Ep} {K} eof Ei (inst R) -> in-dirt R O Drt -> non-stuck (op
 
 - : progress-op _ _ _ (eof/ins IinR) ROinD (non-stuck/final (final/op IOinD))
      <- instance-in-region-in-dirt IinR ROinD IOinD.
-- : progress-op Drt Ep K (eof/sub E1 (<=t/inst RR')) R'OinD NS
-     <- <=r/in-dirt RR' R'OinD ROinD
+- : progress-op Drt Ep K (eof/sub E1 (<t/inst RR')) R'OinD NS
+     <- <r/in-dirt RR' R'OinD ROinD
      <- progress-op Drt Ep K E1 ROinD NS.
 
 %worlds (vars) (progress-op _ _ _ _ _ _).
@@ -141,9 +141,9 @@ progress : {Drt : dirt} cof C (A ! Drt) -> non-stuck C Drt -> type.
 
 - : progress _ (cof/letr _ _) (non-stuck/step step/letr).
 
-- : progress Drt' (cof/sub C (<=dt/! _ Drt<=Drt')) NS'
+- : progress Drt' (cof/sub C (<dt/! _ Drt<Drt')) NS'
      <- progress Drt C NS
-     <- non-stuck/<=d NS Drt<=Drt' NS'.
+     <- non-stuck/<d NS Drt<Drt' NS'.
 
 %worlds (vars) (progress _ _ _).
 %total {C} (progress _ C _).
