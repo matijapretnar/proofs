@@ -43,7 +43,7 @@ step/app      : step (app (fun E1) E2) (E1 E2).
 step/let-val  : step (let (val E) C2) (C2 E).
 step/let-op   : step (let (op Ei O Ep K) C2) (op Ei O Ep ([x] let (K x) C2)).
 step/let-step : step (let C1 C2) (let C1' C2)
-                <- step C1 C1'.
+                 <- step C1 C1'.
 step/letr     : step (letr C1 C2) (C2 (fun ([x] letr C1 ([f] C1 f x)))).
 
 
@@ -84,7 +84,7 @@ sig : operation Eff -> ty -> ty -> type.
 
 
 
-%%% Subtyping
+%%% Subtyping judgements
 
 <t : ty -> ty -> type. %infix none 30 <t.
 <dt : dirty -> dirty -> type. %infix none 30 <dt.

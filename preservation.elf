@@ -66,10 +66,10 @@ preservation-let-val : cof (val E) (A ! D) -> D <d D' -> ({x} eof x A -> cof (C 
 %worlds (vars) (preservation-let-val _ _ _ _).
 %total {E} (preservation-let-val E _ _ _).
 
-preservation-let-op : cof (op Ei O Ep K) (A ! D) -> D <d D' -> ({x} eof x A -> cof (C x) (B ! D')) -> cof (op Ei O Ep ([y] let (K y) C)) (B ! D') -> type.
+preservation-let-op : cof (op Ei O Ep K) (A ! D) -> D <d D' -> ({x} eof x A -> cof (C x) (B ! D')) -> cof (op Ei O Ep ([x'] let (K x') C)) (B ! D') -> type.
 %mode preservation-let-op +E +D<D' +C -B.
 
-- : preservation-let-op (cof/op Ei O Ep K ROinDrt) D<D' C (cof/op Ei O Ep ([y] [yO] (cof/let (cof/sub (K y yO) (<dt/! A<A D<D')) C)) ROinDrt')
+- : preservation-let-op (cof/op Ei O Ep K ROinDrt) D<D' C (cof/op Ei O Ep ([x'] [e'] (cof/let (cof/sub (K x' e') (<dt/! A<A D<D')) C)) ROinDrt')
      <- <d/in-dirt ROinDrt D<D' ROinDrt'
      <- <t/refl A A<A.
 
@@ -102,7 +102,7 @@ preservation-let : cof C1 (A ! D) -> ({x} eof x A -> cof (C2 x) (A' ! D)) -> ste
      <- preservation-let C1 C2 S C'.
 
 - : preservation (cof/letr C1 C2) S
-     (C2 _ (eof/fun ([_] [y] (cof/letr C1 ([_] [f] C1 _ _ f y))))).
+     (C2 _ (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ _ f x))))).
 
 - : preservation (cof/sub C CC') S (cof/sub C' CC')
      <- preservation C S C'.

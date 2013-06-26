@@ -13,10 +13,10 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 
 - : non-stuck/<d (non-stuck/final final/val) _ (non-stuck/final final/val).
 
-- : non-stuck/<d (non-stuck/step S) _ (non-stuck/step S).
-
 - : non-stuck/<d (non-stuck/final (final/op IOinDrt)) D<D' (non-stuck/final (final/op IOinDrt'))
      <- <d/in-dirt-instance IOinDrt D<D' IOinDrt'.
+
+- : non-stuck/<d (non-stuck/step S) _ (non-stuck/step S).
 
 %worlds (vars) (non-stuck/<d _ _ _).
 %total {NS} (non-stuck/<d NS _ _).
@@ -95,8 +95,8 @@ progress-op : {D} {Ep} {K} eof Ei (inst R) -> in-dirt R O D -> non-stuck (op Ei 
 - : progress-op _ _ _ (eof/ins IinR) ROinDrt (non-stuck/final (final/op IOinDrt))
      <- instance-in-region-in-dirt IinR ROinDrt IOinDrt.
 
-- : progress-op D Ep K (eof/sub E1 (<t/inst RR')) R'OinDrt NS
-     <- <r/in-dirt RR' R'OinDrt ROinDrt
+- : progress-op D Ep K (eof/sub E1 (<t/inst R<R')) R'OinDrt NS
+     <- <r/in-dirt R<R' R'OinDrt ROinDrt
      <- progress-op D Ep K E1 ROinDrt NS.
 
 %worlds (vars) (progress-op _ _ _ _ _ _).
