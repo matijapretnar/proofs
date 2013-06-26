@@ -4,17 +4,17 @@ effect : type.
 %name effect Eff eff.
 
 operation : effect -> type.
-%name operation O o.
+%name operation O.
 
 instance : effect -> type.
-%name instance I i.
+%name instance I.
 
 
 
 %%% Dirt
 
 dirt : type.
-%name dirt Drt drt.
+%name dirt D.
 
 dirt/empty : dirt.
 dirt/cons  : instance Eff -> operation Eff -> dirt -> dirt.
@@ -29,7 +29,7 @@ in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
 
 
 region : effect -> type.
-%name region R r.
+%name region R.
 
 region/empty : region Eff.
 region/cons  : instance Eff -> region Eff -> region Eff.

@@ -2,19 +2,21 @@
 
 non-stuck : comp -> dirt -> type.
 
-non-stuck/final : non-stuck C Drt
-                  <- final C Drt.
+non-stuck/final : non-stuck C D
+                  <- final C D.
 non-stuck/step  : non-stuck C _
                   <- step C _.
 
 
-non-stuck/<d : non-stuck C Drt -> Drt <d Drt' -> non-stuck C Drt' -> type.
-%mode non-stuck/<d +NS +DD' -NS'.
+non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
+%mode non-stuck/<d +NS +D<D' -NS'.
 
 - : non-stuck/<d (non-stuck/final final/val) _ (non-stuck/final final/val).
+
 - : non-stuck/<d (non-stuck/step S) _ (non-stuck/step S).
-- : non-stuck/<d (non-stuck/final (final/op IOinD)) DD' (non-stuck/final (final/op IOinD'))
-     <- <d/in-dirt-instance IOinD DD' IOinD'.
+
+- : non-stuck/<d (non-stuck/final (final/op IOinDrt)) D<D' (non-stuck/final (final/op IOinDrt'))
+     <- <d/in-dirt-instance IOinDrt D<D' IOinDrt'.
 
 %worlds (vars) (non-stuck/<d _ _ _).
 %total {NS} (non-stuck/<d NS _ _).
@@ -23,77 +25,85 @@ non-stuck/<d : non-stuck C Drt -> Drt <d Drt' -> non-stuck C Drt' -> type.
 
 %%% Progress
 
-progress-cond : {Drt} {C1} {C2} eof E bool -> non-stuck (cond E C1 C2) Drt -> type.
-%mode progress-cond +Drt +C1 +C2 +E -NS.
+progress-cond : {D} {C1} {C2} eof E bool -> non-stuck (cond E C1 C2) D -> type.
+%mode progress-cond +D +C1 +C2 +E -NS.
 
 - : progress-cond _ _ _ eof/tru (non-stuck/step step/cond-tru).
+
 - : progress-cond _ _ _ eof/fls (non-stuck/step step/cond-fls).
-- : progress-cond Drt _ _ (eof/sub E _) NS
-     <- progress-cond Drt _ _ E NS.
+
+- : progress-cond D _ _ (eof/sub E _) NS
+     <- progress-cond D _ _ E NS.
 
 %worlds (vars) (progress-cond _ _ _ _ _).
 %total {E} (progress-cond _ _ _ E _).
 
 
-progress-zro? : {Drt} eof E nat -> non-stuck (zro? E) Drt -> type.
-%mode progress-zro? +Drt +E -NS.
+progress-zro? : {D} eof E nat -> non-stuck (zro? E) D -> type.
+%mode progress-zro? +D +E -NS.
 
-- : progress-zro? Drt eof/zro (non-stuck/step step/zro?-zro).
-- : progress-zro? Drt (eof/suc _) (non-stuck/step step/zro?-suc).
-- : progress-zro? Drt (eof/sub E _) NS
-     <- progress-zro? Drt E NS.
+- : progress-zro? D eof/zro (non-stuck/step step/zro?-zro).
+
+- : progress-zro? D (eof/suc _) (non-stuck/step step/zro?-suc).
+
+- : progress-zro? D (eof/sub E _) NS
+     <- progress-zro? D E NS.
 
 %worlds (vars) (progress-zro? _ _ _).
 %total {E} (progress-zro? _ E _).
 
 
-progress-pred : {Drt} eof E nat -> non-stuck (pred E) Drt -> type.
-%mode progress-pred +Drt +E -NS.
+progress-pred : {D} eof E nat -> non-stuck (pred E) D -> type.
+%mode progress-pred +D +E -NS.
 
-- : progress-pred Drt eof/zro (non-stuck/step step/pred-zro).
-- : progress-pred Drt (eof/suc _) (non-stuck/step step/pred-suc).
-- : progress-pred Drt (eof/sub E _) NS
-     <- progress-pred Drt E NS.
+- : progress-pred D eof/zro (non-stuck/step step/pred-zro).
+
+- : progress-pred D (eof/suc _) (non-stuck/step step/pred-suc).
+
+- : progress-pred D (eof/sub E _) NS
+     <- progress-pred D E NS.
 
 %worlds (vars) (progress-pred _ _ _).
 %total {E} (progress-pred _ E _).
 
 
-progress-absd : {Drt} eof E empty -> non-stuck (absd E) Drt -> type.
-%mode progress-absd +Drt +E -NS.
+progress-absd : {D} eof E empty -> non-stuck (absd E) D -> type.
+%mode progress-absd +D +E -NS.
 
-- : progress-absd Drt (eof/sub E _) NS
-     <- progress-absd Drt E NS.
+- : progress-absd D (eof/sub E _) NS
+     <- progress-absd D E NS.
 
 %worlds (vars) (progress-absd _ _ _).
 %total {E} (progress-absd _ E _).
 
 
-progress-app : {Drt} eof E1 (A --> B) -> {E2} non-stuck (app E1 E2) Drt -> type.
-%mode progress-app +Drt +E1 +E2 -NS.
+progress-app : {D} eof E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
+%mode progress-app +D +E1 +E2 -NS.
 
 - : progress-app _ (eof/fun _) _ (non-stuck/step step/app).
-- : progress-app Drt (eof/sub E1 _) E2 NS
-     <- progress-app Drt E1 E2 NS.
+
+- : progress-app D (eof/sub E1 _) E2 NS
+     <- progress-app D E1 E2 NS.
 
 %worlds (vars) (progress-app _ _ _ _).
 %total {E1} (progress-app _ E1 _ _).
 
 
-progress-op : {Drt} {Ep} {K} eof Ei (inst R) -> in-dirt R O Drt -> non-stuck (op Ei O Ep K) Drt -> type.
-%mode progress-op +Drt +Ep +K +Ei +ROinD -NS.
+progress-op : {D} {Ep} {K} eof Ei (inst R) -> in-dirt R O D -> non-stuck (op Ei O Ep K) D -> type.
+%mode progress-op +D +Ep +K +Ei +ROinDrt -NS.
 
-- : progress-op _ _ _ (eof/ins IinR) ROinD (non-stuck/final (final/op IOinD))
-     <- instance-in-region-in-dirt IinR ROinD IOinD.
-- : progress-op Drt Ep K (eof/sub E1 (<t/inst RR')) R'OinD NS
-     <- <r/in-dirt RR' R'OinD ROinD
-     <- progress-op Drt Ep K E1 ROinD NS.
+- : progress-op _ _ _ (eof/ins IinR) ROinDrt (non-stuck/final (final/op IOinDrt))
+     <- instance-in-region-in-dirt IinR ROinDrt IOinDrt.
+
+- : progress-op D Ep K (eof/sub E1 (<t/inst RR')) R'OinDrt NS
+     <- <r/in-dirt RR' R'OinDrt ROinDrt
+     <- progress-op D Ep K E1 ROinDrt NS.
 
 %worlds (vars) (progress-op _ _ _ _ _ _).
 %total {Ei} (progress-op _ _ _ Ei _ _).
 
 
-progress-let : {C2} non-stuck C1 Drt -> non-stuck (let C1 C2) Drt -> type.
+progress-let : {C2} non-stuck C1 D -> non-stuck (let C1 C2) D -> type.
 %mode progress-let +C2 +NS1 -NS.
 
 - : progress-let _
@@ -112,8 +122,8 @@ progress-let : {C2} non-stuck C1 Drt -> non-stuck (let C1 C2) Drt -> type.
 %total {NS1} (progress-let _ NS1 _).
 
 
-progress : {Drt : dirt} cof C (A ! Drt) -> non-stuck C Drt -> type.
-%mode progress +Drt +CO -NS.
+progress : {D : dirt} cof C (A ! D) -> non-stuck C D -> type.
+%mode progress +D +CO -NS.
 
 - : progress _ (cof/cond E _ _) NS
      <- progress-cond _ _ _ E NS.
@@ -135,15 +145,15 @@ progress : {Drt : dirt} cof C (A ! Drt) -> non-stuck C Drt -> type.
 - : progress _ (cof/op Ei _ _ _ ROinDrt) NS
      <- progress-op _ _ _ Ei ROinDrt NS.
 
-- : progress Drt (cof/let C1 _) NS
-     <- progress Drt C1 NS1
+- : progress D (cof/let C1 _) NS
+     <- progress D C1 NS1
      <- progress-let _ NS1 NS.
 
 - : progress _ (cof/letr _ _) (non-stuck/step step/letr).
 
-- : progress Drt' (cof/sub C (<dt/! _ Drt<Drt')) NS'
-     <- progress Drt C NS
-     <- non-stuck/<d NS Drt<Drt' NS'.
+- : progress D' (cof/sub C (<dt/! _ D<D')) NS'
+     <- progress D C NS
+     <- non-stuck/<d NS D<D' NS'.
 
 %worlds (vars) (progress _ _ _).
 %total {C} (progress _ C _).

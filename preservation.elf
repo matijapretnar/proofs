@@ -14,29 +14,29 @@ preservation-cond : eof E bool -> cof C1 C -> cof C2 C -> step (cond E C1 C2) C'
 %total {E} (preservation-cond E _ _ _ _).
 
 
-preservation-zro? : {Drt} eof E nat -> step (zro? E) C' -> cof C' (bool ! Drt) -> type.
-%mode preservation-zro? +Drt +E +S -C'.
+preservation-zro? : {D} eof E nat -> step (zro? E) C' -> cof C' (bool ! D) -> type.
+%mode preservation-zro? +D +E +S -C'.
 
 - : preservation-zro? _ eof/zro step/zro?-zro (cof/val eof/tru).
 
 - : preservation-zro? _ (eof/suc _) step/zro?-suc (cof/val eof/fls).
 
-- : preservation-zro? Drt (eof/sub E _) S C'
-     <- preservation-zro? Drt E S C'.
+- : preservation-zro? D (eof/sub E _) S C'
+     <- preservation-zro? D E S C'.
 
 %worlds (vars) (preservation-zro? _ _ _ _).
 %total {E} (preservation-zro? _ E _ _).
 
 
-preservation-pred : {Drt} eof E nat -> step (pred E) C' -> cof C' (nat ! Drt) -> type.
-%mode preservation-pred +Drt +E +S -C'.
+preservation-pred : {D} eof E nat -> step (pred E) C' -> cof C' (nat ! D) -> type.
+%mode preservation-pred +D +E +S -C'.
 
 - : preservation-pred _ eof/zro step/pred-zro (cof/val eof/zro).
 
 - : preservation-pred _ (eof/suc E) step/pred-suc (cof/val E).
 
-- : preservation-pred Drt (eof/sub E _) S C'
-     <- preservation-pred Drt E S C'.
+- : preservation-pred D (eof/sub E _) S C'
+     <- preservation-pred D E S C'.
 
 %worlds (vars) (preservation-pred _ _ _ _).
 %total {E} (preservation-pred _ E _ _).
@@ -54,35 +54,35 @@ preservation-app : eof E1 (A --> B) -> eof E2 A -> step (app E1 E2) C -> cof C B
 %total {E1} (preservation-app E1 _ _ _).
 
 
-preservation-let-val : cof (val E) (A ! Drt) -> Drt <d Drt' -> ({x} eof x A -> cof (C x) (B ! Drt')) -> cof (C E) (B ! Drt') -> type.
-%mode preservation-let-val +E +Drt<Drt' +C -B.
+preservation-let-val : cof (val E) (A ! D) -> D <d D' -> ({x} eof x A -> cof (C x) (B ! D')) -> cof (C E) (B ! D') -> type.
+%mode preservation-let-val +E +D<D' +C -B.
 
 - : preservation-let-val (cof/val E) _ C (C _ E).
 
-- : preservation-let-val (cof/sub E (<dt/! AA' Drt<Drt')) Drt'<Drt'' C B
-     <- <d/trans Drt<Drt' Drt'<Drt'' Drt<Drt''
-     <- preservation-let-val E Drt<Drt'' ([x] [e] (C x (eof/sub e AA'))) B.
+- : preservation-let-val (cof/sub E (<dt/! AA' D<D')) D'<D'' C B
+     <- <d/trans D<D' D'<D'' D<D''
+     <- preservation-let-val E D<D'' ([x] [e] (C x (eof/sub e AA'))) B.
 
 %worlds (vars) (preservation-let-val _ _ _ _).
 %total {E} (preservation-let-val E _ _ _).
 
-preservation-let-op : cof (op Ei O Ep K) (A ! Drt) -> Drt <d Drt' -> ({x} eof x A -> cof (C x) (B ! Drt')) -> cof (op Ei O Ep ([y] let (K y) C)) (B ! Drt') -> type.
-%mode preservation-let-op +E +Drt<Drt' +C -B.
+preservation-let-op : cof (op Ei O Ep K) (A ! D) -> D <d D' -> ({x} eof x A -> cof (C x) (B ! D')) -> cof (op Ei O Ep ([y] let (K y) C)) (B ! D') -> type.
+%mode preservation-let-op +E +D<D' +C -B.
 
-- : preservation-let-op (cof/op Ei O Ep K ROinDrt) Drt<Drt' C (cof/op Ei O Ep ([y] [yO] (cof/let (cof/sub (K y yO) (<dt/! A<A Drt<Drt')) C)) ROinDrt')
-     <- <d/in-dirt ROinDrt Drt<Drt' ROinDrt'
+- : preservation-let-op (cof/op Ei O Ep K ROinDrt) D<D' C (cof/op Ei O Ep ([y] [yO] (cof/let (cof/sub (K y yO) (<dt/! A<A D<D')) C)) ROinDrt')
+     <- <d/in-dirt ROinDrt D<D' ROinDrt'
      <- <t/refl A A<A.
 
-- : preservation-let-op (cof/sub E (<dt/! AA' Drt<Drt')) Drt'<Drt'' C B
-     <- <d/trans Drt<Drt' Drt'<Drt'' Drt<Drt''
-     <- preservation-let-op E Drt<Drt'' ([x] [e] (C x (eof/sub e AA'))) B.
+- : preservation-let-op (cof/sub E (<dt/! AA' D<D')) D'<D'' C B
+     <- <d/trans D<D' D'<D'' D<D''
+     <- preservation-let-op E D<D'' ([x] [e] (C x (eof/sub e AA'))) B.
 
 %worlds (vars) (preservation-let-op _ _ _ _).
 %total {E} (preservation-let-op E _ _ _).
 
 
 preservation : cof C A -> step C C' -> cof C' A -> type.
-preservation-let : cof C1 (A ! Drt) -> ({x} eof x A -> cof (C2 x) (A' ! Drt)) -> step (let C1 C2) C' -> cof C' (A' ! Drt) -> type.
+preservation-let : cof C1 (A ! D) -> ({x} eof x A -> cof (C2 x) (A' ! D)) -> step (let C1 C2) C' -> cof C' (A' ! D) -> type.
 %mode preservation +C +S -C'.
 %mode preservation-let +C1 +C2 +S -C'.
 
@@ -109,12 +109,12 @@ preservation-let : cof C1 (A ! Drt) -> ({x} eof x A -> cof (C2 x) (A' ! Drt)) ->
 
 
 - : preservation-let C1 C2 step/let-val C'
-     <- <d/refl _ Drt<Drt
-     <- preservation-let-val C1 Drt<Drt C2 C'.
+     <- <d/refl _ D<D
+     <- preservation-let-val C1 D<D C2 C'.
 
 - : preservation-let C1 C2 step/let-op C'
-     <- <d/refl _ Drt<Drt
-     <- preservation-let-op C1 Drt<Drt C2 C'.
+     <- <d/refl _ D<D
+     <- preservation-let-op C1 D<D C2 C'.
 
 - : preservation-let C1 C2 (step/let-step S) (cof/let C1' C2)
      <- preservation C1 S C1'.
