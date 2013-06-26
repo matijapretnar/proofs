@@ -1,12 +1,20 @@
+non-stuck : comp -> dirt -> type.
+
+non-stuck/final : non-stuck C Drt
+                  <- final C Drt.
+non-stuck/step  : non-stuck C _
+                  <- step C _.
+
+
 progress-let : {C2} non-stuck C1 D -> non-stuck (let C1 C2) D -> type.
 %mode progress-let +C2 +NS1 -NS.
 
 - : progress-let _
-     non-stuck/val
+     (non-stuck/final final/val)
      (non-stuck/step step/let-val).
 
 - : progress-let _
-     (non-stuck/op _)
+     (non-stuck/final (final/op _))
      (non-stuck/step step/let-op).
 
 - : progress-let _
@@ -78,7 +86,7 @@ progress-app : {D} eof E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 progress-op : {D} {Ep} {K} eof Ei (inst R) -> in-dirt R O D -> non-stuck (op Ei O Ep K) D -> type.
 %mode progress-op +D +Ep +K +Ei +ROinD -NS.
 
-- : progress-op _ _ _ (eof/ins IinR) ROinD (non-stuck/op IOinD)
+- : progress-op _ _ _ (eof/ins IinR) ROinD (non-stuck/final (final/op IOinD))
      <- instance-in-region-in-dirt IinR ROinD IOinD.
 - : progress-op D Ep K (eof/sub E1 (<=t/inst RR')) R'OinD NS
      <- <=r/in-dirt RR' R'OinD ROinD
@@ -91,9 +99,9 @@ progress-op : {D} {Ep} {K} eof Ei (inst R) -> in-dirt R O D -> non-stuck (op Ei 
 non-stuck/<=d : non-stuck C D -> D <=d D' -> non-stuck C D' -> type.
 %mode non-stuck/<=d +NS +DD' -NS'.
 
-- : non-stuck/<=d non-stuck/val _ non-stuck/val.
+- : non-stuck/<=d (non-stuck/final final/val) _ (non-stuck/final final/val).
 - : non-stuck/<=d (non-stuck/step S) _ (non-stuck/step S).
-- : non-stuck/<=d (non-stuck/op IOinD) DD' (non-stuck/op IOinD')
+- : non-stuck/<=d (non-stuck/final (final/op IOinD)) DD' (non-stuck/final (final/op IOinD'))
      <- <=d/in-dirt-instance IOinD DD' IOinD'.
 
 %worlds (vars) (non-stuck/<=d _ _ _).
@@ -102,7 +110,7 @@ non-stuck/<=d : non-stuck C D -> D <=d D' -> non-stuck C D' -> type.
 progress : {D : dirt} cof C (A ! D) -> non-stuck C D -> type.
 %mode progress +D +CO -NS.
 
-- : progress _ (cof/val _) non-stuck/val.
+- : progress _ (cof/val _) (non-stuck/final final/val).
 
 - : progress _ (cof/op Ei O Ep K ROinD) NS
      <- progress-op _ _ _ Ei ROinD NS.

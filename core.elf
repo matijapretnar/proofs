@@ -47,13 +47,11 @@ step/let-step : step (let C1 C2) (let C1' C2)
 step/letr     : step (letr C1 C2) (C2 (fun ([x] letr C1 ([f] C1 f x)))).
 
 
-non-stuck : comp -> dirt -> type.
+final : comp -> dirt -> type.
 
-non-stuck/val  : non-stuck (val _) _.
-non-stuck/op   : non-stuck (op (ins I) O _ _) Drt
+final/val : final (val _) _.
+final/op  : final (op (ins I) O _ _) Drt
                  <- in-dirt-instance I O Drt.
-non-stuck/step : non-stuck C _
-                 <- step C _.
 
 
 
