@@ -1,38 +1,46 @@
-<r/rest : {E} {I : instance E} {R : region E} R <r (region/cons I R) -> type. 
-%mode <r/rest +E +I +R -RIR.
+<r/rest : {E} {I : instance E} {R : region E} {R' : region E}
+     R <r R' -> R <r (region/cons I R') -> type. 
+%mode <r/rest +E +I +R +R' +RR' -RIR'.
 
-- : <r/rest _ _ _ <r/empty.
+- : <r/rest _ _ _ _ <r/empty <r/empty.
+- : <r/rest _ _ _ _ (<r/cons JR' RR') (<r/cons (in-region/there JR') RIR')
+     <- <r/rest _ _ _ _ RR' RIR'.
 
-%worlds (vars) (<r/rest _ _ _ _).
-%trustme %total {} (<r/rest _ _ _ _).
+%worlds (vars) (<r/rest _ _ _ _ _ _).
+%total {RR'} (<r/rest _ _ _ _ RR' _).
 
 <r/refl : {R} R <r R -> type.
 %mode <r/refl +R -RR.
 
 - : <r/refl region/empty <r/empty.
 - : <r/refl (region/cons I R) (<r/cons in-region/here RIR)
-     <- <r/rest _ _ R RIR.
+     <- <r/refl R RR
+     <- <r/rest _ _ R R RR RIR.
 
 %worlds (vars) (<r/refl _ _).
-%total {} (<r/refl _ _).
+%total {R} (<r/refl R _).
 
-<d/rest : {E} {D} {I : instance E} {O} D <d (dirt/cons I O D) -> type. 
-%mode <d/rest +E +D +I +O -DIOD.
+<d/rest : {E} {D} {I : instance E} {O} {D'} D <d D' -> D <d (dirt/cons I O D') -> type. 
+%mode <d/rest +E +D +I +O +D' +DD' -DIOD'.
 
-- : <d/rest _ _ _ _ <d/empty.
+- : <d/rest _ _ _ _ _ <d/empty <d/empty.
+- : <d/rest _ _ _ _ _ (<d/cons JOD' DD') (<d/cons (in-dirt-instance/there JOD') DIOD')
+     <- <d/rest _ _ _ _ _ DD' DIOD'.
 
-%worlds (vars) (<d/rest _ _ _ _ _).
-%trustme %total {} (<d/rest _ _ _ _ _).
+
+%worlds (vars) (<d/rest _ _ _ _ _ _ _).
+%total {DD'} (<d/rest _ _ _ _ _ DD' _).
 
 <d/refl : {D} D <d D -> type.
 %mode <d/refl +D -DD.
 
 - : <d/refl dirt/empty <d/empty.
 - : <d/refl (dirt/cons I O D) (<d/cons in-dirt-instance/here DIOD)
-     <- <d/rest _ D I O DIOD.
+     <- <d/refl D DD
+     <- <d/rest _ D I O D DD DIOD.
 
 %worlds (vars) (<d/refl _ _).
-%total {} (<d/refl _ _).
+%total {D} (<d/refl D _).
 
 <t/refl : {A} A <t A -> type.
 %mode <t/refl +A -AA.
