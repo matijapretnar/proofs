@@ -175,11 +175,9 @@ progress : {D : dirt} cof C (A ! D) -> non-stuck C D -> type.
 
 - : progress _ (cof/letr _ _) (non-stuck/step step/letr).
 
-- : progress D' (cof/with E C) NS
+- : progress D' (cof/with E C) NS'
      <- progress D C NS
-     <- <d/refl D DD
-     <- <d/refl D' D'D'
-     <- progress-with D D' E DD D'D' NS NS'.
+     <- progress-with E NS NS'.
 
 - : progress D' (cof/sub C (<dt/! _ D<D')) NS'
      <- progress D C NS
