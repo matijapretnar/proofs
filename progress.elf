@@ -121,6 +121,30 @@ progress-let : {C2} non-stuck C1 D -> non-stuck (let C1 C2) D -> type.
 %worlds (vars) (progress-let _ _ _).
 %total {NS1} (progress-let _ NS1 _).
 
+big-lemma : ({x} eof x A -> cof (Cv x) (A' ! D2)) ->
+            opcof Cops (A' ! D2) Dcov ->
+            covers D1 Dcov D2 ->
+            non-stuck C D1 ->
+            non-stuck (with (hnd Cv Cops) C) D2 -> type.
+%mode big-lemma +Cval +Cops +Covers +NS -NS'.
+
+%worlds (vars) (big-lemma _ _ _ _ _).
+%trustme %total {NS} (big-lemma _ _ _ NS _).
+
+progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
+%mode progress-with +E +NS -NS'.
+
+- : progress-with (eof/hnd Cval Cops Covers) NS NS'
+     <- big-lemma Cval Cops Covers NS NS'.
+
+- : progress-with (eof/sub E (<t/==> (<dt/! _ D1D1') (<dt/! _ D2'D2))) NS1 NS2
+     <- non-stuck/<d NS1 D1D1' NS1'
+     <- progress-with E NS1' NS2'
+     <- non-stuck/<d NS2' D2'D2 NS2.
+
+%worlds (vars) (progress-with _ _ _).
+%total {E} (progress-with E _ _).
+
 
 progress : {D : dirt} cof C (A ! D) -> non-stuck C D -> type.
 %mode progress +D +CO -NS.
@@ -150,6 +174,12 @@ progress : {D : dirt} cof C (A ! D) -> non-stuck C D -> type.
      <- progress-let _ NS1 NS.
 
 - : progress _ (cof/letr _ _) (non-stuck/step step/letr).
+
+- : progress D' (cof/with E C) NS
+     <- progress D C NS
+     <- <d/refl D DD
+     <- <d/refl D' D'D'
+     <- progress-with D D' E DD D'D' NS NS'.
 
 - : progress D' (cof/sub C (<dt/! _ D<D')) NS'
      <- progress D C NS
