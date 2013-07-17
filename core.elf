@@ -6,8 +6,11 @@
 
 expr : type.
 comp : type.
+op-cases : type.
 %name expr E.
 %name comp C.
+%abbrev val-case = expr -> comp.
+%abbrev op-case = expr -> (expr -> comp) -> comp.
 
 tru : expr.
 fls : expr.
@@ -16,6 +19,7 @@ suc : expr -> expr.
 unt : expr.
 fun : (expr -> comp) -> expr.
 ins : instance Eff -> expr.
+hnd : val-case -> op-cases -> expr.
 
 cond : expr -> comp -> comp -> comp.
 zro? : expr -> comp.
@@ -26,25 +30,47 @@ val  : expr -> comp.
 op   : expr -> operation Eff -> expr -> (expr -> comp) -> comp.
 let  : comp -> (expr -> comp) -> comp.
 letr : (expr -> expr -> comp) -> (expr -> comp) -> comp.
+with : expr -> comp -> comp.
 
-
+op-cases/nil : op-cases.
+op-cases/cons : expr -> operation Eff -> op-case -> op-cases -> op-cases.
 
 %%% Small step operational semantics
 
+if-then-op-case : decide -> op-case -> op-case -> op-case -> type.
+%mode if-then-op-case +D +HC1 +HC2 -HC.
+
+- : if-then-op-case yes HC _  HC.
+- : if-then-op-case no  _  HC HC.
+
+get-op-case : instance Eff -> operation Eff -> op-cases -> op-case -> type.
+%mode get-op-case +I +O +Cases -Case.
+
+get-op-case/nil  : get-op-case I O op-cases/nil ([x] [k] op (ins I) O x k).
+get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' HC H) HC''
+                   <- eq-inst-op I O I' O' D
+                   <- get-op-case I' O' H HC'
+                   <- if-then-op-case D HC HC' HC''.
+
 step : comp -> comp -> type.
 
-step/cond-tru : step (cond tru C1 _) C1.
-step/cond-fls : step (cond fls _ C2) C2.
-step/zro?-zro : step (zro? zro) (val tru).
-step/zro?-suc : step (zro? (suc _)) (val fls).
-step/pred-zro : step (pred zro) (val zro).
-step/pred-suc : step (pred (suc E)) (val E).
-step/app      : step (app (fun E1) E2) (E1 E2).
-step/let-val  : step (let (val E) C2) (C2 E).
-step/let-op   : step (let (op Ei O Ep K) C2) (op Ei O Ep ([x] let (K x) C2)).
-step/let-step : step (let C1 C2) (let C1' C2)
-                 <- step C1 C1'.
-step/letr     : step (letr C1 C2) (C2 (fun ([x] letr C1 ([f] C1 f x)))).
+step/cond-tru  : step (cond tru C1 _) C1.
+step/cond-fls  : step (cond fls _ C2) C2.
+step/zro?-zro  : step (zro? zro) (val tru).
+step/zro?-suc  : step (zro? (suc _)) (val fls).
+step/pred-zro  : step (pred zro) (val zro).
+step/pred-suc  : step (pred (suc E)) (val E).
+step/app       : step (app (fun E1) E2) (E1 E2).
+step/let-val   : step (let (val E) C2) (C2 E).
+step/let-op    : step (let (op Ei O Ep K) C2) (op Ei O Ep ([x] let (K x) C2)).
+step/let-step  : step (let C1 C2) (let C1' C2)
+                  <- step C1 C1'.
+step/letr      : step (letr C1 C2) (C2 (fun ([x] letr C1 ([f] C1 f x)))).
+step/with-val  : step (with (hnd Cv _) (val E)) (Cv E).
+step/with-op   : step (with (hnd Cv Cops) (op (ins I) O Ep K)) (Cop Ep ([y] with (hnd Cv Cops) (K y)))
+                  <- get-op-case I O Cops Cop.
+step/with-step : step (with E C) (with E C')
+                  <- step C C'.
 
 
 final : comp -> dirt -> type.
@@ -111,6 +137,22 @@ sig : operation Eff -> ty -> ty -> type.
 
 eof : expr -> ty -> type.
 cof : comp -> dirty -> type.
+opcof : op-cases -> dirty -> dirt -> type.
+covers : dirt -> dirt -> dirt -> type.
+
+
+covers/empty      : covers dirt/empty _ _.
+covers/cons-here  : covers (dirt/cons I O D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt-instance I O D1.
+covers/cons-there : covers (dirt/cons I O D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt-instance I O D2.
+
+add-if-singleton : dirt -> region Eff -> operation Eff -> dirt -> type.
+add-if-singleton/zero : add-if-singleton D region/empty _ D.
+add-if-singleton/one : add-if-singleton D (region/cons I region/empty) O (dirt/cons I O D).
+add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
 
 eof/tru : eof tru bool.
 eof/fls : eof fls bool.
@@ -125,6 +167,18 @@ eof/ins : eof (ins I) (inst R)
 eof/sub : eof E A'
            <- A <t A'
            <- eof E A.
+eof/hnd : eof (hnd Cv Cops) (A ! D ==> A' ! D')
+           <- covers D Dcov D'
+           <- opcof Cops B Dcov
+           <- ({x} eof x A -> cof (Cv x) (A' ! D')).
+
+opcof/nil  : opcof op-cases/nil B dirt/empty.
+opcof/cons : opcof (op-cases/cons E O Cop Cops) B D'
+              <- add-if-singleton D R O D'
+              <- opcof Cops B D
+              <- ({x} eof x A1 -> {k} ({y} eof y A2 -> cof (k y) B) -> cof (Cop x k) B)
+              <- sig O A1 A2
+              <- eof E (inst (R : region Eff)). 
 
 cof/cond : cof (cond E C1 C2) B
             <- cof C2 B
@@ -153,6 +207,9 @@ cof/let  : cof (let C1 C2) (A' ! D)
 cof/letr : cof (letr C1 C2) B'
             <- ({f} eof f (A --> B) -> cof (C2 f) B')
             <- ({f} {x} eof f (A --> B) -> eof x A -> cof (C1 f x) B).
+cof/with : cof (with E C) B'
+            <- cof C B
+            <- eof E (B ==> B').
 cof/sub  : cof C B'
             <- B <dt B'
             <- cof C B.

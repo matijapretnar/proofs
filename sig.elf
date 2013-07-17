@@ -1,3 +1,12 @@
+decide : type. %name decide YesNo.
+yes : decide.
+no : decide.
+
+conj : decide -> decide -> decide -> type.
+%mode conj +D1 +D2 -D3.
+- : conj yes D D.
+- : conj no _ no.
+
 %%% Effect signature
 
 effect : type.
@@ -9,7 +18,11 @@ operation : effect -> type.
 instance : effect -> type.
 %name instance I.
 
+eq-inst-op : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> decide -> type.
+%mode eq-inst-op +I +O +I' +O' -D.
 
+%worlds () (eq-inst-op _ _ _ _ _).
+%trustme %total {} (eq-inst-op _ _ _ _ _).
 
 %%% Dirt
 
