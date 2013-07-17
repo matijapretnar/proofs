@@ -169,7 +169,7 @@ eof/sub : eof E A'
            <- eof E A.
 eof/hnd : eof (hnd Cv Cops) (A ! D ==> A' ! D')
            <- covers D Dcov D'
-           <- opcof Cops B Dcov
+           <- opcof Cops (A' ! D') Dcov
            <- ({x} eof x A -> cof (Cv x) (A' ! D')).
 
 opcof/nil  : opcof op-cases/nil B dirt/empty.
