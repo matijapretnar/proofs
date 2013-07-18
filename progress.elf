@@ -124,8 +124,10 @@ progress-let : {C2} non-stuck C1 D -> non-stuck (let C1 C2) D -> type.
 always-get-case : {I} {O} opcof Cops B D -> get-op-case I O Cops Cop -> type.
 %mode always-get-case +I +O +Cops -Get.
 
+- : always-get-case _ _ opcof/nil get-op-case/nil.
+
 %worlds (vars) (always-get-case _ _ _ _).
-%trustme %total {} (always-get-case _ _ _ _).
+%trustme %total {Cops} (always-get-case _ _ Cops _).
 
 progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
 %mode progress-with +E +NS -NS'.
