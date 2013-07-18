@@ -76,6 +76,16 @@
 %worlds (vars) (<d/in-dirt-instance _ _ _).
 %total {IiD} (<d/in-dirt-instance IiD _ _).
 
+<r/in-region : in-region I D -> D <r D' -> in-region I D' -> type.
+%mode <r/in-region +IiD +DD' -IiD'.
+
+- : <r/in-region in-region/here (<r/cons IiD' _) IiD'.
+- : <r/in-region (in-region/there IiD) (<r/cons _ DD') IiD'
+     <- <r/in-region IiD DD' IiD'.
+
+%worlds (vars) (<r/in-region _ _ _).
+%total {IiD} (<r/in-region IiD _ _).
+
 <d/in-dirt : in-dirt R O D -> D <d D' -> in-dirt R O D' -> type.
 %mode <d/in-dirt +RiD +DD' -RiD'.
 
@@ -98,11 +108,62 @@
 %worlds (vars) (<d/trans _ _ _).
 %total {DD'} (<d/trans DD' _ _).
 
-<t/trans : D <t D' -> D' <t D'' -> D <t D'' -> type.
-%mode <t/trans +DD' +D'D'' -DD''.
+<r/trans : D <r D' -> D' <r D'' -> D <r D'' -> type.
+%mode <r/trans +DD' +D'D'' -DD''.
 
-%worlds (vars) (<t/trans _ _ _).
-%trustme %total {DD'} (<t/trans DD' _ _).
+- : <r/trans <r/empty _ <r/empty.
+- : <r/trans (<r/cons IOD' DD') D'D'' (<r/cons IOD'' DD'')
+     <- <r/trans DD' D'D'' DD''
+     <- <r/in-region IOD' D'D'' IOD''.
+
+%worlds (vars) (<r/trans _ _ _).
+%total {DD'} (<r/trans DD' _ _).
+
+<t/trans : D <t D' -> D' <t D'' -> D <t D'' -> type.
+<dt/trans : D <dt D' -> D' <dt D'' -> D <dt D'' -> type.
+<t/snart : D' <t D -> D'' <t D' -> D'' <t D -> type.
+<dt/snart : D' <dt D -> D'' <dt D' -> D'' <dt D -> type.
+%mode <t/trans +DD' +D'D'' -DD''.
+%mode <t/snart +D'D'' +DD' -DD''.
+%mode <dt/trans +DD' +D'D'' -DD''.
+%mode <dt/snart +D'D'' +DD' -DD''.
+
+- : <t/trans <t/nat _ <t/nat.
+- : <t/trans <t/bool _ <t/bool.
+- : <t/trans <t/unit _ <t/unit.
+- : <t/trans <t/empty _ <t/empty.
+- : <t/trans (<t/--> A'A BB') (<t/--> A''A' B'B'')  (<t/--> A''A BB'')
+     <- <dt/trans BB' B'B'' BB''
+     <- <t/snart A'A A''A' A''A.
+- : <t/trans (<t/inst RR') (<t/inst R'R'') (<t/inst RR'')
+     <- <r/trans RR' R'R'' RR''.
+- : <t/trans (<t/==> A'A BB') (<t/==> A''A' B'B'')  (<t/==> A''A BB'')
+     <- <dt/trans BB' B'B'' BB''
+     <- <dt/snart A'A A''A' A''A.
+
+- : <t/snart <t/nat _ <t/nat.
+- : <t/snart <t/bool _ <t/bool.
+- : <t/snart <t/unit _ <t/unit.
+- : <t/snart <t/empty _ <t/empty.
+- : <t/snart (<t/--> A'A BB') (<t/--> A''A' B'B'')  (<t/--> A''A BB'')
+     <- <dt/snart BB' B'B'' BB''
+     <- <t/trans A'A A''A' A''A.
+- : <t/snart (<t/inst R'R) (<t/inst R''R') (<t/inst R''R)
+     <- <r/trans R''R' R'R R''R.
+- : <t/snart (<t/==> A'A BB') (<t/==> A''A' B'B'')  (<t/==> A''A BB'')
+     <- <dt/snart BB' B'B'' BB''
+     <- <dt/trans A'A A''A' A''A.
+
+- : <dt/trans (<dt/! AA' DD') (<dt/! A'A'' D'D'') (<dt/! AA'' DD'')
+     <- <d/trans DD' D'D'' DD''
+     <- <t/trans AA' A'A'' AA''.
+
+- : <dt/snart (<dt/! AA' D'D) (<dt/! A'A'' D''D') (<dt/! AA'' D''D)
+     <- <d/trans D''D' D'D D''D
+     <- <t/snart AA' A'A'' AA''.
+
+%worlds (vars) (<t/trans _ _ _) (<t/snart _ _ _) (<dt/trans _ _ _) (<dt/snart _ _ _).
+%total {(DD' EE' FF' GG')} (<t/trans DD' _ _) (<t/snart EE' _ _) (<dt/trans FF' _ _) (<dt/snart GG' _ _).
 
 instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance I O D -> type.
 %mode instance-in-region-in-dirt +IinR +ROinD -IOinD.
