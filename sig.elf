@@ -1,11 +1,7 @@
-decide : type. %name decide YesNo.
+decide : type.
+%name decide YesNo.
 yes : decide.
 no : decide.
-
-conj : decide -> decide -> decide -> type.
-%mode conj +D1 +D2 -D3.
-- : conj yes D D.
-- : conj no _ no.
 
 %%% Effect signature
 
