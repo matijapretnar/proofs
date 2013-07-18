@@ -99,6 +99,12 @@ preservation-with-val : cof (val E) (A ! D) -> A <t A' -> D <d D' -> eof (hnd Cv
 %worlds (vars) (preservation-with-val _ _ _ _ _).
 %total {E C} (preservation-with-val E _ _ C _).
 
+preservation-with-op : cof (op (ins I) O Ep K) (A ! D) -> get-op-case I O Cops Cop -> A <t A' -> D <d D' -> eof (hnd Cv Cops) (A' ! D' ==> A'' ! D'') -> cof (Cop Ep (fun ([y] with (hnd Cv Cops) (K y)))) (A'' ! D'') -> type.
+%mode preservation-with-op +E +Get +AA' +DD' +C -C'.
+
+%worlds (vars) (preservation-with-op _ _ _ _ _ _).
+%trustme %total {E C} (preservation-with-op E _ _ _ C _).
+
 
 preservation : cof C A -> step C C' -> cof C' A -> type.
 preservation-let : cof C1 (A ! D) -> ({x} eof x A -> cof (C2 x) (A' ! D)) -> step (let C1 C2) C' -> cof C' (A' ! D) -> type.
@@ -149,9 +155,10 @@ preservation-with : eof E (B ==> B') -> cof C B -> step (with E C) C' -> cof C' 
      <- <d/refl _ D<D
      <- preservation-with-val E A<A D<D C C'.
 
-% - : preservation-with E C step/with-op C'
-%      <- <d/refl _ D<D
-%      <- preservation-with-op E D<D C C'.
+- : preservation-with C E (step/with-op Get) C'
+     <- <t/refl _ A<A
+     <- <d/refl _ D<D
+     <- preservation-with-op E Get A<A D<D C C'.
 
 - : preservation-with E C (step/with-step S) (cof/with E C')
      <- preservation C S C'.
