@@ -10,7 +10,7 @@ op-cases : type.
 %name expr E.
 %name comp C.
 %abbrev val-case = expr -> comp.
-%abbrev op-case = expr -> (expr -> comp) -> comp.
+%abbrev op-case = expr -> expr -> comp.
 
 tru : expr.
 fls : expr.
@@ -46,7 +46,7 @@ if-then-op-case : decide -> op-case -> op-case -> op-case -> type.
 get-op-case : instance Eff -> operation Eff -> op-cases -> op-case -> type.
 %mode get-op-case +I +O +Cases -Case.
 
-get-op-case/nil  : get-op-case I O op-cases/nil ([x] [k] op (ins I) O x k).
+get-op-case/nil  : get-op-case I O op-cases/nil ([x] [k] op (ins I) O x ([y] app k y)).
 get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' HC H) HC''
                    <- eq-inst-op I O I' O' D
                    <- get-op-case I' O' H HC'
@@ -67,7 +67,7 @@ step/let-step  : step (let C1 C2) (let C1' C2)
                   <- step C1 C1'.
 step/letr      : step (letr C1 C2) (C2 (fun ([x] letr C1 ([f] C1 f x)))).
 step/with-val  : step (with (hnd Cv _) (val E)) (Cv E).
-step/with-op   : step (with (hnd Cv Cops) (op (ins I) O Ep K)) (Cop Ep ([y] with (hnd Cv Cops) (K y)))
+step/with-op   : step (with (hnd Cv Cops) (op (ins I) O Ep K)) (Cop Ep (fun ([y] with (hnd Cv Cops) (K y))))
                   <- get-op-case I O Cops Cop.
 step/with-step : step (with E C) (with E C')
                   <- step C C'.
@@ -176,7 +176,7 @@ opcof/nil  : opcof op-cases/nil B dirt/empty.
 opcof/cons : opcof (op-cases/cons E O Cop Cops) B D'
               <- add-if-singleton D R O D'
               <- opcof Cops B D
-              <- ({x} eof x A1 -> {k} ({y} eof y A2 -> cof (k y) B) -> cof (Cop x k) B)
+              <- ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (Cop x k) B)
               <- sig O A1 A2
               <- eof E (inst (R : region Eff)). 
 
