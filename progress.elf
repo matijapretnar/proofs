@@ -121,21 +121,27 @@ progress-let : {C2} non-stuck C1 D -> non-stuck (let C1 C2) D -> type.
 %worlds (vars) (progress-let _ _ _).
 %total {NS1} (progress-let _ NS1 _).
 
-big-lemma : ({x} eof x A -> cof (Cv x) (A' ! D2)) ->
-            opcof Cops (A' ! D2) Dcov ->
-            covers D1 Dcov D2 ->
-            non-stuck C D1 ->
-            non-stuck (with (hnd Cv Cops) C) D2 -> type.
-%mode big-lemma +Cval +Cops +Covers +NS -NS'.
+always-get-case : {I} {O} opcof Cops B D -> get-op-case I O Cops Cop -> type.
+%mode always-get-case +I +O +Cops -Get.
 
-%worlds (vars) (big-lemma _ _ _ _ _).
-%trustme %total {NS} (big-lemma _ _ _ NS _).
+%worlds (vars) (always-get-case _ _ _ _).
+%trustme %total {} (always-get-case _ _ _ _).
 
 progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
 %mode progress-with +E +NS -NS'.
 
-- : progress-with (eof/hnd Cval Cops Covers) NS NS'
-     <- big-lemma Cval Cops Covers NS NS'.
+- : progress-with (eof/hnd _ _ _)
+     (non-stuck/final final/val)
+     (non-stuck/step step/with-val).
+
+- : progress-with (eof/hnd _ Cops _)
+     (non-stuck/final (final/op _))
+     (non-stuck/step (step/with-op Get))
+     <- always-get-case _ _ Cops Get.
+
+- : progress-with (eof/hnd _ _ _)
+     (non-stuck/step S)
+     (non-stuck/step (step/with-step S)).
 
 - : progress-with (eof/sub E (<t/==> (<dt/! _ D1D1') (<dt/! _ D2'D2))) NS1 NS2
      <- non-stuck/<d NS1 D1D1' NS1'
