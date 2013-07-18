@@ -70,25 +70,26 @@ get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' OC OCs) OC''
 
 % The small step semantics relation.
 
-step : comp -> comp -> type.
+~> : comp -> comp -> type.
+%infix none 40 ~>.
 
-step/cond-tru  : step (cond tru C1 _) C1.
-step/cond-fls  : step (cond fls _ C2) C2.
-step/zro?-zro  : step (zro? zro) (val tru).
-step/zro?-suc  : step (zro? (suc _)) (val fls).
-step/pred-zro  : step (pred zro) (val zro).
-step/pred-suc  : step (pred (suc E)) (val E).
-step/app       : step (app (fun E1) E2) (E1 E2).
-step/let-val   : step (let (val E) C2) (C2 E).
-step/let-op    : step (let (op Ei O Ep K) C2) (op Ei O Ep ([x] let (K x) C2)).
-step/let-step  : step (let C1 C2) (let C1' C2)
-                  <- step C1 C1'.
-step/letr      : step (letr C1 C2) (C2 (fun ([x] letr C1 ([f] C1 f x)))).
-step/with-val  : step (with (hnd Cv _) (val E)) (Cv E).
-step/with-op   : step (with (hnd Cv OCs) (op (ins I) O Ep K)) (OC Ep (fun ([y] with (hnd Cv OCs) (K y))))
+~>/cond-tru  :  cond tru C1 _ ~> C1.
+~>/cond-fls  :  cond fls _ C2 ~> C2.
+~>/zro?-zro  :  zro? zro ~> val tru.
+~>/zro?-suc  :  zro? (suc _) ~> val fls.
+~>/pred-zro  :  pred zro ~> val zro.
+~>/pred-suc  :  pred (suc E) ~> val E.
+~>/app       :  app (fun E1) E2 ~> E1 E2.
+~>/let-val   :  let (val E) C2 ~> C2 E.
+~>/let-op    :  let (op Ei O Ep K) C2 ~> op Ei O Ep ([x] let (K x) C2).
+~>/let-step  :  let C1 C2 ~> let C1' C2
+                  <- C1 ~> C1'.
+~>/letr      :  letr C1 C2 ~> C2 (fun ([x] letr C1 ([f] C1 f x))).
+~>/with-val  :  with (hnd Cv _) (val E) ~> Cv E.
+~>/with-op   :  with (hnd Cv OCs) (op (ins I) O Ep K) ~> OC Ep (fun ([y] with (hnd Cv OCs) (K y)))
                   <- get-op-case I O OCs OC.
-step/with-step : step (with E C) (with E C')
-                  <- step C C'.
+~>/with-step :  with E C ~> with E C'
+                  <- C ~> C'.
 
 % A computation is considered "final" if it is a value or an operation.
 

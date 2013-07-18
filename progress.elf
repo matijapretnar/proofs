@@ -3,9 +3,9 @@
 non-stuck : comp -> dirt -> type.
 
 non-stuck/final : non-stuck C D
-                   <- final C D.
+                  <- final C D.
 non-stuck/step  : non-stuck C _
-                   <- step C _.
+                  <- C ~> _.
 
 
 non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
@@ -73,9 +73,9 @@ get-op-case-total/cons :
 progress-cond : {D} eof E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> type.
 %mode progress-cond +D +E +C1 +C2 -NS.
 
-- : progress-cond _ eof/tru _ _ (non-stuck/step step/cond-tru).
+- : progress-cond _ eof/tru _ _ (non-stuck/step ~>/cond-tru).
 
-- : progress-cond _ eof/fls _ _ (non-stuck/step step/cond-fls).
+- : progress-cond _ eof/fls _ _ (non-stuck/step ~>/cond-fls).
 
 - : progress-cond D (eof/sub E _) _ _ NS
      <- progress-cond D E _ _ NS.
@@ -87,9 +87,9 @@ progress-cond : {D} eof E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> type.
 progress-zro? : {D} eof E nat -> non-stuck (zro? E) D -> type.
 %mode progress-zro? +D +E -NS.
 
-- : progress-zro? D eof/zro (non-stuck/step step/zro?-zro).
+- : progress-zro? D eof/zro (non-stuck/step ~>/zro?-zro).
 
-- : progress-zro? D (eof/suc _) (non-stuck/step step/zro?-suc).
+- : progress-zro? D (eof/suc _) (non-stuck/step ~>/zro?-suc).
 
 - : progress-zro? D (eof/sub E _) NS
      <- progress-zro? D E NS.
@@ -101,9 +101,9 @@ progress-zro? : {D} eof E nat -> non-stuck (zro? E) D -> type.
 progress-pred : {D} eof E nat -> non-stuck (pred E) D -> type.
 %mode progress-pred +D +E -NS.
 
-- : progress-pred D eof/zro (non-stuck/step step/pred-zro).
+- : progress-pred D eof/zro (non-stuck/step ~>/pred-zro).
 
-- : progress-pred D (eof/suc _) (non-stuck/step step/pred-suc).
+- : progress-pred D (eof/suc _) (non-stuck/step ~>/pred-suc).
 
 - : progress-pred D (eof/sub E _) NS
      <- progress-pred D E NS.
@@ -125,7 +125,7 @@ progress-absd : {D} eof E empty -> non-stuck (absd E) D -> type.
 progress-app : {D} eof E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 %mode progress-app +D +E1 +E2 -NS.
 
-- : progress-app _ (eof/fun _) _ (non-stuck/step step/app).
+- : progress-app _ (eof/fun _) _ (non-stuck/step ~>/app).
 
 - : progress-app D (eof/sub E1 _) E2 NS
      <- progress-app D E1 E2 NS.
@@ -151,11 +151,11 @@ progress-op : eof Ei (inst R) -> {Ep} {K} in-dirt R O D -> non-stuck (op Ei O Ep
 progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
 %mode progress-let +NS1 +C2 -NS.
 
-- : progress-let (non-stuck/final final/val) _ (non-stuck/step step/let-val).
+- : progress-let (non-stuck/final final/val) _ (non-stuck/step ~>/let-val).
 
-- : progress-let (non-stuck/final (final/op _)) _ (non-stuck/step step/let-op).
+- : progress-let (non-stuck/final (final/op _)) _ (non-stuck/step ~>/let-op).
 
-- : progress-let (non-stuck/step S1) _ (non-stuck/step (step/let-step S1)).
+- : progress-let (non-stuck/step S1) _ (non-stuck/step (~>/let-step S1)).
 
 %worlds (vars) (progress-let _ _ _).
 %total {NS1} (progress-let NS1 _ _).
@@ -164,12 +164,12 @@ progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
 progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
 %mode progress-with +E +NS1 -NS2.
 
-- : progress-with (eof/hnd _ _ _) (non-stuck/final final/val) (non-stuck/step step/with-val).
+- : progress-with (eof/hnd _ _ _) (non-stuck/final final/val) (non-stuck/step ~>/with-val).
 
-- : progress-with (eof/hnd _ OCs _) (non-stuck/final (final/op _)) (non-stuck/step (step/with-op Get))
+- : progress-with (eof/hnd _ OCs _) (non-stuck/final (final/op _)) (non-stuck/step (~>/with-op Get))
      <- get-op-case-total _ _ OCs Get.
 
-- : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (step/with-step S)).
+- : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (~>/with-step S)).
 
 - : progress-with (eof/sub E (<t/==> (<dt/! _ D1<D1') (<dt/! _ D2'<D2))) NS1 NS2
      <- non-stuck/<d NS1 D1<D1' NS1'
@@ -207,7 +207,7 @@ progress : cof C (_ ! D) -> non-stuck C D -> type.
      <- progress C1 NS1
      <- progress-let NS1 _ NS.
 
-- : progress (cof/letr _ _) (non-stuck/step step/letr).
+- : progress (cof/letr _ _) (non-stuck/step ~>/letr).
 
 - : progress (cof/with E C) NS'
      <- progress C NS
