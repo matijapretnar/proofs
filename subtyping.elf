@@ -98,6 +98,12 @@
 %worlds (vars) (<d/trans _ _ _).
 %total {DD'} (<d/trans DD' _ _).
 
+<t/trans : D <t D' -> D' <t D'' -> D <t D'' -> type.
+%mode <t/trans +DD' +D'D'' -DD''.
+
+%worlds (vars) (<t/trans _ _ _).
+%trustme %total {DD'} (<t/trans DD' _ _).
+
 instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance I O D -> type.
 %mode instance-in-region-in-dirt +IinR +ROinD -IOinD.
 

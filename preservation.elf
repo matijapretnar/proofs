@@ -81,17 +81,23 @@ preservation-let-op : cof (op Ei O Ep K) (A ! D) -> D <d D' -> ({x} eof x A -> c
 %total {E} (preservation-let-op E _ _ _).
 
 
-preservation-with-val : cof (val E) (A ! D) -> D <d D' -> ({x} eof x A -> cof (Cv x) (A' ! D'')) -> cof (Cv E) (A' ! D'') -> type.
-%mode preservation-with-val +E +D<D' +Cv -B'.
+preservation-with-val : cof (val E) (A ! D) -> A <t A' -> D <d D' -> eof (hnd Cv Cops) (A' ! D' ==> A'' ! D'') -> cof (Cv E) (A'' ! D'') -> type.
+%mode preservation-with-val +E +AA' +DD' +C -C'.
 
-- : preservation-with-val (cof/val E) _ Cv (Cv _ E).
+- : preservation-with-val (cof/val E) AA' _ (eof/hnd Cv _ _) (Cv _ (eof/sub E AA')).
 
-- : preservation-with-val (cof/sub E (<dt/! AA' D<D')) D'<D'' Cv C'
+- : preservation-with-val (cof/sub E (<dt/! A<A' D<D')) A'<A'' D'<D'' C B
      <- <d/trans D<D' D'<D'' D<D''
-     <- preservation-with-val E D<D'' ([x] [e] (Cv x (eof/sub e AA'))) C'.
+     <- <t/trans A<A' A'<A'' A<A''
+     <- preservation-with-val E A<A'' D<D'' C B.
 
-%worlds (vars) (preservation-with-val _ _ _ _).
-%total {E} (preservation-with-val E _ _ _).
+- : preservation-with-val E A<A' D<D' (eof/sub C (<t/==> (<dt/! A'<A'' D'<D'') L2)) (cof/sub B L2)
+     <- <d/trans D<D' D'<D'' D<D''
+     <- <t/trans A<A' A'<A'' A<A''
+     <- preservation-with-val E A<A'' D<D'' C B.
+
+%worlds (vars) (preservation-with-val _ _ _ _ _).
+%total {E C} (preservation-with-val E _ _ C _).
 
 
 preservation : cof C A -> step C C' -> cof C' A -> type.
@@ -138,9 +144,10 @@ preservation-with : eof E (B ==> B') -> cof C B -> step (with E C) C' -> cof C' 
      <- preservation C1 S C1'.
 
 
-- : preservation-with (eof/hnd Cv _ _) C step/with-val C'
+- : preservation-with C E step/with-val C'
+     <- <t/refl _ A<A
      <- <d/refl _ D<D
-     <- preservation-with-val C D<D Cv C'.
+     <- preservation-with-val E A<A D<D C C'.
 
 % - : preservation-with E C step/with-op C'
 %      <- <d/refl _ D<D
