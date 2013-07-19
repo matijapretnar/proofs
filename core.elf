@@ -116,6 +116,15 @@ always-if-then-op : {D} {HC} {HC'} {HC''} if-then-op-case D HC HC' HC'' -> type.
 %worlds (vars) (always-if-then-op _ _ _ _ _).
 %total {} (always-if-then-op _ _ _ _ _).
 
+always-eq-inst-op : {Eff} {Eff'} {I : instance Eff} {O} {I' : instance Eff'} {O'} {D} eq-inst-op I O I' O' D -> type.
+%mode always-eq-inst-op +Eff +Eff' +I +O +I' +O' -D -Eq.
+
+- : always-eq-inst-op _ _ I O I O yes eq-inst-op/yes.
+
+%worlds (vars) (always-eq-inst-op _ _ _ _ _ _ _ _).
+%trustme %total {} (always-eq-inst-op _ _ _ _ _ _ _ _).
+
+
 
 
 %%% Subtyping judgements
