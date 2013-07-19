@@ -125,9 +125,13 @@ always-get-case : {I} {O} opcof Cops B D -> get-op-case I O Cops Cop -> type.
 %mode always-get-case +I +O +Cops -Get.
 
 - : always-get-case _ _ opcof/nil get-op-case/nil.
+- : always-get-case _ _ (opcof/cons (eof/ins _) _ _ Cops _) (get-op-case/cons ITE GetRest Eq)
+     <- always-eq-inst-op _ _ _ _ _ _ D Eq
+     <- always-get-case _ _ Cops GetRest
+     <- always-if-then-op D _ _ _ ITE.
 
 %worlds (vars) (always-get-case _ _ _ _).
-%trustme %total {Cops} (always-get-case _ _ Cops _).
+%total {Cops} (always-get-case _ _ Cops _).
 
 progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
 %mode progress-with +E +NS -NS'.
