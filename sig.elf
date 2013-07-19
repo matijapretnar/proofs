@@ -15,10 +15,15 @@ instance : effect -> type.
 %name instance I.
 
 eq-inst-op : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> decide -> type.
-%mode eq-inst-op +I +O +I' +O' -D.
+eq-inst-op/yes : eq-inst-op I O I O Yes.
 
-%worlds () (eq-inst-op _ _ _ _ _).
-%trustme %total {} (eq-inst-op _ _ _ _ _).
+always-eq-inst-op : {Eff} {Eff'} {I : instance Eff} {O} {I' : instance Eff'} {O'} {D} eq-inst-op I O I' O' D -> type.
+%mode always-eq-inst-op +Eff +Eff' +I +O +I' +O' -D -Eq.
+
+- : always-eq-inst-op _ _ I O I O yes eq-inst-op/yes.
+
+%worlds () (always-eq-inst-op _ _ _ _ _ _ _ _).
+%total {} (always-eq-inst-op _ _ _ _ _ _ _ _).
 
 %%% Dirt
 
