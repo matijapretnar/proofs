@@ -1,23 +1,51 @@
+%%% Various definitions
+
+% We define a type of booleans but call it "decide" (with elements "yes" and
+% "no") in order to distiguish it from Eff's "bool".
+
 decide : type.
 %name decide YesNo.
 yes : decide.
 no : decide.
 
-%%% Effect signature
+% There is a type of all effects "effect".
 
 effect : type.
 %name effect Eff eff.
 
+% Each "E : effect" has a type of operations "operation E".
+
 operation : effect -> type.
 %name operation O.
+
+% Each "E : effect" has a type of instances "instance E".
 
 instance : effect -> type.
 %name instance I.
 
+% Let us introduce some terminology. We shall call an element of "operation E"
+% an *operation symbol* or *operation name*. A pair "(I,O)" where "I : instance
+% E" and "O : operation E" is called an *operation*. We write it informally as
+% "I#O" to remind ourselves of Eff's concrete syntax.
+
+% We need the ability to compare two operations I#O and I'#O'. In Twelf this can
+% be done by making the types of instances and operations concrete (essentially
+% natural numbers) and programming the relevant decision procedure. We consider
+% this to be a very clumsy solution, mainly because it exposes implementation
+% details about instances and operations.
+%
+% We would prefer to *hypothesise* the fact that instances and operations have
+% decidable equality, but there is no legal way of doing this in Twelf. So we
+% are going to do it illegaly, by assuming decidable equality "eq-inst-op" which
+% compares operations.
+
 eq-inst-op : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> decide -> type.
 eq-inst-op/yes : eq-inst-op I O I O Yes.
 
-%%% Dirt
+% Later on we will use the "%trustme" directive to assume that "eq-inst-op" is total.
+
+% Dirt is a list of operations. It is used to indicate which operations may
+% happen in a computation.
 
 dirt : type.
 %name dirt D.
@@ -25,6 +53,7 @@ dirt : type.
 dirt/empty : dirt.
 dirt/cons  : instance Eff -> operation Eff -> dirt -> dirt.
 
+% "in-dirt-distance" tells whether a given operation occurs in a given dirt.
 
 in-dirt-instance : instance Eff -> operation Eff -> dirt -> type.
 
@@ -32,7 +61,7 @@ in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
 in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
                          <- in-dirt-instance I O D.
 
-
+% A region is a finite list of instances, all associated with the same effect.
 
 region : effect -> type.
 %name region R.
@@ -40,7 +69,7 @@ region : effect -> type.
 region/empty : region Eff.
 region/cons  : instance Eff -> region Eff -> region Eff.
 
-
+% "in-region" tells whether an instance is in a region.
 
 in-region : instance Eff -> region Eff -> type.
 
@@ -48,6 +77,10 @@ in-region/here  : in-region I (region/cons I R).
 in-region/there : in-region I (region/cons _ R)
                   <- in-region I R.
 
+% Sometimes we have an operation "x#O", and all we know about "x" is that it is
+% an instance from a region "R". We sometimes write this as "R#O". In any case,
+% "in-dirt" check whether "x#O" is in a given dirt (by checking that this is so
+% for every "x" in "R").
 
 in-dirt : region Eff -> operation Eff -> dirt -> type.
 
@@ -56,7 +89,10 @@ in-dirt/cons  : in-dirt (region/cons I R) O D
                 <- in-dirt R O D
                 <- in-dirt-instance I O D.
 
+% Regions and dirt are lists, but they really represent sets. We define the
+% subset relation on regions and dirt.
 
+% "R <r R'" means that region "R" is contained in region "R'".
 
 <r : region Eff -> region Eff -> type.
 %infix none 30 <r.
@@ -66,6 +102,7 @@ in-dirt/cons  : in-dirt (region/cons I R) O D
           <- R <r R'
           <- in-region I R'.
 
+% "D <d D'" means that region "R" is contained in region "R'".
 
 <d : dirt -> dirt -> type.
 %infix none 30 <d.
@@ -74,6 +111,3 @@ in-dirt/cons  : in-dirt (region/cons I R) O D
 <d/cons  : dirt/cons I O D <d D'
           <- D <d D'
           <- in-dirt-instance I O D'.
-
-
-
