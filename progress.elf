@@ -154,8 +154,8 @@ always-get-case : {I} {O} opcof Cops B D -> get-op-case I O Cops Cop -> type.
      <- always-get-case _ _ Cops GetRest
      <- always-if-then-op D _ _ _ ITE.
 
-- : always-get-case I O (opcof/cons (eof/sub E _) _ _ _ _) Case
-     <- always-get-case I O (opcof/cons E _ _ _ _) Case.
+- : always-get-case I O (opcof/cons (eof/sub E _) S X Cops Y) Case
+     <- always-get-case I O (opcof/cons E S X Cops Y) Case.
 
 %worlds (vars) (always-get-case _ _ _ _).
 %total {Cops} (always-get-case _ _ Cops _).
