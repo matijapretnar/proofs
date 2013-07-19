@@ -1,46 +1,63 @@
-%%%% The core language of Eff
+%%% Core Elf: abstract syntax, typing and operational semantics
 
-
-
-%%% Expressions and computations
+% An Eff term is either an expression (inert, free from effects) or a
+% computation (can be evaluated, may cause effects).
 
 expr : type.
-comp : type.
-op-cases : type.
 %name expr E.
+
+comp : type.
 %name comp C.
+
+% Auxiliary types for constructing handlers
+
+op-cases : type. % A list of handler cases, see below
+
 %abbrev val-case = expr -> comp.
 %abbrev op-case = expr -> expr -> comp.
 
-tru : expr.
-fls : expr.
-zro : expr.
-suc : expr -> expr.
-unt : expr.
-fun : (expr -> comp) -> expr.
-ins : instance Eff -> expr.
-hnd : val-case -> op-cases -> expr.
+% Expressions
 
-cond : expr -> comp -> comp -> comp.
-zro? : expr -> comp.
-pred : expr -> comp.
-absd : expr -> comp.
-app  : expr -> expr -> comp.
-val  : expr -> comp.
-op   : expr -> operation Eff -> expr -> (expr -> comp) -> comp.
-let  : comp -> (expr -> comp) -> comp.
-letr : (expr -> expr -> comp) -> (expr -> comp) -> comp.
-with : expr -> comp -> comp.
+tru : expr.                            % true
+fls : expr.                            % false
+zro : expr.                            % zero
+suc : expr -> expr.                    % successor
+unt : expr.                            % unit
+fun : (expr -> comp) -> expr.          % function
+ins : instance Eff -> expr.            % instance
+hnd : val-case -> op-cases -> expr.    % handler
+
+% Computations
+
+cond : expr -> comp -> comp -> comp.   % conditional statement
+zro? : expr -> comp.                   % zero test
+pred : expr -> comp.                   % predecesor
+absd : expr -> comp.                   % eliminator for empty type
+app  : expr -> expr -> comp.           % application
+val  : expr -> comp.                   % injection of values into computations
+op   : expr -> operation Eff -> expr -> (expr -> comp) -> comp. % operation
+let  : comp -> (expr -> comp) -> comp. % let-binding
+letr : (expr -> expr -> comp) -> (expr -> comp) -> comp. % recursive function
+with : expr -> comp -> comp.           % handlig construct
+
+% A handler has a "val-case" and a list of cases for handling operations, these
+% are encoded with "op-cases":
 
 op-cases/nil : op-cases.
 op-cases/cons : expr -> operation Eff -> op-case -> op-cases -> op-cases.
 
 %%% Small step operational semantics
 
+% The handling construct must decide how to handle an operation.
+% For this purpose we define "if-then-op-case".
+
 if-then-op-case : decide -> op-case -> op-case -> op-case -> type.
 
 if-then-op-case/yes : if-then-op-case yes HC _  HC.
 if-then-op-case/no : if-then-op-case no  _  HC HC.
+
+% "get-op-case" finds the handler case which applies to a given operation,
+% or gives the default handler if none applies.
 
 get-op-case : instance Eff -> operation Eff -> op-cases -> op-case -> type.
 
@@ -49,6 +66,8 @@ get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' HC H) HC''
                    <- eq-inst-op I O I' O' D
                    <- get-op-case I' O' H HC'
                    <- if-then-op-case D HC HC' HC''.
+
+% The small step semantics relation.
 
 step : comp -> comp -> type.
 
@@ -70,6 +89,7 @@ step/with-op   : step (with (hnd Cv Cops) (op (ins I) O Ep K)) (Cop Ep (fun ([y]
 step/with-step : step (with E C) (with E C')
                   <- step C C'.
 
+% A computation is considered "final" if it is a value or an operation.
 
 final : comp -> dirt -> type.
 
@@ -77,29 +97,41 @@ final/val : final (val _) _.
 final/op  : final (op (ins I) O _ _) D
              <- in-dirt-instance I O D.
 
-
-
 %%% Types
 
+% Expression types "ty" and computation types "dirty":
+
 ty : type.
-dirty : type.
 %name ty A.
+
+dirty : type.
 %name dirty B.
 
-bool  : ty.
-nat   : ty.
-unit  : ty.
-empty : ty.
--->   : ty -> dirty -> ty.
-inst  : region Eff -> ty.
-==>   : dirty -> dirty -> ty.
+% A dirty type is a pair "A ! D" where "A" is an expression type and
+% "D" is dirt (see "sig.elf").
+
 !     : ty -> dirt -> dirty.
-%infix right 50 -->.
-%infix right 55 ==>.
 %infix none 60 !.
 
+% Expression type constructors:
+
+bool  : ty.                   % the type of booleans
+nat   : ty.                   % the type of natural numbers
+unit  : ty.                   % the unit type
+empty : ty.                   % the empty type
+-->   : ty -> dirty -> ty.    % functions
+inst  : region Eff -> ty.     % the type of instances of a given effect
+==>   : dirty -> dirty -> ty. % the type of handlers
+%infix right 50 -->.
+%infix right 55 ==>.
+
+% Each operation "O : operation E" has an associated signature, namely the
+% type "A" of its parameter and its return type "B". The mapping from operations
+% to their signature is encoded by "sig".
 
 sig : operation Eff -> ty -> ty -> type.
+
+% Block declarations to be used in theorems.
 
 %block var-effect : block {eff : effect}.
 %block var-instance : some {eff : effect} block {inst : instance eff}.
@@ -124,10 +156,10 @@ always-eq-inst-op : {Eff} {Eff'} {I : instance Eff} {O} {I' : instance Eff'} {O'
 %worlds (vars) (always-eq-inst-op _ _ _ _ _ _ _ _).
 %trustme %total {} (always-eq-inst-op _ _ _ _ _ _ _ _).
 
+%%% Subtyping judgments
 
-
-
-%%% Subtyping judgements
+% "A <t A'" means that expression type "A" is a subtype of "A'".
+% "B <dt B'" means that computation type "B" is a subtype of "B'".
 
 <t : ty -> ty -> type. %infix none 30 <t.
 <dt : dirty -> dirty -> type. %infix none 30 <dt.
@@ -148,15 +180,23 @@ always-eq-inst-op : {Eff} {Eff'} {I : instance Eff} {O} {I' : instance Eff'} {O'
             <- D <d D'
             <- A <t A'.
 
-
-
 %%% Typing judgements
+
+% "eof M A" means that expression "M" has expression type "A".
+% "cof C B" means that computation "C" has computation type "B".
 
 eof : expr -> ty -> type.
 cof : comp -> dirty -> type.
-opcof : op-cases -> dirty -> dirt -> type.
-covers : dirt -> dirt -> dirt -> type.
 
+% "opcof Cases B D" does the hard part of checking that
+% a handler is well-typed, see definition below.
+
+opcof : op-cases -> dirty -> dirt -> type.
+
+% "covers D1 D2 D3" checks that "D1" is contained in the union of "D2"
+% and "D3".
+
+covers : dirt -> dirt -> dirt -> type.
 
 covers/empty      : covers dirt/empty _ _.
 covers/cons-here  : covers (dirt/cons I O D) D1 D2
@@ -166,10 +206,16 @@ covers/cons-there : covers (dirt/cons I O D) D1 D2
                      <- covers D D1 D2
                      <- in-dirt-instance I O D2.
 
+% "add-if-singleton D R O D'" adds "I#O" to dirt "D" to obtain dirt "D'",
+% provided "R" is the singleton list containing just "I". This is used for
+% type checking of handlers below.
+
 add-if-singleton : dirt -> region Eff -> operation Eff -> dirt -> type.
 add-if-singleton/zero : add-if-singleton D region/empty _ D.
 add-if-singleton/one : add-if-singleton D (region/cons I region/empty) O (dirt/cons I O D).
 add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
+
+%%% Typing rules for expressions
 
 eof/tru : eof tru bool.
 eof/fls : eof fls bool.
@@ -189,6 +235,14 @@ eof/hnd : eof (hnd Cv Cops) (A ! D ==> A' ! D')
            <- opcof Cops (A' ! D') Dcov
            <- ({x} eof x A -> cof (Cv x) (A' ! D')).
 
+% "opconf Cases B D" checks the following things (where "Cases" is a
+% list of handler cases of the form "E # O C", where "E" is an
+% expression, "O" is an operation, and "C" is the body of the case):
+% 
+% 1. every "E" has an instance type
+% 2. every "Cop" has return type "B"
+% 3. the dirt "D" is covered by those cases whose associated region is a singleton.
+
 opcof/nil  : opcof op-cases/nil B dirt/empty.
 opcof/cons : opcof (op-cases/cons E O Cop Cops) B D'
               <- add-if-singleton D R O D'
@@ -196,6 +250,8 @@ opcof/cons : opcof (op-cases/cons E O Cop Cops) B D'
               <- ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (Cop x k) B)
               <- sig O A1 A2
               <- eof E (inst (R : region Eff)). 
+
+%%% Typing rules for computations
 
 cof/cond : cof (cond E C1 C2) B
             <- cof C2 B
