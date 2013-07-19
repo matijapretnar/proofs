@@ -7,7 +7,6 @@ non-stuck/final : non-stuck C D
 non-stuck/step  : non-stuck C _
                   <- step C _.
 
-
 non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 %mode non-stuck/<d +NS +D<D' -NS'.
 
@@ -21,7 +20,28 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 %worlds (vars) (non-stuck/<d _ _ _).
 %total {NS} (non-stuck/<d NS _ _).
 
+% We assume here that equality on instances and operations is decidable
+% by using a "%trustme" directive.
 
+always-eq-inst-op : {Eff} {Eff'} {I : instance Eff} {O} {I' : instance Eff'} {O'} {D} eq-inst-op I O I' O' D -> type.
+%mode always-eq-inst-op +Eff +Eff' +I +O +I' +O' -D -Eq.
+
+- : always-eq-inst-op _ _ I O I O yes eq-inst-op/yes.
+
+%worlds (vars) (always-eq-inst-op _ _ _ _ _ _ _ _).
+%trustme %total {} (always-eq-inst-op _ _ _ _ _ _ _ _).
+
+% A so-called effectivness lemma for "if-then-op", which says that "if-then-op"
+% always delivers an answer.
+
+always-if-then-op : {D} {HC} {HC'} {HC''} if-then-op-case D HC HC' HC'' -> type.
+%mode always-if-then-op +D +HC +HC' -HC'' -ITE.
+
+- : always-if-then-op yes HC _ HC if-then-op-case/yes.
+- : always-if-then-op no _ HC HC if-then-op-case/no.
+
+%worlds (vars) (always-if-then-op _ _ _ _ _).
+%total {} (always-if-then-op _ _ _ _ _).
 
 %%% Progress
 
@@ -121,14 +141,21 @@ progress-let : {C2} non-stuck C1 D -> non-stuck (let C1 C2) D -> type.
 %worlds (vars) (progress-let _ _ _).
 %total {NS1} (progress-let _ NS1 _).
 
+% Totality of "get-op-case" (also known as an "effectiveness lemma"), i.e.,
+% "get-op-case" always delivers a result.
+
 always-get-case : {I} {O} opcof Cops B D -> get-op-case I O Cops Cop -> type.
 %mode always-get-case +I +O +Cops -Get.
 
 - : always-get-case _ _ opcof/nil get-op-case/nil.
+
 - : always-get-case _ _ (opcof/cons (eof/ins _) _ _ Cops _) (get-op-case/cons ITE GetRest Eq)
      <- always-eq-inst-op _ _ _ _ _ _ D Eq
      <- always-get-case _ _ Cops GetRest
      <- always-if-then-op D _ _ _ ITE.
+
+- : always-get-case I O (opcof/cons (eof/sub E _) _ _ _ _) Case
+     <- always-get-case I O (opcof/cons E _ _ _ _) Case.
 
 %worlds (vars) (always-get-case _ _ _ _).
 %total {Cops} (always-get-case _ _ Cops _).

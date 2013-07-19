@@ -138,24 +138,6 @@ sig : operation Eff -> ty -> ty -> type.
 %block var-operation : some {eff : effect} {par : ty} {res : ty} block {op : operation eff}{_ : sig op par res}.
 %block vars = (var-effect | var-instance | var-operation).
 
-
-always-if-then-op : {D} {HC} {HC'} {HC''} if-then-op-case D HC HC' HC'' -> type.
-%mode always-if-then-op +D +HC +HC' -HC'' -ITE.
-
-- : always-if-then-op yes HC _ HC if-then-op-case/yes.
-- : always-if-then-op no _ HC HC if-then-op-case/no.
-
-%worlds (vars) (always-if-then-op _ _ _ _ _).
-%total {} (always-if-then-op _ _ _ _ _).
-
-always-eq-inst-op : {Eff} {Eff'} {I : instance Eff} {O} {I' : instance Eff'} {O'} {D} eq-inst-op I O I' O' D -> type.
-%mode always-eq-inst-op +Eff +Eff' +I +O +I' +O' -D -Eq.
-
-- : always-eq-inst-op _ _ I O I O yes eq-inst-op/yes.
-
-%worlds (vars) (always-eq-inst-op _ _ _ _ _ _ _ _).
-%trustme %total {} (always-eq-inst-op _ _ _ _ _ _ _ _).
-
 %%% Subtyping judgments
 
 % "A <t A'" means that expression type "A" is a subtype of "A'".
