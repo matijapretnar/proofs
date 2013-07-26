@@ -135,6 +135,22 @@ big-lemma-handled :
 %worlds (vars) (big-lemma-handled _ _ _ _ _ _ _).
 %trustme %total {} (big-lemma-handled _ _ _ _ _ _ _).
 
+instance-in-itself : {I} in-region I (region/cons I region/empty) -> type.
+%mode instance-in-itself +I -IinI.
+
+- : instance-in-itself I in-region/here.
+
+%worlds (vars) (instance-in-itself _ _).
+%total {} (instance-in-itself _ _).
+
+singleton-in-dirt : in-dirt-instance I O D -> in-dirt (region/cons I region/empty) O D -> type.
+%mode singleton-in-dirt +IOinD -IOinD'.
+
+- : singleton-in-dirt IOinD (in-dirt/cons IOinD in-dirt/empty).
+
+%worlds (vars) (singleton-in-dirt _ _).
+%total {} (singleton-in-dirt _ _).
+
 big-lemma-unhandled :
             in-dirt-instance I O D' ->
             sig O A1 A2 ->
@@ -145,6 +161,10 @@ big-lemma-unhandled :
             cof (Cop Ep (fun ([y] with (hnd Cv Cops) (K y)))) (A' ! D') ->
             type.
 %mode big-lemma-unhandled +IOinDrt +O +Ep +K +Get +Cops -Cop.
+
+- : big-lemma-unhandled IOinDrt O Ep K get-op-case/nil opcof/nil (cof/op (eof/ins IinI) O Ep ([x] [xo] cof/app (eof/fun K) xo) IOinD)
+    <- instance-in-itself I IinI
+    <- singleton-in-dirt IOinDrt IOinD.
 
 %worlds (vars) (big-lemma-unhandled _ _ _ _ _ _ _).
 %trustme %total {} (big-lemma-unhandled _ _ _ _ _ _ _).
