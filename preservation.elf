@@ -125,7 +125,7 @@ big-lemma-handled :
             in-dirt-instance I O Dcov ->
             sig O A1 A2 ->
             eof Ep A1 ->
-            ({x} eof x A2 -> cof (K x) (A ! D)) ->
+            ({x} eof x A2 -> cof (with (hnd Cv Cops) (K x)) (A' ! D')) ->
             get-op-case I O Cops Cop ->
             ({x} eof x A -> cof (Cv x) (A' ! D')) ->
             opcof Cops (A' ! D') Dcov ->
@@ -140,7 +140,7 @@ big-lemma-unhandled :
             in-dirt-instance I O D' ->
             sig O A1 A2 ->
             eof Ep A1 ->
-            ({x} eof x A2 -> cof (K x) (A ! D)) ->
+            ({x} eof x A2 -> cof (with (hnd Cv Cops) (K x)) (A' ! D')) ->
             get-op-case I O Cops Cop ->
             ({x} eof x A -> cof (Cv x) (A' ! D')) ->
             opcof Cops (A' ! D') _ ->
@@ -155,7 +155,7 @@ big-lemma : in-dirt-instance I O D ->
             D <d D' ->
             sig O A1 A2 ->
             eof Ep A1 ->
-            ({x} eof x A2 -> cof (K x) (A ! D')) ->
+            ({x} eof x A2 -> cof (with (hnd Cv Cops) (K x)) (A' ! D'')) ->
             get-op-case I O Cops Cop ->
             ({x} eof x A -> cof (Cv x) (A' ! D'')) ->
             opcof Cops (A' ! D'') Dcov ->
@@ -186,7 +186,7 @@ preservation-with-op : cof (op (ins I) O Ep K) (A ! D) -> get-op-case I O Cops C
      <- instance-expr-in-region Ei IinR
      <- instance-in-region-in-dirt IinR ROinDrt' IOinDrt'
      <- <d/refl _ D'D'
-     <- big-lemma IOinDrt' D'D' O Ep ([x] [e] (cof/sub (K x e) (<dt/! AA' DD'))) Get Cv Cops Covers Covers Cop.
+     <- big-lemma IOinDrt' D'D' O Ep ([x] [e] cof/with (eof/hnd Cv Cops Covers) ((cof/sub (K x e) (<dt/! AA' DD')))) Get Cv Cops Covers Covers Cop.
 
 - : preservation-with-op (cof/sub E (<dt/! A<A' D<D')) Get A'<A'' D'<D'' C B
      <- <d/trans D<D' D'<D'' D<D''
