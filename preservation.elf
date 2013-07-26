@@ -99,28 +99,43 @@ preservation-with-val : cof (val E) (A ! D) -> A <t A' -> D <d D' -> eof (hnd Cv
 %worlds (vars) (preservation-with-val _ _ _ _ _).
 %total {E C} (preservation-with-val E _ _ C _).
 
-big-lemma : eof (ins I) (inst R) ->
+
+instance-expr-in-region : eof (ins I) (inst R) -> in-region I R -> type.
+%mode instance-expr-in-region +E -IinR.
+
+- : instance-expr-in-region (eof/ins IinR) IinR.
+
+- : instance-expr-in-region (eof/sub E (<t/inst R<R')) IinR'
+    <- instance-expr-in-region E IinR
+    <- <r/in-region IinR R<R' IinR'.
+
+%worlds (vars) (instance-expr-in-region _ _).
+%total {E} (instance-expr-in-region E _).
+
+
+big-lemma : in-dirt-instance I O D ->
             sig O A1 A2 ->
             eof Ep A1 ->
             ({x} eof x A2 -> cof (K x) (A ! D)) ->
-            in-dirt R O D ->
             get-op-case I O Cops Cop ->
             ({x} eof x A -> cof (Cv x) (A' ! D')) ->
             opcof Cops (A' ! D') Dcov ->
             covers D Dcov D' ->
             cof (Cop Ep (fun ([y] with (hnd Cv Cops) (K y)))) (A' ! D') ->
             type.
-%mode big-lemma +Ei +O +Ep +K +ROinDrt +Get +Cv +Cops +Covers -Cop.
+%mode big-lemma +IOinDrt +O +Ep +K +Get +Cv +Cops +Covers -Cop.
 
-%worlds (vars) (big-lemma _ _ _ _ _ _ _ _ _ _).
-%total {} (big-lemma _ _ _ _ _ _ _ _ _ _).
+%worlds (vars) (big-lemma _ _ _ _ _ _ _ _ _).
+%total {} (big-lemma _ _ _ _ _ _ _ _ _).
 
 preservation-with-op : cof (op (ins I) O Ep K) (A ! D) -> get-op-case I O Cops Cop -> A <t A' -> D <d D' -> eof (hnd Cv Cops) (A' ! D' ==> A'' ! D'') -> cof (Cop Ep (fun ([y] with (hnd Cv Cops) (K y)))) (A'' ! D'') -> type.
 %mode preservation-with-op +E +Get +AA' +DD' +C -C'.
 
 - : preservation-with-op (cof/op Ei O Ep K ROinDrt) Get (AA' : A <t A') DD' (eof/hnd Cv Cops Covers) Cop
      <- <d/in-dirt ROinDrt DD' ROinDrt'
-     <- big-lemma Ei O Ep ([x] [e] (cof/sub (K x e) (<dt/! AA' DD'))) ROinDrt' Get Cv Cops Covers Cop.
+     <- instance-expr-in-region Ei IinR
+     <- instance-in-region-in-dirt IinR ROinDrt' IOinDrt'
+     <- big-lemma IOinDrt' O Ep ([x] [e] (cof/sub (K x e) (<dt/! AA' DD'))) Get Cv Cops Covers Cop.
 
 - : preservation-with-op (cof/sub E (<dt/! A<A' D<D')) Get A'<A'' D'<D'' C B
      <- <d/trans D<D' D'<D'' D<D''
