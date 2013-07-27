@@ -64,7 +64,7 @@ get-op-case : instance Eff -> operation Eff -> op-cases -> op-case -> type.
 get-op-case/nil  : get-op-case I O op-cases/nil ([x] [k] op (ins I) O x ([y] app k y)).
 get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' HC H) HC''
                    <- eq-inst-op I O I' O' D
-                   <- get-op-case I' O' H HC'
+                   <- get-op-case I O H HC'
                    <- if-then-op-case D HC HC' HC''.
 
 % The small step semantics relation.

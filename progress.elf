@@ -144,7 +144,7 @@ progress-let : {C2} non-stuck C1 D -> non-stuck (let C1 C2) D -> type.
 % Totality of "get-op-case" (also known as an "effectiveness lemma"), i.e.,
 % "get-op-case" always delivers a result.
 
-always-get-cons-case : {I} {O} eof E (inst R) -> sig O' A1 A2 -> ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (Cop x k) B) -> get-op-case I O Cops Cop' -> get-op-case I O (op-cases/cons E O' Cop Cops) Cop'' -> type.
+always-get-cons-case : {I} {O} eof E (inst (R : region Eff')) -> sig (O' : operation Eff') A1 A2 -> ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (Cop x k) B) -> get-op-case I O Cops Cop' -> get-op-case I O (op-cases/cons E O' Cop Cops) Cop'' -> type.
 %mode always-get-cons-case +I +O +E +S +Cop +Cop' -Cop''.
 
 - : always-get-cons-case _ _ (eof/ins _) _ _ GetRest (get-op-case/cons ITE GetRest Eq)
