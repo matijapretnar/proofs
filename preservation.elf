@@ -121,19 +121,45 @@ covers-rest : covers (dirt/cons _ _ D) D1 D2 -> covers D D1 D2 -> type.
 %worlds (vars) (covers-rest _ _).
 %total {} (covers-rest _ _).
 
+biggest-lemma :
+            in-dirt-instance I O Dcov ->
+            sig O A1 A2 ->
+            eof Ep A1 ->
+            eof K (A2 --> B) ->
+            if-then-op-case D HC HC' HC'' ->
+            get-op-case I O H HC' ->
+            eq-inst-op I O I' O' D ->
+            eof (ins I') (inst R) ->
+            sig O' A1' A2' ->
+            ({x} eof x A1' -> {k} eof k (A2' --> B) -> cof (HC x k) B) ->
+            opcof H B Dcov' ->
+            add-if-singleton Dcov' R O' Dcov ->
+            cof (HC'' Ep K) B ->
+            type.
+%mode biggest-lemma +IOinDrt +O +Ep +K +ITE +GetRest +Eq +I' +O' +Cop +Cops +Sing -Cop'.
+
+%worlds (vars) (biggest-lemma _ _ _ _ _ _ _ _ _ _ _ _ _).
+%trustme %total {} (biggest-lemma _ _ _ _ _ _ _ _ _ _ _ _ _).
+
 big-lemma-handled :
             in-dirt-instance I O Dcov ->
             sig O A1 A2 ->
             eof Ep A1 ->
-            eof K (A2 --> A' ! D') ->
+            eof K (A2 --> B) ->
             get-op-case I O Cops Cop ->
-            opcof Cops (A' ! D') Dcov ->
-            cof (Cop Ep K) (A' ! D') ->
+            opcof Cops B Dcov ->
+            cof (Cop Ep K) B ->
             type.
 %mode big-lemma-handled +IOinDrt +O +Ep +K +Get +Cops -Cop.
 
+- : big-lemma-handled IOinDrt O Ep K
+        (get-op-case/cons ITE GetRest Eq)
+        (opcof/cons I' O' Cop Cops Sing)
+        Cop'
+        <- biggest-lemma IOinDrt O Ep K ITE GetRest Eq I' O' Cop Cops Sing Cop'.
+
 %worlds (vars) (big-lemma-handled _ _ _ _ _ _ _).
-%trustme %total {} (big-lemma-handled _ _ _ _ _ _ _).
+%total {} (big-lemma-handled _ _ _ _ _ _ _).
 
 instance-in-itself : {I} in-region I (region/cons I region/empty) -> type.
 %mode instance-in-itself +I -IinI.
