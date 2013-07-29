@@ -1,3 +1,16 @@
+if-then-typd : {E} {K} if-then-op-case D Cop Cop' Cop'' ->
+               cof (Cop E K) B ->
+               cof (Cop' E K) B ->
+               cof (Cop'' E K) B ->
+               type.
+%mode if-then-typd +E +K +D +HC +HC' -HC''.
+
+- : if-then-typd _ _ if-then-op-case/yes Cop _ Cop.
+- : if-then-typd _ _ if-then-op-case/no _ Cop Cop.
+
+%worlds (vars) (if-then-typd _ _ _ _ _ _).
+%total {} (if-then-typd _ _ _ _ _ _).
+
 %%% Preservation
 
 preservation-cond : eof E bool -> cof C1 C -> cof C2 C -> step (cond E C1 C2) C' -> cof C' C -> type.
@@ -176,19 +189,6 @@ singleton-in-dirt : in-dirt-instance I O D -> in-dirt (region/cons I region/empt
 
 %worlds (vars) (singleton-in-dirt _ _).
 %total {} (singleton-in-dirt _ _).
-
-if-then-typd : {E} {K} if-then-op-case D Cop Cop' Cop'' ->
-               cof (Cop E K) B ->
-               cof (Cop' E K) B ->
-               cof (Cop'' E K) B ->
-               type.
-%mode if-then-typd +E +K +D +HC +HC' -HC''.
-
-- : if-then-typd _ _ if-then-op-case/yes Cop _ Cop.
-- : if-then-typd _ _ if-then-op-case/no _ Cop Cop.
-
-%worlds (vars) (if-then-typd _ _ _ _ _ _).
-%total {} (if-then-typd _ _ _ _ _ _).
 
 big-lemma-unhandled :
             in-dirt-instance I O D' ->
