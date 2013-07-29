@@ -165,14 +165,22 @@ big-lemma-handled :
             type.
 %mode big-lemma-handled +IOinDrt +O +Ep +K +Get +Cops -Cop.
 
+- : big-lemma-handled (in-dirt-instance/there IOinDrt) O Ep K
+        (get-op-case/cons ITE GetRest Eq)
+        (opcof/cons I' O' Cop' Cops add-if-singleton/one)
+        Cop
+        <- big-lemma-handled IOinDrt O Ep K GetRest Cops Cop''
+        <- if-then-typd Epp Kk ITE (Cop' Epp Ep Kk K) Cop'' Cop.
+
 - : big-lemma-handled IOinDrt O Ep K
         (get-op-case/cons ITE GetRest Eq)
-        (opcof/cons I' O' Cop Cops Sing)
-        Cop'
-        <- biggest-lemma IOinDrt O Ep K ITE GetRest Eq I' O' Cop Cops Sing Cop'.
+        (opcof/cons I' O' Cop' Cops _)
+        Cop
+        <- big-lemma-handled IOinDrt O Ep K GetRest Cops Cop''
+        <- if-then-typd Epp Kk ITE (Cop' Epp Ep Kk K) Cop'' Cop.
 
 %worlds (vars) (big-lemma-handled _ _ _ _ _ _ _).
-%total {} (big-lemma-handled _ _ _ _ _ _ _).
+%total {Get} (big-lemma-handled _ _ _ _ Get _ _).
 
 instance-in-itself : {I} in-region I (region/cons I region/empty) -> type.
 %mode instance-in-itself +I -IinI.
