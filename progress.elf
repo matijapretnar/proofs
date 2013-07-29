@@ -23,13 +23,11 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 % We assume here that equality on instances and operations is decidable
 % by using a "%trustme" directive.
 
-always-eq-inst-op : {Eff} {Eff'} {I : instance Eff} {O} {I' : instance Eff'} {O'} {D} eq-inst-op I O I' O' D -> type.
-%mode always-eq-inst-op +Eff +Eff' +I +O +I' +O' -D -Eq.
+always-eq-inst-op : {I : instance Eff} {I' : instance Eff'} {O} {O'} eq-inst-op I O I' O' D -> type.
+%mode always-eq-inst-op +I +O +I' +O' -Eq.
 
-- : always-eq-inst-op _ _ I O I O yes eq-inst-op/yes.
-
-%worlds (vars) (always-eq-inst-op _ _ _ _ _ _ _ _).
-%trustme %total {} (always-eq-inst-op _ _ _ _ _ _ _ _).
+%worlds (vars) (always-eq-inst-op _ _ _ _ _).
+%trustme %total {} (always-eq-inst-op _ _ _ _ _).
 
 % A so-called effectivness lemma for "if-then-op", which says that "if-then-op"
 % always delivers an answer.
@@ -148,8 +146,8 @@ always-get-cons-case : {I} {O} eof E (inst (R : region Eff')) -> sig (O' : opera
 %mode always-get-cons-case +I +O +E +S +Cop +Cop' -Cop''.
 
 - : always-get-cons-case _ _ (eof/ins _) _ _ GetRest (get-op-case/cons ITE GetRest Eq)
-     <- always-eq-inst-op _ _ _ _ _ _ D Eq
-     <- always-if-then-op D _ _ _ ITE.
+     <- always-eq-inst-op _ _ _ _ Eq
+     <- always-if-then-op _ _ _ _ ITE.
 
 - : always-get-cons-case I O (eof/sub E _) S X GetRest Case
      <- always-get-cons-case I O E S X GetRest Case.
