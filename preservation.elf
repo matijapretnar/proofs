@@ -151,6 +151,19 @@ singleton-in-dirt : in-dirt-instance I O D -> in-dirt (region/cons I region/empt
 %worlds (vars) (singleton-in-dirt _ _).
 %total {} (singleton-in-dirt _ _).
 
+if-then-typd : {E} {K} if-then-op-case D Cop Cop' Cop'' ->
+               cof (Cop E K) B ->
+               cof (Cop' E K) B ->
+               cof (Cop'' E K) B ->
+               type.
+%mode if-then-typd +E +K +D +HC +HC' -HC''.
+
+- : if-then-typd _ _ if-then-op-case/yes Cop _ Cop.
+- : if-then-typd _ _ if-then-op-case/no _ Cop Cop.
+
+%worlds (vars) (if-then-typd _ _ _ _ _ _).
+%total {} (if-then-typd _ _ _ _ _ _).
+
 big-lemma-unhandled :
             in-dirt-instance I O D' ->
             sig O A1 A2 ->
@@ -162,12 +175,22 @@ big-lemma-unhandled :
             type.
 %mode big-lemma-unhandled +IOinDrt +O +Ep +K +Get +Cops -Cop.
 
-- : big-lemma-unhandled IOinDrt O Ep K get-op-case/nil opcof/nil (cof/op (eof/ins IinI) O Ep ([x] [xo] cof/app (eof/fun K) xo) IOinD)
+- : big-lemma-unhandled IOinDrt O Ep K
+        get-op-case/nil
+        opcof/nil
+        (cof/op (eof/ins IinI) O Ep ([_] [x] cof/app K x) IOinD)
     <- instance-in-itself I IinI
     <- singleton-in-dirt IOinDrt IOinD.
 
+- : big-lemma-unhandled IOinDrt O Ep K
+        (get-op-case/cons ITE GetRest _)
+        (opcof/cons _ _ Cop OtherCops _)
+        Cop''
+    <- big-lemma-unhandled IOinDrt O Ep K GetRest OtherCops Cop'
+    <- if-then-typd Epp Kk ITE (Cop Epp Ep Kk K) Cop' Cop''.
+
 %worlds (vars) (big-lemma-unhandled _ _ _ _ _ _ _).
-%trustme %total {} (big-lemma-unhandled _ _ _ _ _ _ _).
+%total {Get} (big-lemma-unhandled _ _ _ _ Get _ _).
 
 big-lemma : in-dirt-instance I O D ->
             D <d D' ->
