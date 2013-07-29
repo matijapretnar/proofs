@@ -32,14 +32,14 @@ always-eq-inst-op : {I : instance Eff} {I' : instance Eff'} {O} {O'} eq-inst-op 
 % A so-called effectivness lemma for "if-then-op", which says that "if-then-op"
 % always delivers an answer.
 
-always-if-then-op : {D} {HC} {HC'} {HC''} if-then-op-case D HC HC' HC'' -> type.
-%mode always-if-then-op +D +HC +HC' -HC'' -ITE.
+always-if-then-op : {D} {HC} {HC'} if-then-op-case D HC HC' HC'' -> type.
+%mode always-if-then-op +D +HC +HC' -ITE.
 
-- : always-if-then-op yes HC _ HC if-then-op-case/yes.
-- : always-if-then-op no _ HC HC if-then-op-case/no.
+- : always-if-then-op yes HC _ if-then-op-case/yes.
+- : always-if-then-op no _ HC if-then-op-case/no.
 
-%worlds (vars) (always-if-then-op _ _ _ _ _).
-%total {} (always-if-then-op _ _ _ _ _).
+%worlds (vars) (always-if-then-op _ _ _ _).
+%total {} (always-if-then-op _ _ _ _).
 
 %%% Progress
 
@@ -147,7 +147,7 @@ always-get-cons-case : {I} {O} eof E (inst (R : region Eff')) -> sig (O' : opera
 
 - : always-get-cons-case _ _ (eof/ins _) _ _ GetRest (get-op-case/cons ITE GetRest Eq)
      <- always-eq-inst-op _ _ _ _ Eq
-     <- always-if-then-op _ _ _ _ ITE.
+     <- always-if-then-op _ _ _ ITE.
 
 - : always-get-cons-case I O (eof/sub E _) S X GetRest Case
      <- always-get-cons-case I O E S X GetRest Case.
