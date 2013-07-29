@@ -40,7 +40,7 @@ instance : effect -> type.
 % compares operations.
 
 eq-inst-op : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> decide -> type.
-eq-inst-op/yes : eq-inst-op I O I O Yes.
+eq-inst-op/yes : eq-inst-op I O I O yes.
 
 % Later on we will use the "%trustme" directive to assume that "eq-inst-op" is total.
 
