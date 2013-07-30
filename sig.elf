@@ -1,24 +1,24 @@
 %%% Various definitions
 
 % We define a type of booleans but call it "decide" (with elements "yes" and
-% "no") in order to distiguish it from Eff's "bool".
+% "no") in order to distinguish it from Eff's "bool".
 
 decide : type.
-%name decide YesNo.
+
 yes : decide.
-no : decide.
+no  : decide.
 
 % There is a type of all effects "effect".
 
 effect : type.
-%name effect Eff eff.
+%name effect Eff.
 
-% Each "E : effect" has a type of operations "operation E".
+% Each "Eff : effect" has a type of operations "operation Eff".
 
 operation : effect -> type.
 %name operation O.
 
-% Each "E : effect" has a type of instances "instance E".
+% Each "Eff : effect" has a type of instances "instance Eff".
 
 instance : effect -> type.
 %name instance I.
@@ -36,7 +36,7 @@ instance : effect -> type.
 %
 % We would prefer to *hypothesise* the fact that instances and operations have
 % decidable equality, but there is no legal way of doing this in Twelf. So we
-% are going to do it illegaly, by assuming decidable equality "eq-inst-op" which
+% are going to do it illegally, by assuming decidable equality "eq-inst-op" which
 % compares operations.
 
 eq-inst-op : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> decide -> type.
@@ -59,7 +59,7 @@ in-dirt-instance : instance Eff -> operation Eff -> dirt -> type.
 
 in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
 in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
-                         <- in-dirt-instance I O D.
+                          <- in-dirt-instance I O D.
 
 % A region is a finite list of instances, all associated with the same effect.
 
@@ -75,7 +75,7 @@ in-region : instance Eff -> region Eff -> type.
 
 in-region/here  : in-region I (region/cons I R).
 in-region/there : in-region I (region/cons _ R)
-                  <- in-region I R.
+                   <- in-region I R.
 
 % Sometimes we have an operation "x#O", and all we know about "x" is that it is
 % an instance from a region "R". We sometimes write this as "R#O". In any case,
@@ -86,10 +86,10 @@ in-dirt : region Eff -> operation Eff -> dirt -> type.
 
 in-dirt/empty : in-dirt region/empty _ _.
 in-dirt/cons  : in-dirt (region/cons I R) O D
-                <- in-dirt R O D
-                <- in-dirt-instance I O D.
+                 <- in-dirt R O D
+                 <- in-dirt-instance I O D.
 
-% Regions and dirt are lists, but they really represent sets. We define the
+% Regions and dirts are lists, but they really represent sets. We define the
 % subset relation on regions and dirt.
 
 % "R <r R'" means that region "R" is contained in region "R'".
@@ -99,8 +99,8 @@ in-dirt/cons  : in-dirt (region/cons I R) O D
 
 <r/empty : region/empty <r R.
 <r/cons  : region/cons I R <r R'
-          <- R <r R'
-          <- in-region I R'.
+            <- R <r R'
+            <- in-region I R'.
 
 % "D <d D'" means that region "R" is contained in region "R'".
 
@@ -109,5 +109,5 @@ in-dirt/cons  : in-dirt (region/cons I R) O D
 
 <d/empty : dirt/empty <d D.
 <d/cons  : dirt/cons I O D <d D'
-          <- D <d D'
-          <- in-dirt-instance I O D'.
+            <- D <d D'
+            <- in-dirt-instance I O D'.
