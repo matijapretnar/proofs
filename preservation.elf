@@ -146,19 +146,19 @@ big-lemma-handled :
 %mode big-lemma-handled +IOinDrt +O +Ep +K +Get +Cops -Cop.
 
 - : big-lemma-handled in-dirt-instance/here O Ep K
-        (get-op-case/cons if-then-op-case/yes _ eq-inst-op/yes)
+        (get-op-case/cons eq-inst-op/yes _ if-then-op-case/yes)
         (opcof/cons I O Cop Cops add-if-singleton/one)
         (Cop _ Ep _ K).
 
 - : big-lemma-handled (in-dirt-instance/there IOinDrt) O Ep K
-        (get-op-case/cons ITE GetRest Eq)
+        (get-op-case/cons Eq GetRest ITE)
         (opcof/cons I' O' Cop' Cops add-if-singleton/one)
         Cop
         <- big-lemma-handled IOinDrt O Ep K GetRest Cops Cop''
         <- if-then-typd Epp Kk ITE (Cop' Epp Ep Kk K) Cop'' Cop.
 
 - : big-lemma-handled IOinDrt O Ep K
-        (get-op-case/cons ITE GetRest Eq)
+        (get-op-case/cons Eq GetRest ITE)
         (opcof/cons I' O' Cop' Cops _)
         Cop
         <- big-lemma-handled IOinDrt O Ep K GetRest Cops Cop''
@@ -202,7 +202,7 @@ big-lemma-unhandled :
     <- singleton-in-dirt IOinDrt IOinD.
 
 - : big-lemma-unhandled IOinDrt O Ep K
-        (get-op-case/cons ITE GetRest _)
+        (get-op-case/cons _ GetRest ITE)
         (opcof/cons _ _ Cop OtherCops _)
         Cop''
     <- big-lemma-unhandled IOinDrt O Ep K GetRest OtherCops Cop'

@@ -39,7 +39,7 @@ if-then-op-case-total : {D} {HC} {HC'} if-then-op-case D HC HC' HC'' -> type.
 get-cons-case-total : {I} {O} eof E (inst (R : region Eff')) -> sig (O' : operation Eff') A1 A2 -> ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (Cop x k) B) -> get-op-case I O Cops Cop' -> get-op-case I O (op-cases/cons E O' Cop Cops) Cop'' -> type.
 %mode get-cons-case-total +I +O +E +S +Cop +Cop' -Cop''.
 
-- : get-cons-case-total _ _ (eof/ins _) _ _ GetRest (get-op-case/cons ITE GetRest Eq)
+- : get-cons-case-total _ _ (eof/ins _) _ _ GetRest (get-op-case/cons Eq GetRest ITE)
      <- eq-inst-op-total _ _ _ _ Eq
      <- if-then-op-case-total _ _ _ ITE.
 
