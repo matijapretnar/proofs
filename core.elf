@@ -15,6 +15,7 @@ op-cases : type. % A list of handler cases, see below
 
 %abbrev val-case = expr -> comp.
 %abbrev op-case = expr -> expr -> comp.
+%name op-case OC.
 
 % Expressions
 
@@ -53,8 +54,8 @@ op-cases/cons : expr -> operation Eff -> op-case -> op-cases -> op-cases.
 
 if-then-op-case : decide -> op-case -> op-case -> op-case -> type.
 
-if-then-op-case/yes : if-then-op-case yes HC _  HC.
-if-then-op-case/no : if-then-op-case no  _  HC HC.
+if-then-op-case/yes : if-then-op-case yes OC _  OC.
+if-then-op-case/no : if-then-op-case no  _  OC OC.
 
 % "get-op-case" finds the handler case which applies to a given operation,
 % or gives the default handler if none applies.
@@ -62,9 +63,9 @@ if-then-op-case/no : if-then-op-case no  _  HC HC.
 get-op-case : instance Eff -> operation Eff -> op-cases -> op-case -> type.
 
 get-op-case/nil  : get-op-case I O op-cases/nil ([x] [k] op (ins I) O x ([y] app k y)).
-get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' HC H) HC''
-                   <- if-then-op-case D HC HC' HC''
-                   <- get-op-case I O H HC'
+get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' OC OCs) OC''
+                   <- if-then-op-case D OC OC' OC''
+                   <- get-op-case I O OCs OC'
                    <- eq-inst-op I O I' O' D.
 
 % The small step semantics relation.
@@ -84,8 +85,8 @@ step/let-step  : step (let C1 C2) (let C1' C2)
                   <- step C1 C1'.
 step/letr      : step (letr C1 C2) (C2 (fun ([x] letr C1 ([f] C1 f x)))).
 step/with-val  : step (with (hnd Cv _) (val E)) (Cv E).
-step/with-op   : step (with (hnd Cv Cops) (op (ins I) O Ep K)) (Cop Ep (fun ([y] with (hnd Cv Cops) (K y))))
-                  <- get-op-case I O Cops Cop.
+step/with-op   : step (with (hnd Cv OCs) (op (ins I) O Ep K)) (OC Ep (fun ([y] with (hnd Cv OCs) (K y))))
+                  <- get-op-case I O OCs OC.
 step/with-step : step (with E C) (with E C')
                   <- step C C'.
 
@@ -223,9 +224,9 @@ eof/ins : eof (ins I) (inst R)
 eof/sub : eof E A'
            <- A <t A'
            <- eof E A.
-eof/hnd : eof (hnd Cv Cops) (A ! D ==> A' ! D')
+eof/hnd : eof (hnd Cv OCs) (A ! D ==> A' ! D')
            <- covers D Dcov D'
-           <- opcof Cops (A' ! D') Dcov
+           <- opcof OCs (A' ! D') Dcov
            <- ({x} eof x A -> cof (Cv x) (A' ! D')).
 
 % "opconf Cases B D" checks the following things (where "Cases" is a
@@ -233,14 +234,14 @@ eof/hnd : eof (hnd Cv Cops) (A ! D ==> A' ! D')
 % expression, "O" is an operation, and "C" is the body of the case):
 % 
 % 1. every "E" has an instance type
-% 2. every "Cop" has return type "B"
+% 2. every "OC" has return type "B"
 % 3. the dirt "D" is covered by those cases whose associated region is a singleton.
 
 opcof/nil  : opcof op-cases/nil B dirt/empty.
-opcof/cons : opcof (op-cases/cons E O Cop Cops) B D'
+opcof/cons : opcof (op-cases/cons E O OC OCs) B D'
               <- add-if-singleton D R O D'
-              <- opcof Cops B D
-              <- ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (Cop x k) B)
+              <- opcof OCs B D
+              <- ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (OC x k) B)
               <- sig O A1 A2
               <- eof E (inst (R : region Eff)). 
 

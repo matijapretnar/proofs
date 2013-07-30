@@ -28,8 +28,8 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 % A so-called effectivness lemma for "if-then-op", which says that "if-then-op"
 % always delivers an answer.
 
-if-then-op-case-total : {D} {HC1} {HC2} if-then-op-case D HC1 HC2 HC -> type.
-%mode if-then-op-case-total +D +HC1 +HC2 -HC.
+if-then-op-case-total : {D} {OC1} {OC2} if-then-op-case D OC1 OC2 OC -> type.
+%mode if-then-op-case-total +D +OC1 +OC2 -OC.
 
 - : if-then-op-case-total yes _ _ if-then-op-case/yes.
 - : if-then-op-case-total no _ _ if-then-op-case/no.
@@ -41,29 +41,30 @@ if-then-op-case-total : {D} {HC1} {HC2} if-then-op-case D HC1 HC2 HC -> type.
 % A so-called effectivness lemma for "get-op-case", which says that "get-op-case"
 % always delivers an answer.
 
-get-op-case-total : {I} {O} opcof H B D -> get-op-case I O H HC -> type.
-%mode get-op-case-total +I +O +H -HC.
+get-op-case-total : {I} {O} opcof OCs B D -> get-op-case I O OCs OC -> type.
 get-op-case-total/cons :
      {I} {O} eof E (inst (R : region Eff')) ->
-     {O' : operation Eff'} {HC} get-op-case I O H HC' ->
-     get-op-case I O (op-cases/cons E O' HC H) HC'' -> type.
-%mode get-op-case-total/cons +I +O +E +O' +HC +HC' -HC''.
+     {O' : operation Eff'} {OC} get-op-case I O OCs OC' ->
+     get-op-case I O (op-cases/cons E O' OC OCs) OC'' -> type.
+%mode get-op-case-total +I +O +OCs -OC.
+%mode get-op-case-total/cons +I +O +E +O' +OC +OC' -OC''.
 
 - : get-op-case-total _ _ opcof/nil get-op-case/nil.
 
-- : get-op-case-total I O (opcof/cons E _ _ H _) HC''
-     <- get-op-case-total I O H HC'
-     <- get-op-case-total/cons I O E _ _ HC' HC''.
+- : get-op-case-total I O (opcof/cons E _ _ OCs _) OC''
+     <- get-op-case-total I O OCs OC'
+     <- get-op-case-total/cons I O E _ _ OC' OC''.
 
-- : get-op-case-total/cons _ _ (eof/ins _) _ _ HC' (get-op-case/cons Eq HC' HC'')
+
+- : get-op-case-total/cons _ _ (eof/ins _) _ _ OC' (get-op-case/cons Eq OC' OC'')
      <- eq-inst-op-total _ _ _ _ Eq
-     <- if-then-op-case-total _ _ _ HC''.
+     <- if-then-op-case-total _ _ _ OC''.
 
-- : get-op-case-total/cons I O (eof/sub E _) _ _ HC' HC''
-     <- get-op-case-total/cons I O E _ _ HC' HC''.
+- : get-op-case-total/cons I O (eof/sub E _) _ _ OC' OC''
+     <- get-op-case-total/cons I O E _ _ OC' OC''.
 
 %worlds (vars) (get-op-case-total _ _ _ _) (get-op-case-total/cons _ _ _ _ _ _ _).
-%total {(H E)} (get-op-case-total _ _ H _) (get-op-case-total/cons _ _ E _ _ _ _).
+%total {(OCs E)} (get-op-case-total _ _ OCs _) (get-op-case-total/cons _ _ E _ _ _ _).
 
 
 
@@ -165,8 +166,8 @@ progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E
 
 - : progress-with (eof/hnd _ _ _) (non-stuck/final final/val) (non-stuck/step step/with-val).
 
-- : progress-with (eof/hnd _ Cops _) (non-stuck/final (final/op _)) (non-stuck/step (step/with-op Get))
-     <- get-op-case-total _ _ Cops Get.
+- : progress-with (eof/hnd _ OCs _) (non-stuck/final (final/op _)) (non-stuck/step (step/with-op Get))
+     <- get-op-case-total _ _ OCs Get.
 
 - : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (step/with-step S)).
 

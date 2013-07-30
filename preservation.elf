@@ -1,12 +1,12 @@
-if-then-typd : {E} {K} if-then-op-case D Cop Cop' Cop'' ->
-               cof (Cop E K) B ->
-               cof (Cop' E K) B ->
-               cof (Cop'' E K) B ->
+if-then-typd : {E} {K} if-then-op-case D OC OC' OC'' ->
+               cof (OC E K) B ->
+               cof (OC' E K) B ->
+               cof (OC'' E K) B ->
                type.
-%mode if-then-typd +E +K +D +HC +HC' -HC''.
+%mode if-then-typd +E +K +D +OC +OC' -OC''.
 
-- : if-then-typd _ _ if-then-op-case/yes Cop _ Cop.
-- : if-then-typd _ _ if-then-op-case/no _ Cop Cop.
+- : if-then-typd _ _ if-then-op-case/yes OC _ OC.
+- : if-then-typd _ _ if-then-op-case/no _ OC OC.
 
 %worlds (vars) (if-then-typd _ _ _ _ _ _).
 %total {} (if-then-typd _ _ _ _ _ _).
@@ -94,7 +94,7 @@ preservation-let-op : cof (op Ei O Ep K) (A ! D) -> D <d D' -> ({x} eof x A -> c
 %total {E} (preservation-let-op E _ _ _).
 
 
-preservation-with-val : cof (val E) (A ! D) -> A <t A' -> D <d D' -> eof (hnd Cv Cops) (A' ! D' ==> A'' ! D'') -> cof (Cv E) (A'' ! D'') -> type.
+preservation-with-val : cof (val E) (A ! D) -> A <t A' -> D <d D' -> eof (hnd Cv OCs) (A' ! D' ==> A'' ! D'') -> cof (Cv E) (A'' ! D'') -> type.
 %mode preservation-with-val +E +AA' +DD' +C -C'.
 
 - : preservation-with-val (cof/val E) AA' _ (eof/hnd Cv _ _) (Cv _ (eof/sub E AA')).
@@ -139,30 +139,30 @@ big-lemma-handled :
             sig O A1 A2 ->
             eof Ep A1 ->
             eof K (A2 --> B) ->
-            get-op-case I O Cops Cop ->
-            opcof Cops B Dcov ->
-            cof (Cop Ep K) B ->
+            get-op-case I O OCs OC ->
+            opcof OCs B Dcov ->
+            cof (OC Ep K) B ->
             type.
-%mode big-lemma-handled +IOinD +O +Ep +K +Get +Cops -Cop.
+%mode big-lemma-handled +IOinD +O +Ep +K +Get +OCs -OC.
 
 - : big-lemma-handled in-dirt-instance/here O Ep K
         (get-op-case/cons eq-inst-op/yes _ if-then-op-case/yes)
-        (opcof/cons I O Cop Cops add-if-singleton/one)
-        (Cop _ Ep _ K).
+        (opcof/cons I O OC OCs add-if-singleton/one)
+        (OC _ Ep _ K).
 
 - : big-lemma-handled (in-dirt-instance/there IOinD) O Ep K
         (get-op-case/cons Eq GetRest ITE)
-        (opcof/cons I' O' Cop' Cops add-if-singleton/one)
-        Cop
-        <- big-lemma-handled IOinD O Ep K GetRest Cops Cop''
-        <- if-then-typd Epp Kk ITE (Cop' Epp Ep Kk K) Cop'' Cop.
+        (opcof/cons I' O' OC' OCs add-if-singleton/one)
+        OC
+        <- big-lemma-handled IOinD O Ep K GetRest OCs OC''
+        <- if-then-typd Epp Kk ITE (OC' Epp Ep Kk K) OC'' OC.
 
 - : big-lemma-handled IOinD O Ep K
         (get-op-case/cons Eq GetRest ITE)
-        (opcof/cons I' O' Cop' Cops _)
-        Cop
-        <- big-lemma-handled IOinD O Ep K GetRest Cops Cop''
-        <- if-then-typd Epp Kk ITE (Cop' Epp Ep Kk K) Cop'' Cop.
+        (opcof/cons I' O' OC' OCs _)
+        OC
+        <- big-lemma-handled IOinD O Ep K GetRest OCs OC''
+        <- if-then-typd Epp Kk ITE (OC' Epp Ep Kk K) OC'' OC.
 
 %worlds (vars) (big-lemma-handled _ _ _ _ _ _ _).
 %total {Get} (big-lemma-handled _ _ _ _ Get _ _).
@@ -188,11 +188,11 @@ big-lemma-unhandled :
             sig O A1 A2 ->
             eof Ep A1 ->
             eof K (A2 --> A' ! D') ->
-            get-op-case I O Cops Cop ->
-            opcof Cops (A' ! D') _ ->
-            cof (Cop Ep K) (A' ! D') ->
+            get-op-case I O OCs OC ->
+            opcof OCs (A' ! D') _ ->
+            cof (OC Ep K) (A' ! D') ->
             type.
-%mode big-lemma-unhandled +IOinD +O +Ep +K +Get +Cops -Cop.
+%mode big-lemma-unhandled +IOinD +O +Ep +K +Get +OCs -OC.
 
 - : big-lemma-unhandled IOinD O Ep K
         get-op-case/nil
@@ -203,10 +203,10 @@ big-lemma-unhandled :
 
 - : big-lemma-unhandled IOinD O Ep K
         (get-op-case/cons _ GetRest ITE)
-        (opcof/cons _ _ Cop OtherCops _)
-        Cop''
-    <- big-lemma-unhandled IOinD O Ep K GetRest OtherCops Cop'
-    <- if-then-typd Epp Kk ITE (Cop Epp Ep Kk K) Cop' Cop''.
+        (opcof/cons _ _ OC OtherOCs _)
+        OC''
+    <- big-lemma-unhandled IOinD O Ep K GetRest OtherOCs OC'
+    <- if-then-typd Epp Kk ITE (OC Epp Ep Kk K) OC' OC''.
 
 %worlds (vars) (big-lemma-unhandled _ _ _ _ _ _ _).
 %total {Get} (big-lemma-unhandled _ _ _ _ Get _ _).
@@ -216,36 +216,36 @@ big-lemma : in-dirt-instance I O D ->
             sig O A1 A2 ->
             eof Ep A1 ->
             eof K (A2 --> A' ! D'') ->
-            get-op-case I O Cops Cop ->
-            opcof Cops (A' ! D'') Dcov ->
+            get-op-case I O OCs OC ->
+            opcof OCs (A' ! D'') Dcov ->
             covers D Dcov D'' -> 
             covers D' Dcov D'' ->
-            cof (Cop Ep K) (A' ! D'') ->
+            cof (OC Ep K) (A' ! D'') ->
             type.
-%mode big-lemma +IOinD +DD' +O +Ep +K +Get +Cops +Covers +Covers' -Cop.
+%mode big-lemma +IOinD +DD' +O +Ep +K +Get +OCs +Covers +Covers' -OC.
 
-- : big-lemma in-dirt-instance/here _ O Ep K Get Cops (covers/cons-here IOinD _) _ Cop
-    <- big-lemma-handled IOinD O Ep K Get Cops Cop.
+- : big-lemma in-dirt-instance/here _ O Ep K Get OCs (covers/cons-here IOinD _) _ OC
+    <- big-lemma-handled IOinD O Ep K Get OCs OC.
 
-- : big-lemma in-dirt-instance/here DD' O Ep K Get Cops (covers/cons-there IOinD _) _ Cop
-    <- big-lemma-unhandled IOinD O Ep K Get Cops Cop.
+- : big-lemma in-dirt-instance/here DD' O Ep K Get OCs (covers/cons-there IOinD _) _ OC
+    <- big-lemma-unhandled IOinD O Ep K Get OCs OC.
 
-- : big-lemma (in-dirt-instance/there IOinD) (<d/cons _ DD') O Ep K Get Cops Cov Cov' Cop
+- : big-lemma (in-dirt-instance/there IOinD) (<d/cons _ DD') O Ep K Get OCs Cov Cov' OC
     <- covers-rest Cov Cov- 
-    <- big-lemma IOinD DD' O Ep K Get Cops Cov- Cov' Cop.
+    <- big-lemma IOinD DD' O Ep K Get OCs Cov- Cov' OC.
 
 %worlds (vars) (big-lemma _ _ _ _ _ _ _ _ _ _).
 %total {IOinD} (big-lemma IOinD _ _ _ _ _ _ _ _ _).
 
-preservation-with-op : cof (op (ins I) O Ep K) (A ! D) -> get-op-case I O Cops Cop -> A <t A' -> D <d D' -> eof (hnd Cv Cops) (A' ! D' ==> A'' ! D'') -> cof (Cop Ep (fun ([y] with (hnd Cv Cops) (K y)))) (A'' ! D'') -> type.
+preservation-with-op : cof (op (ins I) O Ep K) (A ! D) -> get-op-case I O OCs OC -> A <t A' -> D <d D' -> eof (hnd Cv OCs) (A' ! D' ==> A'' ! D'') -> cof (OC Ep (fun ([y] with (hnd Cv OCs) (K y)))) (A'' ! D'') -> type.
 %mode preservation-with-op +E +Get +AA' +DD' +C -C'.
 
-- : preservation-with-op (cof/op Ei O Ep K ROinD) Get (AA' : A <t A') DD' (eof/hnd Cv Cops Covers) Cop
+- : preservation-with-op (cof/op Ei O Ep K ROinD) Get (AA' : A <t A') DD' (eof/hnd Cv OCs Covers) OC
      <- <d/in-dirt ROinD DD' ROinD'
      <- instance-expr-in-region Ei IinR
      <- instance-in-region-in-dirt IinR ROinD' IOinD'
      <- <d/refl _ D'D'
-     <- big-lemma IOinD' D'D' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv Cops Covers) ((cof/sub (K x e) (<dt/! AA' DD')))) Get Cops Covers Covers Cop.
+     <- big-lemma IOinD' D'D' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Covers) ((cof/sub (K x e) (<dt/! AA' DD')))) Get OCs Covers Covers OC.
 
 - : preservation-with-op (cof/sub E (<dt/! A<A' D<D')) Get A'<A'' D'<D'' C B
      <- <d/trans D<D' D'<D'' D<D''
