@@ -83,7 +83,7 @@ preservation-let-op : cof (op Ei O Ep K) (A ! D) -> D <d D' -> ({x} eof x A -> c
 %mode preservation-let-op +E +D<D' +C -B.
 
 - : preservation-let-op (cof/op Ei O Ep K ROinD) D<D' C (cof/op Ei O Ep ([x'] [e'] (cof/let (cof/sub (K x' e') (<dt/! A<A D<D')) C)) ROinD')
-     <- <d/in-dirt ROinD D<D' ROinD'
+     <- in-dirt/<d ROinD D<D' ROinD'
      <- <t/refl A A<A.
 
 - : preservation-let-op (cof/sub E (<dt/! AA' D<D')) D'<D'' C B
@@ -120,7 +120,7 @@ instance-expr-in-region : eof (ins I) (inst R) -> in-region I R -> type.
 
 - : instance-expr-in-region (eof/sub E (<t/inst R<R')) IinR'
     <- instance-expr-in-region E IinR
-    <- <r/in-region IinR R<R' IinR'.
+    <- in-region/<r IinR R<R' IinR'.
 
 %worlds (vars) (instance-expr-in-region _ _).
 %total {E} (instance-expr-in-region E _).
@@ -240,12 +240,12 @@ big-lemma : in-dirt-instance I O D ->
 preservation-with-op : cof (op (ins I) O Ep K) (A ! D) -> get-op-case I O OCs OC -> A <t A' -> D <d D' -> eof (hnd Cv OCs) (A' ! D' ==> A'' ! D'') -> cof (OC Ep (fun ([y] with (hnd Cv OCs) (K y)))) (A'' ! D'') -> type.
 %mode preservation-with-op +E +Get +AA' +DD' +C -C'.
 
-- : preservation-with-op (cof/op Ei O Ep K ROinD) Get (AA' : A <t A') DD' (eof/hnd Cv OCs Covers) OC
-     <- <d/in-dirt ROinD DD' ROinD'
+- : preservation-with-op (cof/op Ei O Ep K ROinD) Get A<A' D<D' (eof/hnd Cv OCs Covers) OC
+     <- in-dirt/<d ROinD D<D' ROinD'
      <- instance-expr-in-region Ei IinR
      <- instance-in-region-in-dirt IinR ROinD' IOinD'
-     <- <d/refl _ D'D'
-     <- big-lemma IOinD' D'D' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Covers) ((cof/sub (K x e) (<dt/! AA' DD')))) Get OCs Covers Covers OC.
+     <- <d/refl _ D'<D'
+     <- big-lemma IOinD' D'<D' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Covers) ((cof/sub (K x e) (<dt/! A<A' D<D')))) Get OCs Covers Covers OC.
 
 - : preservation-with-op (cof/sub E (<dt/! A<A' D<D')) Get A'<A'' D'<D'' C B
      <- <d/trans D<D' D'<D'' D<D''

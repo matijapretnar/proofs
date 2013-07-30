@@ -14,7 +14,7 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 - : non-stuck/<d (non-stuck/final final/val) _ (non-stuck/final final/val).
 
 - : non-stuck/<d (non-stuck/final (final/op IOinD)) D<D' (non-stuck/final (final/op IOinD'))
-     <- <d/in-dirt-instance IOinD D<D' IOinD'.
+     <- in-dirt-instance/<d IOinD D<D' IOinD'.
 
 - : non-stuck/<d (non-stuck/step S) _ (non-stuck/step S).
 
