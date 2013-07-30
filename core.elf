@@ -11,7 +11,8 @@ comp : type.
 
 % Auxiliary types for constructing handlers
 
-op-cases : type. % A list of handler cases, see below
+op-cases : type. % A list of operation handler cases, see below
+%name op-cases OCs.
 
 %abbrev val-case = expr -> comp.
 %abbrev op-case = expr -> expr -> comp.
@@ -32,19 +33,19 @@ hnd : val-case -> op-cases -> expr.    % handler
 
 cond : expr -> comp -> comp -> comp.   % conditional statement
 zro? : expr -> comp.                   % zero test
-pred : expr -> comp.                   % predecesor
+pred : expr -> comp.                   % predecessor
 absd : expr -> comp.                   % eliminator for empty type
 app  : expr -> expr -> comp.           % application
 val  : expr -> comp.                   % injection of values into computations
 op   : expr -> operation Eff -> expr -> (expr -> comp) -> comp. % operation
 let  : comp -> (expr -> comp) -> comp. % let-binding
 letr : (expr -> expr -> comp) -> (expr -> comp) -> comp. % recursive function
-with : expr -> comp -> comp.           % handlig construct
+with : expr -> comp -> comp.           % handling construct
 
 % A handler has a "val-case" and a list of cases for handling operations, these
 % are encoded with "op-cases":
 
-op-cases/nil : op-cases.
+op-cases/nil  : op-cases.
 op-cases/cons : expr -> operation Eff -> op-case -> op-cases -> op-cases.
 
 %%% Small step operational semantics
@@ -55,7 +56,7 @@ op-cases/cons : expr -> operation Eff -> op-case -> op-cases -> op-cases.
 if-then-op-case : decide -> op-case -> op-case -> op-case -> type.
 
 if-then-op-case/yes : if-then-op-case yes OC _  OC.
-if-then-op-case/no : if-then-op-case no  _  OC OC.
+if-then-op-case/no  : if-then-op-case no  _  OC OC.
 
 % "get-op-case" finds the handler case which applies to a given operation,
 % or gives the default handler if none applies.
@@ -64,32 +65,32 @@ get-op-case : instance Eff -> operation Eff -> op-cases -> op-case -> type.
 
 get-op-case/nil  : get-op-case I O op-cases/nil ([x] [k] op (ins I) O x ([y] app k y)).
 get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' OC OCs) OC''
-                   <- if-then-op-case D OC OC' OC''
-                   <- get-op-case I O OCs OC'
-                   <- eq-inst-op I O I' O' D.
+                    <- if-then-op-case D OC OC' OC''
+                    <- get-op-case I O OCs OC'
+                    <- eq-inst-op I O I' O' D.
 
 % The small step semantics relation.
 
 ~> : comp -> comp -> type.
 %infix none 40 ~>.
 
-~>/cond-tru  :  cond tru C1 _ ~> C1.
-~>/cond-fls  :  cond fls _ C2 ~> C2.
-~>/zro?-zro  :  zro? zro ~> val tru.
-~>/zro?-suc  :  zro? (suc _) ~> val fls.
-~>/pred-zro  :  pred zro ~> val zro.
-~>/pred-suc  :  pred (suc E) ~> val E.
-~>/app       :  app (fun E1) E2 ~> E1 E2.
-~>/let-val   :  let (val E) C2 ~> C2 E.
-~>/let-op    :  let (op Ei O Ep K) C2 ~> op Ei O Ep ([x] let (K x) C2).
-~>/let-step  :  let C1 C2 ~> let C1' C2
-                  <- C1 ~> C1'.
-~>/letr      :  letr C1 C2 ~> C2 (fun ([x] letr C1 ([f] C1 f x))).
-~>/with-val  :  with (hnd Cv _) (val E) ~> Cv E.
-~>/with-op   :  with (hnd Cv OCs) (op (ins I) O Ep K) ~> OC Ep (fun ([y] with (hnd Cv OCs) (K y)))
-                  <- get-op-case I O OCs OC.
-~>/with-step :  with E C ~> with E C'
-                  <- C ~> C'.
+~>/cond-tru  : cond tru C1 _ ~> C1.
+~>/cond-fls  : cond fls _ C2 ~> C2.
+~>/zro?-zro  : zro? zro ~> val tru.
+~>/zro?-suc  : zro? (suc _) ~> val fls.
+~>/pred-zro  : pred zro ~> val zro.
+~>/pred-suc  : pred (suc E) ~> val E.
+~>/app       : app (fun E1) E2 ~> E1 E2.
+~>/let-val   : let (val E) C2 ~> C2 E.
+~>/let-op    : let (op Ei O Ep K) C2 ~> op Ei O Ep ([x] let (K x) C2).
+~>/let-step  : let C1 C2 ~> let C1' C2
+                <- C1 ~> C1'.
+~>/letr      : letr C1 C2 ~> C2 (fun ([x] letr C1 ([f] C1 f x))).
+~>/with-val  : with (hnd Cv _) (val E) ~> Cv E.
+~>/with-op   : with (hnd Cv OCs) (op (ins I) O Ep K) ~> OC Ep (fun ([y] with (hnd Cv OCs) (K y)))
+                <- get-op-case I O OCs OC.
+~>/with-step : with E C ~> with E C'
+                <- C ~> C'.
 
 % A computation is considered "final" if it is a value or an operation.
 
@@ -112,7 +113,7 @@ dirty : type.
 % A dirty type is a pair "A ! D" where "A" is an expression type and
 % "D" is dirt (see "sig.elf").
 
-!     : ty -> dirt -> dirty.
+! : ty -> dirt -> dirty.
 %infix none 60 !.
 
 % Expression type constructors:
@@ -128,7 +129,7 @@ inst  : region Eff -> ty.     % the type of instances of a given effect
 %infix right 55 ==>.
 
 % Each operation "O : operation E" has an associated signature, namely the
-% type "A" of its parameter and its return type "B". The mapping from operations
+% type "A1" of its parameter and its return type "A2". The mapping from operations
 % to their signature is encoded by "sig".
 
 sig : operation Eff -> ty -> ty -> type.
@@ -143,7 +144,7 @@ sig : operation Eff -> ty -> ty -> type.
 % We assume here that equality on instances and operations is decidable
 % by using a "%trustme" directive.
 
-eq-inst-op-total : {I : instance Eff} {I' : instance Eff'} {O} {O'} eq-inst-op I O I' O' D -> type.
+eq-inst-op-total : {I : instance Eff} {O} {I' : instance Eff'} {O'} eq-inst-op I O I' O' D -> type.
 %mode eq-inst-op-total +I +O +I' +O' -Eq.
 
 %worlds (vars) (eq-inst-op-total _ _ _ _ _).
@@ -156,8 +157,10 @@ eq-inst-op-total : {I : instance Eff} {I' : instance Eff'} {O} {O'} eq-inst-op I
 % "A <t A'" means that expression type "A" is a subtype of "A'".
 % "B <dt B'" means that computation type "B" is a subtype of "B'".
 
-<t : ty -> ty -> type. %infix none 30 <t.
-<dt : dirty -> dirty -> type. %infix none 30 <dt.
+<t : ty -> ty -> type.
+<dt : dirty -> dirty -> type.
+%infix none 30 <t.
+%infix none 30 <dt.
 
 <t/bool  : bool <t bool.
 <t/nat   : nat <t nat.
@@ -177,7 +180,7 @@ eq-inst-op-total : {I : instance Eff} {I' : instance Eff'} {O} {O'} eq-inst-op I
 
 %%% Typing judgements
 
-% "eof M A" means that expression "M" has expression type "A".
+% "eof E A" means that expression "E" has expression type "A".
 % "cof C B" means that computation "C" has computation type "B".
 
 eof : expr -> ty -> type.
@@ -188,8 +191,8 @@ cof : comp -> dirty -> type.
 
 opcof : op-cases -> dirty -> dirt -> type.
 
-% "covers D1 D2 D3" checks that "D1" is contained in the union of "D2"
-% and "D3".
+% "covers D D1 D2" checks that "D" is contained in the union of "D1"
+% and "D2".
 
 covers : dirt -> dirt -> dirt -> type.
 
@@ -207,7 +210,7 @@ covers/cons-there : covers (dirt/cons I O D) D1 D2
 
 add-if-singleton : dirt -> region Eff -> operation Eff -> dirt -> type.
 add-if-singleton/zero : add-if-singleton D region/empty _ D.
-add-if-singleton/one : add-if-singleton D (region/cons I region/empty) O (dirt/cons I O D).
+add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons I O D).
 add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
 
 %%% Typing rules for expressions
@@ -230,9 +233,9 @@ eof/hnd : eof (hnd Cv OCs) (A ! D ==> A' ! D')
            <- opcof OCs (A' ! D') Dcov
            <- ({x} eof x A -> cof (Cv x) (A' ! D')).
 
-% "opconf Cases B D" checks the following things (where "Cases" is a
-% list of handler cases of the form "E # O C", where "E" is an
-% expression, "O" is an operation, and "C" is the body of the case):
+% "opcof OCs B D" checks the following things (where "OCs" is a
+% list of handler cases of the form "E # O OC", where "E" is an
+% expression, "O" is an operation, and "OC" is the body of the case):
 % 
 % 1. every "E" has an instance type
 % 2. every "OC" has return type "B"
@@ -244,7 +247,7 @@ opcof/cons : opcof (op-cases/cons E O OC OCs) B D'
               <- opcof OCs B D
               <- ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (OC x k) B)
               <- sig O A1 A2
-              <- eof E (inst (R : region Eff)). 
+              <- eof E (inst R). 
 
 %%% Typing rules for computations
 
@@ -268,7 +271,7 @@ cof/op   : cof (op Ei O Ep K) (B ! D)
             <- ({x} eof x A2 -> cof (K x) (B ! D))
             <- eof Ep A1
             <- sig O A1 A2
-            <- eof Ei (inst (R : region Eff)).
+            <- eof Ei (inst R).
 cof/let  : cof (let C1 C2) (A' ! D)
             <- ({x} eof x A -> cof (C2 x) (A' ! D))
             <- cof C1 (A ! D).
