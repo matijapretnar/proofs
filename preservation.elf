@@ -13,20 +13,6 @@ if-then-typd : {E} {K} if-then-op-case D OC OC' OC'' ->
 
 %%% Preservation
 
-preservation-zro? : {D} eof E nat -> zro? E ~> C' -> cof C' (bool ! D) -> type.
-%mode preservation-zro? +D +E +S -C'.
-
-- : preservation-zro? _ eof/zro ~>/zro?-zro (cof/val eof/tru).
-
-- : preservation-zro? _ (eof/suc _) ~>/zro?-suc (cof/val eof/fls).
-
-- : preservation-zro? D (eof/sub E _) S C'
-     <- preservation-zro? D E S C'.
-
-%worlds (vars) (preservation-zro? _ _ _ _).
-%total {E} (preservation-zro? _ E _ _).
-
-
 preservation-pred : {D} eof E nat -> pred E ~> C' -> cof C' (nat ! D) -> type.
 %mode preservation-pred +D +E +S -C'.
 
@@ -258,8 +244,9 @@ preservation-with : eof E (B ==> B') -> cof C B -> with E C ~> C' -> cof C' B' -
 
 - : preservation (cof/cond _ _ C2) ~>/cond-fls C2.
 
-- : preservation (cof/zro? E) S C'
-     <- preservation-zro? _ E S C'.
+- : preservation (cof/zro? _) ~>/zro?-zro (cof/val eof/tru).
+
+- : preservation (cof/zro? _) ~>/zro?-suc (cof/val eof/fls).
 
 - : preservation (cof/pred E) S C'
      <- preservation-pred _ E S C'.
