@@ -3,9 +3,10 @@
 non-stuck : comp -> dirt -> type.
 
 non-stuck/final : non-stuck C D
-                  <- final C D.
+                   <- final C D.
 non-stuck/step  : non-stuck C _
-                  <- step C _.
+                   <- step C _.
+
 
 non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 %mode non-stuck/<d +NS +D<D' -NS'.
@@ -20,14 +21,18 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 %worlds (vars) (non-stuck/<d _ _ _).
 %total {NS} (non-stuck/<d NS _ _).
 
+
+
+%%% Effectiveness lemmas
+
 % A so-called effectivness lemma for "if-then-op", which says that "if-then-op"
 % always delivers an answer.
 
-if-then-op-case-total : {D} {HC} {HC'} if-then-op-case D HC HC' HC'' -> type.
-%mode if-then-op-case-total +D +HC +HC' -ITE.
+if-then-op-case-total : {D} {HC1} {HC2} if-then-op-case D HC1 HC2 HC -> type.
+%mode if-then-op-case-total +D +HC1 +HC2 -HC.
 
-- : if-then-op-case-total yes HC _ if-then-op-case/yes.
-- : if-then-op-case-total no _ HC if-then-op-case/no.
+- : if-then-op-case-total yes _ _ if-then-op-case/yes.
+- : if-then-op-case-total no _ _ if-then-op-case/no.
 
 %worlds (vars) (if-then-op-case-total _ _ _ _).
 %total {} (if-then-op-case-total _ _ _ _).
@@ -59,6 +64,7 @@ get-op-case-total/cons :
 
 %worlds (vars) (get-op-case-total _ _ _ _) (get-op-case-total/cons _ _ _ _ _ _ _).
 %total {(H E)} (get-op-case-total _ _ H _) (get-op-case-total/cons _ _ E _ _ _ _).
+
 
 
 %%% Progress
