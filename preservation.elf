@@ -39,22 +39,6 @@ preservation-app : eof E1 (A --> B) -> eof E2 A -> app E1 E2 ~> C -> cof C B -> 
 %total {E1} (preservation-app E1 _ _ _).
 
 
-preservation-with-val : cof (val E) B -> B <dt B1 -> eof (hnd Cv OCs) (B1 ==> B2) -> cof (Cv E) B2 -> type.
-%mode preservation-with-val +C +B<B1 +E -C'.
-
-- : preservation-with-val (cof/val E) (<dt/! A<A' _) (eof/hnd Cv _ _) (Cv _ (eof/sub E A<A')).
-
-- : preservation-with-val (cof/sub C B<B') B'<B1 E B
-     <- <dt/trans B<B' B'<B1 B<B1
-     <- preservation-with-val C B<B1 E B.
-
-- : preservation-with-val C B<B1' (eof/sub E (<t/==> B1'<B1 B2<B2')) (cof/sub B B2<B2')
-     <- <dt/trans B<B1' B1'<B1 B<B1
-     <- preservation-with-val C B<B1 E B.
-
-%worlds (vars) (preservation-with-val _ _ _ _).
-%total {C E} (preservation-with-val C _ E _).
-
 
 instance-expr-in-region : eof (ins I) (inst R) -> in-region I R -> type.
 %mode instance-expr-in-region +E -IinR.
@@ -180,34 +164,52 @@ big-lemma : in-dirt-instance I O D ->
 %worlds (vars) (big-lemma _ _ _ _ _ _ _ _ _ _).
 %total {IOinD} (big-lemma IOinD _ _ _ _ _ _ _ _ _).
 
-preservation-with-op : cof (op (ins I) O Ep K) (A ! D) -> get-op-case I O OCs OC -> A <t A' -> D <d D' -> eof (hnd Cv OCs) (A' ! D' ==> A'' ! D'') -> cof (OC Ep (fun ([y] with (hnd Cv OCs) (K y)))) (A'' ! D'') -> type.
-%mode preservation-with-op +E +Get +AA' +DD' +C -C'.
 
-- : preservation-with-op (cof/op Ei O Ep K ROinD) Get A<A' D<D' (eof/hnd Cv OCs Covers) OC
+preservation-with-val : cof (val E) B -> B <dt B1 -> eof (hnd Cv OCs) (B1 ==> B2) -> cof (Cv E) B2 -> type.
+%mode preservation-with-val +C +B<B1 +E -C'.
+
+- : preservation-with-val (cof/val E) (<dt/! A<A' _) (eof/hnd Cv _ _) (Cv _ (eof/sub E A<A')).
+
+- : preservation-with-val (cof/sub C B<B') B'<B1 E B
+     <- <dt/trans B<B' B'<B1 B<B1
+     <- preservation-with-val C B<B1 E B.
+
+- : preservation-with-val C B<B1' (eof/sub E (<t/==> B1'<B1 B2<B2')) (cof/sub B B2<B2')
+     <- <dt/trans B<B1' B1'<B1 B<B1
+     <- preservation-with-val C B<B1 E B.
+
+%worlds (vars) (preservation-with-val _ _ _ _).
+%total {C E} (preservation-with-val C _ E _).
+
+
+preservation-with-op : cof (op (ins I) O Ep K) B -> get-op-case I O OCs OC -> B <dt B1 -> eof (hnd Cv OCs) (B1 ==> B2) -> cof (OC Ep (fun ([y] with (hnd Cv OCs) (K y)))) B2 -> type.
+%mode preservation-with-op +E +Get +B<B1 +C -C'.
+
+- : preservation-with-op (cof/op Ei O Ep K ROinD) Get (<dt/! A<A' D<D') (eof/hnd Cv OCs Covers) OC
      <- in-dirt/<d ROinD D<D' ROinD'
      <- instance-expr-in-region Ei IinR
      <- instance-in-region-in-dirt IinR ROinD' IOinD'
      <- <d/refl _ D'<D'
      <- big-lemma IOinD' D'<D' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Covers) ((cof/sub (K x e) (<dt/! A<A' D<D')))) Get OCs Covers Covers OC.
 
-- : preservation-with-op (cof/sub E (<dt/! A<A' D<D')) Get A'<A'' D'<D'' C B
-     <- <d/trans D<D' D'<D'' D<D''
-     <- <t/trans A<A' A'<A'' A<A''
-     <- preservation-with-op E Get A<A'' D<D'' C B.
+- : preservation-with-op (cof/sub E B<B') Get B'<B'' C B
+     <- <dt/trans B<B' B'<B'' B<B''
+     <- preservation-with-op E Get B<B'' C B.
 
-- : preservation-with-op E Get A<A' D<D' (eof/sub C (<t/==> (<dt/! A'<A'' D'<D'') L2)) (cof/sub B L2)
-     <- <d/trans D<D' D'<D'' D<D''
-     <- <t/trans A<A' A'<A'' A<A''
-     <- preservation-with-op E Get A<A'' D<D'' C B.
+- : preservation-with-op E Get B<B1 (eof/sub C (<t/==> B1<B1' L2)) (cof/sub B L2)
+     <- <dt/trans B<B1 B1<B1' B<B1'
+     <- preservation-with-op E Get B<B1' C B.
 
-%worlds (vars) (preservation-with-op _ _ _ _ _ _).
-%total {E C} (preservation-with-op E _ _ _ C _).
+%worlds (vars) (preservation-with-op _ _ _ _ _).
+%total {E C} (preservation-with-op E _ _ C _).
 
 
 preservation : cof C A -> C ~> C' -> cof C' A -> type.
 preservation-let : cof C1 (A ! D) -> D <d D' -> ({x} eof x A -> cof (C2 x) (A' ! D')) -> let C1 C2 ~> C' -> cof C' (A' ! D') -> type.
+preservation-with : cof C B -> B <dt B1 -> eof E (B1 ==> B2) -> with E C ~> C' -> cof C' B2 -> type.
 %mode preservation +C +S -C'.
 %mode preservation-let +C1 +D<D' +C2 +S -C'.
+%mode preservation-with +C +B<B1 +E +S -C'.
 
 - : preservation (cof/cond _ C1 _) ~>/cond-tru C1.
 
@@ -230,17 +232,9 @@ preservation-let : cof C1 (A ! D) -> D <d D' -> ({x} eof x A -> cof (C2 x) (A' !
 - : preservation (cof/letr C1 C2) S
      (C2 _ (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ _ f x))))).
 
-- : preservation (cof/with E C) ~>/with-val C'
+- : preservation (cof/with E C) S C'
      <- <dt/refl _ B<B
-     <- preservation-with-val C B<B E C'.
-
-- : preservation (cof/with E C) (~>/with-op Get) C'
-     <- <t/refl _ A<A
-     <- <d/refl _ D<D
-     <- preservation-with-op C Get A<A D<D E C'.
-
-- : preservation (cof/with E C) (~>/with-step S) (cof/with E C')
-     <- preservation C S C'.
+     <- preservation-with C B<B E S C'.
 
 - : preservation (cof/sub C CC') S (cof/sub C' CC')
      <- preservation C S C'.
@@ -260,5 +254,16 @@ preservation-let : cof C1 (A ! D) -> D <d D' -> ({x} eof x A -> cof (C2 x) (A' !
      <- <t/refl _ A<A
      <- preservation (cof/sub C1 (<dt/! A<A D<D')) S C1'.
 
-%worlds (vars) (preservation _ _ _) (preservation-let _ _ _ _ _).
-%total {(S Sl) (C Cl)} (preservation C S _) (preservation-let Cl _ _ Sl _).
+
+- : preservation-with C B<B1 E ~>/with-val C'
+     <- preservation-with-val C B<B1 E C'.
+
+- : preservation-with C B<B1 E (~>/with-op Get) C'
+     <- preservation-with-op C Get B<B1 E C'.
+
+- : preservation-with C B<B1 E (~>/with-step S) (cof/with E C')
+     <- preservation (cof/sub C B<B1) S C'.
+
+
+%worlds (vars) (preservation _ _ _) (preservation-let _ _ _ _ _) (preservation-with _ _ _ _ _).
+%total {(S Sl Sw) (C Cl Cw)} (preservation C S _) (preservation-let Cl _ _ Sl _) (preservation-with Cw _ _ Sw _).
