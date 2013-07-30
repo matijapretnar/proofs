@@ -29,6 +29,7 @@ always-eq-inst-op : {I : instance Eff} {I' : instance Eff'} {O} {O'} eq-inst-op 
 %worlds (vars) (always-eq-inst-op _ _ _ _ _).
 %trustme %total {} (always-eq-inst-op _ _ _ _ _).
 
+
 % A so-called effectivness lemma for "if-then-op", which says that "if-then-op"
 % always delivers an answer.
 
@@ -40,6 +41,35 @@ always-if-then-op : {D} {HC} {HC'} if-then-op-case D HC HC' HC'' -> type.
 
 %worlds (vars) (always-if-then-op _ _ _ _).
 %total {} (always-if-then-op _ _ _ _).
+
+
+% A so-called effectivness lemma for "get-op-case", which says that "get-op-case"
+% always delivers an answer.
+
+always-get-cons-case : {I} {O} eof E (inst (R : region Eff')) -> sig (O' : operation Eff') A1 A2 -> ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (Cop x k) B) -> get-op-case I O Cops Cop' -> get-op-case I O (op-cases/cons E O' Cop Cops) Cop'' -> type.
+%mode always-get-cons-case +I +O +E +S +Cop +Cop' -Cop''.
+
+- : always-get-cons-case _ _ (eof/ins _) _ _ GetRest (get-op-case/cons ITE GetRest Eq)
+     <- always-eq-inst-op _ _ _ _ Eq
+     <- always-if-then-op _ _ _ ITE.
+
+- : always-get-cons-case I O (eof/sub E _) S X GetRest Case
+     <- always-get-cons-case I O E S X GetRest Case.
+
+%worlds (vars) (always-get-cons-case _ _ _ _ _ _ _).
+%total {E} (always-get-cons-case _ _ E _ _ _ _).
+
+always-get-case : {I} {O} opcof Cops B D -> get-op-case I O Cops Cop -> type.
+%mode always-get-case +I +O +Cops -Get.
+
+- : always-get-case _ _ opcof/nil get-op-case/nil.
+
+- : always-get-case I O (opcof/cons E S X Cops _) Case
+     <- always-get-case I O Cops Case'
+     <- always-get-cons-case I O E S X Case' Case.
+
+%worlds (vars) (always-get-case _ _ _ _).
+%total {Cops} (always-get-case _ _ Cops _).
 
 %%% Progress
 
@@ -139,33 +169,6 @@ progress-let : {C2} non-stuck C1 D -> non-stuck (let C1 C2) D -> type.
 %worlds (vars) (progress-let _ _ _).
 %total {NS1} (progress-let _ NS1 _).
 
-% Totality of "get-op-case" (also known as an "effectiveness lemma"), i.e.,
-% "get-op-case" always delivers a result.
-
-always-get-cons-case : {I} {O} eof E (inst (R : region Eff')) -> sig (O' : operation Eff') A1 A2 -> ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (Cop x k) B) -> get-op-case I O Cops Cop' -> get-op-case I O (op-cases/cons E O' Cop Cops) Cop'' -> type.
-%mode always-get-cons-case +I +O +E +S +Cop +Cop' -Cop''.
-
-- : always-get-cons-case _ _ (eof/ins _) _ _ GetRest (get-op-case/cons ITE GetRest Eq)
-     <- always-eq-inst-op _ _ _ _ Eq
-     <- always-if-then-op _ _ _ ITE.
-
-- : always-get-cons-case I O (eof/sub E _) S X GetRest Case
-     <- always-get-cons-case I O E S X GetRest Case.
-
-%worlds (vars) (always-get-cons-case _ _ _ _ _ _ _).
-%total {E} (always-get-cons-case _ _ E _ _ _ _).
-
-always-get-case : {I} {O} opcof Cops B D -> get-op-case I O Cops Cop -> type.
-%mode always-get-case +I +O +Cops -Get.
-
-- : always-get-case _ _ opcof/nil get-op-case/nil.
-
-- : always-get-case I O (opcof/cons E S X Cops _) Case
-     <- always-get-case I O Cops Case'
-     <- always-get-cons-case I O E S X Case' Case.
-
-%worlds (vars) (always-get-case _ _ _ _).
-%total {Cops} (always-get-case _ _ Cops _).
 
 progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
 %mode progress-with +E +NS -NS'.
