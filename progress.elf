@@ -20,16 +20,6 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 %worlds (vars) (non-stuck/<d _ _ _).
 %total {NS} (non-stuck/<d NS _ _).
 
-% We assume here that equality on instances and operations is decidable
-% by using a "%trustme" directive.
-
-eq-inst-op-total : {I : instance Eff} {I' : instance Eff'} {O} {O'} eq-inst-op I O I' O' D -> type.
-%mode eq-inst-op-total +I +O +I' +O' -Eq.
-
-%worlds (vars) (eq-inst-op-total _ _ _ _ _).
-%trustme %total {} (eq-inst-op-total _ _ _ _ _).
-
-
 % A so-called effectivness lemma for "if-then-op", which says that "if-then-op"
 % always delivers an answer.
 

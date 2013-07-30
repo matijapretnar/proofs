@@ -138,6 +138,17 @@ sig : operation Eff -> ty -> ty -> type.
 %block var-operation : some {eff : effect} {par : ty} {res : ty} block {op : operation eff}{_ : sig op par res}.
 %block vars = (var-effect | var-instance | var-operation).
 
+% We assume here that equality on instances and operations is decidable
+% by using a "%trustme" directive.
+
+eq-inst-op-total : {I : instance Eff} {I' : instance Eff'} {O} {O'} eq-inst-op I O I' O' D -> type.
+%mode eq-inst-op-total +I +O +I' +O' -Eq.
+
+%worlds (vars) (eq-inst-op-total _ _ _ _ _).
+%trustme %total {} (eq-inst-op-total _ _ _ _ _).
+
+
+
 %%% Subtyping judgments
 
 % "A <t A'" means that expression type "A" is a subtype of "A'".
