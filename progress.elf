@@ -166,8 +166,8 @@ progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E
 
 - : progress-with (eof/hnd _ _ _) (non-stuck/final final/val) (non-stuck/step ~>/with-val).
 
-- : progress-with (eof/hnd _ OCs _) (non-stuck/final (final/op _)) (non-stuck/step (~>/with-op Get))
-     <- get-op-case-total _ _ OCs Get.
+- : progress-with (eof/hnd _ OCs _) (non-stuck/final (final/op _)) (non-stuck/step (~>/with-op OC))
+     <- get-op-case-total _ _ OCs OC.
 
 - : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (~>/with-step S)).
 
