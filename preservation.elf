@@ -167,7 +167,7 @@ big-lemma : in-dirt-instance I O D ->
 handler-inversion :
     eof (hnd Cv OCs) (A ! D ==> A' ! D') ->
     ({x} eof x A -> cof (Cv x) (A' ! D')) ->
-    opcof OCs B Dcov ->
+    opcof OCs (A' ! D') Dcov ->
     covers D Dcov D' ->
     type.
 %mode handler-inversion +E -Cv -OCs -Covers.
