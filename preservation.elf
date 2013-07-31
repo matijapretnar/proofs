@@ -176,23 +176,6 @@ handler-inversion :
 %trustme %total {} (handler-inversion _ _ _ _).
 
 
-preservation-with-val : cof (val E) B -> B <dt B1 -> eof (hnd Cv OCs) (B1 ==> B2) -> cof (Cv E) B2 -> type.
-%mode preservation-with-val +C +B<B1 +E -C'.
-
-- : preservation-with-val (cof/val E) (<dt/! A<A' _) (eof/hnd Cv _ _) (Cv _ (eof/sub E A<A')).
-
-- : preservation-with-val (cof/sub C B<B') B'<B1 E B
-     <- <dt/trans B<B' B'<B1 B<B1
-     <- preservation-with-val C B<B1 E B.
-
-- : preservation-with-val C B<B1' (eof/sub E (<t/==> B1'<B1 B2<B2')) (cof/sub B B2<B2')
-     <- <dt/trans B<B1' B1'<B1 B<B1
-     <- preservation-with-val C B<B1 E B.
-
-%worlds (vars) (preservation-with-val _ _ _ _).
-%total {C E} (preservation-with-val C _ E _).
-
-
 preservation-with-op : cof (op (ins I) O Ep K) B -> get-op-case I O OCs OC -> B <dt B1 -> eof (hnd Cv OCs) (B1 ==> B2) -> cof (OC Ep (fun ([y] with (hnd Cv OCs) (K y)))) B2 -> type.
 %mode preservation-with-op +E +Get +B<B1 +C -C'.
 
@@ -269,9 +252,8 @@ preservation-with : cof C B1 -> eof E (B1 ==> B2) -> with E C ~> C' -> cof C' B2
      <- <dt/refl _ B2<B2
      <- preservation-with C (eof/sub E (<t/==> B1<B1' B2<B2)) S C'.
 
-- : preservation-with C E ~>/with-val C'
-     <- <dt/refl _ B1<B1
-     <- preservation-with-val C B1<B1 E C'.
+- : preservation-with (cof/val E) H ~>/with-val (Cv _ E)
+     <- handler-inversion H Cv _ _.
 
 - : preservation-with C E (~>/with-op Get) C'
      <- <dt/refl _ B1<B1
