@@ -145,30 +145,28 @@ big-lemma-unhandled :
 
 
 big-lemma : in-dirt-instance I O D ->
-            D <d D' ->
             sig O A1 A2 ->
             eof Ep A1 ->
-            eof K (A2 --> A' ! D'') ->
+            eof K (A2 --> A' ! D') ->
             get-op-case I O OCs OC ->
-            opcof OCs (A' ! D'') Dcov ->
-            covers D Dcov D'' -> 
-            covers D' Dcov D'' ->
-            cof (OC Ep K) (A' ! D'') ->
+            opcof OCs (A' ! D') Dcov ->
+            covers D Dcov D' -> 
+            cof (OC Ep K) (A' ! D') ->
             type.
-%mode big-lemma +IOinD +DD' +O +Ep +K +Get +OCs +Covers +Covers' -OC.
+%mode big-lemma +IOinD +O +Ep +K +Get +OCs +Covers -OC.
 
-- : big-lemma in-dirt-instance/here _ O Ep K Get OCs (covers/cons-here IOinD _) _ OC
+- : big-lemma in-dirt-instance/here O Ep K Get OCs (covers/cons-here IOinD _) OC
     <- big-lemma-handled IOinD O Ep K Get OCs OC.
 
-- : big-lemma in-dirt-instance/here DD' O Ep K Get OCs (covers/cons-there IOinD _) _ OC
+- : big-lemma in-dirt-instance/here O Ep K Get OCs (covers/cons-there IOinD _) OC
     <- big-lemma-unhandled IOinD O Ep K Get OCs OC.
 
-- : big-lemma (in-dirt-instance/there IOinD) (<d/cons _ DD') O Ep K Get OCs Cov Cov' OC
-    <- covers-rest Cov Cov- 
-    <- big-lemma IOinD DD' O Ep K Get OCs Cov- Cov' OC.
+- : big-lemma (in-dirt-instance/there IOinD) O Ep K Get OCs Cov OC
+    <- covers-rest Cov Cov' 
+    <- big-lemma IOinD O Ep K Get OCs Cov' OC.
 
-%worlds (vars) (big-lemma _ _ _ _ _ _ _ _ _ _).
-%total {IOinD} (big-lemma IOinD _ _ _ _ _ _ _ _ _).
+%worlds (vars) (big-lemma _ _ _ _ _ _ _ _).
+%total {IOinD} (big-lemma IOinD _ _ _ _ _ _ _).
 
 handler-inversion :
     eof (hnd Cv OCs) (A ! D ==> A' ! D') ->
@@ -239,12 +237,11 @@ preservation-with : cof C B1 -> eof E (B1 ==> B2) -> with E C ~> C' -> cof C' B2
 - : preservation-with (cof/val E) H ~>/with-val (Cv _ E)
      <- handler-inversion H Cv _ _.
 
-- : preservation-with (cof/op Ei O Ep K ROinD) H (~>/with-op Get) (OC : cof _ (A' ! _))
-     <- handler-inversion H Cv OCs Covers
+- : preservation-with (cof/op Ei O Ep K ROinD) H (~>/with-op Get) C'
+     <- handler-inversion H _ OCs Covers
      <- instance-expr-in-region Ei IinR
      <- instance-in-region-in-dirt IinR ROinD IOinD
-     <- <d/refl D D<D
-     <- big-lemma IOinD D<D O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Covers) (K x e)) Get OCs Covers Covers OC.
+     <- big-lemma IOinD O Ep (eof/fun [x] [e] cof/with H (K x e)) Get OCs Covers C'.
 
 - : preservation-with C E (~>/with-step S) (cof/with E C')
      <- preservation C S C'.
