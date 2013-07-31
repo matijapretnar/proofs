@@ -52,6 +52,7 @@ instance-expr-in-region : eof (ins I) (inst R) -> in-region I R -> type.
 %worlds (vars) (instance-expr-in-region _ _).
 %total {E} (instance-expr-in-region E _).
 
+
 covers-rest : covers (dirt/cons _ _ D) D1 D2 -> covers D D1 D2 -> type.
 %mode covers-rest +Covers -Covers'.
 
@@ -60,6 +61,7 @@ covers-rest : covers (dirt/cons _ _ D) D1 D2 -> covers D D1 D2 -> type.
 
 %worlds (vars) (covers-rest _ _).
 %total {} (covers-rest _ _).
+
 
 big-lemma-handled :
             in-dirt-instance I O Dcov ->
@@ -94,6 +96,7 @@ big-lemma-handled :
 %worlds (vars) (big-lemma-handled _ _ _ _ _ _ _).
 %total {Get} (big-lemma-handled _ _ _ _ Get _ _).
 
+
 instance-in-itself : {I} in-region I (region/cons I region/empty) -> type.
 %mode instance-in-itself +I -IinI.
 
@@ -102,6 +105,7 @@ instance-in-itself : {I} in-region I (region/cons I region/empty) -> type.
 %worlds (vars) (instance-in-itself _ _).
 %total {} (instance-in-itself _ _).
 
+
 singleton-in-dirt : in-dirt-instance I O D -> in-dirt (region/cons I region/empty) O D -> type.
 %mode singleton-in-dirt +IOinD -IOinD'.
 
@@ -109,6 +113,7 @@ singleton-in-dirt : in-dirt-instance I O D -> in-dirt (region/cons I region/empt
 
 %worlds (vars) (singleton-in-dirt _ _).
 %total {} (singleton-in-dirt _ _).
+
 
 big-lemma-unhandled :
             in-dirt-instance I O D' ->
@@ -137,6 +142,7 @@ big-lemma-unhandled :
 
 %worlds (vars) (big-lemma-unhandled _ _ _ _ _ _ _).
 %total {Get} (big-lemma-unhandled _ _ _ _ Get _ _).
+
 
 big-lemma : in-dirt-instance I O D ->
             D <d D' ->
@@ -207,7 +213,7 @@ preservation-with : cof C B1 -> eof E (B1 ==> B2) -> with E C ~> C' -> cof C' B2
 - : preservation (cof/with E C) S C'
      <- preservation-with C E S C'.
 
-- : preservation (cof/sub C CC') S (cof/sub C' CC')
+- : preservation (cof/sub C B<B') S (cof/sub C' B<B')
      <- preservation C S C'.
 
 
