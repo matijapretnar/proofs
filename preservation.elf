@@ -176,28 +176,6 @@ handler-inversion :
 %trustme %total {} (handler-inversion _ _ _ _).
 
 
-preservation-with-op : cof (op (ins I) O Ep K) B -> get-op-case I O OCs OC -> B <dt B1 -> eof (hnd Cv OCs) (B1 ==> B2) -> cof (OC Ep (fun ([y] with (hnd Cv OCs) (K y)))) B2 -> type.
-%mode preservation-with-op +E +Get +B<B1 +C -C'.
-
-- : preservation-with-op (cof/op Ei O Ep K ROinD) Get (<dt/! A<A' D<D') (eof/hnd Cv OCs Covers) OC
-     <- in-dirt/<d ROinD D<D' ROinD'
-     <- instance-expr-in-region Ei IinR
-     <- instance-in-region-in-dirt IinR ROinD' IOinD'
-     <- <d/refl _ D'<D'
-     <- big-lemma IOinD' D'<D' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Covers) ((cof/sub (K x e) (<dt/! A<A' D<D')))) Get OCs Covers Covers OC.
-
-- : preservation-with-op (cof/sub E B<B') Get B'<B'' C B
-     <- <dt/trans B<B' B'<B'' B<B''
-     <- preservation-with-op E Get B<B'' C B.
-
-- : preservation-with-op E Get B<B1 (eof/sub C (<t/==> B1<B1' L2)) (cof/sub B L2)
-     <- <dt/trans B<B1 B1<B1' B<B1'
-     <- preservation-with-op E Get B<B1' C B.
-
-%worlds (vars) (preservation-with-op _ _ _ _ _).
-%total {E C} (preservation-with-op E _ _ C _).
-
-
 preservation : cof C A -> C ~> C' -> cof C' A -> type.
 preservation-let : cof C1 (A ! D) -> D <d D' -> ({x} eof x A -> cof (C2 x) (A' ! D')) -> let C1 C2 ~> C' -> cof C' (A' ! D') -> type.
 preservation-with : cof C B1 -> eof E (B1 ==> B2) -> with E C ~> C' -> cof C' B2 -> type.
@@ -255,9 +233,12 @@ preservation-with : cof C B1 -> eof E (B1 ==> B2) -> with E C ~> C' -> cof C' B2
 - : preservation-with (cof/val E) H ~>/with-val (Cv _ E)
      <- handler-inversion H Cv _ _.
 
-- : preservation-with C E (~>/with-op Get) C'
-     <- <dt/refl _ B1<B1
-     <- preservation-with-op C Get B1<B1 E C'.
+- : preservation-with (cof/op Ei O Ep K ROinD) H (~>/with-op Get) (OC : cof _ (A' ! _))
+     <- handler-inversion H Cv OCs Covers
+     <- instance-expr-in-region Ei IinR
+     <- instance-in-region-in-dirt IinR ROinD IOinD
+     <- <d/refl D D<D
+     <- big-lemma IOinD D<D O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Covers) (K x e)) Get OCs Covers Covers OC.
 
 - : preservation-with C E (~>/with-step S) (cof/with E C')
      <- preservation C S C'.
