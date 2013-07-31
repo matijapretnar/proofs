@@ -168,24 +168,13 @@ big-lemma : in-dirt-instance I O D ->
 %worlds (vars) (big-lemma _ _ _ _ _ _ _ _).
 %total {IOinD} (big-lemma IOinD _ _ _ _ _ _ _).
 
-handler-inversion :
-    eof (hnd Cv OCs) (A ! D ==> A' ! D') ->
-    ({x} eof x A -> cof (Cv x) (A' ! D')) ->
-    opcof OCs (A' ! D') Dcov ->
-    covers D Dcov D' ->
-    type.
-%mode handler-inversion +E -Cv -OCs -Covers.
-
-%worlds (vars) (handler-inversion _ _ _ _).
-%trustme %total {} (handler-inversion _ _ _ _).
-
 
 preservation : cof C A -> C ~> C' -> cof C' A -> type.
 preservation-let : cof C1 (A ! D) -> D <d D' -> ({x} eof x A -> cof (C2 x) (A' ! D')) -> let C1 C2 ~> C' -> cof C' (A' ! D') -> type.
-preservation-with : cof C B1 -> eof E (B1 ==> B2) -> with E C ~> C' -> cof C' B2 -> type.
+preservation-with : cof C B1 -> B1 <dt B1' -> eof E (B1' ==> B2) -> with E C ~> C' -> cof C' B2 -> type.
 %mode preservation +C +S -C'.
 %mode preservation-let +C1 +D<D' +C2 +S -C'.
-%mode preservation-with +C +E +S -C'.
+%mode preservation-with +C +B1<B1' +E +S -C'.
 
 - : preservation (cof/cond _ C1 _) ~>/cond-tru C1.
 
@@ -209,7 +198,8 @@ preservation-with : cof C B1 -> eof E (B1 ==> B2) -> with E C ~> C' -> cof C' B2
      (C2 _ (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ _ f x))))).
 
 - : preservation (cof/with E C) S C'
-     <- preservation-with C E S C'.
+     <- <dt/refl _ B1<B1
+     <- preservation-with C B1<B1 E S C'.
 
 - : preservation (cof/sub C B<B') S (cof/sub C' B<B')
      <- preservation C S C'.
@@ -230,22 +220,24 @@ preservation-with : cof C B1 -> eof E (B1 ==> B2) -> with E C ~> C' -> cof C' B2
      <- preservation (cof/sub C1 (<dt/! A<A D<D')) S C1'.
 
 
-- : preservation-with (cof/sub C B1<B1') E S C'
-     <- <dt/refl _ B2<B2
-     <- preservation-with C (eof/sub E (<t/==> B1<B1' B2<B2)) S C'.
+- : preservation-with (cof/sub C B1<B1') B1'<B1'' E S C'
+     <- <dt/trans B1<B1' B1'<B1'' B1<B1''
+     <- preservation-with C B1<B1'' E S C'.
 
-- : preservation-with (cof/val E) H ~>/with-val (Cv _ E)
-     <- handler-inversion H Cv _ _.
+- : preservation-with C B1<B1' (eof/sub E (<t/==> B1'<B1'' B2''<B2')) S (cof/sub C' B2''<B2')
+     <- <dt/trans B1<B1' B1'<B1'' B1<B1''
+     <- preservation-with C B1<B1'' E S C'.
 
-- : preservation-with (cof/op Ei O Ep K ROinD) H (~>/with-op Get) C'
-     <- handler-inversion H _ OCs Covers
+- : preservation-with (cof/val E) (<dt/! AA' _) (eof/hnd Cv _ _) ~>/with-val (Cv _ (eof/sub E AA')).
+
+- : preservation-with (cof/op Ei O Ep K ROinD) (<dt/! A<A' D<D') (eof/hnd Cv OCs Covers) (~>/with-op OC) C'
      <- instance-expr-in-region Ei IinR
-     <- instance-in-region-in-dirt IinR ROinD IOinD
-     <- big-lemma IOinD O Ep (eof/fun [x] [e] cof/with H (K x e)) Get OCs Covers C'.
+     <- in-dirt/<d ROinD D<D' ROinD'
+     <- instance-in-region-in-dirt IinR ROinD' IOinD'
+     <- big-lemma IOinD' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Covers) (cof/sub (K x e) (<dt/! A<A' D<D'))) OC OCs Covers C'.
 
-- : preservation-with C E (~>/with-step S) (cof/with E C')
-     <- preservation C S C'.
+- : preservation-with C B1<B1' E (~>/with-step S) (cof/with E C')
+     <- preservation (cof/sub C B1<B1') S C'.
 
-
-%worlds (vars) (preservation _ _ _) (preservation-let _ _ _ _ _) (preservation-with _ _ _ _).
-%total {(S Sl Sw) (C Cl Cw)} (preservation C S _) (preservation-let Cl _ _ Sl _) (preservation-with Cw _ Sw _).
+%worlds (vars) (preservation _ _ _) (preservation-let _ _ _ _ _) (preservation-with _ _ _ _ _).
+%total {(S Sl Sw) (C Cl Ew) (C Cl Cw)} (preservation C S _) (preservation-let Cl _ _ Sl _) (preservation-with Cw _ Ew Sw _).
