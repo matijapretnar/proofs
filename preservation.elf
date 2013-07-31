@@ -164,6 +164,17 @@ big-lemma : in-dirt-instance I O D ->
 %worlds (vars) (big-lemma _ _ _ _ _ _ _ _ _ _).
 %total {IOinD} (big-lemma IOinD _ _ _ _ _ _ _ _ _).
 
+handler-inversion :
+    eof (hnd Cv OCs) (A ! D ==> A' ! D') ->
+    ({x} eof x A -> cof (Cv x) (A' ! D')) ->
+    opcof OCs B Dcov ->
+    covers D Dcov D' ->
+    type.
+%mode handler-inversion +E -Cv -OCs -Covers.
+
+%worlds (vars) (handler-inversion _ _ _ _).
+%trustme %total {} (handler-inversion _ _ _ _).
+
 
 preservation-with-val : cof (val E) B -> B <dt B1 -> eof (hnd Cv OCs) (B1 ==> B2) -> cof (Cv E) B2 -> type.
 %mode preservation-with-val +C +B<B1 +E -C'.
