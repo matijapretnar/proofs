@@ -3,9 +3,9 @@
 non-stuck : comp -> dirt -> type.
 
 non-stuck/final : non-stuck C D
-                  <- final C D.
+                   <- final C D.
 non-stuck/step  : non-stuck C _
-                  <- C ~> _.
+                   <- C ~> _.
 
 
 non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
@@ -42,10 +42,9 @@ if-then-op-case-total : {D} {OC1} {OC2} if-then-op-case D OC1 OC2 OC -> type.
 % always delivers an answer.
 
 get-op-case-total : {I} {O} opcof OCs B D -> get-op-case I O OCs OC -> type.
-get-op-case-total/cons :
-     {I} {O} eof E (inst (R : region Eff')) ->
-     {O' : operation Eff'} {OC} get-op-case I O OCs OC' ->
-     get-op-case I O (op-cases/cons E O' OC OCs) OC'' -> type.
+get-op-case-total/cons : {I} {O} eof E (inst (R : region Eff'))
+                          -> {O' : operation Eff'} {OC} get-op-case I O OCs OC'
+                          -> get-op-case I O (op-cases/cons E O' OC OCs) OC'' -> type.
 %mode get-op-case-total +I +O +OCs -OC.
 %mode get-op-case-total/cons +I +O +E +O' +OC +OC' -OC''.
 

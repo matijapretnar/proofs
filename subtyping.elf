@@ -140,26 +140,26 @@ instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance 
 %total {R<R'} (<r/in-dirt R<R' _ _).
 
 
-<r/trans : D <r D' -> D' <r D'' -> D <r D'' -> type.
-%mode <r/trans +D<D' +D'D'' -D<D''.
+<r/trans : R <r R' -> R' <r R'' -> R <r R'' -> type.
+%mode <r/trans +R<R' +R'>R'' -R<R''.
 
 - : <r/trans <r/empty _ <r/empty.
-- : <r/trans (<r/cons IOD' D<D') D'D'' (<r/cons IOD'' D<D'')
-     <- <r/trans D<D' D'D'' D<D''
-     <- in-region/<r IOD' D'D'' IOD''.
+- : <r/trans (<r/cons IinR' R<R') R'<R'' (<r/cons IinR'' R<R'')
+     <- <r/trans R<R' R'<R'' R<R''
+     <- in-region/<r IinR' R'<R'' IinR''.
 
 %worlds (vars) (<r/trans _ _ _).
-%total {D<D'} (<r/trans D<D' _ _).
+%total {R<R'} (<r/trans R<R' _ _).
 
 
 <d/trans : D <d D' -> D' <d D'' -> D <d D'' -> type.
-%mode <d/trans +D<D' +D'D'' -D<D''.
+%mode <d/trans +D<D' +D'<D'' -D<D''.
 
 - : <d/trans <d/empty _ <d/empty.
 
-- : <d/trans (<d/cons IOD' D<D') D'D'' (<d/cons IOD'' D<D'')
-     <- <d/trans D<D' D'D'' D<D''
-     <- in-dirt-instance/<d IOD' D'D'' IOD''.
+- : <d/trans (<d/cons IOinD' D<D') D'<D'' (<d/cons IOinD'' D<D'')
+     <- <d/trans D<D' D'<D'' D<D''
+     <- in-dirt-instance/<d IOinD' D'<D'' IOinD''.
 
 %worlds (vars) (<d/trans _ _ _).
 %total {D<D'} (<d/trans D<D' _ _).
@@ -226,3 +226,25 @@ instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance 
 %worlds (vars) (<t/trans _ _ _) (<dt/trans _ _ _) (<t/snart _ _ _) (<dt/snart _ _ _).
 %total {(A<A' A'<A B<B' B'<B)} (<t/trans A<A' _ _) (<dt/trans B<B' _ _) (<t/snart A'<A _ _) (<dt/snart B'<B _ _).
 
+
+instance-expr-in-region : eof (ins I) (inst R) -> in-region I R -> type.
+%mode instance-expr-in-region +E -IinR.
+
+- : instance-expr-in-region (eof/ins IinR) IinR.
+
+- : instance-expr-in-region (eof/sub E (<t/inst R<R')) IinR'
+     <- instance-expr-in-region E IinR
+     <- in-region/<r IinR R<R' IinR'.
+
+%worlds (vars) (instance-expr-in-region _ _).
+%total {E} (instance-expr-in-region E _).
+
+
+covers-rest : covers (dirt/cons _ _ D) D1 D2 -> covers D D1 D2 -> type.
+%mode covers-rest +Cov -Cov'.
+
+- : covers-rest (covers/cons-here _ Cov') Cov'.
+- : covers-rest (covers/cons-there _ Cov') Cov'.
+
+%worlds (vars) (covers-rest _ _).
+%total {} (covers-rest _ _).
