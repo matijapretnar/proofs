@@ -2,8 +2,9 @@
 
 non-stuck : comp -> dirt -> type.
 
-non-stuck/final : non-stuck C D
-                   <- final C D.
+non-stuck/val   : non-stuck (val _) _.
+non-stuck/op    : non-stuck (op (ins I) O _ _) D
+                   <- in-dirt-instance I O D.
 non-stuck/step  : non-stuck C _
                    <- C ~> _.
 
@@ -11,9 +12,9 @@ non-stuck/step  : non-stuck C _
 non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 %mode non-stuck/<d +NS +D<D' -NS'.
 
-- : non-stuck/<d (non-stuck/final final/val) _ (non-stuck/final final/val).
+- : non-stuck/<d non-stuck/val _ non-stuck/val.
 
-- : non-stuck/<d (non-stuck/final (final/op IOinD)) D<D' (non-stuck/final (final/op IOinD'))
+- : non-stuck/<d (non-stuck/op IOinD) D<D' (non-stuck/op IOinD')
      <- in-dirt-instance/<d IOinD D<D' IOinD'.
 
 - : non-stuck/<d (non-stuck/step S) _ (non-stuck/step S).
@@ -136,7 +137,7 @@ progress-app : {D} eof E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 progress-op : eof Ei (inst R) -> {Ep} {K} in-dirt R O D -> non-stuck (op Ei O Ep K) D -> type.
 %mode progress-op +Ei +Ep +K +ROinD -NS.
 
-- : progress-op (eof/ins IinR) _ _ ROinD (non-stuck/final (final/op IOinD))
+- : progress-op (eof/ins IinR) _ _ ROinD (non-stuck/op IOinD)
      <- instance-in-region-in-dirt IinR ROinD IOinD.
 
 - : progress-op (eof/sub Ei (<t/inst R<R')) Ep K R'OinD NS
@@ -150,9 +151,9 @@ progress-op : eof Ei (inst R) -> {Ep} {K} in-dirt R O D -> non-stuck (op Ei O Ep
 progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
 %mode progress-let +NS1 +C2 -NS.
 
-- : progress-let (non-stuck/final final/val) _ (non-stuck/step ~>/let-val).
+- : progress-let non-stuck/val _ (non-stuck/step ~>/let-val).
 
-- : progress-let (non-stuck/final (final/op _)) _ (non-stuck/step ~>/let-op).
+- : progress-let (non-stuck/op _) _ (non-stuck/step ~>/let-op).
 
 - : progress-let (non-stuck/step S1) _ (non-stuck/step (~>/let-step S1)).
 
@@ -163,9 +164,9 @@ progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
 progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
 %mode progress-with +E +NS1 -NS2.
 
-- : progress-with (eof/hnd _ _ _) (non-stuck/final final/val) (non-stuck/step ~>/with-val).
+- : progress-with (eof/hnd _ _ _) non-stuck/val (non-stuck/step ~>/with-val).
 
-- : progress-with (eof/hnd _ OCs _) (non-stuck/final (final/op _)) (non-stuck/step (~>/with-op OC))
+- : progress-with (eof/hnd _ OCs _) (non-stuck/op _) (non-stuck/step (~>/with-op OC))
      <- get-op-case-total _ _ OCs OC.
 
 - : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (~>/with-step S)).
@@ -197,7 +198,7 @@ progress : cof C (_ ! D) -> non-stuck C D -> type.
 - : progress (cof/app E1 _) NS
      <- progress-app _ E1 _ NS.
 
-- : progress (cof/val _) (non-stuck/final final/val).
+- : progress (cof/val _) non-stuck/val.
 
 - : progress (cof/op Ei _ _ _ ROinD) NS
      <- progress-op Ei _ _ ROinD NS.
