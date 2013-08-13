@@ -182,6 +182,9 @@ inst  : region Eff -> ty.     % the type of instances of a given effect
 
 sig : operation Eff -> ty -> ty -> type.
 
+sig/lookup : sig lookup unit nat.
+sig/update : sig update nat unit.
+
 % Block declarations to be used in theorems.
 
 %block var-effect : block {eff : effect}.

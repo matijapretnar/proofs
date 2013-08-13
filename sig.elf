@@ -12,16 +12,21 @@ no  : decide.
 
 effect : type.
 %name effect Eff.
+store : effect.
 
 % Each "Eff : effect" has a type of operations "operation Eff".
 
 operation : effect -> type.
 %name operation O.
+lookup : operation store.
+update : operation store.
 
 % Each "Eff : effect" has a type of instances "instance Eff".
 
 instance : effect -> type.
 %name instance I.
+x : instance store.
+y : instance store.
 
 % Let us introduce some terminology. We shall call an element of "operation E"
 % an *operation symbol* or *operation name*. A pair "(I,O)" where "I : instance
@@ -41,6 +46,10 @@ instance : effect -> type.
 
 eq-inst-op : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> decide -> type.
 eq-inst-op/yes : eq-inst-op I O I O yes.
+- : eq-inst-op x O y O' no.
+- : eq-inst-op y O x O' no.
+- : eq-inst-op I lookup I' update no.
+- : eq-inst-op I update I' lookup no.
 
 % Later on we will use the "%trustme" directive to assume that "eq-inst-op" is total.
 
