@@ -100,6 +100,45 @@ final/val : final (val _) _.
 final/op  : final (op (ins I) O _ _) D
              <- in-dirt-instance I O D.
 
+% The big step semantics relation.
+
+result : type.
+
+result/val : expr -> result.
+result/op  : instance Eff -> operation Eff -> expr -> (expr -> comp) -> result.
+
+=> : comp -> result -> type.
+%infix none 40 =>.
+
+=>/cond-tru : cond tru C1 _ => R
+               <- C1 => R.
+=>/cond-fls : cond fls _ C2 => R
+               <- C2 => R.
+=>/zro?-zro : zro? zro => result/val tru.
+=>/zro?-suc : zro? (suc _) => result/val fls.
+=>/pred-zro : pred zro => result/val zro.
+=>/pred-suc : pred (suc E) => result/val E.
+=>/app      : app (fun E1) E2 => R
+               <- E1 E2 => R.
+=>/val      : val E => result/val E.
+=>/op       : op (ins I) O E K => result/op I O E K.
+=>/let-val  : let C1 C2 => R
+               <- C2 E => R
+               <- C1 => result/val E.
+=>/let-op   : let C1 C2 => result/op I O E ([x] let (K x) C2)
+               <- C1 => result/op I O E K.
+=>/letr     : letr C1 C2 => R
+               <- C2 (fun ([x] letr C1 ([f] C1 f x))) => R.
+=>/with-val : with (hnd Cv _) C => R
+               <- Cv E => R
+               <- C => result/val E.
+=>/with-op  : with (hnd Cv OCs) C => R
+               <- OC E (fun ([y] with (hnd Cv OCs) (K y))) => R
+               <- get-op-case I O OCs OC
+               <- C => result/op I O E K.
+
+
+
 %%% Types
 
 % Expression types "ty" and computation types "dirty":
