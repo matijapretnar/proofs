@@ -78,12 +78,16 @@ preservation-unhandled-op : in-dirt-instance I O D' -> sig O A1 A2
      opcof/nil
      (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K x) (in-dirt/cons IOinD' in-dirt/empty)).
 
+- : preservation-unhandled-op _ _ Ep K
+     (get-op-case/cons _ _ if-then-op-case/yes)
+     (opcof/cons _ _ OC _ _)
+     (OC _ Ep _ K).
+
 - : preservation-unhandled-op IOinD' O Ep K
-     (get-op-case/cons _ OC'' ITE)
-     (opcof/cons _ _ OC OCs _)
-     C''
-     <- preservation-unhandled-op IOinD' O Ep K OC'' OCs C'
-     <- preservation-if-then-op-case Epp Kk ITE (OC Epp Ep Kk K) C' C''.
+     (get-op-case/cons _ OC if-then-op-case/no)
+     (opcof/cons _ _ _ OCs _)
+     C'
+     <- preservation-unhandled-op IOinD' O Ep K OC OCs C'.
 
 %worlds (vars) (preservation-unhandled-op _ _ _ _ _ _ _).
 %total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
