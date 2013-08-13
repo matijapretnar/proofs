@@ -107,6 +107,15 @@ result : type.
 result/val : expr -> result.
 result/op  : instance Eff -> operation Eff -> expr -> (expr -> comp) -> result.
 
+~>* : comp -> result -> type.
+%infix none 40 ~>*.
+
+~>*/val  : val E ~>* result/val E.
+~>*/op   : op (ins I) O E K ~>* result/op I O E K.
+~>*/step : C ~>* R
+            <- C' ~>* R
+            <- C ~> C'.
+
 => : comp -> result -> type.
 %infix none 40 =>.
 
