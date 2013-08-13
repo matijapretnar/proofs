@@ -371,3 +371,14 @@ cof/sub  : cof C B'
 %worlds (vars) (~>/=> _ _ _) (~>/=>-let _ _ _) (~>/=>-with _ _ _).
 %total {(C~>C' C1~>C1' C2~>C2') (C'=>R C1C2~>R EC~>R)} (~>/=> C~>C' C'=>R _) (~>/=>-let C1~>C1' C1C2~>R _) (~>/=>-with C2~>C2' EC~>R _).
 
+~>*/=> : C ~>* R -> C => R -> type.
+%mode ~>*/=> +C~>*R -C=>R.
+
+- : ~>*/=> ~>*/val =>/val.
+- : ~>*/=> ~>*/op =>/op.
+- : ~>*/=> (~>*/step C~>C' C'~>*R) C=>R
+     <- ~>*/=> C'~>*R C'=>R
+     <- ~>/=> C~>C' C'=>R C=>R.
+
+%worlds (vars) (~>*/=> _ _).
+%total {C~>*R} (~>*/=> C~>*R _).
