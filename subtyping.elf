@@ -227,7 +227,7 @@ instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance 
 %total {(A<A' A'<A B<B' B'<B)} (<t/trans A<A' _ _) (<dt/trans B<B' _ _) (<t/snart A'<A _ _) (<dt/snart B'<B _ _).
 
 
-instance-expr-in-region : eof (ins I) (inst R) -> in-region I R -> type.
+instance-expr-in-region : eof _ (ins I) (inst R) -> in-region I R -> type.
 %mode instance-expr-in-region +E -IinR.
 
 - : instance-expr-in-region (eof/ins IinR) IinR.

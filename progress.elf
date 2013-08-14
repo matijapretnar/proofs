@@ -42,8 +42,8 @@ if-then-op-case-total : {D} {OC1} {OC2} if-then-op-case D OC1 OC2 OC -> type.
 % A so-called effectivness lemma for "get-op-case", which says that "get-op-case"
 % always delivers an answer.
 
-get-op-case-total : {I} {O} opcof OCs B D -> get-op-case I O OCs OC -> type.
-get-op-case-total/cons : {I} {O} eof E (inst (R : region Eff'))
+get-op-case-total : {I} {O} opcof Sig OCs B D -> get-op-case I O OCs OC -> type.
+get-op-case-total/cons : {I} {O} eof Sig E (inst (R : region Eff'))
                           -> {O' : operation Eff'} {OC} get-op-case I O OCs OC'
                           -> get-op-case I O (op-cases/cons E O' OC OCs) OC'' -> type.
 %mode get-op-case-total +I +O +OCs -OC.
@@ -70,7 +70,7 @@ get-op-case-total/cons : {I} {O} eof E (inst (R : region Eff'))
 
 %%% Progress
 
-progress-cond : {D} eof E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> type.
+progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> type.
 %mode progress-cond +D +E +C1 +C2 -NS.
 
 - : progress-cond _ eof/tru _ _ (non-stuck/step ~>/cond-tru).
@@ -84,7 +84,7 @@ progress-cond : {D} eof E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> type.
 %total {E} (progress-cond _ E _ _ _).
 
 
-progress-zro? : {D} eof E nat -> non-stuck (zro? E) D -> type.
+progress-zro? : {D} eof Sig E nat -> non-stuck (zro? E) D -> type.
 %mode progress-zro? +D +E -NS.
 
 - : progress-zro? D eof/zro (non-stuck/step ~>/zro?-zro).
@@ -98,7 +98,7 @@ progress-zro? : {D} eof E nat -> non-stuck (zro? E) D -> type.
 %total {E} (progress-zro? _ E _).
 
 
-progress-pred : {D} eof E nat -> non-stuck (pred E) D -> type.
+progress-pred : {D} eof Sig E nat -> non-stuck (pred E) D -> type.
 %mode progress-pred +D +E -NS.
 
 - : progress-pred D eof/zro (non-stuck/step ~>/pred-zro).
@@ -112,7 +112,7 @@ progress-pred : {D} eof E nat -> non-stuck (pred E) D -> type.
 %total {E} (progress-pred _ E _).
 
 
-progress-absd : {D} eof E empty -> non-stuck (absd E) D -> type.
+progress-absd : {D} eof Sig E empty -> non-stuck (absd E) D -> type.
 %mode progress-absd +D +E -NS.
 
 - : progress-absd D (eof/sub E _) NS
@@ -122,7 +122,7 @@ progress-absd : {D} eof E empty -> non-stuck (absd E) D -> type.
 %total {E} (progress-absd _ E _).
 
 
-progress-app : {D} eof E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
+progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 %mode progress-app +D +E1 +E2 -NS.
 
 - : progress-app _ (eof/fun _) _ (non-stuck/step ~>/app).
@@ -134,7 +134,7 @@ progress-app : {D} eof E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 %total {E1} (progress-app _ E1 _ _).
 
 
-progress-op : eof Ei (inst R) -> {Ep} {K} in-dirt R O D -> non-stuck (op Ei O Ep K) D -> type.
+progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt R O D -> non-stuck (op Ei O Ep K) D -> type.
 %mode progress-op +Ei +Ep +K +ROinD -NS.
 
 - : progress-op (eof/ins IinR) _ _ ROinD (non-stuck/op IOinD)
@@ -161,7 +161,7 @@ progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
 %total {NS1} (progress-let NS1 _ _).
 
 
-progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
+progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
 %mode progress-with +E +NS1 -NS2.
 
 - : progress-with (eof/hnd _ _ _) non-stuck/val (non-stuck/step ~>/with-val).
@@ -180,7 +180,7 @@ progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E
 %total {E} (progress-with E _ _).
 
 
-progress : cof C (_ ! D) -> non-stuck C D -> type.
+progress : cof Sig C (_ ! D) -> non-stuck C D -> type.
 %mode progress +C -NS.
 
 - : progress (cof/cond E _ _) NS

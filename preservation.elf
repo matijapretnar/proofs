@@ -1,8 +1,8 @@
 %%% Preservation
 
 preservation-if-then-op-case : {E} {K} if-then-op-case D OC OC' OC''
-                                -> cof (OC E K) B -> cof (OC' E K) B
-                                -> cof (OC'' E K) B -> type.
+                                -> cof Sig (OC E K) B -> cof Sig (OC' E K) B
+                                -> cof Sig (OC'' E K) B -> type.
 %mode preservation-if-then-op-case +E +K +D +C +C' -C''.
 
 - : preservation-if-then-op-case _ _ if-then-op-case/yes C _ C.
@@ -12,7 +12,7 @@ preservation-if-then-op-case : {E} {K} if-then-op-case D OC OC' OC''
 %total {} (preservation-if-then-op-case _ _ _ _ _ _).
 
 
-preservation-pred : {D} eof E nat -> pred E ~> C' -> cof C' (nat ! D) -> type.
+preservation-pred : {D} eof Sig E nat -> pred E ~> C' -> cof Sig C' (nat ! D) -> type.
 %mode preservation-pred +D +E +S -C'.
 
 - : preservation-pred _ eof/zro ~>/pred-zro (cof/val eof/zro).
@@ -26,7 +26,7 @@ preservation-pred : {D} eof E nat -> pred E ~> C' -> cof C' (nat ! D) -> type.
 %total {E} (preservation-pred _ E _ _).
 
 
-preservation-app : eof E1 (A --> B) -> eof E2 A -> app E1 E2 ~> C -> cof C B -> type.
+preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> app E1 E2 ~> C -> cof Sig C B -> type.
 %mode preservation-app +E1 +E2 +S -C.
 
 - : preservation-app (eof/fun E1) E2 ~>/app (E1 _ E2).
@@ -38,10 +38,10 @@ preservation-app : eof E1 (A --> B) -> eof E2 A -> app E1 E2 ~> C -> cof C B -> 
 %total {E1} (preservation-app E1 _ _ _).
 
 
-preservation-handled-op : in-dirt-instance I O Dcov -> sig O A1 A2
-                           -> eof Ep A1 -> eof K (A2 --> B)
-                           -> get-op-case I O OCs OC -> opcof OCs B Dcov
-                           -> cof (OC Ep K) B -> type.
+preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
+                           -> eof Sig Ep A1 -> eof Sig K (A2 --> B)
+                           -> get-op-case I O OCs OC -> opcof Sig OCs B Dcov
+                           -> cof Sig (OC Ep K) B -> type.
 %mode preservation-handled-op +IOinDcov +O +Ep +K +OC +OCs -C'.
 
 - : preservation-handled-op in-dirt-instance/here _ Ep K
@@ -67,10 +67,10 @@ preservation-handled-op : in-dirt-instance I O Dcov -> sig O A1 A2
 %total {OC} (preservation-handled-op _ _ _ _ OC _ _).
 
 
-preservation-unhandled-op : in-dirt-instance I O D' -> sig O A1 A2
-                             -> eof Ep A1 -> eof K (A2 --> A' ! D')
-                             -> get-op-case I O OCs OC -> opcof OCs (A' ! D') _
-                             -> cof (OC Ep K) (A' ! D') -> type.
+preservation-unhandled-op : in-dirt-instance I O D' -> sig Sig O A1 A2
+                             -> eof Sig Ep A1 -> eof Sig K (A2 --> A' ! D')
+                             -> get-op-case I O OCs OC -> opcof Sig OCs (A' ! D') _
+                             -> cof Sig (OC Ep K) (A' ! D') -> type.
 %mode preservation-unhandled-op +IOinD' +O +Ep +K +OC +OCs -C'.
 
 - : preservation-unhandled-op IOinD' O Ep K
@@ -93,11 +93,11 @@ preservation-unhandled-op : in-dirt-instance I O D' -> sig O A1 A2
 %total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
 
 
-preservation-with-op : in-dirt-instance I O D -> sig O A1 A2
-                        -> eof Ep A1 -> eof K (A2 --> A' ! D')
-                        -> get-op-case I O OCs OC -> opcof OCs (A' ! D') Dcov
+preservation-with-op : in-dirt-instance I O D -> sig Sig O A1 A2
+                        -> eof Sig Ep A1 -> eof Sig K (A2 --> A' ! D')
+                        -> get-op-case I O OCs OC -> opcof Sig OCs (A' ! D') Dcov
                         -> covers D Dcov D'
-                        -> cof (OC Ep K) (A' ! D') -> type.
+                        -> cof Sig (OC Ep K) (A' ! D') -> type.
 %mode preservation-with-op +IOinD +O +Ep +K +OC +OCs +Cov -OC.
 
 - : preservation-with-op in-dirt-instance/here O Ep K OC OCs (covers/cons-here IOinDcov _) C'
@@ -114,9 +114,9 @@ preservation-with-op : in-dirt-instance I O D -> sig O A1 A2
 %total {IOinD} (preservation-with-op IOinD _ _ _ _ _ _ _).
 
 
-preservation : cof C A -> C ~> C' -> cof C' A -> type.
-preservation-let : cof C1 (A ! D) -> D <d D' -> ({x} eof x A -> cof (C2 x) (A' ! D')) -> let C1 C2 ~> C' -> cof C' (A' ! D') -> type.
-preservation-with : cof C B1 -> B1 <dt B1' -> eof E (B1' ==> B2) -> with E C ~> C' -> cof C' B2 -> type.
+preservation : cof Sig C A -> C ~> C' -> cof Sig C' A -> type.
+preservation-let : cof Sig C1 (A ! D) -> D <d D' -> ({x} eof Sig x A -> cof Sig (C2 x) (A' ! D')) -> let C1 C2 ~> C' -> cof Sig C' (A' ! D') -> type.
+preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with E C ~> C' -> cof Sig C' B2 -> type.
 %mode preservation +C +S -C'.
 %mode preservation-let +C1 +D<D' +C2 +S -C'.
 %mode preservation-with +C +B1<B1' +E +S -C'.

@@ -180,17 +180,30 @@ inst  : region Eff -> ty.     % the type of instances of a given effect
 % type "A1" of its parameter and its return type "A2". The mapping from operations
 % to their signature is encoded by "sig".
 
-sig : operation Eff -> ty -> ty -> type.
 
-sig/lookup : sig lookup unit nat.
-sig/update : sig update nat unit.
+effsignature : type.
+
+effsignature/empty : effsignature.
+effsignature/cons : ty -> ty -> effsignature -> effsignature.
+
+signature : type.
+
+signature/empty : signature.
+signature/cons : effsignature -> signature -> signature.
+
+sig : signature -> operation Eff -> ty -> ty -> type.
+
+sig/here-here   : sig (signature/cons (effsignature/cons A1 A2 _) _) (operation/z effect/z) A1 A2.
+sig/here-there  : sig (signature/cons (effsignature/cons _ _ ESig) Sig) (operation/s O) A1 A2
+                   <- sig (signature/cons ESig Sig) O A1 A2.
+sig/there-here  : sig (signature/cons _ Sig) (operation/z (effect/s E)) A1 A2
+                   <- sig Sig (operation/z E) A1 A2.
+sig/there-there : sig (signature/cons _ Sig) (operation/s O) A1 A2
+                  <- sig Sig O A1 A2.
 
 % Block declarations to be used in theorems.
 
-%block var-effect : block {eff : effect}.
-%block var-instance : some {eff : effect} block {inst : instance eff}.
-%block var-operation : some {eff : effect} {par : ty} {res : ty} block {op : operation eff}{_ : sig op par res}.
-%block vars = (var-effect | var-instance | var-operation).
+%block vars = ().
 
 % We assume here that equality on instances and operations is decidable
 % by using a "%trustme" directive.
@@ -234,13 +247,13 @@ eq-inst-op-total : {I : instance Eff} {O} {I' : instance Eff'} {O'} eq-inst-op I
 % "eof E A" means that expression "E" has expression type "A".
 % "cof C B" means that computation "C" has computation type "B".
 
-eof : expr -> ty -> type.
-cof : comp -> dirty -> type.
+eof : signature -> expr -> ty -> type.
+cof : signature -> comp -> dirty -> type.
 
 % "opcof Cases B D" does the hard part of checking that
 % a handler is well-typed, see definition below.
 
-opcof : op-cases -> dirty -> dirt -> type.
+opcof : signature -> op-cases -> dirty -> dirt -> type.
 
 % "covers D D1 D2" checks that "D" is contained in the union of "D1"
 % and "D2".
@@ -266,23 +279,23 @@ add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D
 
 %%% Typing rules for expressions
 
-eof/tru : eof tru bool.
-eof/fls : eof fls bool.
-eof/zro : eof zro nat.
-eof/suc : eof (suc E) nat
-           <- eof E nat.
-eof/unt : eof unt unit.
-eof/fun : eof (fun E) (A --> B)
-           <- ({x} eof x A -> cof (E x) B).
-eof/ins : eof (ins I) (inst R)
+eof/tru : eof _ tru bool.
+eof/fls : eof _ fls bool.
+eof/zro : eof _ zro nat.
+eof/suc : eof Sig (suc E) nat
+           <- eof Sig E nat.
+eof/unt : eof _ unt unit.
+eof/fun : eof Sig (fun E) (A --> B)
+           <- ({x} eof Sig x A -> cof Sig (E x) B).
+eof/ins : eof _ (ins I) (inst R)
            <- in-region I R.
-eof/sub : eof E A'
+eof/sub : eof Sig E A'
            <- A <t A'
-           <- eof E A.
-eof/hnd : eof (hnd Cv OCs) (A ! D ==> A' ! D')
+           <- eof Sig E A.
+eof/hnd : eof Sig (hnd Cv OCs) (A ! D ==> A' ! D')
            <- covers D Dcov D'
-           <- opcof OCs (A' ! D') Dcov
-           <- ({x} eof x A -> cof (Cv x) (A' ! D')).
+           <- opcof Sig OCs (A' ! D') Dcov
+           <- ({x} eof Sig x A -> cof Sig (Cv x) (A' ! D')).
 
 % "opcof OCs B D" checks the following things (where "OCs" is a
 % list of handler cases of the form "E # O OC", where "E" is an
@@ -292,49 +305,49 @@ eof/hnd : eof (hnd Cv OCs) (A ! D ==> A' ! D')
 % 2. every "OC" has return type "B"
 % 3. the dirt "D" is covered by those cases whose associated region is a singleton.
 
-opcof/nil  : opcof op-cases/nil B dirt/empty.
-opcof/cons : opcof (op-cases/cons E O OC OCs) B D'
+opcof/nil  : opcof Sig op-cases/nil B dirt/empty.
+opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
               <- add-if-singleton D R O D'
-              <- opcof OCs B D
-              <- ({x} eof x A1 -> {k} eof k (A2 --> B) -> cof (OC x k) B)
-              <- sig O A1 A2
-              <- eof E (inst R). 
+              <- opcof Sig OCs B D
+              <- ({x} eof Sig x A1 -> {k} eof Sig k (A2 --> B) -> cof Sig (OC x k) B)
+              <- sig Sig O A1 A2
+              <- eof Sig E (inst R). 
 
 %%% Typing rules for computations
 
-cof/cond : cof (cond E C1 C2) B
-            <- cof C2 B
-            <- cof C1 B
-            <- eof E bool.
-cof/zro? : cof (zro? E) (bool ! D)
-            <- eof E nat.
-cof/pred : cof (pred E) (nat ! D)
-            <- eof E nat.
-cof/absd : cof (absd E) B
-            <- eof E empty.
-cof/app  : cof (app E1 E2) B
-            <- eof E2 A
-            <- eof E1 (A --> B).
-cof/val  : cof (val E) (A ! D)
-            <- eof E A.
-cof/op   : cof (op Ei O Ep K) (B ! D)
+cof/cond : cof Sig (cond E C1 C2) B
+            <- cof Sig C2 B
+            <- cof Sig C1 B
+            <- eof Sig E bool.
+cof/zro? : cof Sig (zro? E) (bool ! D)
+            <- eof Sig E nat.
+cof/pred : cof Sig (pred E) (nat ! D)
+            <- eof Sig E nat.
+cof/absd : cof Sig (absd E) B
+            <- eof Sig E empty.
+cof/app  : cof Sig (app E1 E2) B
+            <- eof Sig E2 A
+            <- eof Sig E1 (A --> B).
+cof/val  : cof Sig (val E) (A ! D)
+            <- eof Sig E A.
+cof/op   : cof Sig (op Ei O Ep K) (B ! D)
             <- in-dirt R O D
-            <- ({x} eof x A2 -> cof (K x) (B ! D))
-            <- eof Ep A1
-            <- sig O A1 A2
-            <- eof Ei (inst R).
-cof/let  : cof (let C1 C2) (A' ! D)
-            <- ({x} eof x A -> cof (C2 x) (A' ! D))
-            <- cof C1 (A ! D).
-cof/letr : cof (letr C1 C2) B'
-            <- ({f} eof f (A --> B) -> cof (C2 f) B')
-            <- ({f} {x} eof f (A --> B) -> eof x A -> cof (C1 f x) B).
-cof/with : cof (with E C) B'
-            <- cof C B
-            <- eof E (B ==> B').
-cof/sub  : cof C B'
+            <- ({x} eof Sig x A2 -> cof Sig (K x) (B ! D))
+            <- eof Sig Ep A1
+            <- sig Sig O A1 A2
+            <- eof Sig Ei (inst R).
+cof/let  : cof Sig (let C1 C2) (A' ! D)
+            <- ({x} eof Sig x A -> cof Sig (C2 x) (A' ! D))
+            <- cof Sig C1 (A ! D).
+cof/letr : cof Sig (letr C1 C2) B'
+            <- ({f} eof Sig f (A --> B) -> cof Sig (C2 f) B')
+            <- ({f} {x} eof Sig f (A --> B) -> eof Sig x A -> cof Sig (C1 f x) B).
+cof/with : cof Sig (with E C) B'
+            <- cof Sig C B
+            <- eof Sig E (B ==> B').
+cof/sub  : cof Sig C B'
             <- B <dt B'
-            <- cof C B.
+            <- cof Sig C B.
 
 
 ~>/=> : C ~> C' -> C' => R -> C => R -> type.
