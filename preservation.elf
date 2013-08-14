@@ -48,19 +48,20 @@ apart-not-refl : {I} {O} {D} apart-name X X -> in-dirt-instance I O D -> type.
 %total {X!X} (apart-not-refl _ _ _ X!X _).
 
 
-unequal-instance-in-rest : in-dirt-instance I O (dirt/cons I' O' D) -> apart I O I' O' -> in-dirt-instance I O D -> type.
-%mode unequal-instance-in-rest +IOinI'O'D +IO!I'O' -IOinD.
+unequal-instance-in-rest : in-region I' R -> in-dirt-instance I O D' -> add-if-singleton D R O' D' -> apart I O I' O' -> in-dirt-instance I O D -> type.
+%mode unequal-instance-in-rest +I'inR +IOinD' +D+I'O'=D' +IO!I'O' -IOinD.
 
-- : unequal-instance-in-rest (in-dirt-instance/there IOinD) _ IOinD.
-- : unequal-instance-in-rest in-dirt-instance/here (apart/effect X!X) IOinD
-     <- apart-not-refl _ _ _ X!X IOinD.
-- : unequal-instance-in-rest in-dirt-instance/here (apart/instance X!X) IOinD
-     <- apart-not-refl _ _ _ X!X IOinD.
-- : unequal-instance-in-rest in-dirt-instance/here (apart/operation X!X) IOinD
-     <- apart-not-refl _ _ _ X!X IOinD.
+% - : unequal-instance-in-rest (in-dirt-instance/there IOinD) _ IOinD.
+% - : unequal-instance-in-rest in-dirt-instance/here (apart/effect X!X) IOinD
+%      <- apart-not-refl _ _ _ X!X IOinD.
+% - : unequal-instance-in-rest in-dirt-instance/here (apart/instance X!X) IOinD
+%      <- apart-not-refl _ _ _ X!X IOinD.
+% - : unequal-instance-in-rest in-dirt-instance/here (apart/operation X!X) IOinD
+%      <- apart-not-refl _ _ _ X!X IOinD.
 
-%worlds () (unequal-instance-in-rest _ _ _).
-%total {} (unequal-instance-in-rest _ _ _).
+%worlds () (unequal-instance-in-rest _ _ _ _ _).
+%trustme %total {} (unequal-instance-in-rest _ _ _ _ _).
+
 
 
 preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
@@ -82,9 +83,10 @@ preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
 
 - : preservation-handled-op IOinDcov O Ep K
      (get-op-case/cons OC (if-then-op-case/no A))
-     (opcof/cons _ _ _ OCs _)
+     (opcof/cons R _ _ OCs Add)
      C'
-     <- unequal-instance-in-rest IOinDcov A IOinDcov'
+     <- instance-expr-in-region R IinR
+     <- unequal-instance-in-rest IinR IOinDcov Add A IOinDcov'
      <- preservation-handled-op IOinDcov' O Ep K OC OCs C'.
 
 %worlds (vars) (preservation-handled-op _ _ _ _ _ _ _).
