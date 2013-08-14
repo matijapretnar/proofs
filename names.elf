@@ -7,9 +7,12 @@ name/z : name.
 name/s : name -> name.
 
 equal-name : name -> name -> type.
+%mode equal-name +X +Y.
+
 equal-name/refl : equal-name X X.
 
 apart-name : name -> name -> type.
+%mode apart-name +X +Y.
 
 apart-name/sz : apart-name (name/s _) name/z.
 apart-name/zs : apart-name name/z (name/s _).

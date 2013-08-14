@@ -54,6 +54,7 @@ op-cases/cons : expr -> operation Eff -> op-case -> op-cases -> op-cases.
 % For this purpose we define "if-then-op-case".
 
 if-then-op-case : {I : instance Eff} {O : operation Eff} {I' : instance Eff'} {O' : operation Eff'} op-case -> op-case -> op-case -> type.
+%mode if-then-op-case +I +O +I' +O' +OC1 +OC2 -OC.
 
 if-then-op-case/yes : if-then-op-case I O I' O' OC _ OC
                        <- equal I O I' O'.
@@ -64,11 +65,12 @@ if-then-op-case/no  : if-then-op-case I O I' O' _ OC OC
 % or gives the default handler if none applies.
 
 get-op-case : instance Eff -> operation Eff -> op-cases -> op-case -> type.
+%mode get-op-case +I +O +OCs -OC.
 
 get-op-case/nil  : get-op-case I O op-cases/nil ([x] [k] op (ins I) O x ([y] app k y)).
 get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' OC OCs) OC''
-                    <- if-then-op-case I O I' O' OC OC' OC''
-                    <- get-op-case I O OCs OC'.
+                    <- get-op-case I O OCs OC'
+                    <- if-then-op-case I O I' O' OC OC' OC''.
 
 % A computation is considered "final" if it is a value or an operation.
 

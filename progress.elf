@@ -56,7 +56,7 @@ get-op-case-total/cons : {I} {O} eof Sig E (inst (R : region Eff'))
      <- get-op-case-total/cons I O E _ _ OC' OC''.
 
 
-- : get-op-case-total/cons I O (eof/ins _) _ _ OC' (get-op-case/cons OC' OC'')
+- : get-op-case-total/cons I O (eof/ins _) _ _ OC' (get-op-case/cons OC'' OC')
      <- decide _ _ _ _ D
      <- if-then-op-case-total D _ _ OC''.
 

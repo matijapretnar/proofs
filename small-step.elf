@@ -1,6 +1,7 @@
 % The small step semantics relation.
 
 ~> : comp -> comp -> type.
+%mode ~> +C -C'.
 %infix none 40 ~>.
 
 ~>/cond-tru  : cond tru C1 _ ~> C1.

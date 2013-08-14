@@ -33,9 +33,11 @@ instance/ : {Eff} name -> instance Eff.
 % them fitting together.
 
 equal : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
+%mode equal +I +O +I' +O'.
 equal/refl : equal I O I O.
 
 apart : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
+%mode apart +I +O +I' +O'.
 
 apart/effect : apart (instance/ (effect/ X) _) _ (instance/ (effect/ Y) _) _
                 <- apart-name X Y.
