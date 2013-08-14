@@ -198,12 +198,18 @@ effsig/here : effsig (effsignature/cons A1 A2 _) name/z A1 A2.
 effsig/there : effsig (effsignature/cons _ _ ESig) (name/s O) A1 A2
                 <- effsig ESig O A1 A2.
 
+%worlds () (effsig _ _ _ _).
+%unique effsig +Sig +X -1A1 -1A2.
+
 sig : signature -> operation Eff -> ty -> ty -> type.
 
 sig/here : sig (signature/cons ESig _) (operation/ (effect/ name/z) O) A1 A2
             <- effsig ESig O A1 A2.
 sig/there : sig (signature/cons _ Sig) (operation/ (effect/ (name/s Eff)) O) A1 A2
-            <- sig ESig (operation/ (effect/ Eff) O) A1 A2.
+            <- sig Sig (operation/ (effect/ Eff) O) A1 A2.
+
+%worlds () (sig _ _ _ _).
+%unique sig +Sig +O -1A1 -1A2.
 
 % Block declarations to be used in theorems.
 

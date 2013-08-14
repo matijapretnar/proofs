@@ -90,7 +90,7 @@ preservation-unhandled-op : in-dirt-instance I O D' -> sig Sig O A1 A2
      <- preservation-unhandled-op IOinD' O Ep K OC OCs C'.
 
 %worlds (vars) (preservation-unhandled-op _ _ _ _ _ _ _).
-%trustme %total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
+%total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
 
 
 preservation-with-op : in-dirt-instance I O D -> sig Sig O A1 A2
