@@ -1,0 +1,106 @@
+%%% Typing judgements
+
+% "eof E A" means that expression "E" has expression type "A".
+% "cof C B" means that computation "C" has computation type "B".
+
+eof : signature -> expr -> ty -> type.
+cof : signature -> comp -> dirty -> type.
+
+% "opcof Cases B D" does the hard part of checking that
+% a handler is well-typed, see definition below.
+
+opcof : signature -> op-cases -> dirty -> dirt -> type.
+
+% "covers D D1 D2" checks that "D" is contained in the union of "D1"
+% and "D2".
+
+covers : dirt -> dirt -> dirt -> type.
+
+covers/empty      : covers dirt/empty _ _.
+covers/cons-here  : covers (dirt/cons I O D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt-instance I O D1.
+covers/cons-there : covers (dirt/cons I O D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt-instance I O D2.
+
+% "add-if-singleton D R O D'" adds "I#O" to dirt "D" to obtain dirt "D'",
+% provided "R" is the singleton list containing just "I". This is used for
+% type checking of handlers below.
+
+add-if-singleton : dirt -> region Eff -> operation Eff -> dirt -> type.
+add-if-singleton/zero : add-if-singleton D region/empty _ D.
+add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons I O D).
+add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
+
+%%% Typing rules for expressions
+
+eof/tru : eof _ tru bool.
+eof/fls : eof _ fls bool.
+eof/zro : eof _ zro nat.
+eof/suc : eof Sig (suc E) nat
+           <- eof Sig E nat.
+eof/unt : eof _ unt unit.
+eof/fun : eof Sig (fun E) (A --> B)
+           <- ({x} eof Sig x A -> cof Sig (E x) B).
+eof/ins : eof _ (ins I) (inst R)
+           <- in-region I R.
+eof/sub : eof Sig E A'
+           <- A <t A'
+           <- eof Sig E A.
+eof/hnd : eof Sig (hnd Cv OCs) (A ! D ==> A' ! D')
+           <- covers D Dcov D'
+           <- opcof Sig OCs (A' ! D') Dcov
+           <- ({x} eof Sig x A -> cof Sig (Cv x) (A' ! D')).
+
+% "opcof OCs B D" checks the following things (where "OCs" is a
+% list of handler cases of the form "E # O OC", where "E" is an
+% expression, "O" is an operation, and "OC" is the body of the case):
+% 
+% 1. every "E" has an instance type
+% 2. every "OC" has return type "B"
+% 3. the dirt "D" is covered by those cases whose associated region is a singleton.
+
+opcof/nil  : opcof Sig op-cases/nil B dirt/empty.
+opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
+              <- add-if-singleton D R O D'
+              <- opcof Sig OCs B D
+              <- ({x} eof Sig x A1 -> {k} eof Sig k (A2 --> B) -> cof Sig (OC x k) B)
+              <- sig Sig O A1 A2
+              <- eof Sig E (inst R). 
+
+%%% Typing rules for computations
+
+cof/cond : cof Sig (cond E C1 C2) B
+            <- cof Sig C2 B
+            <- cof Sig C1 B
+            <- eof Sig E bool.
+cof/zro? : cof Sig (zro? E) (bool ! D)
+            <- eof Sig E nat.
+cof/pred : cof Sig (pred E) (nat ! D)
+            <- eof Sig E nat.
+cof/absd : cof Sig (absd E) B
+            <- eof Sig E empty.
+cof/app  : cof Sig (app E1 E2) B
+            <- eof Sig E2 A
+            <- eof Sig E1 (A --> B).
+cof/val  : cof Sig (val E) (A ! D)
+            <- eof Sig E A.
+cof/op   : cof Sig (op Ei O Ep K) (B ! D)
+            <- in-dirt R O D
+            <- ({x} eof Sig x A2 -> cof Sig (K x) (B ! D))
+            <- eof Sig Ep A1
+            <- sig Sig O A1 A2
+            <- eof Sig Ei (inst R).
+cof/let  : cof Sig (let C1 C2) (A' ! D)
+            <- ({x} eof Sig x A -> cof Sig (C2 x) (A' ! D))
+            <- cof Sig C1 (A ! D).
+cof/letr : cof Sig (letr C1 C2) B'
+            <- ({f} eof Sig f (A --> B) -> cof Sig (C2 f) B')
+            <- ({f} {x} eof Sig f (A --> B) -> eof Sig x A -> cof Sig (C1 f x) B).
+cof/with : cof Sig (with E C) B'
+            <- cof Sig C B
+            <- eof Sig E (B ==> B').
+cof/sub  : cof Sig C B'
+            <- B <dt B'
+            <- cof Sig C B.

@@ -1,52 +1,5 @@
 %%% Various definitions
 
-% We use natural numbers where concrete syntax would use string.
-
-name : type.
-%name name X.
-
-name/z : name.
-name/s : name -> name.
-
-equal-name : name -> name -> type.
-equal-name/refl : equal-name X X.
-
-apart-name : name -> name -> type.
-
-apart-name/sz : apart-name (name/s _) name/z.
-apart-name/zs : apart-name name/z (name/s _).
-apart-name/ss : apart-name (name/s X) (name/s Y)
-                  <- apart-name X Y.
-
-decidable-name : name -> name -> type.
-
-decidable-name/equal : decidable-name X Y
-                         <- equal-name X Y.
-
-decidable-name/apart : decidable-name X Y
-                         <- apart-name X Y.
-
-decidable-name/s : decidable-name X Y -> decidable-name (name/s X) (name/s Y) -> type.
-%mode decidable-name/s +Dec -Dec'.
-
-- : decidable-name/s (decidable-name/equal equal-name/refl) (decidable-name/equal equal-name/refl).
-- : decidable-name/s (decidable-name/apart A) (decidable-name/apart (apart-name/ss A)).
-
-%worlds () (decidable-name/s _ _).
-%total {} (decidable-name/s _ _).
-
-decide-name : {X} {Y} decidable-name X Y -> type.
-%mode decide-name +X +Y -Dec.
-
-- : decide-name name/z name/z (decidable-name/equal equal-name/refl).
-- : decide-name name/z (name/s _) (decidable-name/apart apart-name/zs).
-- : decide-name (name/s _) name/z (decidable-name/apart apart-name/sz).
-- : decide-name (name/s X) (name/s Y) Dec'
-     <- decide-name X Y Dec
-     <- decidable-name/s Dec Dec'.
-
-%worlds () (decide-name _ _ _).
-%total {X Y } (decide-name X Y _).
 
 % There is a type of all effects "effect".
 
