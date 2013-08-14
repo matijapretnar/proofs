@@ -1,12 +1,12 @@
 %%% Preservation
 
-preservation-if-then-op-case : {E} {K} if-then-op-case D OC OC' OC''
+preservation-if-then-op-case : {E} {K} (if-then-op-case I O I' O') OC OC' OC''
                                 -> cof Sig (OC E K) B -> cof Sig (OC' E K) B
                                 -> cof Sig (OC'' E K) B -> type.
 %mode preservation-if-then-op-case +E +K +D +C +C' -C''.
 
-- : preservation-if-then-op-case _ _ if-then-op-case/yes C _ C.
-- : preservation-if-then-op-case _ _ if-then-op-case/no _ C C.
+- : preservation-if-then-op-case _ _ (if-then-op-case/yes _ ) C _ C.
+- : preservation-if-then-op-case _ _ (if-then-op-case/no _) _ C C.
 
 %worlds (vars) (preservation-if-then-op-case _ _ _ _ _ _).
 %total {} (preservation-if-then-op-case _ _ _ _ _ _).
@@ -45,26 +45,26 @@ preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
 %mode preservation-handled-op +IOinDcov +O +Ep +K +OC +OCs -C'.
 
 - : preservation-handled-op in-dirt-instance/here _ Ep K
-     (get-op-case/cons eq-inst-op/yes _ if-then-op-case/yes)
+     (get-op-case/cons _ (if-then-op-case/yes _))
      (opcof/cons _ _ OC _ add-if-singleton/one)
      (OC _ Ep _ K).
 
 - : preservation-handled-op (in-dirt-instance/there IOinDcov) O Ep K
-     (get-op-case/cons _ OC'' ITE)
+     (get-op-case/cons OC'' ITE)
      (opcof/cons _ _ OC' OCs add-if-singleton/one)
      C''
      <- preservation-handled-op IOinDcov O Ep K OC'' OCs C'
      <- preservation-if-then-op-case Epp Kk ITE (OC' Epp Ep Kk K) C' C''.
 
 - : preservation-handled-op IOinDcov O Ep K
-     (get-op-case/cons _ OC'' ITE)
+     (get-op-case/cons OC'' ITE)
      (opcof/cons _ _ OC OCs _)
      C''
      <- preservation-handled-op IOinDcov O Ep K OC'' OCs C'
      <- preservation-if-then-op-case Epp Kk ITE (OC Epp Ep Kk K) C' C''.
 
 %worlds (vars) (preservation-handled-op _ _ _ _ _ _ _).
-%total {OC} (preservation-handled-op _ _ _ _ OC _ _).
+%trustme %total {OC} (preservation-handled-op _ _ _ _ OC _ _).
 
 
 preservation-unhandled-op : in-dirt-instance I O D' -> sig Sig O A1 A2
@@ -79,18 +79,18 @@ preservation-unhandled-op : in-dirt-instance I O D' -> sig Sig O A1 A2
      (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K x) (in-dirt/cons IOinD' in-dirt/empty)).
 
 - : preservation-unhandled-op _ _ Ep K
-     (get-op-case/cons _ _ if-then-op-case/yes)
+     (get-op-case/cons _ (if-then-op-case/yes _))
      (opcof/cons _ _ OC _ _)
      (OC _ Ep _ K).
 
 - : preservation-unhandled-op IOinD' O Ep K
-     (get-op-case/cons _ OC if-then-op-case/no)
+     (get-op-case/cons OC (if-then-op-case/no _))
      (opcof/cons _ _ _ OCs _)
      C'
      <- preservation-unhandled-op IOinD' O Ep K OC OCs C'.
 
 %worlds (vars) (preservation-unhandled-op _ _ _ _ _ _ _).
-%total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
+%trustme %total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
 
 
 preservation-with-op : in-dirt-instance I O D -> sig Sig O A1 A2

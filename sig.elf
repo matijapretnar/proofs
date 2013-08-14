@@ -1,44 +1,130 @@
 %%% Various definitions
 
-% We define a type of booleans but call it "decide" (with elements "yes" and
-% "no") in order to distinguish it from Eff's "bool".
+% We use natural numbers where concrete syntax would use string.
 
-decide : type.
+name : type.
+%name name X.
 
-yes : decide.
-no  : decide.
+name/z : name.
+name/s : name -> name.
+
+equal-name : name -> name -> type.
+equal-name/refl : equal-name X X.
+
+apart-name : name -> name -> type.
+
+apart-name/sz : apart-name (name/s _) name/z.
+apart-name/zs : apart-name name/z (name/s _).
+apart-name/ss : apart-name (name/s X) (name/s Y)
+                  <- apart-name X Y.
+
+decidable-name : name -> name -> type.
+
+decidable-name/equal : decidable-name X Y
+                         <- equal-name X Y.
+
+decidable-name/apart : decidable-name X Y
+                         <- apart-name X Y.
+
+decidable-name/s : decidable-name X Y -> decidable-name (name/s X) (name/s Y) -> type.
+%mode decidable-name/s +Dec -Dec'.
+
+- : decidable-name/s (decidable-name/equal equal-name/refl) (decidable-name/equal equal-name/refl).
+- : decidable-name/s (decidable-name/apart A) (decidable-name/apart (apart-name/ss A)).
+
+%worlds () (decidable-name/s _ _).
+%total {} (decidable-name/s _ _).
+
+decide-name : {X} {Y} decidable-name X Y -> type.
+%mode decide-name +X +Y -Dec.
+
+- : decide-name name/z name/z (decidable-name/equal equal-name/refl).
+- : decide-name name/z (name/s _) (decidable-name/apart apart-name/zs).
+- : decide-name (name/s _) name/z (decidable-name/apart apart-name/sz).
+- : decide-name (name/s X) (name/s Y) Dec'
+     <- decide-name X Y Dec
+     <- decidable-name/s Dec Dec'.
+
+%worlds () (decide-name _ _ _).
+%total {X Y } (decide-name X Y _).
 
 % There is a type of all effects "effect".
 
 effect : type.
 %name effect Eff.
 
-effect/z : effect.
-effect/s : effect -> effect.
+effect/ : name -> effect.
 
 % Each "Eff : effect" has a type of operations "operation Eff".
 
 operation : effect -> type.
 %name operation O.
 
-operation/z : {Eff} operation Eff.
-operation/s : operation Eff -> operation Eff.
-
+operation/ : {Eff} name -> operation Eff.
 
 % Each "Eff : effect" has a type of instances "instance Eff".
 
 instance : effect -> type.
 %name instance I.
 
-instance/z : {Eff} instance Eff.
-instance/s : instance Eff -> instance Eff.
+instance/ : {Eff} name -> instance Eff.
 
+% FIX THESE COMMENTS HERE XXX
 % Let us introduce some terminology. We shall call an element of "operation E"
 % an *operation symbol* or *operation name*. A pair "(I,O)" where "I : instance
 % E" and "O : operation E" is called an *operation*. We write it informally as
 % "I#O" to remind ourselves of Eff's concrete syntax.
 
-% We need the ability to compare two operations I#O and I'#O'. In Twelf this can
+% We need the ability to compare two operations I#O and I'#O'. We do this
+% through two relations, equality and apartness, and prove theorems about
+% them fitting together.
+
+equal : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
+equal/refl : equal I O I O.
+
+apart : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
+
+apart/effect : apart (instance/ (effect/ X) _) _ (instance/ (effect/ Y) _) _
+                <- apart-name X Y.
+
+apart/instance : apart (instance/ Eff X) _ (instance/ Eff Y) _
+                  <- apart-name X Y.
+
+apart/operation : apart I (operation/ _ X) I (operation/ _ Y)
+                  <- apart-name X Y.
+
+decidable : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
+
+decidable/equal : decidable I O I' O'
+                   <- equal I O I' O'.
+
+decidable/apart : decidable I O I' O'
+                   <- apart I O I' O'.
+
+decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name O O' -> decidable (instance/ (effect/ Eff) I) (operation/ (effect/ Eff) O) (instance/ (effect/ Eff') I') (operation/ (effect/ Eff') O') -> type.
+%mode decide-lemma +Eff?Eff' +I?I' +O?O' -IO?I'O'.
+
+- : decide-lemma (decidable-name/equal equal-name/refl) (decidable-name/equal equal-name/refl) (decidable-name/equal equal-name/refl) (decidable/equal equal/refl).
+- : decide-lemma (decidable-name/equal equal-name/refl) (decidable-name/equal equal-name/refl) (decidable-name/apart A) (decidable/apart (apart/operation A)).
+- : decide-lemma (decidable-name/equal equal-name/refl) (decidable-name/apart A) _ (decidable/apart (apart/instance A)).
+- : decide-lemma (decidable-name/apart A) _ _ (decidable/apart (apart/effect A)).
+
+%worlds () (decide-lemma _ _ _ _).
+%total {Eff?Eff' I?I' O?O'} (decide-lemma Eff?Eff' I?I' O?O' _).
+
+decide : {I : instance Eff} {O} {I' : instance Eff'} {O'} decidable I O I' O' -> type.
+%mode decide +I +O +I' +O' -Dec.
+
+- : decide (instance/ (effect/ Eff) I) (operation/ (effect/ Eff) O) (instance/ (effect/ Eff') I') (operation/ (effect/ Eff') O') Dec
+     <- decide-name Eff Eff' Eff?Eff'
+     <- decide-name I I' I?I'
+     <- decide-name O O' O?O'
+     <- decide-lemma Eff?Eff' I?I' O?O' Dec.
+
+%worlds () (decide _ _ _ _ _).
+%total {} (decide _ _ _ _ _).
+
+% In Twelf this can
 % be done by making the types of instances and operations concrete (essentially
 % natural numbers) and programming the relevant decision procedure. We consider
 % this to be a very clumsy solution, mainly because it exposes implementation
@@ -46,15 +132,7 @@ instance/s : instance Eff -> instance Eff.
 %
 % We would prefer to *hypothesise* the fact that instances and operations have
 % decidable equality, but there is no legal way of doing this in Twelf. So we
-% are going to do it illegally, by assuming decidable equality "eq-inst-op" which
-% compares operations.
-
-eq-inst-op : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> decide -> type.
-eq-inst-op/yes : eq-inst-op I O I O yes.
-eq-inst-op/zs  : eq-inst-op (instance/z _) O (instance/s _) O' no.
-% %trustme that these are all the cases.
-
-% Later on we will use the "%trustme" directive to assume that "eq-inst-op" is total.
+% are going to do it in a clumsy way.
 
 % Dirt is a list of operations. It is used to indicate which operations may
 % happen in a computation.

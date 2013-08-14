@@ -29,11 +29,11 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 % A so-called effectivness lemma for "if-then-op", which says that "if-then-op"
 % always delivers an answer.
 
-if-then-op-case-total : {D} {OC1} {OC2} if-then-op-case D OC1 OC2 OC -> type.
-%mode if-then-op-case-total +D +OC1 +OC2 -OC.
+if-then-op-case-total : decidable I O I' O' -> {OC1} {OC2} if-then-op-case I O I' O' OC1 OC2 OC -> type.
+%mode if-then-op-case-total +Dec +OC1 +OC2 -OC.
 
-- : if-then-op-case-total yes _ _ if-then-op-case/yes.
-- : if-then-op-case-total no _ _ if-then-op-case/no.
+- : if-then-op-case-total (decidable/equal E) _ _ (if-then-op-case/yes E).
+- : if-then-op-case-total (decidable/apart A) _ _ (if-then-op-case/no A).
 
 %worlds (vars) (if-then-op-case-total _ _ _ _).
 %total {} (if-then-op-case-total _ _ _ _).
@@ -56,9 +56,9 @@ get-op-case-total/cons : {I} {O} eof Sig E (inst (R : region Eff'))
      <- get-op-case-total/cons I O E _ _ OC' OC''.
 
 
-- : get-op-case-total/cons _ _ (eof/ins _) _ _ OC' (get-op-case/cons Eq OC' OC'')
-     <- eq-inst-op-total _ _ _ _ Eq
-     <- if-then-op-case-total _ _ _ OC''.
+- : get-op-case-total/cons I O (eof/ins _) _ _ OC' (get-op-case/cons OC' OC'')
+     <- decide _ _ _ _ D
+     <- if-then-op-case-total D _ _ OC''.
 
 - : get-op-case-total/cons I O (eof/sub E _) _ _ OC' OC''
      <- get-op-case-total/cons I O E _ _ OC' OC''.

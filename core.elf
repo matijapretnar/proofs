@@ -53,10 +53,12 @@ op-cases/cons : expr -> operation Eff -> op-case -> op-cases -> op-cases.
 % The handling construct must decide how to handle an operation.
 % For this purpose we define "if-then-op-case".
 
-if-then-op-case : decide -> op-case -> op-case -> op-case -> type.
+if-then-op-case : {I : instance Eff} {O : operation Eff} {I' : instance Eff'} {O' : operation Eff'} op-case -> op-case -> op-case -> type.
 
-if-then-op-case/yes : if-then-op-case yes OC _  OC.
-if-then-op-case/no  : if-then-op-case no  _  OC OC.
+if-then-op-case/yes : if-then-op-case I O I' O' OC _ OC
+                       <- equal I O I' O'.
+if-then-op-case/no  : if-then-op-case I O I' O' _ OC OC
+                       <- apart I O I' O'.
 
 % "get-op-case" finds the handler case which applies to a given operation,
 % or gives the default handler if none applies.
@@ -65,9 +67,8 @@ get-op-case : instance Eff -> operation Eff -> op-cases -> op-case -> type.
 
 get-op-case/nil  : get-op-case I O op-cases/nil ([x] [k] op (ins I) O x ([y] app k y)).
 get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' OC OCs) OC''
-                    <- if-then-op-case D OC OC' OC''
-                    <- get-op-case I O OCs OC'
-                    <- eq-inst-op I O I' O' D.
+                    <- if-then-op-case I O I' O' OC OC' OC''
+                    <- get-op-case I O OCs OC'.
 
 % The small step semantics relation.
 
@@ -191,29 +192,22 @@ signature : type.
 signature/empty : signature.
 signature/cons : effsignature -> signature -> signature.
 
+effsig : effsignature -> name -> ty -> ty -> type.
+
+effsig/here : effsig (effsignature/cons A1 A2 _) name/z A1 A2.
+effsig/there : effsig (effsignature/cons _ _ ESig) (name/s O) A1 A2
+                <- effsig ESig O A1 A2.
+
 sig : signature -> operation Eff -> ty -> ty -> type.
 
-sig/here-here   : sig (signature/cons (effsignature/cons A1 A2 _) _) (operation/z effect/z) A1 A2.
-sig/here-there  : sig (signature/cons (effsignature/cons _ _ ESig) Sig) (operation/s O) A1 A2
-                   <- sig (signature/cons ESig Sig) O A1 A2.
-sig/there-here  : sig (signature/cons _ Sig) (operation/z (effect/s E)) A1 A2
-                   <- sig Sig (operation/z E) A1 A2.
-sig/there-there : sig (signature/cons _ Sig) (operation/s O) A1 A2
-                  <- sig Sig O A1 A2.
+sig/here : sig (signature/cons ESig _) (operation/ (effect/ name/z) O) A1 A2
+            <- effsig ESig O A1 A2.
+sig/there : sig (signature/cons _ Sig) (operation/ (effect/ (name/s Eff)) O) A1 A2
+            <- sig ESig (operation/ (effect/ Eff) O) A1 A2.
 
 % Block declarations to be used in theorems.
 
 %block vars = ().
-
-% We assume here that equality on instances and operations is decidable
-% by using a "%trustme" directive.
-
-eq-inst-op-total : {I : instance Eff} {O} {I' : instance Eff'} {O'} eq-inst-op I O I' O' D -> type.
-%mode eq-inst-op-total +I +O +I' +O' -Eq.
-
-%worlds (vars) (eq-inst-op-total _ _ _ _ _).
-%trustme %total {} (eq-inst-op-total _ _ _ _ _).
-
 
 
 %%% Subtyping judgments
