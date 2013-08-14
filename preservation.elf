@@ -48,19 +48,19 @@ apart-not-refl : {I} {O} {D} apart-name X X -> in-dirt-instance I O D -> type.
 %total {X!X} (apart-not-refl _ _ _ X!X _).
 
 
-unequal-instance-in-rest : in-region I' R -> in-dirt-instance I O D' -> add-if-singleton D R O' D' -> apart I O I' O' -> in-dirt-instance I O D -> type.
+unequal-instance-in-rest : in-region I' (region/cons J region/empty) -> in-dirt-instance I O D' -> add-if-singleton D (region/cons J region/empty) O' D' -> apart I O I' O' -> in-dirt-instance I O D -> type.
 %mode unequal-instance-in-rest +I'inR +IOinD' +D+I'O'=D' +IO!I'O' -IOinD.
 
-% - : unequal-instance-in-rest (in-dirt-instance/there IOinD) _ IOinD.
-% - : unequal-instance-in-rest in-dirt-instance/here (apart/effect X!X) IOinD
-%      <- apart-not-refl _ _ _ X!X IOinD.
-% - : unequal-instance-in-rest in-dirt-instance/here (apart/instance X!X) IOinD
-%      <- apart-not-refl _ _ _ X!X IOinD.
-% - : unequal-instance-in-rest in-dirt-instance/here (apart/operation X!X) IOinD
-%      <- apart-not-refl _ _ _ X!X IOinD.
+- : unequal-instance-in-rest in-region/here (in-dirt-instance/there IOinD) _ _ IOinD.
+- : unequal-instance-in-rest in-region/here in-dirt-instance/here _ (apart/effect X!X) IOinD
+     <- apart-not-refl _ _ _ X!X IOinD.
+- : unequal-instance-in-rest in-region/here in-dirt-instance/here _ (apart/instance X!X) IOinD
+     <- apart-not-refl _ _ _ X!X IOinD.
+- : unequal-instance-in-rest in-region/here in-dirt-instance/here _ (apart/operation X!X) IOinD
+     <- apart-not-refl _ _ _ X!X IOinD.
 
 %worlds () (unequal-instance-in-rest _ _ _ _ _).
-%trustme %total {} (unequal-instance-in-rest _ _ _ _ _).
+%total {} (unequal-instance-in-rest _ _ _ _ _).
 
 
 
