@@ -37,6 +37,12 @@ preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> app E1 E2 ~> C -> cof
 %worlds (vars) (preservation-app _ _ _ _).
 %total {E1} (preservation-app E1 _ _ _).
 
+unequal-instance-in-rest : in-dirt-instance I O (dirt/cons I' O' D) -> apart I O I' O' -> in-dirt-instance I O D -> type.
+%mode unequal-instance-in-rest +IOinI'O'D +IO!I'O' -IOinD.
+
+%worlds () (unequal-instance-in-rest _ _ _).
+%trustme %total {} (unequal-instance-in-rest _ _ _).
+
 
 preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
                            -> eof Sig Ep A1 -> eof Sig K (A2 --> B)
@@ -44,27 +50,26 @@ preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
                            -> cof Sig (OC Ep K) B -> type.
 %mode preservation-handled-op +IOinDcov +O +Ep +K +OC +OCs -C'.
 
-- : preservation-handled-op in-dirt-instance/here _ Ep K
+- : preservation-handled-op _ _ Ep K
      (get-op-case/cons _ (if-then-op-case/yes _))
-     (opcof/cons _ _ OC _ add-if-singleton/one)
+     (opcof/cons _ _ OC _ _)
      (OC _ Ep _ K).
 
-- : preservation-handled-op (in-dirt-instance/there IOinDcov) O Ep K
-     (get-op-case/cons OC'' ITE)
-     (opcof/cons _ _ OC' OCs add-if-singleton/one)
-     C''
-     <- preservation-handled-op IOinDcov O Ep K OC'' OCs C'
-     <- preservation-if-then-op-case Epp Kk ITE (OC' Epp Ep Kk K) C' C''.
+- : preservation-handled-op IOinDcov O Ep K
+     (get-op-case/cons OC (if-then-op-case/no _))
+     (opcof/cons _ _ _ OCs _)
+     C'
+     <- preservation-handled-op IOinDcov O Ep K OC OCs C'.
 
 - : preservation-handled-op IOinDcov O Ep K
-     (get-op-case/cons OC'' ITE)
-     (opcof/cons _ _ OC OCs _)
-     C''
-     <- preservation-handled-op IOinDcov O Ep K OC'' OCs C'
-     <- preservation-if-then-op-case Epp Kk ITE (OC Epp Ep Kk K) C' C''.
+     (get-op-case/cons OC (if-then-op-case/no A))
+     (opcof/cons _ _ _ OCs _)
+     C'
+     <- unequal-instance-in-rest IOinDcov A IOinDcov'
+     <- preservation-handled-op IOinDcov' O Ep K OC OCs C'.
 
 %worlds (vars) (preservation-handled-op _ _ _ _ _ _ _).
-%trustme %total {OC} (preservation-handled-op _ _ _ _ OC _ _).
+%total {OC} (preservation-handled-op _ _ _ _ OC _ _).
 
 
 preservation-unhandled-op : in-dirt-instance I O D' -> sig Sig O A1 A2
