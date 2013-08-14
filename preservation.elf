@@ -37,11 +37,30 @@ preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> app E1 E2 ~> C -> cof
 %worlds (vars) (preservation-app _ _ _ _).
 %total {E1} (preservation-app E1 _ _ _).
 
+
+apart-not-refl : {I} {O} {D} apart-name X X -> in-dirt-instance I O D -> type.
+%mode apart-not-refl +I +O +D +X!X -IOinD.
+
+- : apart-not-refl I O D (apart-name/ss X!X) IOinD
+     <- apart-not-refl I O D X!X IOinD.
+
+%worlds () (apart-not-refl _ _ _ _ _).
+%total {X!X} (apart-not-refl _ _ _ X!X _).
+
+
 unequal-instance-in-rest : in-dirt-instance I O (dirt/cons I' O' D) -> apart I O I' O' -> in-dirt-instance I O D -> type.
 %mode unequal-instance-in-rest +IOinI'O'D +IO!I'O' -IOinD.
 
+- : unequal-instance-in-rest (in-dirt-instance/there IOinD) _ IOinD.
+- : unequal-instance-in-rest in-dirt-instance/here (apart/effect X!X) IOinD
+     <- apart-not-refl _ _ _ X!X IOinD.
+- : unequal-instance-in-rest in-dirt-instance/here (apart/instance X!X) IOinD
+     <- apart-not-refl _ _ _ X!X IOinD.
+- : unequal-instance-in-rest in-dirt-instance/here (apart/operation X!X) IOinD
+     <- apart-not-refl _ _ _ X!X IOinD.
+
 %worlds () (unequal-instance-in-rest _ _ _).
-%trustme %total {} (unequal-instance-in-rest _ _ _).
+%total {} (unequal-instance-in-rest _ _ _).
 
 
 preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
