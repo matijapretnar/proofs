@@ -166,7 +166,7 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
      <- preservation-let C1 D<D C2 S C'.
 
 - : preservation (cof/letr C1 C2) S
-     (C2 _ (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ _ f x))))).
+     (C2 _ (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ f _ x))))).
 
 - : preservation (cof/with E C) S C'
      <- <dt/refl _ B1<B1
