@@ -1,17 +1,5 @@
 %%% Preservation
 
-preservation-if-then-op-case : {E} {K} (if-then-op-case I O I' O') OC OC' OC''
-                                -> cof Sig (OC E K) B -> cof Sig (OC' E K) B
-                                -> cof Sig (OC'' E K) B -> type.
-%mode preservation-if-then-op-case +E +K +D +C +C' -C''.
-
-- : preservation-if-then-op-case _ _ (if-then-op-case/yes _ ) C _ C.
-- : preservation-if-then-op-case _ _ (if-then-op-case/no _) _ C C.
-
-%worlds () (preservation-if-then-op-case _ _ _ _ _ _).
-%total {} (preservation-if-then-op-case _ _ _ _ _ _).
-
-
 preservation-pred : {D} eof Sig E nat -> pred E ~> C' -> cof Sig C' (nat ! D) -> type.
 %mode preservation-pred +D +E +S -C'.
 
@@ -62,7 +50,6 @@ unequal-instance-in-rest : in-region I' (region/cons J region/empty) -> in-dirt-
 
 %worlds () (unequal-instance-in-rest _ _ _ _ _).
 %total {} (unequal-instance-in-rest _ _ _ _ _).
-
 
 
 preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2

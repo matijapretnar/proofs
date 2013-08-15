@@ -72,14 +72,6 @@ get-op-case/cons : get-op-case I O (op-cases/cons (ins I') O' OC OCs) OC''
                     <- get-op-case I O OCs OC'
                     <- if-then-op-case I O I' O' OC OC' OC''.
 
-% A computation is considered "final" if it is a value or an operation.
-
-final : comp -> dirt -> type.
-
-final/val : final (val _) _.
-final/op  : final (op (ins I) O _ _) D
-             <- in-dirt-instance I O D.
-
 % The big step semantics relation.
 
 result : type.
