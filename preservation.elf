@@ -59,19 +59,19 @@ preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
 %mode preservation-handled-op +IOinDcov +O +Ep +K +OC +OCs -C'.
 
 - : preservation-handled-op _ _ Ep K
-     (get-op-case/cons (if-then-op-case/yes _) _)
+     (get-op-case/equal _)
      (opcof/cons _ _ OC _ _)
      OC'
      <- subst2 OC Ep K OC'.
 
 - : preservation-handled-op IOinDcov O Ep K
-     (get-op-case/cons (if-then-op-case/no _) OC)
+     (get-op-case/apart OC _)
      (opcof/cons _ _ _ OCs _)
      C'
      <- preservation-handled-op IOinDcov O Ep K OC OCs C'.
 
 - : preservation-handled-op IOinDcov O Ep K
-     (get-op-case/cons (if-then-op-case/no A) OC)
+     (get-op-case/apart OC A)
      (opcof/cons R _ _ OCs Add)
      C'
      <- instance-expr-in-region R IinR
@@ -94,13 +94,13 @@ preservation-unhandled-op : in-dirt-instance I O D' -> sig Sig O A1 A2
      (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K (eof/var x)) (in-dirt/cons IOinD' in-dirt/empty)).
 
 - : preservation-unhandled-op _ _ Ep K
-     (get-op-case/cons (if-then-op-case/yes _) _)
+     (get-op-case/equal _)
      (opcof/cons _ _ OC _ _)
      OC'
      <- subst2 OC Ep K OC'.
 
 - : preservation-unhandled-op IOinD' O Ep K
-     (get-op-case/cons (if-then-op-case/no _) OC)
+     (get-op-case/apart OC _)
      (opcof/cons _ _ _ OCs _)
      C'
      <- preservation-unhandled-op IOinD' O Ep K OC OCs C'.
