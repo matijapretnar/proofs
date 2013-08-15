@@ -8,7 +8,7 @@ preservation-if-then-op-case : {E} {K} (if-then-op-case I O I' O') OC OC' OC''
 - : preservation-if-then-op-case _ _ (if-then-op-case/yes _ ) C _ C.
 - : preservation-if-then-op-case _ _ (if-then-op-case/no _) _ C C.
 
-%worlds (vars) (preservation-if-then-op-case _ _ _ _ _ _).
+%worlds () (preservation-if-then-op-case _ _ _ _ _ _).
 %total {} (preservation-if-then-op-case _ _ _ _ _ _).
 
 
@@ -22,7 +22,7 @@ preservation-pred : {D} eof Sig E nat -> pred E ~> C' -> cof Sig C' (nat ! D) ->
 - : preservation-pred D (eof/sub E _) S C'
      <- preservation-pred D E S C'.
 
-%worlds (vars) (preservation-pred _ _ _ _).
+%worlds () (preservation-pred _ _ _ _).
 %total {E} (preservation-pred _ E _ _).
 
 
@@ -34,7 +34,7 @@ preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> app E1 E2 ~> C -> cof
 - : preservation-app (eof/sub E1 (<t/--> A'<A B<B')) E2 S (cof/sub C B<B')
      <- preservation-app E1 (eof/sub E2 A'<A) S C.
 
-%worlds (vars) (preservation-app _ _ _ _).
+%worlds () (preservation-app _ _ _ _).
 %total {E1} (preservation-app E1 _ _ _).
 
 
@@ -89,7 +89,7 @@ preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
      <- unequal-instance-in-rest IinR IOinDcov Add A IOinDcov'
      <- preservation-handled-op IOinDcov' O Ep K OC OCs C'.
 
-%worlds (vars) (preservation-handled-op _ _ _ _ _ _ _).
+%worlds () (preservation-handled-op _ _ _ _ _ _ _).
 %total {OC} (preservation-handled-op _ _ _ _ OC _ _).
 
 
@@ -115,7 +115,7 @@ preservation-unhandled-op : in-dirt-instance I O D' -> sig Sig O A1 A2
      C'
      <- preservation-unhandled-op IOinD' O Ep K OC OCs C'.
 
-%worlds (vars) (preservation-unhandled-op _ _ _ _ _ _ _).
+%worlds () (preservation-unhandled-op _ _ _ _ _ _ _).
 %total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
 
 
@@ -136,7 +136,7 @@ preservation-with-op : in-dirt-instance I O D -> sig Sig O A1 A2
      <- covers-rest Cov Cov' 
      <- preservation-with-op IOinD O Ep K OC OCs Cov' C'.
 
-%worlds (vars) (preservation-with-op _ _ _ _ _ _ _ _).
+%worlds () (preservation-with-op _ _ _ _ _ _ _ _).
 %total {IOinD} (preservation-with-op IOinD _ _ _ _ _ _ _).
 
 
@@ -210,5 +210,5 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
 - : preservation-with C B1<B1' E (~>/with-step S) (cof/with E C')
      <- preservation (cof/sub C B1<B1') S C'.
 
-%worlds (vars) (preservation _ _ _) (preservation-let _ _ _ _ _) (preservation-with _ _ _ _ _).
+%worlds () (preservation _ _ _) (preservation-let _ _ _ _ _) (preservation-with _ _ _ _ _).
 %total {(S Sl Sw) (C Cl Ew) (C Cl Cw)} (preservation C S _) (preservation-let Cl _ _ Sl _) (preservation-with Cw _ Ew Sw _).

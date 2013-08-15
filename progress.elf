@@ -19,7 +19,7 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 
 - : non-stuck/<d (non-stuck/step S) _ (non-stuck/step S).
 
-%worlds (vars) (non-stuck/<d _ _ _).
+%worlds () (non-stuck/<d _ _ _).
 %total {NS} (non-stuck/<d NS _ _).
 
 
@@ -35,7 +35,7 @@ if-then-op-case-total : decidable I O I' O' -> {OC1} {OC2} if-then-op-case I O I
 - : if-then-op-case-total (decidable/equal E) _ _ (if-then-op-case/yes E).
 - : if-then-op-case-total (decidable/apart A) _ _ (if-then-op-case/no A).
 
-%worlds (vars) (if-then-op-case-total _ _ _ _).
+%worlds () (if-then-op-case-total _ _ _ _).
 %total {} (if-then-op-case-total _ _ _ _).
 
 
@@ -63,7 +63,7 @@ get-op-case-total/cons : {I} {O} eof Sig E (inst (R : region Eff'))
 - : get-op-case-total/cons I O (eof/sub E _) _ _ OC' OC''
      <- get-op-case-total/cons I O E _ _ OC' OC''.
 
-%worlds (vars) (get-op-case-total _ _ _ _) (get-op-case-total/cons _ _ _ _ _ _ _).
+%worlds () (get-op-case-total _ _ _ _) (get-op-case-total/cons _ _ _ _ _ _ _).
 %total {(OCs E)} (get-op-case-total _ _ OCs _) (get-op-case-total/cons _ _ E _ _ _ _).
 
 
@@ -80,7 +80,7 @@ progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> ty
 - : progress-cond D (eof/sub E _) _ _ NS
      <- progress-cond D E _ _ NS.
 
-%worlds (vars) (progress-cond _ _ _ _ _).
+%worlds () (progress-cond _ _ _ _ _).
 %total {E} (progress-cond _ E _ _ _).
 
 
@@ -94,7 +94,7 @@ progress-zro? : {D} eof Sig E nat -> non-stuck (zro? E) D -> type.
 - : progress-zro? D (eof/sub E _) NS
      <- progress-zro? D E NS.
 
-%worlds (vars) (progress-zro? _ _ _).
+%worlds () (progress-zro? _ _ _).
 %total {E} (progress-zro? _ E _).
 
 
@@ -108,7 +108,7 @@ progress-pred : {D} eof Sig E nat -> non-stuck (pred E) D -> type.
 - : progress-pred D (eof/sub E _) NS
      <- progress-pred D E NS.
 
-%worlds (vars) (progress-pred _ _ _).
+%worlds () (progress-pred _ _ _).
 %total {E} (progress-pred _ E _).
 
 
@@ -118,7 +118,7 @@ progress-absd : {D} eof Sig E empty -> non-stuck (absd E) D -> type.
 - : progress-absd D (eof/sub E _) NS
      <- progress-absd D E NS.
 
-%worlds (vars) (progress-absd _ _ _).
+%worlds () (progress-absd _ _ _).
 %total {E} (progress-absd _ E _).
 
 
@@ -130,7 +130,7 @@ progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 - : progress-app D (eof/sub E1 _) E2 NS
      <- progress-app D E1 E2 NS.
 
-%worlds (vars) (progress-app _ _ _ _).
+%worlds () (progress-app _ _ _ _).
 %total {E1} (progress-app _ E1 _ _).
 
 
@@ -144,7 +144,7 @@ progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt R O D -> non-stuck (op Ei 
      <- <r/in-dirt R<R' R'OinD ROinD
      <- progress-op Ei Ep K ROinD NS.
 
-%worlds (vars) (progress-op _ _ _ _ _).
+%worlds () (progress-op _ _ _ _ _).
 %total {Ei} (progress-op Ei _ _ _ _).
 
 
@@ -157,7 +157,7 @@ progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
 
 - : progress-let (non-stuck/step S1) _ (non-stuck/step (~>/let-step S1)).
 
-%worlds (vars) (progress-let _ _ _).
+%worlds () (progress-let _ _ _).
 %total {NS1} (progress-let NS1 _ _).
 
 
@@ -176,7 +176,7 @@ progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (wi
      <- progress-with E NS1' NS2'
      <- non-stuck/<d NS2' D2'<D2 NS2.
 
-%worlds (vars) (progress-with _ _ _).
+%worlds () (progress-with _ _ _).
 %total {E} (progress-with E _ _).
 
 
@@ -217,5 +217,5 @@ progress : cof Sig C (_ ! D) -> non-stuck C D -> type.
      <- progress C NS
      <- non-stuck/<d NS D<D' NS'.
 
-%worlds (vars) (progress _ _).
+%worlds () (progress _ _).
 %total {C} (progress C _).

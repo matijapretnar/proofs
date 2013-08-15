@@ -5,7 +5,7 @@
 - : ~>*-let-val (~>*/step C1~>C1' C1'~*>E) C2E~>*R (~>*/step (~>/let-step C1~>C1') C1'C2~>*R)
      <- ~>*-let-val C1'~*>E C2E~>*R C1'C2~>*R.
 
-%worlds (vars) (~>*-let-val _ _ _).
+%worlds () (~>*-let-val _ _ _).
 %total {C1~>*E} (~>*-let-val C1~>*E _ _).
 
 
@@ -16,7 +16,7 @@
 - : ~>*-let-op (~>*/step C1~>C1' C1'~*>Op) C2 (~>*/step (~>/let-step C1~>C1') C1'C2~>*Op)
      <- ~>*-let-op C1'~*>Op C2 C1'C2~>*Op.
 
-%worlds (vars) (~>*-let-op _ _ _).
+%worlds () (~>*-let-op _ _ _).
 %total {C1~>*Op} (~>*-let-op C1~>*Op _ _).
 
 
@@ -27,7 +27,7 @@
 - : ~>*-with-val (~>*/step C~>C' C'~*>E) CvE~>*R OCs (~>*/step (~>/with-step C~>C') HC~>*R)
      <- ~>*-with-val C'~*>E CvE~>*R OCs HC~>*R.
 
-%worlds (vars) (~>*-with-val _ _ _ _).
+%worlds () (~>*-with-val _ _ _ _).
 %total {C~>*E} (~>*-with-val C~>*E _ _ _).
 
 
@@ -42,7 +42,7 @@
 - : ~>*-with-op (~>*/step C~>C' C'~>*Op) OC OC~>*R (~>*/step (~>/with-step C~>C') HC~>*R)
      <- ~>*-with-op C'~>*Op OC OC~>*R HC~>*R.
 
-%worlds (vars) (~>*-with-op _ _ _ _).
+%worlds () (~>*-with-op _ _ _ _).
 %total {C~>*Op} (~>*-with-op C~>*Op _ _ _).
 
 
@@ -79,5 +79,5 @@
      <- =>/~>* OC=>R OC~>*R
      <- ~>*-with-op C~>*Op OC OC~>*R HC~>*R.
 
-%worlds (vars) (=>/~>* _ _).
+%worlds () (=>/~>* _ _).
 %total {C=>R} (=>/~>* C=>R _).

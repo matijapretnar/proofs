@@ -152,11 +152,6 @@ sig/there : sig (signature/cons _ Sig) (operation/ (effect/ (name/s Eff)) O) A1 
 %worlds () (sig _ _ _ _).
 %unique sig +Sig +O -1A1 -1A2.
 
-% Block declarations to be used in theorems.
-
-%block vars = ().
-
-
 %%% Subtyping judgments
 
 % "A <t A'" means that expression type "A" is a subtype of "A'".
