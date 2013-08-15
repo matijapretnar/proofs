@@ -6,11 +6,6 @@ name : type.
 name/z : name.
 name/s : name -> name.
 
-equal-name : name -> name -> type.
-%mode equal-name +X +Y.
-
-equal-name/refl : equal-name X X.
-
 apart-name : name -> name -> type.
 %mode apart-name +X +Y.
 
@@ -21,8 +16,7 @@ apart-name/ss : apart-name (name/s X) (name/s Y)
 
 decidable-name : name -> name -> type.
 
-decidable-name/equal : decidable-name X Y
-                         <- equal-name X Y.
+decidable-name/equal : decidable-name X X.
 
 decidable-name/apart : decidable-name X Y
                          <- apart-name X Y.
@@ -30,7 +24,7 @@ decidable-name/apart : decidable-name X Y
 decidable-name/s : decidable-name X Y -> decidable-name (name/s X) (name/s Y) -> type.
 %mode decidable-name/s +Dec -Dec'.
 
-- : decidable-name/s (decidable-name/equal equal-name/refl) (decidable-name/equal equal-name/refl).
+- : decidable-name/s decidable-name/equal decidable-name/equal.
 - : decidable-name/s (decidable-name/apart A) (decidable-name/apart (apart-name/ss A)).
 
 %worlds () (decidable-name/s _ _).
@@ -39,7 +33,7 @@ decidable-name/s : decidable-name X Y -> decidable-name (name/s X) (name/s Y) ->
 decide-name : {X} {Y} decidable-name X Y -> type.
 %mode decide-name +X +Y -Dec.
 
-- : decide-name name/z name/z (decidable-name/equal equal-name/refl).
+- : decide-name name/z name/z decidable-name/equal.
 - : decide-name name/z (name/s _) (decidable-name/apart apart-name/zs).
 - : decide-name (name/s _) name/z (decidable-name/apart apart-name/sz).
 - : decide-name (name/s X) (name/s Y) Dec'

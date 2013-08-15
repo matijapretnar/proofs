@@ -32,40 +32,38 @@ instance/ : {Eff} name -> instance Eff.
 % through two relations, equality and apartness, and prove theorems about
 % them fitting together.
 
-equal : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
-%mode equal +I +O +I' +O'.
-equal/refl : equal I O I O.
-
 apart : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
 %mode apart +I +O +I' +O'.
 
-apart/effect : apart (instance/ (effect/ X) _) _ (instance/ (effect/ Y) _) _
-                <- apart-name X Y.
+apart/effect    : apart (instance/ (effect/ X) _) _ (instance/ (effect/ Y) _) _
+                   <- apart-name X Y.
+apart/instance  : apart (instance/ _ X) _ (instance/ _ Y) _
+                   <- apart-name X Y.
+apart/operation : apart _ (operation/ _ X) _ (operation/ _ Y)
+                   <- apart-name X Y.
 
-apart/instance : apart (instance/ Eff X) _ (instance/ Eff Y) _
-                  <- apart-name X Y.
-
-apart/operation : apart I (operation/ _ X) I (operation/ _ Y)
-                  <- apart-name X Y.
 
 decidable : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
 
-decidable/equal : decidable I O I' O'
-                   <- equal I O I' O'.
-
+decidable/equal : decidable I O I O.
 decidable/apart : decidable I O I' O'
                    <- apart I O I' O'.
+
 
 decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name O O' -> decidable (instance/ (effect/ Eff) I) (operation/ (effect/ Eff) O) (instance/ (effect/ Eff') I') (operation/ (effect/ Eff') O') -> type.
 %mode decide-lemma +Eff?Eff' +I?I' +O?O' -IO?I'O'.
 
-- : decide-lemma (decidable-name/equal equal-name/refl) (decidable-name/equal equal-name/refl) (decidable-name/equal equal-name/refl) (decidable/equal equal/refl).
-- : decide-lemma (decidable-name/equal equal-name/refl) (decidable-name/equal equal-name/refl) (decidable-name/apart A) (decidable/apart (apart/operation A)).
-- : decide-lemma (decidable-name/equal equal-name/refl) (decidable-name/apart A) _ (decidable/apart (apart/instance A)).
+- : decide-lemma decidable-name/equal decidable-name/equal decidable-name/equal decidable/equal.
+
 - : decide-lemma (decidable-name/apart A) _ _ (decidable/apart (apart/effect A)).
 
+- : decide-lemma _ (decidable-name/apart A) _ (decidable/apart (apart/instance A)).
+
+- : decide-lemma _ _ (decidable-name/apart A) (decidable/apart (apart/operation A)).
+
 %worlds () (decide-lemma _ _ _ _).
-%total {Eff?Eff' I?I' O?O'} (decide-lemma Eff?Eff' I?I' O?O' _).
+%total {} (decide-lemma _ _ _ _).
+
 
 decide : {I : instance Eff} {O} {I' : instance Eff'} {O'} decidable I O I' O' -> type.
 %mode decide +I +O +I' +O' -Dec.
