@@ -29,7 +29,8 @@ preservation-pred : {D} eof Sig E nat -> pred E ~> C' -> cof Sig C' (nat ! D) ->
 preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> app E1 E2 ~> C -> cof Sig C B -> type.
 %mode preservation-app +E1 +E2 +S -C.
 
-- : preservation-app (eof/fun E1) E2 ~>/app (E1 _ E2).
+- : preservation-app (eof/fun E1) E2 ~>/app E1'
+     <- subst E1 E2 E1'.
 
 - : preservation-app (eof/sub E1 (<t/--> A'<A B<B')) E2 S (cof/sub C B<B')
      <- preservation-app E1 (eof/sub E2 A'<A) S C.
@@ -73,7 +74,8 @@ preservation-handled-op : in-dirt-instance I O Dcov -> sig Sig O A1 A2
 - : preservation-handled-op _ _ Ep K
      (get-op-case/cons (if-then-op-case/yes _) _)
      (opcof/cons _ _ OC _ _)
-     (OC _ Ep _ K).
+     OC'
+     <- subst2 OC Ep K OC'.
 
 - : preservation-handled-op IOinDcov O Ep K
      (get-op-case/cons (if-then-op-case/no _) OC)
@@ -102,12 +104,13 @@ preservation-unhandled-op : in-dirt-instance I O D' -> sig Sig O A1 A2
 - : preservation-unhandled-op IOinD' O Ep K
      get-op-case/nil
      opcof/nil
-     (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K x) (in-dirt/cons IOinD' in-dirt/empty)).
+     (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K (eof/var x)) (in-dirt/cons IOinD' in-dirt/empty)).
 
 - : preservation-unhandled-op _ _ Ep K
      (get-op-case/cons (if-then-op-case/yes _) _)
      (opcof/cons _ _ OC _ _)
-     (OC _ Ep _ K).
+     OC'
+     <- subst2 OC Ep K OC'.
 
 - : preservation-unhandled-op IOinD' O Ep K
      (get-op-case/cons (if-then-op-case/no _) OC)
@@ -141,7 +144,7 @@ preservation-with-op : in-dirt-instance I O D -> sig Sig O A1 A2
 
 
 preservation : cof Sig C A -> C ~> C' -> cof Sig C' A -> type.
-preservation-let : cof Sig C1 (A ! D) -> D <d D' -> ({x} eof Sig x A -> cof Sig (C2 x) (A' ! D')) -> let C1 C2 ~> C' -> cof Sig C' (A' ! D') -> type.
+preservation-let : cof Sig C1 (A ! D) -> D <d D' -> ({x} var x A -> cof Sig (C2 x) (A' ! D')) -> let C1 C2 ~> C' -> cof Sig C' (A' ! D') -> type.
 preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with E C ~> C' -> cof Sig C' B2 -> type.
 %mode preservation +C +S -C'.
 %mode preservation-let +C1 +D<D' +C2 +S -C'.
@@ -165,8 +168,8 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
      <- <d/refl _ D<D
      <- preservation-let C1 D<D C2 S C'.
 
-- : preservation (cof/letr C1 C2) S
-     (C2 _ (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ f _ x))))).
+- : preservation (cof/letr C1 C2) S C'
+     <- subst C2 (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ f _ x)))) C'.
 
 - : preservation (cof/with E C) S C'
      <- <dt/refl _ B1<B1
@@ -178,9 +181,11 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
 
 - : preservation-let (cof/sub C1 (<dt/! A<A' D<D')) D'<D'' C2 S C'
      <- <d/trans D<D' D'<D'' D<D''
-     <- preservation-let C1 D<D'' ([x] [e] (C2 x (eof/sub e A<A'))) S C'.
+     <- ({x} {e : var x A'} subst-cof (eof/var e) A<A' (C2 x) (C2' x e))
+     <- preservation-let C1 D<D'' C2' S C'.
 
-- : preservation-let (cof/val E) _ C2 ~>/let-val (C2 _ E).
+- : preservation-let (cof/val E) _ C2 ~>/let-val C'
+     <- subst C2 E C'.
 
 - : preservation-let (cof/op Ei O Ep K ROinD) D<D' C2 ~>/let-op (cof/op Ei O Ep ([_] [y] (cof/let (cof/sub (K _ y) (<dt/! A<A D<D')) C2)) ROinD')
      <- in-dirt/<d ROinD D<D' ROinD'
@@ -199,7 +204,8 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
      <- <dt/trans B1<B1' B1'<B1'' B1<B1''
      <- preservation-with C B1<B1'' E S C'.
 
-- : preservation-with (cof/val E) (<dt/! A<A' _) (eof/hnd Cv _ _) ~>/with-val (Cv _ (eof/sub E A<A')).
+- : preservation-with (cof/val E) (<dt/! A<A' _) (eof/hnd Cv _ _) ~>/with-val C'
+     <- subst Cv (eof/sub E A<A') C'.
 
 - : preservation-with (cof/op Ei O Ep K ROinD) (<dt/! A<A' D<D') (eof/hnd Cv OCs Cov) (~>/with-op OC) C'
      <- instance-expr-in-region Ei IinR

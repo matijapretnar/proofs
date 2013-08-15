@@ -1,8 +1,9 @@
 %%% Typing judgements
 
+var : expr -> ty -> type.
+
 % "eof E A" means that expression "E" has expression type "A".
 % "cof C B" means that computation "C" has computation type "B".
-
 eof : signature -> expr -> ty -> type.
 cof : signature -> comp -> dirty -> type.
 
@@ -35,6 +36,8 @@ add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D
 
 %%% Typing rules for expressions
 
+eof/var : eof _ E A
+           <- var E A.
 eof/tru : eof _ tru bool.
 eof/fls : eof _ fls bool.
 eof/zro : eof _ zro nat.
@@ -42,7 +45,7 @@ eof/suc : eof Sig (suc E) nat
            <- eof Sig E nat.
 eof/unt : eof _ unt unit.
 eof/fun : eof Sig (fun E) (A --> B)
-           <- ({x} eof Sig x A -> cof Sig (E x) B).
+           <- ({x} var x A -> cof Sig (E x) B).
 eof/ins : eof _ (ins I) (inst R)
            <- in-region I R.
 eof/sub : eof Sig E A'
@@ -51,7 +54,7 @@ eof/sub : eof Sig E A'
 eof/hnd : eof Sig (hnd Cv OCs) (A ! D ==> A' ! D')
            <- covers D Dcov D'
            <- opcof Sig OCs (A' ! D') Dcov
-           <- ({x} eof Sig x A -> cof Sig (Cv x) (A' ! D')).
+           <- ({x} var x A -> cof Sig (Cv x) (A' ! D')).
 
 % "opcof OCs B D" checks the following things (where "OCs" is a
 % list of handler cases of the form "E # O OC", where "E" is an
@@ -65,7 +68,7 @@ opcof/nil  : opcof Sig op-cases/nil B dirt/empty.
 opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
               <- add-if-singleton D R O D'
               <- opcof Sig OCs B D
-              <- ({x} eof Sig x A1 -> {k} eof Sig k (A2 --> B) -> cof Sig (OC x k) B)
+              <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof Sig (OC x k) B)
               <- sig Sig O A1 A2
               <- eof Sig E (inst R). 
 
@@ -88,19 +91,24 @@ cof/val  : cof Sig (val E) (A ! D)
             <- eof Sig E A.
 cof/op   : cof Sig (op Ei O Ep K) (B ! D)
             <- in-dirt R O D
-            <- ({x} eof Sig x A2 -> cof Sig (K x) (B ! D))
+            <- ({x} var x A2 -> cof Sig (K x) (B ! D))
             <- eof Sig Ep A1
             <- sig Sig O A1 A2
             <- eof Sig Ei (inst R).
 cof/let  : cof Sig (let C1 C2) (A' ! D)
-            <- ({x} eof Sig x A -> cof Sig (C2 x) (A' ! D))
+            <- ({x} var x A -> cof Sig (C2 x) (A' ! D))
             <- cof Sig C1 (A ! D).
 cof/letr : cof Sig (letr C1 C2) B'
-            <- ({f} eof Sig f (A --> B) -> cof Sig (C2 f) B')
-            <- ({f} eof Sig f (A --> B) -> {x} eof Sig x A -> cof Sig (C1 f x) B).
+            <- ({f} var f (A --> B) -> cof Sig (C2 f) B')
+            <- ({f} var f (A --> B) -> {x} var x A -> cof Sig (C1 f x) B).
 cof/with : cof Sig (with E C) B'
             <- cof Sig C B
             <- eof Sig E (B ==> B').
 cof/sub  : cof Sig C B'
             <- B <dt B'
             <- cof Sig C B.
+
+% Block declarations to be used in theorems.
+
+%block open : some {A : ty} block {x : expr}{_ : var x A}.
+

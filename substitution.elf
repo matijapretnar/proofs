@@ -1,0 +1,88 @@
+subst-eof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> eof Sig E A) -> eof Sig E A -> type.
+subst-cof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> cof Sig C B) -> cof Sig C B -> type.
+subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov) -> opcof Sig OCs B Dcov -> type.
+%mode subst-eof +X +A1<A2 +E -E'.
+%mode subst-cof +X +A1<A2 +C -C'.
+%mode subst-opcof +X +A1<A2 +OCs -OCs'.
+
+- : subst-eof X A1<A2 ([x] (eof/var x)) (eof/sub X A1<A2).
+- : subst-eof _ _ ([x] (eof/var Y)) (eof/var Y).
+- : subst-eof _ _ ([x] eof/tru) eof/tru.
+- : subst-eof _ _ ([x] eof/fls) eof/fls.
+- : subst-eof _ _ ([x] eof/zro) eof/zro.
+- : subst-eof X A1<A2 ([x] eof/suc (E x)) (eof/suc E')
+     <- subst-eof X A1<A2 E E'.
+- : subst-eof _ _ ([x] eof/unt) eof/unt.
+- : subst-eof X A1<A2 ([x] eof/fun (F x)) (eof/fun F')
+     <- {y} {dy} subst-cof X A1<A2 ([x] F x y dy) (F' y dy).
+- : subst-eof X A1<A2 ([x] eof/hnd (Cv x) (OCs x) Cov) (eof/hnd Cv' OCs' Cov)
+     <- ({y} {dy} subst-cof X A1<A2 ([x] Cv x y dy) (Cv' y dy))
+     <- subst-opcof X A1<A2 OCs OCs'.
+- : subst-eof _ _ ([x] eof/ins IinR) (eof/ins IinR).
+- : subst-eof X A1<A2 ([x] eof/sub (E x) A<A') (eof/sub E' A<A')
+     <- subst-eof X A1<A2 E E'.
+
+- : subst-cof X A1<A2 ([x] cof/cond (E x) (C1 x) (C2 x)) (cof/cond E' C1' C2')
+     <- subst-eof X A1<A2 E E'
+     <- subst-cof X A1<A2 C1 C1'
+     <- subst-cof X A1<A2 C2 C2'.
+- : subst-cof X A1<A2 ([x] cof/zro? (E x)) (cof/zro? E')
+     <- subst-eof X A1<A2 E E'.
+- : subst-cof X A1<A2 ([x] cof/pred (E x)) (cof/pred E')
+     <- subst-eof X A1<A2 E E'.
+- : subst-cof X A1<A2 ([x] cof/absd (E x)) (cof/absd E')
+     <- subst-eof X A1<A2 E E'.
+- : subst-cof X A1<A2 ([x] cof/app (E1 x) (E2 x)) (cof/app E1' E2')
+     <- subst-eof X A1<A2 E1 E1'
+     <- subst-eof X A1<A2 E2 E2'.
+- : subst-cof X A1<A2 ([x] cof/val (E x)) (cof/val E')
+     <- subst-eof X A1<A2 E E'.
+- : subst-cof X A1<A2 ([x] cof/op (Ei x) O (Ep x) ([y] [dy] K x y dy) ROinD) (cof/op Ei' O Ep' K' ROinD)
+     <- subst-eof X A1<A2 Ei Ei'
+     <- subst-eof X A1<A2 Ep Ep'
+     <- {y} {dy} subst-cof X A1<A2 ([x] K x y dy) (K' y dy).
+- : subst-cof X A1<A2 ([x] cof/let (C1 x) ([y] [dy] C2 x y dy)) (cof/let C1' C2')
+     <- subst-cof X A1<A2 C1 C1'
+     <- {y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy).
+- : subst-cof X A1<A2 ([x] cof/letr ([f : expr] [df : var f _] [y] [dy] C1 x f df y dy) ([f] [df] C2 x f df)) (cof/letr C1' C2')
+     <- ({y} {dy} {f : expr} {df : var f _} subst-cof X A1<A2 ([x] C1 x y dy f df) (C1' y dy f df))
+     <- ({y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy)).
+- : subst-cof X A1<A2 ([x] cof/with (E x) (C x)) (cof/with E' C')
+     <- subst-eof X A1<A2 E E'
+     <- subst-cof X A1<A2 C C'.
+- : subst-cof X A1<A2 ([x] cof/sub (C x) B<B') (cof/sub C' B<B')
+     <- subst-cof X A1<A2 C C'.
+
+- : subst-opcof _ _ ([x] opcof/nil) opcof/nil.
+- : subst-opcof X A1<A2 ([x] opcof/cons (E x) O ([y] [dy] [k] [dk] K x y dy k dk) (OCs x) Add) (opcof/cons E' O K' OCs' Add)
+     <- subst-eof X A1<A2 E E'
+     <- ({y} {dy} {k} {dk} subst-cof X A1<A2 ([x] K x y dy k dk) (K' y dy k dk))
+     <- subst-opcof X A1<A2 OCs OCs'.
+
+%worlds (open) (subst-eof _ _ _ _) (subst-cof _ _ _ _) (subst-opcof _ _ _ _).
+%total {(E C C')} (subst-eof _ _ E _) (subst-cof _ _ C _) (subst-opcof _ _ C' _).
+
+
+subst : ({x} var x A -> cof Sig (C x) B) -> eof Sig E A -> cof Sig (C E) B -> type.
+%mode subst +C +X -C'.
+
+- : subst C (X : eof Sig E A) C'
+     <- <t/refl A A<A
+     <- subst-cof X A<A (C E) C'.
+
+%worlds () (subst _ _ _).
+%total {} (subst _ _ _).
+
+
+subst2 : ({x1} var x1 A1 -> {x2} var x2 A2 -> cof Sig (C x1 x2) B) -> eof Sig E1 A1 -> eof Sig E2 A2 -> cof Sig (C E1 E2) B -> type.
+%mode subst2 +C +X1 +X2 -C'.
+
+- : subst2 C (X1 : eof Sig E1 A1) (X2 : eof Sig E2 A2) C''
+     <- <t/refl A2 A2<A2
+     <- ({x1} {dx1 : var x1 A1} subst-cof X2 A2<A2 (C x1 dx1 E2) (C' x1 dx1))
+     <- <t/refl A1 A1<A1
+     <- subst-cof X1 A1<A1 (C' E1) C''.
+
+%worlds () (subst2 _ _ _ _).
+%total {} (subst2 _ _ _ _).
+
