@@ -12,7 +12,7 @@
 ~>/pred-suc  : pred (suc E) ~> val E.
 ~>/app       : app (fun E1) E2 ~> E1 E2.
 ~>/let-val   : let (val E) C2 ~> C2 E.
-~>/let-op    : let (op Ei O Ep K) C2 ~> op Ei O Ep ([x] let (K x) C2).
+~>/let-op    : let (op (ins I) O Ep K) C2 ~> op (ins I) O Ep ([x] let (K x) C2).
 ~>/let-step  : let C1 C2 ~> let C1' C2
                 <- C1 ~> C1'.
 ~>/letr      : letr C1 C2 ~> C2 (fun ([x] letr C1 ([f] C1 f x))).
