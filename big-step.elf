@@ -18,6 +18,8 @@
                <- C1 => result/val E.
 =>/let-op   : let C1 C2 => result/op I O E ([x] let (K x) C2)
                <- C1 => result/op I O E K.
+=>/poly     : poly E C => R
+               <- C E => R.
 =>/letr     : letr C1 C2 => R
                <- C2 (fun ([x] letr C1 ([f] C1 f x))) => R.
 =>/with-val : with (hnd Cv _) C => R

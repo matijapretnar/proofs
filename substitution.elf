@@ -44,6 +44,9 @@ subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov) -
 - : subst-cof X A1<A2 ([x] cof/let (C1 x) ([y] [dy] C2 x y dy)) (cof/let C1' C2')
      <- subst-cof X A1<A2 C1 C1'
      <- {y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy).
+- : subst-cof X A1<A2 ([x] cof/poly (E x) (C x)) (cof/poly E' C')
+     <- subst-eof X A1<A2 E E'
+     <- subst-cof X A1<A2 C C'.
 - : subst-cof X A1<A2 ([x] cof/letr ([f : expr] [df : var f _] [y] [dy] C1 x f df y dy) ([f] [df] C2 x f df)) (cof/letr C1' C2')
      <- ({y} {dy} {f : expr} {df : var f _} subst-cof X A1<A2 ([x] C1 x y dy f df) (C1' y dy f df))
      <- ({y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy)).

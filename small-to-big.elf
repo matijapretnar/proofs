@@ -16,6 +16,7 @@
 - : ~>/=> ~>/let-op _ (=>/let-op =>/op).
 - : ~>/=> (~>/let-step C1~>C1') C'=>R C=>R
      <- ~>/=>-let C1~>C1' C'=>R C=>R.
+- : ~>/=> ~>/poly C'=>R (=>/poly C'=>R).
 - : ~>/=> ~>/letr C'=>R (=>/letr C'=>R).
 - : ~>/=> ~>/with-val C'=>R (=>/with-val =>/val C'=>R).
 - : ~>/=> (~>/with-op CO) C'=>R (=>/with-op =>/op CO C'=>R).

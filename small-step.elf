@@ -15,6 +15,7 @@
 ~>/let-op    : let (op (ins I) O Ep K) C2 ~> op (ins I) O Ep ([x] let (K x) C2).
 ~>/let-step  : let C1 C2 ~> let C1' C2
                 <- C1 ~> C1'.
+~>/poly      : poly E C ~> C E.
 ~>/letr      : letr C1 C2 ~> C2 (fun ([x] letr C1 ([f] C1 f x))).
 ~>/with-val  : with (hnd Cv _) (val E) ~> Cv E.
 ~>/with-op   : with (hnd Cv OCs) (op (ins I) O Ep K) ~> OC Ep (fun ([y] with (hnd Cv OCs) (K y)))

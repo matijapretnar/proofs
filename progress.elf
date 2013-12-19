@@ -201,6 +201,8 @@ progress : cof Sig C (_ ! D) -> non-stuck C D -> type.
      <- progress C1 NS1
      <- progress-let NS1 _ NS.
 
+- : progress (cof/poly _ _) (non-stuck/step ~>/poly).
+
 - : progress (cof/letr _ _) (non-stuck/step ~>/letr).
 
 - : progress (cof/with E C) NS'

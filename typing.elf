@@ -98,6 +98,9 @@ cof/op   : cof Sig (op Ei O Ep K) (B ! D)
 cof/let  : cof Sig (let C1 C2) (A' ! D)
             <- ({x} var x A -> cof Sig (C2 x) (A' ! D))
             <- cof Sig C1 (A ! D).
+cof/poly : cof Sig (poly E C) B
+            <- cof Sig (C E) B
+            <- eof Sig E _.
 cof/letr : cof Sig (letr C1 C2) B'
             <- ({f} var f (A --> B) -> cof Sig (C2 f) B')
             <- ({f} var f (A --> B) -> {x} var x A -> cof Sig (C1 f x) B).
