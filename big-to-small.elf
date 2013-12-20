@@ -68,10 +68,10 @@
 - : =>/~>* (=>/let-op C1=>Op) C1C2~>*Op
      <- =>/~>* C1=>Op C1~>*Op
      <- ~>*-let-op C1~>*Op _ C1C2~>*Op.
-- : =>/~>* (=>/poly CE=>R) (~>*/step ~>/poly CE~>*R)
-     <- =>/~>* CE=>R CE~>*R.
 - : =>/~>* (=>/letr C=>R) (~>*/step ~>/letr C~>*R)
      <- =>/~>* C=>R C~>*R.
+- : =>/~>* (=>/letv CE=>R) (~>*/step ~>/letv CE~>*R)
+     <- =>/~>* CE=>R CE~>*R.
 - : =>/~>* (=>/with-val C=>E CvE=>R) HC~>*R
      <- =>/~>* C=>E C~>*E
      <- =>/~>* CvE=>R CvE~>*R

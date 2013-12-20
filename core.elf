@@ -39,7 +39,7 @@ app  : expr -> expr -> comp.           % application
 val  : expr -> comp.                   % injection of values into computations
 op   : expr -> operation Eff -> expr -> (expr -> comp) -> comp. % operation
 let  : comp -> (expr -> comp) -> comp. % let-binding
-poly : expr -> (expr -> comp) -> comp.
+letv : expr -> (expr -> comp) -> comp. % polymorphic binding of values
 letr : (expr -> expr -> comp) -> (expr -> comp) -> comp. % recursive function
 with : expr -> comp -> comp.           % handling construct
 
