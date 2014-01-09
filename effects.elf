@@ -28,10 +28,6 @@ instance/ : {Eff} name -> instance Eff.
 % E" and "O : operation E" is called an *operation*. We write it informally as
 % "I#O" to remind ourselves of Eff's concrete syntax.
 
-% We need the ability to compare two operations I#O and I'#O'. We do this
-% through two relations, equality and apartness, and prove theorems about
-% them fitting together.
-
 apart : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
 %mode apart +I +O +I' +O'.
 
@@ -76,16 +72,6 @@ decide : {I : instance Eff} {O} {I' : instance Eff'} {O'} decidable I O I' O' ->
 
 %worlds () (decide _ _ _ _ _).
 %total {} (decide _ _ _ _ _).
-
-% In Twelf this can
-% be done by making the types of instances and operations concrete (essentially
-% natural numbers) and programming the relevant decision procedure. We consider
-% this to be a very clumsy solution, mainly because it exposes implementation
-% details about instances and operations.
-%
-% We would prefer to *hypothesise* the fact that instances and operations have
-% decidable equality, but there is no legal way of doing this in Twelf. So we
-% are going to do it in a clumsy way.
 
 % Dirt is a list of operations. It is used to indicate which operations may
 % happen in a computation.

@@ -1,4 +1,18 @@
-% We use natural numbers where concrete syntax would use string.
+%%% Entity names
+
+% We need a way of representing names of:
+% - effects (exception, ref, channel, ...)
+% - operation symbols (raise, lookup, update, read, write, ...)
+% - instances (assertionFault, std, stdErr, memory locations, ...)
+% We need names to be decidable, i.e. equipped with equality and apartness,
+% so we can find a matching clause in handlers.
+%
+% Ideally, we would prefer to *hypothesise* about this fact,
+% but there is no legal way of doing this in Twelf.
+% Instead, we are going to represent names with natural numbers
+% (concrete syntax would use strings) and program the relevant decision procedure.
+% We consider this to be a very clumsy solution,
+% mainly because it exposes implementation details.
 
 name : type.
 %name name X.
@@ -6,6 +20,7 @@ name : type.
 name/z : name.
 name/s : name -> name.
 
+% We only define when two names are apart, because they are equal only if they are identical.
 apart-name : name -> name -> type.
 %mode apart-name +X +Y.
 
@@ -14,31 +29,37 @@ apart-name/zs : apart-name name/z (name/s _).
 apart-name/ss : apart-name (name/s X) (name/s Y)
                   <- apart-name X Y.
 
+
 decidable-name : name -> name -> type.
 
 decidable-name/equal : decidable-name X X.
-
 decidable-name/apart : decidable-name X Y
                          <- apart-name X Y.
+
 
 decidable-name/s : decidable-name X Y -> decidable-name (name/s X) (name/s Y) -> type.
 %mode decidable-name/s +Dec -Dec'.
 
 - : decidable-name/s decidable-name/equal decidable-name/equal.
+
 - : decidable-name/s (decidable-name/apart A) (decidable-name/apart (apart-name/ss A)).
 
 %worlds () (decidable-name/s _ _).
 %total {} (decidable-name/s _ _).
 
+% Any two names are decidable.
 decide-name : {X} {Y} decidable-name X Y -> type.
 %mode decide-name +X +Y -Dec.
 
 - : decide-name name/z name/z decidable-name/equal.
+
 - : decide-name name/z (name/s _) (decidable-name/apart apart-name/zs).
+
 - : decide-name (name/s _) name/z (decidable-name/apart apart-name/sz).
+
 - : decide-name (name/s X) (name/s Y) Dec'
      <- decide-name X Y Dec
      <- decidable-name/s Dec Dec'.
 
 %worlds () (decide-name _ _ _).
-%total {X Y } (decide-name X Y _).
+%total {X Y} (decide-name X Y _).
