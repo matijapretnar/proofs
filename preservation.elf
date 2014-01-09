@@ -199,7 +199,7 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
 - : preservation-with (cof/op Ei O Ep K ROinD) (<dt/! A<A' D<D') (eof/hnd Cv OCs Cov) (~>/with-op OC) C'
      <- instance-expr-in-region Ei IinR
      <- in-dirt-region/<d ROinD D<D' ROinD'
-     <- instance-in-region-in-dirt-region IinR ROinD' IOinD'
+     <- in-region-in-dirt IinR ROinD' IOinD'
      <- preservation-with-op IOinD' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (cof/sub (K x e) (<dt/! A<A' D<D'))) OC OCs Cov C'.
 
 - : preservation-with C B1<B1' E (~>/with-step S) (cof/with E C')

@@ -132,7 +132,7 @@ progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt-region R O D -> non-stuck 
 %mode progress-op +Ei +Ep +K +ROinD -NS.
 
 - : progress-op (eof/ins IinR) _ _ ROinD (non-stuck/op IOinD)
-     <- instance-in-region-in-dirt-region IinR ROinD IOinD.
+     <- in-region-in-dirt IinR ROinD IOinD.
 
 - : progress-op (eof/sub Ei (<t/inst R<R')) Ep K R'OinD NS
      <- <r/in-dirt-region R<R' R'OinD ROinD
