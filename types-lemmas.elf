@@ -1,3 +1,5 @@
+% Reflexivity
+
 <t/refl : {A} A <t A -> type.
 <dt/refl : {B} B <dt B -> type.
 %mode <t/refl +A -A<A.
@@ -22,6 +24,7 @@
      <- <dt/refl B1 B1<B1
      <- <dt/refl B2 B2<B2.
 
+
 - : <dt/refl (A ! D) (<dt/! A<A D<D)
      <- <t/refl A A<A
      <- <d/refl D D<D.
@@ -30,6 +33,12 @@
 %total {(A B)} (<t/refl A _) (<dt/refl B _).
 
 
+
+% Transitivity
+
+% Because of contravariance, the termination checker complains, and the
+% easiest way to please it is to introduce two additional relations that are
+% just transitivity with a different order of arguments.
 
 <t/trans : A <t A' -> A' <t A'' -> A <t A'' -> type.
 <dt/trans : B <dt B' -> B' <dt B'' -> B <dt B'' -> type.
