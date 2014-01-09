@@ -45,7 +45,7 @@ unequal-instance-in-rest : in-region I' (region/cons J region/empty) -> in-dirt-
      <- apart-not-refl _ _ _ X!X IOinD.
 - : unequal-instance-in-rest in-region/here in-dirt-instance/here _ (apart/instance X!X) IOinD
      <- apart-not-refl _ _ _ X!X IOinD.
-- : unequal-instance-in-rest in-region/here in-dirt-instance/here _ (apart/operation X!X) IOinD
+- : unequal-instance-in-rest in-region/here in-dirt-instance/here _ (apart/opsym X!X) IOinD
      <- apart-not-refl _ _ _ X!X IOinD.
 
 %worlds () (unequal-instance-in-rest _ _ _ _ _).

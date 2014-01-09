@@ -38,7 +38,7 @@ decide-op-case : decidable I O I' O' -> {OC} get-op-case I O OCs OC' -> get-op-c
 
 get-op-case-total : {I} {O} opcof Sig OCs B D -> get-op-case I O OCs OC -> type.
 get-op-case-total/cons : {I} {O} eof Sig E (inst (R : region Eff'))
-                          -> {O' : operation Eff'} {OC} get-op-case I O OCs OC'
+                          -> {O' : opsym Eff'} {OC} get-op-case I O OCs OC'
                           -> get-op-case I O (op-cases/cons E O' OC OCs) OC'' -> type.
 %mode get-op-case-total +I +O +OCs -OC.
 %mode get-op-case-total/cons +I +O +E +O' +OC +OC' -OC''.

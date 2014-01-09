@@ -8,12 +8,12 @@ effect : type.
 
 effect/ : name -> effect.
 
-% Each "Eff : effect" has a type of operations "operation Eff".
+% Each "Eff : effect" has a type of operations "opsym Eff".
 
-operation : effect -> type.
-%name operation O.
+opsym : effect -> type.
+%name opsym O.
 
-operation/ : {Eff} name -> operation Eff.
+opsym/ : {Eff} name -> opsym Eff.
 
 % Each "Eff : effect" has a type of instances "instance Eff".
 
@@ -28,25 +28,25 @@ instance/ : {Eff} name -> instance Eff.
 % E" and "O : operation E" is called an *operation*. We write it informally as
 % "I#O" to remind ourselves of Eff's concrete syntax.
 
-apart : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
+apart : instance Eff -> opsym Eff -> instance Eff' -> opsym Eff' -> type.
 %mode apart +I +O +I' +O'.
 
 apart/effect    : apart (instance/ (effect/ X) _) _ (instance/ (effect/ Y) _) _
                    <- apart-name X Y.
 apart/instance  : apart (instance/ _ X) _ (instance/ _ Y) _
                    <- apart-name X Y.
-apart/operation : apart _ (operation/ _ X) _ (operation/ _ Y)
+apart/opsym : apart _ (opsym/ _ X) _ (opsym/ _ Y)
                    <- apart-name X Y.
 
 
-decidable : instance Eff -> operation Eff -> instance Eff' -> operation Eff' -> type.
+decidable : instance Eff -> opsym Eff -> instance Eff' -> opsym Eff' -> type.
 
 decidable/equal : decidable I O I O.
 decidable/apart : decidable I O I' O'
                    <- apart I O I' O'.
 
 
-decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name O O' -> decidable (instance/ (effect/ Eff) I) (operation/ (effect/ Eff) O) (instance/ (effect/ Eff') I') (operation/ (effect/ Eff') O') -> type.
+decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name O O' -> decidable (instance/ (effect/ Eff) I) (opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I') (opsym/ (effect/ Eff') O') -> type.
 %mode decide-lemma +Eff?Eff' +I?I' +O?O' -IO?I'O'.
 
 - : decide-lemma decidable-name/equal decidable-name/equal decidable-name/equal decidable/equal.
@@ -55,7 +55,7 @@ decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name 
 
 - : decide-lemma _ (decidable-name/apart A) _ (decidable/apart (apart/instance A)).
 
-- : decide-lemma _ _ (decidable-name/apart A) (decidable/apart (apart/operation A)).
+- : decide-lemma _ _ (decidable-name/apart A) (decidable/apart (apart/opsym A)).
 
 %worlds () (decide-lemma _ _ _ _).
 %total {} (decide-lemma _ _ _ _).
@@ -64,7 +64,7 @@ decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name 
 decide : {I : instance Eff} {O} {I' : instance Eff'} {O'} decidable I O I' O' -> type.
 %mode decide +I +O +I' +O' -Dec.
 
-- : decide (instance/ (effect/ Eff) I) (operation/ (effect/ Eff) O) (instance/ (effect/ Eff') I') (operation/ (effect/ Eff') O') Dec
+- : decide (instance/ (effect/ Eff) I) (opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I') (opsym/ (effect/ Eff') O') Dec
      <- decide-name Eff Eff' Eff?Eff'
      <- decide-name I I' I?I'
      <- decide-name O O' O?O'
@@ -80,11 +80,11 @@ dirt : type.
 %name dirt D.
 
 dirt/empty : dirt.
-dirt/cons  : instance Eff -> operation Eff -> dirt -> dirt.
+dirt/cons  : instance Eff -> opsym Eff -> dirt -> dirt.
 
 % "in-dirt-distance" tells whether a given operation occurs in a given dirt.
 
-in-dirt-instance : instance Eff -> operation Eff -> dirt -> type.
+in-dirt-instance : instance Eff -> opsym Eff -> dirt -> type.
 
 in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
 in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
@@ -111,7 +111,7 @@ in-region/there : in-region I (region/cons _ R)
 % "in-dirt" check whether "x#O" is in a given dirt (by checking that this is so
 % for every "x" in "R").
 
-in-dirt : region Eff -> operation Eff -> dirt -> type.
+in-dirt : region Eff -> opsym Eff -> dirt -> type.
 
 in-dirt/empty : in-dirt region/empty _ _.
 in-dirt/cons  : in-dirt (region/cons I R) O D
@@ -159,7 +159,7 @@ covers/cons-there : covers (dirt/cons I O D) D1 D2
 % provided "R" is the singleton list containing just "I". This is used for
 % type checking of handlers below.
 
-add-if-singleton : dirt -> region Eff -> operation Eff -> dirt -> type.
+add-if-singleton : dirt -> region Eff -> opsym Eff -> dirt -> type.
 add-if-singleton/zero : add-if-singleton D region/empty _ D.
 add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons I O D).
 add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
