@@ -1,7 +1,10 @@
+% Big step implies small step semantics 
+
 ~>*-let-val : C1 ~>* result/val E -> C2 E ~>* R -> let C1 C2 ~>* R -> type.
 %mode ~>*-let-val +C1~>*E +C2E~>*R -C1C2~>*R.
 
 - : ~>*-let-val ~>*/val C2E~>*R (~>*/step ~>/let-val C2E~>*R).
+
 - : ~>*-let-val (~>*/step C1~>C1' C1'~*>E) C2E~>*R (~>*/step (~>/let-step C1~>C1') C1'C2~>*R)
      <- ~>*-let-val C1'~*>E C2E~>*R C1'C2~>*R.
 
@@ -13,6 +16,7 @@
 %mode ~>*-let-op +C1~>*Op +C2 -C1C2~>*Op.
 
 - : ~>*-let-op ~>*/op _ (~>*/step ~>/let-op ~>*/op).
+
 - : ~>*-let-op (~>*/step C1~>C1' C1'~*>Op) C2 (~>*/step (~>/let-step C1~>C1') C1'C2~>*Op)
      <- ~>*-let-op C1'~*>Op C2 C1'C2~>*Op.
 
@@ -24,6 +28,7 @@
 %mode ~>*-with-val +C~>*E +CvE~>*R +OCs -HC~>*R.
 
 - : ~>*-with-val ~>*/val CvE~>*R _ (~>*/step ~>/with-val CvE~>*R).
+
 - : ~>*-with-val (~>*/step C~>C' C'~*>E) CvE~>*R OCs (~>*/step (~>/with-step C~>C') HC~>*R)
      <- ~>*-with-val C'~*>E CvE~>*R OCs HC~>*R.
 
@@ -39,6 +44,7 @@
 %mode ~>*-with-op +C~>*Op +OC +OC~>*R -HC~>*R.
 
 - : ~>*-with-op ~>*/op OC OC~>*R (~>*/step (~>/with-op OC) OC~>*R).
+
 - : ~>*-with-op (~>*/step C~>C' C'~>*Op) OC OC~>*R (~>*/step (~>/with-step C~>C') HC~>*R)
      <- ~>*-with-op C'~>*Op OC OC~>*R HC~>*R.
 
@@ -51,31 +57,45 @@
 
 - : =>/~>* (=>/cond-tru C=>R) (~>*/step ~>/cond-tru C~>*R)
      <- =>/~>* C=>R C~>*R.
+
 - : =>/~>* (=>/cond-fls C=>R) (~>*/step ~>/cond-fls C~>*R)
      <- =>/~>* C=>R C~>*R.
+
 - : =>/~>* =>/zro?-zro (~>*/step ~>/zro?-zro ~>*/val).
+
 - : =>/~>* =>/zro?-suc (~>*/step ~>/zro?-suc ~>*/val).
+
 - : =>/~>* =>/pred-zro (~>*/step ~>/pred-zro ~>*/val).
+
 - : =>/~>* =>/pred-suc (~>*/step ~>/pred-suc ~>*/val).
+
 - : =>/~>* (=>/app C=>R) (~>*/step ~>/app C~>*R)
      <- =>/~>* C=>R C~>*R.
+
 - : =>/~>* =>/val ~>*/val.
+
 - : =>/~>* =>/op ~>*/op.
+
 - : =>/~>* (=>/let-val C1=>E C2E=>R) C1C2~>*R
      <- =>/~>* C1=>E C1~>*E
      <- =>/~>* C2E=>R C2E~>*R
      <- ~>*-let-val C1~>*E C2E~>*R C1C2~>*R.
+
 - : =>/~>* (=>/let-op C1=>Op) C1C2~>*Op
      <- =>/~>* C1=>Op C1~>*Op
      <- ~>*-let-op C1~>*Op _ C1C2~>*Op.
+
 - : =>/~>* (=>/letr C=>R) (~>*/step ~>/letr C~>*R)
      <- =>/~>* C=>R C~>*R.
+
 - : =>/~>* (=>/letv CE=>R) (~>*/step ~>/letv CE~>*R)
      <- =>/~>* CE=>R CE~>*R.
+
 - : =>/~>* (=>/with-val C=>E CvE=>R) HC~>*R
      <- =>/~>* C=>E C~>*E
      <- =>/~>* CvE=>R CvE~>*R
      <- ~>*-with-val C~>*E CvE~>*R _ HC~>*R.
+
 - : =>/~>* (=>/with-op C=>Op OC OC=>R) HC~>*R
      <- =>/~>* C=>Op C~>*Op
      <- =>/~>* OC=>R OC~>*R
