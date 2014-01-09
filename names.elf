@@ -1,16 +1,12 @@
 %%% Entity names
 
-% We need a way of representing names of:
-% - effects (exception, ref, channel, ...)
-% - operation symbols (raise, lookup, update, read, write, ...)
-% - instances (assertionFault, std, stdErr, memory locations, ...)
-% We need names to be decidable, i.e. equipped with equality and apartness,
-% so we can find a matching clause in handlers.
+% We need a way of representing names of different entities. Furthermore,
+% we need names to be decidable, i.e. equipped with equality and apartness.
 %
 % Ideally, we would prefer to *hypothesise* about this fact,
 % but there is no legal way of doing this in Twelf.
-% Instead, we are going to represent names with natural numbers
-% (concrete syntax would use strings) and program the relevant decision procedure.
+% Instead, we represent names with natural numbers (concrete syntax would use strings)
+% and program the relevant decision procedures.
 % We consider this to be a very clumsy solution,
 % mainly because it exposes implementation details.
 
@@ -27,14 +23,14 @@ apart-name : name -> name -> type.
 apart-name/sz : apart-name (name/s _) name/z.
 apart-name/zs : apart-name name/z (name/s _).
 apart-name/ss : apart-name (name/s X) (name/s Y)
-                  <- apart-name X Y.
+                 <- apart-name X Y.
 
 
 decidable-name : name -> name -> type.
 
 decidable-name/equal : decidable-name X X.
 decidable-name/apart : decidable-name X Y
-                         <- apart-name X Y.
+                        <- apart-name X Y.
 
 
 decidable-name/s : decidable-name X Y -> decidable-name (name/s X) (name/s Y) -> type.

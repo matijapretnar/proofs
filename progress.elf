@@ -4,7 +4,7 @@ non-stuck : comp -> dirt -> type.
 
 non-stuck/val   : non-stuck (val _) _.
 non-stuck/op    : non-stuck (op (ins I) O _ _) D
-                   <- in-dirt-operation (I # O) D.
+                   <- in-dirt (I # O) D.
 non-stuck/step  : non-stuck C _
                    <- C ~> _.
 
@@ -15,7 +15,7 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 - : non-stuck/<d non-stuck/val _ non-stuck/val.
 
 - : non-stuck/<d (non-stuck/op IOinD) D<D' (non-stuck/op IOinD')
-     <- in-dirt-operation/<d IOinD D<D' IOinD'.
+     <- in-dirt/<d IOinD D<D' IOinD'.
 
 - : non-stuck/<d (non-stuck/step S) _ (non-stuck/step S).
 
@@ -128,14 +128,14 @@ progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 %total {E1} (progress-app _ E1 _ _).
 
 
-progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt R O D -> non-stuck (op Ei O Ep K) D -> type.
+progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt-region R O D -> non-stuck (op Ei O Ep K) D -> type.
 %mode progress-op +Ei +Ep +K +ROinD -NS.
 
 - : progress-op (eof/ins IinR) _ _ ROinD (non-stuck/op IOinD)
-     <- instance-in-region-in-dirt IinR ROinD IOinD.
+     <- instance-in-region-in-dirt-region IinR ROinD IOinD.
 
 - : progress-op (eof/sub Ei (<t/inst R<R')) Ep K R'OinD NS
-     <- <r/in-dirt R<R' R'OinD ROinD
+     <- <r/in-dirt-region R<R' R'OinD ROinD
      <- progress-op Ei Ep K ROinD NS.
 
 %worlds () (progress-op _ _ _ _ _).

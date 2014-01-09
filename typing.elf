@@ -64,10 +64,24 @@ eof/ins : eof _ (ins I) (inst R)
 eof/sub : eof Sig E A'
            <- A <t A'
            <- eof Sig E A.
+
+% "covers D D1 D2" checks that "D" is contained in the union of "D1" and "D2".
+ 
+covers : dirt -> dirt -> dirt -> type.
+ 
+covers/empty      : covers dirt/empty _ _.
+covers/cons-here  : covers (dirt/cons IO D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt IO D1.
+covers/cons-there : covers (dirt/cons IO D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt IO D2.
+ 
 eof/hnd : eof Sig (hnd Cv OCs) (A ! D ==> A' ! D')
            <- covers D Dcov D'
            <- opcof Sig OCs (A' ! D') Dcov
            <- ({x} var x A -> cof Sig (Cv x) (A' ! D')).
+
 
 % "opcof OCs B D" checks the following things (where "OCs" is a
 % list of handler cases of the form "E # O OC", where "E" is an
@@ -76,6 +90,17 @@ eof/hnd : eof Sig (hnd Cv OCs) (A ! D ==> A' ! D')
 % 1. every "E" has an instance type
 % 2. every "OC" has return type "B"
 % 3. the dirt "D" is covered by those cases whose associated region is a singleton.
+
+
+% "add-if-singleton D R O D'" adds "I#O" to dirt "D" to obtain dirt "D'",
+% provided "R" is the singleton list containing just "I". This is used for
+% type checking of handlers below.
+ 
+add-if-singleton : dirt -> region Eff -> opsym Eff -> dirt -> type.
+add-if-singleton/zero : add-if-singleton D region/empty _ D.
+add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons (I # O) D).
+add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
+
 
 opcof/nil  : opcof Sig op-cases/nil B dirt/empty.
 opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
@@ -103,7 +128,7 @@ cof/app  : cof Sig (app E1 E2) B
 cof/val  : cof Sig (val E) (A ! D)
             <- eof Sig E A.
 cof/op   : cof Sig (op Ei O Ep K) (B ! D)
-            <- in-dirt R O D
+            <- in-dirt-region R O D
             <- ({x} var x A2 -> cof Sig (K x) (B ! D))
             <- eof Sig Ep A1
             <- sig Sig O A1 A2

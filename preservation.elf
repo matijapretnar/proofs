@@ -27,7 +27,7 @@ preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> app E1 E2 ~> C -> cof
 %total {E1} (preservation-app E1 _ _ _).
 
 
-apart-not-refl : {IO} {D} apart-name X X -> in-dirt-operation IO D -> type.
+apart-not-refl : {IO} {D} apart-name X X -> in-dirt IO D -> type.
 %mode apart-not-refl +IO +D +X!X -IOinD.
 
 - : apart-not-refl IO D (apart-name/ss X!X) IOinD
@@ -37,22 +37,22 @@ apart-not-refl : {IO} {D} apart-name X X -> in-dirt-operation IO D -> type.
 %total {X!X} (apart-not-refl _ _ X!X _).
 
 
-unequal-instance-in-rest : in-region I' (region/cons J region/empty) -> in-dirt-operation IO D' -> add-if-singleton D (region/cons J region/empty) O' D' -> apart IO (I' # O') -> in-dirt-operation IO D -> type.
+unequal-instance-in-rest : in-region I' (region/cons J region/empty) -> in-dirt IO D' -> add-if-singleton D (region/cons J region/empty) O' D' -> apart IO (I' # O') -> in-dirt IO D -> type.
 %mode unequal-instance-in-rest +I'inR +IOinD' +D+I'O'=D' +IO!I'O' -IOinD.
 
-- : unequal-instance-in-rest in-region/here (in-dirt-operation/there IOinD) _ _ IOinD.
-- : unequal-instance-in-rest in-region/here in-dirt-operation/here _ (apart/effect X!X) IOinD
+- : unequal-instance-in-rest in-region/here (in-dirt/there IOinD) _ _ IOinD.
+- : unequal-instance-in-rest in-region/here in-dirt/here _ (apart/effect X!X) IOinD
      <- apart-not-refl _ _ X!X IOinD.
-- : unequal-instance-in-rest in-region/here in-dirt-operation/here _ (apart/instance X!X) IOinD
+- : unequal-instance-in-rest in-region/here in-dirt/here _ (apart/instance X!X) IOinD
      <- apart-not-refl _ _ X!X IOinD.
-- : unequal-instance-in-rest in-region/here in-dirt-operation/here _ (apart/opsym X!X) IOinD
+- : unequal-instance-in-rest in-region/here in-dirt/here _ (apart/opsym X!X) IOinD
      <- apart-not-refl _ _ X!X IOinD.
 
 %worlds () (unequal-instance-in-rest _ _ _ _ _).
 %total {} (unequal-instance-in-rest _ _ _ _ _).
 
 
-preservation-handled-op : in-dirt-operation (I # O) Dcov -> sig Sig O A1 A2
+preservation-handled-op : in-dirt (I # O) Dcov -> sig Sig O A1 A2
                            -> eof Sig Ep A1 -> eof Sig K (A2 --> B)
                            -> get-op-case (I # O) OCs OC -> opcof Sig OCs B Dcov
                            -> cof Sig (OC Ep K) B -> type.
@@ -82,7 +82,7 @@ preservation-handled-op : in-dirt-operation (I # O) Dcov -> sig Sig O A1 A2
 %total {OC} (preservation-handled-op _ _ _ _ OC _ _).
 
 
-preservation-unhandled-op : in-dirt-operation (I # O) D' -> sig Sig O A1 A2
+preservation-unhandled-op : in-dirt (I # O) D' -> sig Sig O A1 A2
                              -> eof Sig Ep A1 -> eof Sig K (A2 --> A' ! D')
                              -> get-op-case (I # O) OCs OC -> opcof Sig OCs (A' ! D') _
                              -> cof Sig (OC Ep K) (A' ! D') -> type.
@@ -91,7 +91,7 @@ preservation-unhandled-op : in-dirt-operation (I # O) D' -> sig Sig O A1 A2
 - : preservation-unhandled-op IOinD' O Ep K
      get-op-case/nil
      opcof/nil
-     (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K (eof/var x)) (in-dirt/cons IOinD' in-dirt/empty)).
+     (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K (eof/var x)) (in-dirt-region/cons IOinD' in-dirt-region/empty)).
 
 - : preservation-unhandled-op _ _ Ep K
      get-op-case/here
@@ -109,20 +109,20 @@ preservation-unhandled-op : in-dirt-operation (I # O) D' -> sig Sig O A1 A2
 %total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
 
 
-preservation-with-op : in-dirt-operation (I # O) D -> sig Sig O A1 A2
+preservation-with-op : in-dirt (I # O) D -> sig Sig O A1 A2
                         -> eof Sig Ep A1 -> eof Sig K (A2 --> A' ! D')
                         -> get-op-case (I # O) OCs OC -> opcof Sig OCs (A' ! D') Dcov
                         -> covers D Dcov D'
                         -> cof Sig (OC Ep K) (A' ! D') -> type.
 %mode preservation-with-op +IOinD +O +Ep +K +OC +OCs +Cov -OC.
 
-- : preservation-with-op in-dirt-operation/here O Ep K OC OCs (covers/cons-here IOinDcov _) C'
+- : preservation-with-op in-dirt/here O Ep K OC OCs (covers/cons-here IOinDcov _) C'
      <- preservation-handled-op IOinDcov O Ep K OC OCs C'.
 
-- : preservation-with-op in-dirt-operation/here O Ep K OC OCs (covers/cons-there IOinD' _) C'
+- : preservation-with-op in-dirt/here O Ep K OC OCs (covers/cons-there IOinD' _) C'
      <- preservation-unhandled-op IOinD' O Ep K OC OCs C'.
 
-- : preservation-with-op (in-dirt-operation/there IOinD) O Ep K OC OCs Cov C'
+- : preservation-with-op (in-dirt/there IOinD) O Ep K OC OCs Cov C'
      <- covers-rest Cov Cov' 
      <- preservation-with-op IOinD O Ep K OC OCs Cov' C'.
 
@@ -177,7 +177,7 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
      <- subst C2 E C'.
 
 - : preservation-let (cof/op Ei O Ep K ROinD) D<D' C2 ~>/let-op (cof/op Ei O Ep ([_] [y] (cof/let (cof/sub (K _ y) (<dt/! A<A D<D')) C2)) ROinD')
-     <- in-dirt/<d ROinD D<D' ROinD'
+     <- in-dirt-region/<d ROinD D<D' ROinD'
      <- <t/refl A A<A.
 
 - : preservation-let C1 D<D' C2 (~>/let-step S) (cof/let C1' C2)
@@ -198,8 +198,8 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
 
 - : preservation-with (cof/op Ei O Ep K ROinD) (<dt/! A<A' D<D') (eof/hnd Cv OCs Cov) (~>/with-op OC) C'
      <- instance-expr-in-region Ei IinR
-     <- in-dirt/<d ROinD D<D' ROinD'
-     <- instance-in-region-in-dirt IinR ROinD' IOinD'
+     <- in-dirt-region/<d ROinD D<D' ROinD'
+     <- instance-in-region-in-dirt-region IinR ROinD' IOinD'
      <- preservation-with-op IOinD' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (cof/sub (K x e) (<dt/! A<A' D<D'))) OC OCs Cov C'.
 
 - : preservation-with C B1<B1' E (~>/with-step S) (cof/with E C')
