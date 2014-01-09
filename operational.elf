@@ -1,7 +1,7 @@
-%%% Small step operational semantics
+%%% Operational semantics
 
-% "get-op-case" finds the handler case which applies to a given operation,
-% or gives the default handler if none applies.
+% "get-op-case" finds the first operation case that matches a given operation,
+% or gives the default handler if there are none.
 
 get-op-case : operation Eff -> op-cases -> op-case -> type.
 %mode get-op-case +IO +OCs -OC.
@@ -12,7 +12,8 @@ get-op-case/there : get-op-case IO (op-cases/cons (ins I') O' _ OCs) OC
                      <- apart IO (I' # O')
                      <- get-op-case IO OCs OC.
 
-% The big step semantics relation.
+
+% The type of final results, which are either values or operation calls.
 
 result : type.
 
@@ -46,6 +47,8 @@ result/op  : operation Eff -> expr -> (expr -> comp) -> result.
                 <- C ~> C'.
 
 
+% The "transitive closure" of the small step relation
+
 ~>* : comp -> result -> type.
 %infix none 40 ~>*.
 
@@ -54,3 +57,38 @@ result/op  : operation Eff -> expr -> (expr -> comp) -> result.
 ~>*/step : C ~>* R
             <- C' ~>* R
             <- C ~> C'.
+
+
+% The big step semantics relation
+
+=> : comp -> result -> type.
+%infix none 40 =>.
+
+=>/cond-tru : cond tru C1 _ => R
+               <- C1 => R.
+=>/cond-fls : cond fls _ C2 => R
+               <- C2 => R.
+=>/zro?-zro : zro? zro => result/val tru.
+=>/zro?-suc : zro? (suc _) => result/val fls.
+=>/pred-zro : pred zro => result/val zro.
+=>/pred-suc : pred (suc E) => result/val E.
+=>/app      : app (fun E1) E2 => R
+               <- E1 E2 => R.
+=>/val      : val E => result/val E.
+=>/op       : op (ins I) O E K => result/op (I # O) E K.
+=>/let-val  : let C1 C2 => R
+               <- C2 E => R
+               <- C1 => result/val E.
+=>/let-op   : let C1 C2 => result/op IO E ([x] let (K x) C2)
+               <- C1 => result/op IO E K.
+=>/letr     : letr C1 C2 => R
+               <- C2 (fun ([x] letr C1 ([f] C1 f x))) => R.
+=>/letv     : letv E C => R
+               <- C E => R.
+=>/with-val : with (hnd Cv _) C => R
+               <- Cv E => R
+               <- C => result/val E.
+=>/with-op  : with (hnd Cv OCs) C => R
+               <- OC E (fun ([y] with (hnd Cv OCs) (K y))) => R
+               <- get-op-case IO OCs OC
+               <- C => result/op IO E K.
