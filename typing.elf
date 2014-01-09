@@ -1,5 +1,39 @@
 %%% Typing judgements
 
+% Each operation "O : operation E" has an associated signature, namely the
+% type "A1" of its parameter and its return type "A2". The mapping from operations
+% to their signature is encoded by "sig".
+
+
+effsignature : type.
+
+effsignature/empty : effsignature.
+effsignature/cons : ty -> ty -> effsignature -> effsignature.
+
+signature : type.
+
+signature/empty : signature.
+signature/cons : effsignature -> signature -> signature.
+
+effsig : effsignature -> name -> ty -> ty -> type.
+
+effsig/here : effsig (effsignature/cons A1 A2 _) name/z A1 A2.
+effsig/there : effsig (effsignature/cons _ _ ESig) (name/s O) A1 A2
+                <- effsig ESig O A1 A2.
+
+%worlds () (effsig _ _ _ _).
+%unique effsig +Sig +X -1A1 -1A2.
+
+sig : signature -> operation Eff -> ty -> ty -> type.
+
+sig/here : sig (signature/cons ESig _) (operation/ (effect/ name/z) O) A1 A2
+            <- effsig ESig O A1 A2.
+sig/there : sig (signature/cons _ Sig) (operation/ (effect/ (name/s Eff)) O) A1 A2
+            <- sig Sig (operation/ (effect/ Eff) O) A1 A2.
+
+%worlds () (sig _ _ _ _).
+%unique sig +Sig +O -1A1 -1A2.
+
 var : expr -> ty -> type.
 
 % "eof E A" means that expression "E" has expression type "A".
@@ -12,27 +46,6 @@ cof : signature -> comp -> dirty -> type.
 
 opcof : signature -> op-cases -> dirty -> dirt -> type.
 
-% "covers D D1 D2" checks that "D" is contained in the union of "D1"
-% and "D2".
-
-covers : dirt -> dirt -> dirt -> type.
-
-covers/empty      : covers dirt/empty _ _.
-covers/cons-here  : covers (dirt/cons I O D) D1 D2
-                     <- covers D D1 D2
-                     <- in-dirt-instance I O D1.
-covers/cons-there : covers (dirt/cons I O D) D1 D2
-                     <- covers D D1 D2
-                     <- in-dirt-instance I O D2.
-
-% "add-if-singleton D R O D'" adds "I#O" to dirt "D" to obtain dirt "D'",
-% provided "R" is the singleton list containing just "I". This is used for
-% type checking of handlers below.
-
-add-if-singleton : dirt -> region Eff -> operation Eff -> dirt -> type.
-add-if-singleton/zero : add-if-singleton D region/empty _ D.
-add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons I O D).
-add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
 
 %%% Typing rules for expressions
 

@@ -154,3 +154,27 @@ in-dirt/cons  : in-dirt (region/cons I R) O D
 <d/cons  : dirt/cons I O D <d D'
             <- D <d D'
             <- in-dirt-instance I O D'.
+
+
+% "covers D D1 D2" checks that "D" is contained in the union of "D1"
+% and "D2".
+
+covers : dirt -> dirt -> dirt -> type.
+
+covers/empty      : covers dirt/empty _ _.
+covers/cons-here  : covers (dirt/cons I O D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt-instance I O D1.
+covers/cons-there : covers (dirt/cons I O D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt-instance I O D2.
+
+% "add-if-singleton D R O D'" adds "I#O" to dirt "D" to obtain dirt "D'",
+% provided "R" is the singleton list containing just "I". This is used for
+% type checking of handlers below.
+
+add-if-singleton : dirt -> region Eff -> operation Eff -> dirt -> type.
+add-if-singleton/zero : add-if-singleton D region/empty _ D.
+add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons I O D).
+add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
+

@@ -1,3 +1,16 @@
+instance-expr-in-region : eof _ (ins I) (inst R) -> in-region I R -> type.
+%mode instance-expr-in-region +E -IinR.
+
+- : instance-expr-in-region (eof/ins IinR) IinR.
+
+- : instance-expr-in-region (eof/sub E (<t/inst R<R')) IinR'
+     <- instance-expr-in-region E IinR
+     <- in-region/<r IinR R<R' IinR'.
+
+%worlds () (instance-expr-in-region _ _).
+%total {E} (instance-expr-in-region E _).
+
+
 subst-eof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> eof Sig E A) -> eof Sig E A -> type.
 subst-cof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> cof Sig C B) -> cof Sig C B -> type.
 subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov) -> opcof Sig OCs B Dcov -> type.

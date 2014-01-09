@@ -1,0 +1,27 @@
+%%% Types
+
+% Expression types "ty" and computation types "dirty":
+
+ty : type.
+%name ty A.
+
+dirty : type.
+%name dirty B.
+
+% A dirty type is a pair "A ! D" where "A" is an expression type and
+% "D" is dirt (see "sig.elf").
+
+! : ty -> dirt -> dirty.
+%infix none 60 !.
+
+% Expression type constructors:
+
+bool  : ty.                   % the type of booleans
+nat   : ty.                   % the type of natural numbers
+unit  : ty.                   % the unit type
+empty : ty.                   % the empty type
+-->   : ty -> dirty -> ty.    % functions
+inst  : region Eff -> ty.     % the type of instances of a given effect
+==>   : dirty -> dirty -> ty. % the type of handlers
+%infix right 50 -->.
+%infix right 55 ==>.
