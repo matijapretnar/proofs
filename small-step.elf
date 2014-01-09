@@ -19,7 +19,7 @@
 ~>/letv      : letv E C ~> C E.
 ~>/with-val  : with (hnd Cv _) (val E) ~> Cv E.
 ~>/with-op   : with (hnd Cv OCs) (op (ins I) O Ep K) ~> OC Ep (fun ([y] with (hnd Cv OCs) (K y)))
-                <- get-op-case I O OCs OC.
+                <- get-op-case (I # O) OCs OC.
 ~>/with-step : with E C ~> with E C'
                 <- C ~> C'.
 
@@ -28,7 +28,7 @@
 %infix none 40 ~>*.
 
 ~>*/val  : val E ~>* result/val E.
-~>*/op   : op (ins I) O E K ~>* result/op I O E K.
+~>*/op   : op (ins I) O E K ~>* result/op (I # O) E K.
 ~>*/step : C ~>* R
             <- C' ~>* R
             <- C ~> C'.

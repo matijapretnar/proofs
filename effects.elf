@@ -28,139 +28,147 @@ instance/ : {Eff} name -> instance Eff.
 % E" and "O : operation E" is called an *operation*. We write it informally as
 % "I#O" to remind ourselves of Eff's concrete syntax.
 
-apart : instance Eff -> opsym Eff -> instance Eff' -> opsym Eff' -> type.
-%mode apart +I +O +I' +O'.
-
-apart/effect    : apart (instance/ (effect/ X) _) _ (instance/ (effect/ Y) _) _
+ 
+ 
+operation : effect -> type.
+%name operation IO.
+ 
+# : instance Eff -> opsym Eff -> operation Eff.
+%infix none 50 #.
+ 
+ 
+apart : operation Eff -> operation Eff' -> type.
+%mode apart +IO +I'O'.
+ 
+apart/effect    : apart (instance/ (effect/ X) _ # _) (instance/ (effect/ Y) _ # _)
                    <- apart-name X Y.
-apart/instance  : apart (instance/ _ X) _ (instance/ _ Y) _
+apart/instance  : apart (instance/ _ X # _) (instance/ _ Y # _)
                    <- apart-name X Y.
-apart/opsym : apart _ (opsym/ _ X) _ (opsym/ _ Y)
+apart/opsym : apart (_ # opsym/ _ X) (_ # opsym/ _ Y)
                    <- apart-name X Y.
-
-
-decidable : instance Eff -> opsym Eff -> instance Eff' -> opsym Eff' -> type.
-
-decidable/equal : decidable I O I O.
-decidable/apart : decidable I O I' O'
-                   <- apart I O I' O'.
-
-
-decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name O O' -> decidable (instance/ (effect/ Eff) I) (opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I') (opsym/ (effect/ Eff') O') -> type.
+ 
+ 
+decidable : operation Eff -> operation Eff' -> type.
+ 
+decidable/equal : decidable IO IO.
+decidable/apart : decidable IO I'O'
+                   <- apart IO I'O'.
+ 
+ 
+decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name O O' -> decidable (instance/ (effect/ Eff) I # opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I' # opsym/ (effect/ Eff') O') -> type.
 %mode decide-lemma +Eff?Eff' +I?I' +O?O' -IO?I'O'.
-
+ 
 - : decide-lemma decidable-name/equal decidable-name/equal decidable-name/equal decidable/equal.
-
+ 
 - : decide-lemma (decidable-name/apart A) _ _ (decidable/apart (apart/effect A)).
-
+ 
 - : decide-lemma _ (decidable-name/apart A) _ (decidable/apart (apart/instance A)).
-
+ 
 - : decide-lemma _ _ (decidable-name/apart A) (decidable/apart (apart/opsym A)).
-
+ 
 %worlds () (decide-lemma _ _ _ _).
 %total {} (decide-lemma _ _ _ _).
-
-
-decide : {I : instance Eff} {O} {I' : instance Eff'} {O'} decidable I O I' O' -> type.
-%mode decide +I +O +I' +O' -Dec.
-
-- : decide (instance/ (effect/ Eff) I) (opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I') (opsym/ (effect/ Eff') O') Dec
+ 
+ 
+decide : {IO : operation Eff} {I'O' : operation Eff'} decidable IO I'O' -> type.
+%mode decide +IO +I'O' -Dec.
+ 
+- : decide (instance/ (effect/ Eff) I # opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I' # opsym/ (effect/ Eff') O') Dec
      <- decide-name Eff Eff' Eff?Eff'
      <- decide-name I I' I?I'
      <- decide-name O O' O?O'
      <- decide-lemma Eff?Eff' I?I' O?O' Dec.
-
-%worlds () (decide _ _ _ _ _).
-%total {} (decide _ _ _ _ _).
-
+ 
+%worlds () (decide _ _ _).
+%total {} (decide _ _ _).
+ 
 % Dirt is a list of operations. It is used to indicate which operations may
 % happen in a computation.
-
+ 
 dirt : type.
 %name dirt D.
-
+ 
 dirt/empty : dirt.
-dirt/cons  : instance Eff -> opsym Eff -> dirt -> dirt.
-
-% "in-dirt-distance" tells whether a given operation occurs in a given dirt.
-
-in-dirt-instance : instance Eff -> opsym Eff -> dirt -> type.
-
-in-dirt-instance/here  : in-dirt-instance I O (dirt/cons I O D).
-in-dirt-instance/there : in-dirt-instance I O (dirt/cons _ _ D)
-                          <- in-dirt-instance I O D.
-
+dirt/cons  : operation Eff -> dirt -> dirt.
+ 
+% "in-dirt-operation" tells whether a given operation occurs in a given dirt.
+ 
+in-dirt-operation : operation Eff -> dirt -> type.
+ 
+in-dirt-operation/here  : in-dirt-operation IO (dirt/cons IO D).
+in-dirt-operation/there : in-dirt-operation IO (dirt/cons _ D)
+                          <- in-dirt-operation IO D.
+ 
 % A region is a finite list of instances, all associated with the same effect.
-
+ 
 region : effect -> type.
 %name region R.
-
+ 
 region/empty : region Eff.
 region/cons  : instance Eff -> region Eff -> region Eff.
-
+ 
 % "in-region" tells whether an instance is in a region.
-
+ 
 in-region : instance Eff -> region Eff -> type.
-
+ 
 in-region/here  : in-region I (region/cons I R).
 in-region/there : in-region I (region/cons _ R)
                    <- in-region I R.
-
+ 
 % Sometimes we have an operation "x#O", and all we know about "x" is that it is
 % an instance from a region "R". We sometimes write this as "R#O". In any case,
 % "in-dirt" check whether "x#O" is in a given dirt (by checking that this is so
 % for every "x" in "R").
-
+ 
 in-dirt : region Eff -> opsym Eff -> dirt -> type.
-
+ 
 in-dirt/empty : in-dirt region/empty _ _.
 in-dirt/cons  : in-dirt (region/cons I R) O D
                  <- in-dirt R O D
-                 <- in-dirt-instance I O D.
-
+                 <- in-dirt-operation (I # O) D.
+ 
 % Regions and dirts are lists, but they really represent sets. We define the
 % subset relation on regions and dirt.
-
+ 
 % "R <r R'" means that region "R" is contained in region "R'".
-
+ 
 <r : region Eff -> region Eff -> type.
 %infix none 30 <r.
-
+ 
 <r/empty : region/empty <r R.
 <r/cons  : region/cons I R <r R'
             <- R <r R'
             <- in-region I R'.
-
+ 
 % "D <d D'" means that region "R" is contained in region "R'".
-
+ 
 <d : dirt -> dirt -> type.
 %infix none 30 <d.
-
+ 
 <d/empty : dirt/empty <d D.
-<d/cons  : dirt/cons I O D <d D'
+<d/cons  : dirt/cons IO D <d D'
             <- D <d D'
-            <- in-dirt-instance I O D'.
-
-
+            <- in-dirt-operation IO D'.
+ 
+ 
 % "covers D D1 D2" checks that "D" is contained in the union of "D1"
 % and "D2".
-
+ 
 covers : dirt -> dirt -> dirt -> type.
-
+ 
 covers/empty      : covers dirt/empty _ _.
-covers/cons-here  : covers (dirt/cons I O D) D1 D2
+covers/cons-here  : covers (dirt/cons IO D) D1 D2
                      <- covers D D1 D2
-                     <- in-dirt-instance I O D1.
-covers/cons-there : covers (dirt/cons I O D) D1 D2
+                     <- in-dirt-operation IO D1.
+covers/cons-there : covers (dirt/cons IO D) D1 D2
                      <- covers D D1 D2
-                     <- in-dirt-instance I O D2.
-
-% "add-if-singleton D R O D'" adds "I#O" to dirt "D" to obtain dirt "D'",
+                     <- in-dirt-operation IO D2.
+ 
+% "add-if-singleton D R O D'" adds "IO" to dirt "D" to obtain dirt "D'",
 % provided "R" is the singleton list containing just "I". This is used for
 % type checking of handlers below.
-
+ 
 add-if-singleton : dirt -> region Eff -> opsym Eff -> dirt -> type.
 add-if-singleton/zero : add-if-singleton D region/empty _ D.
-add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons I O D).
+add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons (I # O) D).
 add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
-

@@ -12,12 +12,12 @@
 =>/app      : app (fun E1) E2 => R
                <- E1 E2 => R.
 =>/val      : val E => result/val E.
-=>/op       : op (ins I) O E K => result/op I O E K.
+=>/op       : op (ins I) O E K => result/op (I # O) E K.
 =>/let-val  : let C1 C2 => R
                <- C2 E => R
                <- C1 => result/val E.
-=>/let-op   : let C1 C2 => result/op I O E ([x] let (K x) C2)
-               <- C1 => result/op I O E K.
+=>/let-op   : let C1 C2 => result/op IO E ([x] let (K x) C2)
+               <- C1 => result/op IO E K.
 =>/letr     : letr C1 C2 => R
                <- C2 (fun ([x] letr C1 ([f] C1 f x))) => R.
 =>/letv     : letv E C => R
@@ -27,5 +27,5 @@
                <- C => result/val E.
 =>/with-op  : with (hnd Cv OCs) C => R
                <- OC E (fun ([y] with (hnd Cv OCs) (K y))) => R
-               <- get-op-case I O OCs OC
-               <- C => result/op I O E K.
+               <- get-op-case IO OCs OC
+               <- C => result/op IO E K.

@@ -9,7 +9,7 @@
 %total {C1~>*E} (~>*-let-val C1~>*E _ _).
 
 
-~>*-let-op : C1 ~>* result/op I O E K -> {C2} let C1 C2 ~>* result/op I O E ([x] let (K x) C2) -> type.
+~>*-let-op : C1 ~>* result/op IO E K -> {C2} let C1 C2 ~>* result/op IO E ([x] let (K x) C2) -> type.
 %mode ~>*-let-op +C1~>*Op +C2 -C1C2~>*Op.
 
 - : ~>*-let-op ~>*/op _ (~>*/step ~>/let-op ~>*/op).
@@ -32,8 +32,8 @@
 
 
 ~>*-with-op :
-  C ~>* result/op I O E K
-  -> get-op-case I O OCs OC
+  C ~>* result/op IO E K
+  -> get-op-case IO OCs OC
   -> OC E (fun ([y] with (hnd Cv OCs) (K y))) ~>* R
   -> with (hnd Cv OCs) C ~>* R -> type.
 %mode ~>*-with-op +C~>*Op +OC +OC~>*R -HC~>*R.

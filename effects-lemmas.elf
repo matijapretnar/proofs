@@ -10,16 +10,16 @@
 %total {R<R'} (<r/rest R<R' _ _).
 
 
-<d/rest : D <d D' -> {I'} {O'} D <d (dirt/cons I' O' D') -> type. 
-%mode <d/rest +D<D' +I' +O' -D<I'O'D'.
+<d/rest : D <d D' -> {I'O'} D <d (dirt/cons I'O' D') -> type. 
+%mode <d/rest +D<D' +I'O' -D<I'O'D'.
 
-- : <d/rest <d/empty _ _ <d/empty.
+- : <d/rest <d/empty _ <d/empty.
 
-- : <d/rest (<d/cons IOinD' D<D') _ _ (<d/cons (in-dirt-instance/there IOinD') D<I'O'D')
-     <- <d/rest D<D' _ _ D<I'O'D'.
+- : <d/rest (<d/cons IOinD' D<D') _ (<d/cons (in-dirt-operation/there IOinD') D<I'O'D')
+     <- <d/rest D<D' _ D<I'O'D'.
 
-%worlds () (<d/rest _ _ _ _).
-%total {D<D'} (<d/rest D<D' _ _ _).
+%worlds () (<d/rest _ _ _).
+%total {D<D'} (<d/rest D<D' _ _).
 
 
 <r/refl : {R} R <r R -> type.
@@ -40,9 +40,9 @@
 
 - : <d/refl dirt/empty <d/empty.
 
-- : <d/refl (dirt/cons I O D) (<d/cons in-dirt-instance/here D<IOD)
+- : <d/refl (dirt/cons IO D) (<d/cons in-dirt-operation/here D<IOD)
      <- <d/refl D D<D
-     <- <d/rest D<D I O D<IOD.
+     <- <d/rest D<D IO D<IOD.
 
 %worlds () (<d/refl _ _).
 %total {D} (<d/refl D _).
@@ -60,16 +60,16 @@ in-region/<r : in-region I R -> R <r R' -> in-region I R' -> type.
 %total {IinR} (in-region/<r IinR _ _).
 
 
-in-dirt-instance/<d : in-dirt-instance I O D -> D <d D' -> in-dirt-instance I O D' -> type.
-%mode in-dirt-instance/<d +IOinD +D<D' -IOinD'.
+in-dirt-operation/<d : in-dirt-operation IO D -> D <d D' -> in-dirt-operation IO D' -> type.
+%mode in-dirt-operation/<d +IOinD +D<D' -IOinD'.
 
-- : in-dirt-instance/<d in-dirt-instance/here (<d/cons IOinD' _) IOinD'.
+- : in-dirt-operation/<d in-dirt-operation/here (<d/cons IOinD' _) IOinD'.
 
-- : in-dirt-instance/<d (in-dirt-instance/there IOinD) (<d/cons _ D<D') IOinD'
-     <- in-dirt-instance/<d IOinD D<D' IOinD'.
+- : in-dirt-operation/<d (in-dirt-operation/there IOinD) (<d/cons _ D<D') IOinD'
+     <- in-dirt-operation/<d IOinD D<D' IOinD'.
 
-%worlds () (in-dirt-instance/<d _ _ _).
-%total {IOinD} (in-dirt-instance/<d IOinD _ _).
+%worlds () (in-dirt-operation/<d _ _ _).
+%total {IOinD} (in-dirt-operation/<d IOinD _ _).
 
 
 in-dirt/<d : in-dirt R O D -> D <d D' -> in-dirt R O D' -> type.
@@ -78,14 +78,14 @@ in-dirt/<d : in-dirt R O D -> D <d D' -> in-dirt R O D' -> type.
 - : in-dirt/<d in-dirt/empty _ in-dirt/empty.
 
 - : in-dirt/<d (in-dirt/cons IOinD ROinD) D<D' (in-dirt/cons IOinD' ROinD')
-     <- in-dirt-instance/<d IOinD D<D' IOinD'
+     <- in-dirt-operation/<d IOinD D<D' IOinD'
      <- in-dirt/<d ROinD D<D' ROinD'.
 
 %worlds () (in-dirt/<d _ _ _).
 %total {ROinD} (in-dirt/<d ROinD _ _).
 
 
-instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance I O D -> type.
+instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-operation (I # O) D -> type.
 %mode instance-in-region-in-dirt +IinR +ROinD -IOinD.
 
 - : instance-in-region-in-dirt in-region/here (in-dirt/cons IOinD _) IOinD.
@@ -127,7 +127,7 @@ instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance 
 
 - : <d/trans (<d/cons IOinD' D<D') D'<D'' (<d/cons IOinD'' D<D'')
      <- <d/trans D<D' D'<D'' D<D''
-     <- in-dirt-instance/<d IOinD' D'<D'' IOinD''.
+     <- in-dirt-operation/<d IOinD' D'<D'' IOinD''.
 
 %worlds () (<d/trans _ _ _).
 %total {D<D'} (<d/trans D<D' _ _).
@@ -135,7 +135,7 @@ instance-in-region-in-dirt : in-region I R -> in-dirt R O D -> in-dirt-instance 
 
 
 
-covers-rest : covers (dirt/cons _ _ D) D1 D2 -> covers D D1 D2 -> type.
+covers-rest : covers (dirt/cons _ D) D1 D2 -> covers D D1 D2 -> type.
 %mode covers-rest +Cov -Cov'.
 
 - : covers-rest (covers/cons-here _ Cov') Cov'.
