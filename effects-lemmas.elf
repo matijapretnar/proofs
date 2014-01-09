@@ -133,6 +133,16 @@ in-dirt/<d : in-dirt IO D -> D <d D' -> in-dirt IO D' -> type.
 %total {D<D'} (<d/trans D<D' _ _).
 
 
+covers-rest : covers (dirt/cons _ D) D1 D2 -> covers D D1 D2 -> type.
+%mode covers-rest +Cov -Cov'.
+
+- : covers-rest (covers/cons-here _ Cov') Cov'.
+- : covers-rest (covers/cons-there _ Cov') Cov'.
+
+%worlds () (covers-rest _ _).
+%total {} (covers-rest _ _).
+
+
 
 % Regions & dirts
 

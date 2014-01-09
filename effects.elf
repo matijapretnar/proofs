@@ -124,7 +124,19 @@ in-dirt/there : in-dirt IO (dirt/cons _ D)
             <- in-dirt IO D'.
  
 
-% Sometimes, the instance of an operation can be determined only up to a region.
+% "covers D1 D2" checks that the dirt "D" is contained in the union of "D1" and "D2".
+covers : dirt -> dirt -> dirt -> type.
+ 
+covers/empty      : covers dirt/empty _ _.
+covers/cons-here  : covers (dirt/cons IO D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt IO D1.
+covers/cons-there : covers (dirt/cons IO D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt IO D2.
+ 
+
+ % Sometimes, the instance of an operation can be determined only up to a region.
 % In this case, we use "in-dirt-region R O D", which checks that I#O is in D for every I in R.
  
 in-dirt-region : region Eff -> opsym Eff -> dirt -> type.

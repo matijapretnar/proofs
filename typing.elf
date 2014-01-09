@@ -1,8 +1,17 @@
 %%% Typing judgements
 
-% Each operation "O : operation E" has an associated signature, namely the
-% type "A1" of its parameter and its return type "A2". The mapping from operations
-% to their signature is encoded by "sig".
+% Typing is done under a given *signature*, which consists of an *effect signature*
+% for each effect under consideration.
+% An effect signature assigns a *parameter* and a *result* type to each
+% listed operation symbol.
+%
+% A signature is represented by a list of effect signatures, so that
+% the first effect signature corresponds to effect "effect/ name/z",
+% the second to "effect/ (name/s name/z)", etc.
+% This representation implies that we can only consider a finite number of effects.
+%
+% Effect signatures are similarly represented by a list of pairs of types,
+% and so we consider a finite number of operation symbols for each effect.
 
 
 effsignature : type.
@@ -10,10 +19,15 @@ effsignature : type.
 effsignature/empty : effsignature.
 effsignature/cons : ty -> ty -> effsignature -> effsignature.
 
+
 signature : type.
 
 signature/empty : signature.
 signature/cons : effsignature -> signature -> signature.
+
+
+% "effsig ESig O A1 A2" states that the effect signature "ESig" assigns
+% a parameter type "A1" and a result type "A2" to the operation symbol labelled by "O".
 
 effsig : effsignature -> name -> ty -> ty -> type.
 
@@ -23,6 +37,10 @@ effsig/there : effsig (effsignature/cons _ _ ESig) (name/s O) A1 A2
 
 %worlds () (effsig _ _ _ _).
 %unique effsig +Sig +X -1A1 -1A2.
+
+
+% "sig Sig O A1 A2" states that the signature "Sig" assigns
+% a parameter type "A1" and a result type "A2" to the operation symbol "O".
 
 sig : signature -> opsym Eff -> ty -> ty -> type.
 
@@ -34,20 +52,22 @@ sig/there : sig (signature/cons _ Sig) (opsym/ (effect/ (name/s Eff)) O) A1 A2
 %worlds () (sig _ _ _ _).
 %unique sig +Sig +O -1A1 -1A2.
 
-var : expr -> ty -> type.
 
-% "eof E A" means that expression "E" has expression type "A".
-% "cof C B" means that computation "C" has computation type "B".
+
+% We have three typing judgements that correspond to the three families of terms:
+% - "eof Sig E A" means that expression "E" has type "A" under signature "Sig"
+% - "cof Sig C B" states the same for computation "C" and dirty type "B"
+% - "opcof" does the hard part of checking that a handler is well-typed - see below for details.
 eof : signature -> expr -> ty -> type.
 cof : signature -> comp -> dirty -> type.
-
-% "opcof Cases B D" does the hard part of checking that
-% a handler is well-typed, see definition below.
-
 opcof : signature -> op-cases -> dirty -> dirt -> type.
 
+% We have an additional judgement "var E A" to represent variables of type "A"
+% in a context. We could use "eof" instead of "var" in hypothetical judgements,
+% but the separation will later allow us to share variables between typing
+% and type inference judgements.
+var : expr -> ty -> type.
 
-%%% Typing rules for expressions
 
 eof/var : eof _ E A
            <- var E A.
@@ -65,38 +85,30 @@ eof/sub : eof Sig E A'
            <- A <t A'
            <- eof Sig E A.
 
-% "covers D D1 D2" checks that "D" is contained in the union of "D1" and "D2".
- 
-covers : dirt -> dirt -> dirt -> type.
- 
-covers/empty      : covers dirt/empty _ _.
-covers/cons-here  : covers (dirt/cons IO D) D1 D2
-                     <- covers D D1 D2
-                     <- in-dirt IO D1.
-covers/cons-there : covers (dirt/cons IO D) D1 D2
-                     <- covers D D1 D2
-                     <- in-dirt IO D2.
- 
+% Type-checking a handler is a bit more involved:
+
 eof/hnd : eof Sig (hnd Cv OCs) (A ! D ==> A' ! D')
            <- covers D Dcov D'
            <- opcof Sig OCs (A' ! D') Dcov
            <- ({x} var x A -> cof Sig (Cv x) (A' ! D')).
 
-
-% "opcof OCs B D" checks the following things (where "OCs" is a
-% list of handler cases of the form "E # O OC", where "E" is an
-% expression, "O" is an operation, and "OC" is the body of the case):
-% 
-% 1. every "E" has an instance type
-% 2. every "OC" has return type "B"
-% 3. the dirt "D" is covered by those cases whose associated region is a singleton.
-
-
-% "add-if-singleton D R O D'" adds "I#O" to dirt "D" to obtain dirt "D'",
-% provided "R" is the singleton list containing just "I". This is used for
-% type checking of handlers below.
+% We need to check that:
+% - the value case takes values of type "A" into computations of type "A' ! D'"
+% - for each operation case "E # O OC" in "OCs":
+%   - "E" has an instance type
+%   - "O" is an operation symbol of the matching effect
+%   - the return type of "OC" is "A' ! D'",
+% - all operations in "Dcov" are guaranteed to be covered by one of the
+%   operation cases "OCs".
+% - all operations in "D" are guaranteed to be covered or already appear in "D'".
+%
+% We can guarantee that an operation case matches a given operation only if
+% its instance expressions is a singleton.
+% To do so, we introduce "add-if-singleton D R O D'",
+% which adds "I#O" to dirt "D" to obtain dirt "D'", if "R" is exactly singleton "I".
  
 add-if-singleton : dirt -> region Eff -> opsym Eff -> dirt -> type.
+
 add-if-singleton/zero : add-if-singleton D region/empty _ D.
 add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons (I # O) D).
 add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
@@ -108,9 +120,8 @@ opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
               <- opcof Sig OCs B D
               <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof Sig (OC x k) B)
               <- sig Sig O A1 A2
-              <- eof Sig E (inst R). 
+              <- eof Sig E (inst R).
 
-%%% Typing rules for computations
 
 cof/cond : cof Sig (cond E C1 C2) B
             <- cof Sig C2 B
@@ -149,7 +160,9 @@ cof/sub  : cof Sig C B'
             <- B <dt B'
             <- cof Sig C B.
 
-% Block declarations to be used in theorems.
+
+
+% Block declarations to be used in theorems that hold for terms with free variables.
 
 %block open : some {A : ty} block {x : expr}{_ : var x A}.
 
