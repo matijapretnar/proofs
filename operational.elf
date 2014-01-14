@@ -1,7 +1,7 @@
 %%% Operational semantics
 
-% "get-op-case" finds the first operation case that matches a given operation,
-% or gives the default handler if there are none.
+% "get-op-case IO OCs OC" finds the first operation case "OC" in "OCs"
+% that matches the operation "IO", or gives the default handler if there are none.
 
 get-op-case : operation Eff -> op-cases -> op-case -> type.
 

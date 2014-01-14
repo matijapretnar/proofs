@@ -1,12 +1,12 @@
 %%% Entity names
 
-% We need a way of representing names of different entities. Furthermore,
-% we need names to be decidable, i.e. equipped with equality and apartness.
-%
+% We need a way of representing names of effects, operation symbols and instances.
+% Furthermore, these names have to be equipped with a decidable equality.
 % Ideally, we would prefer to *hypothesise* about this fact,
 % but there is no legal way of doing this in Twelf.
-% Instead, we represent names with natural numbers (concrete syntax would use strings)
-% and program the relevant decision procedures.
+%
+% Instead, we represent names with natural numbers
+% and implement the relevant decision procedures.
 % We consider this to be a very clumsy solution,
 % mainly because it exposes implementation details.
 
@@ -16,7 +16,9 @@ name : type.
 name/z : name.
 name/s : name -> name.
 
-% We only define when two names are apart, because they are equal only if they are identical.
+
+% We only have to define the apartness relation,
+% because two names are equal only if they are identical.
 apart-name : name -> name -> type.
 %mode apart-name +X +Y.
 
@@ -42,6 +44,7 @@ decidable-name/s : decidable-name X Y -> decidable-name (name/s X) (name/s Y) ->
 
 %worlds () (decidable-name/s _ _).
 %total {} (decidable-name/s _ _).
+
 
 % Any two names are decidable.
 decide-name : {X} {Y} decidable-name X Y -> type.

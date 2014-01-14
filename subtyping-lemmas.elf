@@ -1,4 +1,4 @@
-% Reflexivity
+% Reflexivity of subtyping
 
 <t/refl : {A} A <t A -> type.
 <dt/refl : {B} B <dt B -> type.
@@ -34,11 +34,11 @@
 
 
 
-% Transitivity
+% Transitivity of subtyping
 
 % Because of contravariance, the termination checker complains, and the
-% easiest way to please it is to introduce two additional relations that are
-% just transitivity with a different order of arguments.
+% easiest way to please it is by introducing two additional type families
+% that also state transitivity, but with a different order of premises.
 
 <t/trans : A <t A' -> A' <t A'' -> A <t A'' -> type.
 <dt/trans : B <dt B' -> B' <dt B'' -> B <dt B'' -> type.

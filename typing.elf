@@ -3,7 +3,8 @@
 % We have three typing judgements that correspond to the three families of terms:
 % - "eof Sig E A" means that expression "E" has type "A" under signature "Sig"
 % - "cof Sig C B" states the same for computation "C" and dirty type "B"
-% - "opcof" does the hard part of checking that a handler is well-typed - see below for details.
+% - "opcof Sig OCs B D" states that operation cases "OCs" all have a return type "B"
+%   and cover operations from dirt "D"
 eof : signature -> expr -> ty -> type.
 cof : signature -> comp -> dirty -> type.
 opcof : signature -> op-cases -> dirty -> dirt -> type.

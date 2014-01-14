@@ -1,10 +1,8 @@
 %%% Abstract syntax
 
-% Terms are split into:
-% - expressions "expr", which are inert and free from effects, and
-% - computations "comp", which can be evaluated and may cause effects.
-% In addition to these two, we include an auxiliary third type "op-cases"
-% that represents a list of operation cases in handlers.
+% In addition to expressions "expr" and computations "comp", we introduce
+% an auxiliary third type "op-cases" that represents a list of
+% operation cases in handlers.
 
 expr : type.
 comp : type.
@@ -44,10 +42,7 @@ with : expr -> comp -> comp.           % handling construct
 
 
 
-% Types are split into:
-% - pure expression types "ty", and
-% - impure computation (dirty) types "dirty", which are just pairs "A ! D",
-%   where "A" is an expression type and "D" is dirt representing potential operations.
+% Types are split into pure types "ty" and computation (dirty) types "dirty".
 
 ty : type.
 dirty : type.

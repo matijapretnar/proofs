@@ -1,6 +1,4 @@
-%%% Subtyping relation
-
-% Types and dirty types are equipped with structural subtyping relations
+%%% Subtyping relations
 
 <t : ty -> ty -> type.
 <dt : dirty -> dirty -> type.
