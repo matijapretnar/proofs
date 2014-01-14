@@ -5,13 +5,13 @@
 %mode <t/refl +A -A<A.
 %mode <dt/refl +B -B<B.
 
-- : <t/refl nat <t/nat.
+- : <t/refl _ <t/nat.
 
-- : <t/refl bool <t/bool.
+- : <t/refl _ <t/bool.
 
-- : <t/refl unit <t/unit.
+- : <t/refl _ <t/unit.
 
-- : <t/refl empty <t/empty.
+- : <t/refl _ <t/empty.
 
 - : <t/refl (inst R) (<t/inst R<R)
      <- <r/refl R R<R.
@@ -49,13 +49,13 @@
 %mode <t/snart +A'<A +A''<A' -A''<A.
 %mode <dt/snart +B'<B +B''<B' -B''<B.
 
-- : <t/trans <t/nat _ <t/nat.
+- : <t/trans _ _ <t/nat.
 
-- : <t/trans <t/bool _ <t/bool.
+- : <t/trans _ _ <t/bool.
 
-- : <t/trans <t/unit _ <t/unit.
+- : <t/trans _ _ <t/unit.
 
-- : <t/trans <t/empty _ <t/empty.
+- : <t/trans _ _ <t/empty.
 
 - : <t/trans (<t/--> A'<A B<B') (<t/--> A''<A' B'<B'')  (<t/--> A''<A B<B'')
      <- <t/snart A'<A A''<A' A''<A
@@ -74,13 +74,13 @@
      <- <t/trans A<A' A'<A'' A<A''.
 
 
-- : <t/snart <t/nat _ <t/nat.
+- : <t/snart _ _ <t/nat.
 
-- : <t/snart <t/bool _ <t/bool.
+- : <t/snart _ _ <t/bool.
 
-- : <t/snart <t/unit _ <t/unit.
+- : <t/snart _ _ <t/unit.
 
-- : <t/snart <t/empty _ <t/empty.
+- : <t/snart _ _ <t/empty.
 
 - : <t/snart (<t/--> A<A' B'<B) (<t/--> A'<A'' B''<B')  (<t/--> A<A'' B''<B)
      <- <t/trans A<A' A'<A'' A<A''
