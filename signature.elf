@@ -1,0 +1,58 @@
+%%% Signatures
+
+% Since effects are all labelled with natural numbers,
+% a signature can be represented by a list of effect signatures, so that
+% the first effect signature corresponds to effect "effect/ name/z",
+% the second to "effect/ (name/s name/z)", etc.
+%
+% Similarly, operation symbols are also labeled with natural numbers,
+% so an effect signature is represented by a list of pairs of types.
+%
+% Note that this representation implies that in typed terms,
+% we can only consider a finite number of effects and
+% a finite number of operation symbols for each one.
+
+effsignature : type.
+
+effsignature/empty : effsignature.
+effsignature/cons : ty -> ty -> effsignature -> effsignature.
+
+
+signature : type.
+
+signature/empty : signature.
+signature/cons : effsignature -> signature -> signature.
+
+
+% "effsig ESig O A1 A2" states that the effect signature "ESig" assigns
+% a parameter type "A1" and a result type "A2" to the operation symbol labelled by "O".
+
+effsig : effsignature -> name -> ty -> ty -> type.
+
+effsig/here : effsig (effsignature/cons A1 A2 _) name/z A1 A2.
+effsig/there : effsig (effsignature/cons _ _ ESig) (name/s O) A1 A2
+                <- effsig ESig O A1 A2.
+
+%worlds () (effsig _ _ _ _).
+%unique effsig +Sig +X -1A1 -1A2.
+
+
+% "sig Sig O A1 A2" states that the signature "Sig" assigns
+% a parameter type "A1" and a result type "A2" to the operation symbol "O".
+
+sig : signature -> opsym Eff -> ty -> ty -> type.
+
+sig/here : sig (signature/cons ESig _) (opsym/ (effect/ name/z) O) A1 A2
+            <- effsig ESig O A1 A2.
+sig/there : sig (signature/cons _ Sig) (opsym/ (effect/ (name/s Eff)) O) A1 A2
+            <- sig Sig (opsym/ (effect/ Eff) O) A1 A2.
+
+%worlds () (sig _ _ _ _).
+%unique sig +Sig +O -1A1 -1A2.
+
+% We need to state that "sig" (and similarly "effsig" above) assigns
+% a unique parameter and result type to each operation symbol.
+% This fact is used in the proof of preservation when handling operation calls.
+% There, one gets one signature for the operation symbol of the handled operation,
+% and another one for the one in the handler case.
+% Because of uniqueness, we may safely assume that the two are the same.
