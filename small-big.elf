@@ -1,4 +1,4 @@
-% Small step implies big step semantics 
+% Eqivalence between small and big step semantics 
 
 ~>/=> : C ~> C' -> C' => R -> C => R -> type.
 ~>/=>-let : C1 ~> C1' -> let C1' C2 => R -> let C1 C2 => R -> type.
@@ -70,3 +70,57 @@
 
 %worlds () (~>*/=> _ _).
 %total {C~>*R} (~>*/=> C~>*R _).
+
+
+=>/~>* : C => R -> C ~>* R -> type.
+%mode =>/~>* +C=>R -C~>*R.
+
+- : =>/~>* (=>/cond-tru C=>R) (~>*/step ~>/cond-tru C~>*R)
+     <- =>/~>* C=>R C~>*R.
+
+- : =>/~>* (=>/cond-fls C=>R) (~>*/step ~>/cond-fls C~>*R)
+     <- =>/~>* C=>R C~>*R.
+
+- : =>/~>* =>/zro?-zro (~>*/step ~>/zro?-zro ~>*/val).
+
+- : =>/~>* =>/zro?-suc (~>*/step ~>/zro?-suc ~>*/val).
+
+- : =>/~>* =>/pred-zro (~>*/step ~>/pred-zro ~>*/val).
+
+- : =>/~>* =>/pred-suc (~>*/step ~>/pred-suc ~>*/val).
+
+- : =>/~>* (=>/app C=>R) (~>*/step ~>/app C~>*R)
+     <- =>/~>* C=>R C~>*R.
+
+- : =>/~>* =>/val ~>*/val.
+
+- : =>/~>* =>/op ~>*/op.
+
+- : =>/~>* (=>/let-val C1=>E C2E=>R) C1C2~>*R
+     <- =>/~>* C1=>E C1~>*E
+     <- =>/~>* C2E=>R C2E~>*R
+     <- ~>*-let-val C1~>*E C2E~>*R C1C2~>*R.
+
+- : =>/~>* (=>/let-op C1=>Op) C1C2~>*Op
+     <- =>/~>* C1=>Op C1~>*Op
+     <- ~>*-let-op C1~>*Op _ C1C2~>*Op.
+
+- : =>/~>* (=>/letr C=>R) (~>*/step ~>/letr C~>*R)
+     <- =>/~>* C=>R C~>*R.
+
+- : =>/~>* (=>/letv CE=>R) (~>*/step ~>/letv CE~>*R)
+     <- =>/~>* CE=>R CE~>*R.
+
+- : =>/~>* (=>/with-val C=>E CvE=>R) HC~>*R
+     <- =>/~>* C=>E C~>*E
+     <- =>/~>* CvE=>R CvE~>*R
+     <- ~>*-with-val C~>*E CvE~>*R _ HC~>*R.
+
+- : =>/~>* (=>/with-op C=>Op OC OC=>R) HC~>*R
+     <- =>/~>* C=>Op C~>*Op
+     <- =>/~>* OC=>R OC~>*R
+     <- ~>*-with-op C~>*Op OC OC~>*R HC~>*R.
+
+%worlds () (=>/~>* _ _).
+%total {C=>R} (=>/~>* C=>R _).
+

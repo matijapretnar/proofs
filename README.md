@@ -32,9 +32,11 @@ To run it, just do the usual thing you do in Twelf.
 
 ### Dynamic semantics
 * `operational.elf`: definition of small step and big step operational semantics
-* `small-to-big.elf`: first half of the equivalence of the two semantics
-* `big-to-small.elf`: second half of the equivalence of the two semantics
+* `small-big-lemmas.elf`: lemmas used in `small-big.elf`
+* `small-big.elf`: equivalence between small and big step semantics
 
 ### Safety theorems
+* `progress-lemmas.elf`: lemmas used in `progress.elf`
 * `progress.elf`: the progress theorem
+* `preservation-lemmas.elf`: lemmas used in `preservation.elf`
 * `preservation.elf`: the preservation theorem
