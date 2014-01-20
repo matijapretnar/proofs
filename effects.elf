@@ -32,11 +32,11 @@ operation : effect -> type.
 
 
 
-%%% Decidability of operations %%%
+%%% Comparison of operations %%%
 
-% The equality of operations has to be decidable
+% The operations have to be comparable
 % so we can always select the right handler case.
-% This decidability is inherited from the decidability
+% This comparability is inherited from the comparability
 % of effects, instances and operation symbols.
 
 apart : operation Eff -> operation Eff' -> type.
@@ -50,10 +50,10 @@ apart/opsym    : apart (_ # opsym/ _ X) (_ # opsym/ _ Y)
                    <- apart-name X Y.
  
  
-decidable : operation Eff -> operation Eff' -> type.
+comparable : operation Eff -> operation Eff' -> type.
  
-decidable/equal : decidable IO IO.
-decidable/apart : decidable IO I'O'
+comparable/equal : comparable IO IO.
+comparable/apart : comparable IO I'O'
                    <- apart IO I'O'.
  
 

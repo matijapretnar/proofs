@@ -18,7 +18,7 @@ To run it, just do the usual thing you do in Twelf.
 * `sources.cfg`: Twelf configuration file determining the order of files
 
 ### Core language
-* `names.elf`: an auxiliary type of decidable names
+* `names.elf`: an auxiliary type of comparable names
 * `effects.elf`: definitions involving effects, operations, regions and dirt
 * `effects-lemmas.elf`: various lemmas about the above definitions
 * `syntax.elf`: abstract syntax

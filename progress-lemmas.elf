@@ -21,11 +21,11 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 % The main result here is "get-op-case-total", which says that for well-typed
 % operation cases OCs, "get-op-case IO OCs OC" always delivers an answer "OC"
 
-decide-op-case : decidable IO (I' # O') -> {OC} get-op-case IO OCs OC' -> get-op-case IO (op-cases/cons (ins I') O' OC OCs) OC'' -> type.
+decide-op-case : comparable IO (I' # O') -> {OC} get-op-case IO OCs OC' -> get-op-case IO (op-cases/cons (ins I') O' OC OCs) OC'' -> type.
 %mode decide-op-case +Dec +OC +OC' -OC''.
 
-- : decide-op-case decidable/equal _ _ get-op-case/here.
-- : decide-op-case (decidable/apart A) _ OC (get-op-case/there OC A).
+- : decide-op-case comparable/equal _ _ get-op-case/here.
+- : decide-op-case (comparable/apart A) _ OC (get-op-case/there OC A).
 
 %worlds () (decide-op-case _ _ _ _).
 %total {} (decide-op-case _ _ _ _).
@@ -46,7 +46,7 @@ get-op-case-total/cons : {IO} eof Sig E (inst (R : region Eff'))
 
 
 - : get-op-case-total/cons _ (eof/ins _) _ _ OC' OC''
-     <- decide _ _ Dec
+     <- compare _ _ Dec
      <- decide-op-case Dec _ OC' OC''.
 
 - : get-op-case-total/cons IO (eof/sub E _) _ _ OC' OC''

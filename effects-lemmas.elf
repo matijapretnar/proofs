@@ -1,31 +1,31 @@
-%%% Decidability of operations %%%
+%%% Comparability of operations %%%
 
-decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name O O' -> decidable (instance/ (effect/ Eff) I # opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I' # opsym/ (effect/ Eff') O') -> type.
-%mode decide-lemma +Eff?Eff' +I?I' +O?O' -IO?I'O'.
+compare-lemma : comparable-name Eff Eff' -> comparable-name I I' -> comparable-name O O' -> comparable (instance/ (effect/ Eff) I # opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I' # opsym/ (effect/ Eff') O') -> type.
+%mode compare-lemma +Eff?Eff' +I?I' +O?O' -IO?I'O'.
  
-- : decide-lemma decidable-name/equal decidable-name/equal decidable-name/equal decidable/equal.
+- : compare-lemma comparable-name/equal comparable-name/equal comparable-name/equal comparable/equal.
  
-- : decide-lemma (decidable-name/apart A) _ _ (decidable/apart (apart/effect A)).
+- : compare-lemma (comparable-name/apart A) _ _ (comparable/apart (apart/effect A)).
  
-- : decide-lemma _ (decidable-name/apart A) _ (decidable/apart (apart/instance A)).
+- : compare-lemma _ (comparable-name/apart A) _ (comparable/apart (apart/instance A)).
  
-- : decide-lemma _ _ (decidable-name/apart A) (decidable/apart (apart/opsym A)).
+- : compare-lemma _ _ (comparable-name/apart A) (comparable/apart (apart/opsym A)).
  
-%worlds () (decide-lemma _ _ _ _).
-%total {} (decide-lemma _ _ _ _).
+%worlds () (compare-lemma _ _ _ _).
+%total {} (compare-lemma _ _ _ _).
  
  
-decide : {IO : operation Eff} {I'O' : operation Eff'} decidable IO I'O' -> type.
-%mode decide +IO +I'O' -Dec.
+compare : {IO : operation Eff} {I'O' : operation Eff'} comparable IO I'O' -> type.
+%mode compare +IO +I'O' -Dec.
  
-- : decide (instance/ (effect/ Eff) I # opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I' # opsym/ (effect/ Eff') O') Dec
-     <- decide-name Eff Eff' Eff?Eff'
-     <- decide-name I I' I?I'
-     <- decide-name O O' O?O'
-     <- decide-lemma Eff?Eff' I?I' O?O' Dec.
+- : compare (instance/ (effect/ Eff) I # opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I' # opsym/ (effect/ Eff') O') Dec
+     <- compare-name Eff Eff' Eff?Eff'
+     <- compare-name I I' I?I'
+     <- compare-name O O' O?O'
+     <- compare-lemma Eff?Eff' I?I' O?O' Dec.
  
-%worlds () (decide _ _ _).
-%total {} (decide _ _ _).
+%worlds () (compare _ _ _).
+%total {} (compare _ _ _).
 
 
 
