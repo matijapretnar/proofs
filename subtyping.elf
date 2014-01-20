@@ -1,4 +1,4 @@
-%%% Subtyping relations
+%%%%% Subtyping relations %%%%%
 
 <t : ty -> ty -> type.
 <dt : dirty -> dirty -> type.

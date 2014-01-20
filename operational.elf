@@ -1,7 +1,8 @@
-%%% Operational semantics
+%%%%% Operational semantics %%%%%
 
-% "get-op-case IO OCs OC" finds the first operation case "OC" in "OCs"
-% that matches the operation "IO", or gives the default handler if there are none.
+% In defining both small and big step semantics, we use "get-op-case IO OCs OC",
+% such that "OC" is the first operation casein "OCs" that matches the
+% operation "IO", or the default handler if there are none.
 
 get-op-case : operation Eff -> op-cases -> op-case -> type.
 
@@ -12,7 +13,7 @@ get-op-case/there : get-op-case IO (op-cases/cons (ins I') O' _ OCs) OC
                      <- get-op-case IO OCs OC.
 
 
-% The type of final results, which are either values or operation calls.
+% The type of final results
 
 result : type.
 
@@ -20,7 +21,8 @@ result/val : expr -> result.
 result/op  : operation Eff -> expr -> (expr -> comp) -> result.
 
 
-% The small step semantics relation.
+
+%%% Small step semantics %%%
 
 ~> : comp -> comp -> type.
 %infix none 40 ~>.
@@ -45,7 +47,7 @@ result/op  : operation Eff -> expr -> (expr -> comp) -> result.
                 <- C ~> C'.
 
 
-% Non-stuckness
+% To state the progress theorem, we need to define when a computation is not stuck
 
 non-stuck : comp -> dirt -> type.
 
@@ -68,7 +70,8 @@ non-stuck/step  : non-stuck C _
             <- C ~> C'.
 
 
-% The big step semantics relation
+
+%%% Big step semantics %%%
 
 => : comp -> result -> type.
 %infix none 40 =>.

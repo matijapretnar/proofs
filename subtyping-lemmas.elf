@@ -1,4 +1,4 @@
-% Reflexivity of subtyping
+%%% Reflexivity of subtyping %%%
 
 <t/refl : {A} A <t A -> type.
 <dt/refl : {B} B <dt B -> type.
@@ -34,7 +34,7 @@
 
 
 
-% Transitivity of subtyping
+%%% Transitivity of subtyping %%%
 
 % Because of contravariance, the termination checker complains, and the
 % easiest way to please it is by introducing two additional type families

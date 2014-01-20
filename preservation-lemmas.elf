@@ -1,3 +1,8 @@
+%%% Subcases of the preservation theorem %%%
+
+% Like in the proof of the progress theorem, there are a couple of cases
+% for which we need to perform further induction due to subtyping.
+
 preservation-pred : {D} eof Sig E nat -> pred E ~> C' -> cof Sig C' (nat ! D) -> type.
 %mode preservation-pred +D +E +S -C'.
 
@@ -24,6 +29,16 @@ preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> app E1 E2 ~> C -> cof
 %worlds () (preservation-app _ _ _ _).
 %total {E1} (preservation-app E1 _ _ _).
 
+
+
+%%% Preservation of handled operations %%%
+
+% The most technical part of the proof lies here. We know an operation is
+% handled by a handler either if one of the cases is guaranteed to match it,
+% or if it appears in the outgoing dirt. We analyze both cases and show that
+% types are preserved in both of them.
+
+% Preservation in case an operation is covered by some operation case
 
 preservation-handled-op : in-dirt (I # O) Dcov -> sig Sig O A1 A2
                            -> eof Sig Ep A1 -> eof Sig K (A2 --> B)
@@ -55,6 +70,8 @@ preservation-handled-op : in-dirt (I # O) Dcov -> sig Sig O A1 A2
 %total {OC} (preservation-handled-op _ _ _ _ OC _ _).
 
 
+% Preservation in case an operation appears in the outgoing dirt
+
 preservation-unhandled-op : in-dirt (I # O) D' -> sig Sig O A1 A2
                              -> eof Sig Ep A1 -> eof Sig K (A2 --> A' ! D')
                              -> get-op-case (I # O) OCs OC -> opcof Sig OCs (A' ! D') _
@@ -81,6 +98,8 @@ preservation-unhandled-op : in-dirt (I # O) D' -> sig Sig O A1 A2
 %worlds () (preservation-unhandled-op _ _ _ _ _ _ _).
 %total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
 
+
+% Preservation in any case
 
 preservation-with-op : in-dirt (I # O) D -> sig Sig O A1 A2
                         -> eof Sig Ep A1 -> eof Sig K (A2 --> A' ! D')

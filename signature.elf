@@ -1,4 +1,4 @@
-%%% Signatures
+%%%%% Signatures %%%%%
 
 % Since effects are all labelled with natural numbers,
 % a signature can be represented by a list of effect signatures, so that

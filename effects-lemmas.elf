@@ -1,4 +1,4 @@
-% Decidability of operations
+%%% Decidability of operations %%%
 
 decide-lemma : decidable-name Eff Eff' -> decidable-name I I' -> decidable-name O O' -> decidable (instance/ (effect/ Eff) I # opsym/ (effect/ Eff) O) (instance/ (effect/ Eff') I' # opsym/ (effect/ Eff') O') -> type.
 %mode decide-lemma +Eff?Eff' +I?I' +O?O' -IO?I'O'.
@@ -29,7 +29,7 @@ decide : {IO : operation Eff} {I'O' : operation Eff'} decidable IO I'O' -> type.
 
 
 
-% Regions
+%%% Regions %%%
 
 <r/rest : R <r R' -> {I'} R <r (region/cons I' R') -> type. 
 %mode <r/rest +R<R' +I' -R<I'R'.
@@ -81,7 +81,7 @@ in-region/<r : in-region I R -> R <r R' -> in-region I R' -> type.
 
 
 
-% Dirts
+%%% Dirt %%%
 
 <d/rest : D <d D' -> {I'O'} D <d (dirt/cons I'O' D') -> type. 
 %mode <d/rest +D<D' +I'O' -D<I'O'D'.
@@ -144,7 +144,7 @@ covers-rest : covers (dirt/cons _ D) D1 D2 -> covers D D1 D2 -> type.
 
 
 
-% Regions & dirts
+%%% Regions & dirt %%%
 
 in-region-in-dirt : in-region I R -> in-dirt-region R O D -> in-dirt (I # O) D -> type.
 %mode in-region-in-dirt +IinR +ROinD -IOinD.

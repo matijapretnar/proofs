@@ -1,8 +1,6 @@
-%%% Abstract syntax
+%%%%% Abstract syntax %%%%%
 
-% In addition to expressions "expr" and computations "comp", we introduce
-% an auxiliary third type "op-cases" that represents a list of
-% operation cases in handlers.
+%%% Terms %%%
 
 expr : type.
 comp : type.
@@ -12,6 +10,7 @@ op-cases : type.
 %name op-cases OCs.
 
 % Abbreviations for handler cases
+
 %abbrev val-case = expr -> comp.
 %abbrev op-case = expr -> expr -> comp.
 %name op-case OC.
@@ -42,15 +41,16 @@ with : expr -> comp -> comp.           % handling construct
 
 
 
-% Types are split into pure types "ty" and computation (dirty) types "dirty".
+%%% Types %%%
 
 ty : type.
 dirty : type.
 %name ty A.
 %name dirty B.
+
 % Usually, we write underlined "C" and "D" for computation types.
 % However, all variables in Twelf need to be capital letters,
-% so "C" is already taken by computations, and "D" is convenient for dirts,
+% so "C" is already taken by computations, and "D" is convenient for dirt,
 % thus we label dirty types by "B".
 
 bool  : ty.                   % the type of booleans

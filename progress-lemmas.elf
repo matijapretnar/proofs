@@ -1,3 +1,6 @@
+% If a computation is not stuck for some dirt, it remains non-stuck
+% if we increase the dirt.
+
 non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 %mode non-stuck/<d +NS +D<D' -NS'.
 
@@ -13,6 +16,11 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 
 
 
+%%% Effectiveness of "get-op-case" %%%
+
+% The main result here is "get-op-case-total", which says that for well-typed
+% operation cases OCs, "get-op-case IO OCs OC" always delivers an answer "OC"
+
 decide-op-case : decidable IO (I' # O') -> {OC} get-op-case IO OCs OC' -> get-op-case IO (op-cases/cons (ins I') O' OC OCs) OC'' -> type.
 %mode decide-op-case +Dec +OC +OC' -OC''.
 
@@ -22,8 +30,6 @@ decide-op-case : decidable IO (I' # O') -> {OC} get-op-case IO OCs OC' -> get-op
 %worlds () (decide-op-case _ _ _ _).
 %total {} (decide-op-case _ _ _ _).
 
-% A so-called effectivness lemma for "get-op-case", which says that "get-op-case"
-% always delivers an answer.
 
 get-op-case-total : {IO} opcof Sig OCs B D -> get-op-case IO OCs OC -> type.
 get-op-case-total/cons : {IO} eof Sig E (inst (R : region Eff'))
@@ -40,8 +46,8 @@ get-op-case-total/cons : {IO} eof Sig E (inst (R : region Eff'))
 
 
 - : get-op-case-total/cons _ (eof/ins _) _ _ OC' OC''
-     <- decide _ _ D
-     <- decide-op-case D _ OC' OC''.
+     <- decide _ _ Dec
+     <- decide-op-case Dec _ OC' OC''.
 
 - : get-op-case-total/cons IO (eof/sub E _) _ _ OC' OC''
      <- get-op-case-total/cons IO E _ _ OC' OC''.
@@ -51,7 +57,13 @@ get-op-case-total/cons : {IO} eof Sig E (inst (R : region Eff'))
 
 
 
-%%% Progress
+%%% Subcases of the progress theorem %%%
+
+% When proving progress, we first do induction on the structure of the term
+% being reduced, and then in most cases, due to subtyping, we need to do
+% a second induction on the typing derivation. In Twelf, we can do nested
+% induction only by first proving a separate lemma for each case, and
+% these lemmas follow below.
 
 progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> type.
 %mode progress-cond +D +E +C1 +C2 -NS.
@@ -161,5 +173,3 @@ progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (wi
 
 %worlds () (progress-with _ _ _).
 %total {E} (progress-with E _ _).
-
-

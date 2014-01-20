@@ -1,20 +1,30 @@
-%%% Typing judgements
+%%%%% Typing judgements %%%%%
 
-% We have three typing judgements that correspond to the three families of terms:
+% The three typing judgements that correspond to the three families of terms:
 % - "eof Sig E A" means that expression "E" has type "A" under signature "Sig"
 % - "cof Sig C B" states the same for computation "C" and dirty type "B"
 % - "opcof Sig OCs B D" states that operation cases "OCs" all have a return type "B"
 %   and cover operations from dirt "D"
+
 eof : signature -> expr -> ty -> type.
 cof : signature -> comp -> dirty -> type.
 opcof : signature -> op-cases -> dirty -> dirt -> type.
 
 % We have an additional judgement "var E A" to represent variables of type "A"
 % in a context. We could use "eof" instead of "var" in hypothetical judgements,
-% but the separation will later allow us to share variables between typing
+% but the latter presentation of contexts is closer to the formalization
+% in the paper, and also later allow us to relate variables between typing
 % and type inference judgements.
+
 var : expr -> ty -> type.
 
+% Block declaration to be used in theorems that hold for open typed terms.
+
+%block open : some {A : ty} block {x : expr}{_ : var x A}.
+
+
+
+%%% Expressions %%%
 
 eof/var : eof _ E A
            <- var E A.
@@ -31,24 +41,14 @@ eof/ins : eof _ (ins I) (inst R)
 eof/sub : eof Sig E A'
            <- A <t A'
            <- eof Sig E A.
-
-% Type-checking a handler is a bit more involved:
-
 eof/hnd : eof Sig (hnd Cv OCs) (A ! D ==> A' ! D')
            <- covers D Dcov D'
            <- opcof Sig OCs (A' ! D') Dcov
            <- ({x} var x A -> cof Sig (Cv x) (A' ! D')).
 
-% We need to check that:
-% - the value case takes values of type "A" into computations of type "A' ! D'"
-% - for each operation case "E # O OC" in "OCs":
-%   - "E" has an instance type
-%   - "O" is an operation symbol of the matching effect
-%   - the return type of "OC" is "A' ! D'",
-% - all operations in "Dcov" are guaranteed to be covered by one of the
-%   operation cases "OCs".
-% - all operations in "D" are guaranteed to be covered or already appear in "D'".
-%
+
+%%% Operation cases %%%
+
 % We can guarantee that an operation case matches a given operation only if
 % its instance expressions is a singleton.
 % To do so, we introduce "add-if-singleton D R O D'",
@@ -60,7 +60,6 @@ add-if-singleton/zero : add-if-singleton D region/empty _ D.
 add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons (I # O) D).
 add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
 
-
 opcof/nil  : opcof Sig op-cases/nil B dirt/empty.
 opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
               <- add-if-singleton D R O D'
@@ -69,6 +68,8 @@ opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
               <- sig Sig O A1 A2
               <- eof Sig E (inst R).
 
+
+%%% Computations %%%
 
 cof/cond : cof Sig (cond E C1 C2) B
             <- cof Sig C2 B
@@ -106,10 +107,3 @@ cof/with : cof Sig (with E C) B'
 cof/sub  : cof Sig C B'
             <- B <dt B'
             <- cof Sig C B.
-
-
-
-% Block declarations to be used in theorems that hold for terms with free variables.
-
-%block open : some {A : ty} block {x : expr}{_ : var x A}.
-

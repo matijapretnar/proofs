@@ -1,61 +1,6 @@
-% Eqivalence between small and big step semantics 
+%%%%% Equivalence between small and big step semantics %%%%%
 
-~>/=> : C ~> C' -> C' => R -> C => R -> type.
-~>/=>-let : C1 ~> C1' -> let C1' C2 => R -> let C1 C2 => R -> type.
-~>/=>-with : C2 ~> C2' -> with E C2' => R -> with E C2 => R -> type.
-%mode ~>/=> +C~>C' +C'=>R -C=>R.
-%mode ~>/=>-let +C1~C1' +C=>R -C'=>R.
-%mode ~>/=>-with +C2~C2' +C=>R -C'=>R.
-
-- : ~>/=> ~>/cond-tru C'=>R (=>/cond-tru C'=>R).
-
-- : ~>/=> ~>/cond-fls C'=>R (=>/cond-fls C'=>R).
-
-- : ~>/=> ~>/zro?-zro _ =>/zro?-zro.
-
-- : ~>/=> ~>/zro?-suc _ =>/zro?-suc.
-
-- : ~>/=> ~>/pred-zro _ =>/pred-zro.
-
-- : ~>/=> ~>/pred-suc _ =>/pred-suc.
-
-- : ~>/=> ~>/app C'=>R (=>/app C'=>R).
-
-- : ~>/=> ~>/let-val C'=>R (=>/let-val =>/val C'=>R).
-
-- : ~>/=> ~>/let-op _ (=>/let-op =>/op).
-
-- : ~>/=> (~>/let-step C1~>C1') C'=>R C=>R
-     <- ~>/=>-let C1~>C1' C'=>R C=>R.
-
-- : ~>/=> ~>/letr C'=>R (=>/letr C'=>R).
-
-- : ~>/=> ~>/letv C'=>R (=>/letv C'=>R).
-
-- : ~>/=> ~>/with-val C'=>R (=>/with-val =>/val C'=>R).
-
-- : ~>/=> (~>/with-op CO) C'=>R (=>/with-op =>/op CO C'=>R).
-
-- : ~>/=> (~>/with-step C1~>C1') C'=>R C=>R
-     <- ~>/=>-with C1~>C1' C'=>R C=>R.
-
-
-- : ~>/=>-let C1~>C1' (=>/let-val C1'=>E C2E=>R) (=>/let-val C1=>E C2E=>R)
-     <- ~>/=> C1~>C1' C1'=>E C1=>E.
-
-- : ~>/=>-let C1~>C1' (=>/let-op C1'=>Op) (=>/let-op C1=>Op)
-     <- ~>/=> C1~>C1' C1'=>Op C1=>Op.
-
-
-- : ~>/=>-with C1~>C1' (=>/with-val C1'=>E C2E=>R) (=>/with-val C1=>E C2E=>R)
-     <- ~>/=> C1~>C1' C1'=>E C1=>E.
-
-- : ~>/=>-with C1~>C1' (=>/with-op C1'=>Op OC OC=>R) (=>/with-op C1=>Op OC OC=>R)
-     <- ~>/=> C1~>C1' C1'=>Op C1=>Op.
-
-%worlds () (~>/=> _ _ _) (~>/=>-let _ _ _) (~>/=>-with _ _ _).
-%total {(C~>C' C1~>C1' C2~>C2') (C'=>R C1C2~>R EC~>R)} (~>/=> C~>C' C'=>R _) (~>/=>-let C1~>C1' C1C2~>R _) (~>/=>-with C2~>C2' EC~>R _).
-
+%%% First half of the equivalence %%%
 
 ~>*/=> : C ~>* R -> C => R -> type.
 %mode ~>*/=> +C~>*R -C=>R.
@@ -71,6 +16,9 @@
 %worlds () (~>*/=> _ _).
 %total {C~>*R} (~>*/=> C~>*R _).
 
+
+
+%%% Second half of the equivalence %%%
 
 =>/~>* : C => R -> C ~>* R -> type.
 %mode =>/~>* +C=>R -C~>*R.

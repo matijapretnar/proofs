@@ -1,4 +1,8 @@
-%%% Preservation
+%%%%% Preservation theorem %%%%%
+
+% To prove preservation, we need to simultaneously prove two other lemmas that
+% use preservation of the type computations in the evaluation context of either
+% let-binding or handling construct.
 
 preservation : cof Sig C A -> C ~> C' -> cof Sig C' A -> type.
 preservation-let : cof Sig C1 (A ! D) -> D <d D' -> ({x} var x A -> cof Sig (C2 x) (A' ! D')) -> let C1 C2 ~> C' -> cof Sig C' (A' ! D') -> type.
