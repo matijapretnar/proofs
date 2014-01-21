@@ -10,8 +10,16 @@ For an explanation of the basic concepts of core Eff, please refer to:
 [An Effect System for Algebraic Effects and Handlers](http://arxiv.org/abs/1306.6316)
 as the comments in the code serve only to highlight implementation details.
 
-The formalization is written in [Twelf](http://www.twelf.org/).
-To run it, just do the usual thing you do in Twelf.
+## Running the code
+
+The formalization is written in [Twelf](http://www.twelf.org/). To install it,
+please see the [official instructions](http://www.twelf.org/wiki/Download).
+
+The simplest way to run the code is to open any `.elf` file in Emacs,
+and load the configuration by entering `Ctrl-C Ctrl-C` and confirming
+the default locations (unless you moved them to a different location).
+
+Alternatively, you can run `twelf-server` in the main directory, and type `make`.
 
 ## The structure of the files
 
@@ -24,10 +32,10 @@ To run it, just do the usual thing you do in Twelf.
 * `syntax.elf`: abstract syntax
 
 ### Static semantics
-* `signature.elf`: definitions of signatures (ones assigning types to operation symbols)
+* `signature.elf`: definitions of effect signatures and signatures
 * `subtyping.elf`: definition of the subtyping relation
 * `subtyping-lemmas.elf`: reflexivity and transitivity of subtyping
-* `typing.elf`: definition of typing judgements
+* `typing.elf`: definition of typing judgments
 * `typing-lemmas.elf`: various typing lemmas, mainly substitution lemma
 
 ### Dynamic semantics
