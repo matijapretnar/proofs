@@ -25,7 +25,9 @@ apart-not-refl : {IO} {D} apart-name X X -> in-dirt IO D -> type.
 %total {X!X} (apart-not-refl _ _ X!X _).
 
 
-unequal-instance-in-rest : in-region I' (region/cons J region/empty) -> in-dirt IO D' -> add-if-singleton D (region/cons J region/empty) O' D' -> apart IO (I' # O') -> in-dirt IO D -> type.
+unequal-instance-in-rest : in-region I' (region/cons J region/empty) -> in-dirt IO D'
+                            -> add-if-singleton D (region/cons J region/empty) O' D'
+                            -> apart IO (I' # O') -> in-dirt IO D -> type.
 %mode unequal-instance-in-rest +I'inR +IOinD' +D+I'O'=D' +IO!I'O' -IOinD.
 
 - : unequal-instance-in-rest in-region/here (in-dirt/there IOinD) _ _ IOinD.
@@ -47,9 +49,10 @@ unequal-instance-in-rest : in-region I' (region/cons J region/empty) -> in-dirt 
 % we cannot use Twelf substitution, but need to prove an explicit substitution lemma.
 % To make the proof go through, we need to add an additional subtyping assumption.
 
-subst-eof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> eof Sig E A) -> eof Sig E A -> type.
-subst-cof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> cof Sig C B) -> cof Sig C B -> type.
-subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov) -> opcof Sig OCs B Dcov -> type.
+subst-eof   : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> eof Sig E A) -> eof Sig E A -> type.
+subst-cof   : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> cof Sig C B) -> cof Sig C B -> type.
+subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov)
+               -> opcof Sig OCs B Dcov -> type.
 %mode subst-eof +X +A1<A2 +E -E'.
 %mode subst-cof +X +A1<A2 +C -C'.
 %mode subst-opcof +X +A1<A2 +OCs -OCs'.
@@ -103,7 +106,8 @@ subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov) -
 - : subst-cof X A1<A2 ([x] cof/val (E x)) (cof/val E')
      <- subst-eof X A1<A2 E E'.
 
-- : subst-cof X A1<A2 ([x] cof/op (Ei x) O (Ep x) ([y] [dy] K x y dy) ROinD) (cof/op Ei' O Ep' K' ROinD)
+- : subst-cof X A1<A2 ([x] cof/op (Ei x) O (Ep x) ([y] [dy] K x y dy) ROinD)
+     (cof/op Ei' O Ep' K' ROinD)
      <- subst-eof X A1<A2 Ei Ei'
      <- subst-eof X A1<A2 Ep Ep'
      <- {y} {dy} subst-cof X A1<A2 ([x] K x y dy) (K' y dy).
@@ -112,7 +116,9 @@ subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov) -
      <- subst-cof X A1<A2 C1 C1'
      <- {y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy).
 
-- : subst-cof X A1<A2 ([x] cof/letr ([f : expr] [df : var f _] [y] [dy] C1 x f df y dy) ([f] [df] C2 x f df)) (cof/letr C1' C2')
+- : subst-cof X A1<A2
+     ([x] cof/letr ([f : expr] [df : var f _] [y] [dy] C1 x f df y dy) ([f] [df] C2 x f df))
+     (cof/letr C1' C2')
      <- ({y} {dy} {f : expr} {df : var f _} subst-cof X A1<A2 ([x] C1 x y dy f df) (C1' y dy f df))
      <- ({y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy)).
 
@@ -130,7 +136,8 @@ subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov) -
 
 - : subst-opcof _ _ ([x] opcof/nil) opcof/nil.
 
-- : subst-opcof X A1<A2 ([x] opcof/cons (E x) O ([y] [dy] [k] [dk] K x y dy k dk) (OCs x) Add) (opcof/cons E' O K' OCs' Add)
+- : subst-opcof X A1<A2 ([x] opcof/cons (E x) O ([y] [dy] [k] [dk] K x y dy k dk) (OCs x) Add)
+     (opcof/cons E' O K' OCs' Add)
      <- subst-eof X A1<A2 E E'
      <- ({y} {dy} {k} {dk} subst-cof X A1<A2 ([x] K x y dy k dk) (K' y dy k dk))
      <- subst-opcof X A1<A2 OCs OCs'.
@@ -152,7 +159,8 @@ subst : ({x} var x A -> cof Sig (C x) B) -> eof Sig E A -> cof Sig (C E) B -> ty
 %total {} (subst _ _ _).
 
 
-subst2 : ({x1} var x1 A1 -> {x2} var x2 A2 -> cof Sig (C x1 x2) B) -> eof Sig E1 A1 -> eof Sig E2 A2 -> cof Sig (C E1 E2) B -> type.
+subst2 : ({x1} var x1 A1 -> {x2} var x2 A2 -> cof Sig (C x1 x2) B)
+          -> eof Sig E1 A1 -> eof Sig E2 A2 -> cof Sig (C E1 E2) B -> type.
 %mode subst2 +C +X1 +X2 -C'.
 
 - : subst2 C (X1 : eof Sig E1 A1) (X2 : eof Sig E2 A2) C''

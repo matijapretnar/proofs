@@ -21,7 +21,8 @@ non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
 % The main result here is "get-op-case-total", which says that for well-typed
 % operation cases OCs, "get-op-case IO OCs OC" always delivers an answer "OC"
 
-decide-op-case : comparable IO (I' # O') -> {OC} get-op-case IO OCs OC' -> get-op-case IO (op-cases/cons (ins I') O' OC OCs) OC'' -> type.
+decide-op-case : comparable IO (I' # O') -> {OC} get-op-case IO OCs OC'
+                  -> get-op-case IO (op-cases/cons (ins I') O' OC OCs) OC'' -> type.
 %mode decide-op-case +Dec +OC +OC' -OC''.
 
 - : decide-op-case comparable/equal _ _ get-op-case/here.
@@ -129,7 +130,8 @@ progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 %total {E1} (progress-app _ E1 _ _).
 
 
-progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt-region R O D -> non-stuck (op Ei O Ep K) D -> type.
+progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt-region R O D
+               -> non-stuck (op Ei O Ep K) D -> type.
 %mode progress-op +Ei +Ep +K +ROinD -NS.
 
 - : progress-op (eof/ins IinR) _ _ ROinD (non-stuck/op IOinD)

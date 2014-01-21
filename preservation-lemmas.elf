@@ -81,7 +81,8 @@ preservation-unhandled-op : in-dirt (I # O) D' -> sig Sig O A1 A2
 - : preservation-unhandled-op IOinD' O Ep K
      get-op-case/nil
      opcof/nil
-     (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K (eof/var x)) (in-dirt-region/cons IOinD' in-dirt-region/empty)).
+     (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K (eof/var x))
+      (in-dirt-region/cons IOinD' in-dirt-region/empty)).
 
 - : preservation-unhandled-op _ _ Ep K
      get-op-case/here

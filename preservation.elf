@@ -4,9 +4,11 @@
 % use preservation of the type computations in the evaluation context of either
 % let-binding or handling construct.
 
-preservation : cof Sig C A -> C ~> C' -> cof Sig C' A -> type.
-preservation-let : cof Sig C1 (A ! D) -> D <d D' -> ({x} var x A -> cof Sig (C2 x) (A' ! D')) -> let C1 C2 ~> C' -> cof Sig C' (A' ! D') -> type.
-preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with E C ~> C' -> cof Sig C' B2 -> type.
+preservation      : cof Sig C A -> C ~> C' -> cof Sig C' A -> type.
+preservation-let  : cof Sig C1 (A ! D) -> D <d D' -> ({x} var x A -> cof Sig (C2 x) (A' ! D'))
+                     -> let C1 C2 ~> C' -> cof Sig C' (A' ! D') -> type.
+preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
+                     -> with E C ~> C' -> cof Sig C' B2 -> type.
 %mode preservation +C +S -C'.
 %mode preservation-let +C1 +D<D' +C2 +S -C'.
 %mode preservation-with +C +B1<B1' +E +S -C'.
@@ -50,7 +52,8 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
 - : preservation-let (cof/val E) _ C2 ~>/let-val C'
      <- subst C2 E C'.
 
-- : preservation-let (cof/op Ei O Ep K ROinD) D<D' C2 ~>/let-op (cof/op Ei O Ep ([_] [y] (cof/let (cof/sub (K _ y) (<dt/! A<A D<D')) C2)) ROinD')
+- : preservation-let (cof/op Ei O Ep K ROinD) D<D' C2 ~>/let-op
+     (cof/op Ei O Ep ([_] [y] (cof/let (cof/sub (K _ y) (<dt/! A<A D<D')) C2)) ROinD')
      <- in-dirt-region/<d ROinD D<D' ROinD'
      <- <t/refl A A<A.
 
@@ -74,7 +77,9 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2) -> with
      <- instance-expr-in-region Ei IinR
      <- in-dirt-region/<d ROinD D<D' ROinD'
      <- in-region-in-dirt IinR ROinD' IOinD'
-     <- preservation-with-op IOinD' O Ep (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (cof/sub (K x e) (<dt/! A<A' D<D'))) OC OCs Cov C'.
+     <- preservation-with-op IOinD' O Ep
+         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (cof/sub (K x e) (<dt/! A<A' D<D')))
+         OC OCs Cov C'.
 
 - : preservation-with C B1<B1' E (~>/with-step S) (cof/with E C')
      <- preservation (cof/sub C B1<B1') S C'.
