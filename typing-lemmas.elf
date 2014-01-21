@@ -45,7 +45,7 @@ unequal-instance-in-rest : in-region I' (region/cons J region/empty) -> in-dirt 
 
 %%% Substitution lemma %%%
 
-% Because we represent variable judgements by "var" instead of "eof",
+% Because we represent variable judgments by "var" instead of "eof",
 % we cannot use Twelf substitution, but need to prove an explicit substitution lemma.
 % To make the proof go through, we need to add an additional subtyping assumption.
 

@@ -1,6 +1,6 @@
-%%%%% Typing judgements %%%%%
+%%%%% Typing judgments %%%%%
 
-% The three typing judgements that correspond to the three families of terms:
+% The three typing judgments that correspond to the three families of terms:
 % - "eof Sig E A" means that expression "E" has type "A" under signature "Sig"
 % - "cof Sig C B" states the same for computation "C" and dirty type "B"
 % - "opcof Sig OCs B D" states that operation cases "OCs" all have a return type "B"
@@ -10,11 +10,11 @@ eof : signature -> expr -> ty -> type.
 cof : signature -> comp -> dirty -> type.
 opcof : signature -> op-cases -> dirty -> dirt -> type.
 
-% We have an additional judgement "var E A" to represent variables of type "A"
-% in a context. We could use "eof" instead of "var" in hypothetical judgements,
+% We have an additional judgment "var E A" to represent variables of type "A"
+% in a context. We could use "eof" instead of "var" in hypothetical judgments,
 % but the latter presentation of contexts is closer to the formalization
 % in the paper, and also later allow us to relate variables between typing
-% and type inference judgements.
+% and type inference judgments.
 
 var : expr -> ty -> type.
 
