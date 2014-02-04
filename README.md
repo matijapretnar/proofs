@@ -31,17 +31,17 @@ Alternatively, you can run `twelf-server` in the main directory, and type `make`
 * `effects-lemmas.elf`: various lemmas about the above definitions
 * `syntax.elf`: abstract syntax
 
+### Dynamic semantics
+* `operational.elf`: definition of small step and big step operational semantics
+* `small-big-lemmas.elf`: lemmas used in `small-big.elf`
+* `small-big.elf`: equivalence between small and big step semantics
+
 ### Static semantics
 * `signature.elf`: definitions of effect signatures and signatures
 * `subtyping.elf`: definition of the subtyping relation
 * `subtyping-lemmas.elf`: reflexivity and transitivity of subtyping
 * `typing.elf`: definition of typing judgments
 * `typing-lemmas.elf`: various typing lemmas, mainly substitution lemma
-
-### Dynamic semantics
-* `operational.elf`: definition of small step and big step operational semantics
-* `small-big-lemmas.elf`: lemmas used in `small-big.elf`
-* `small-big.elf`: equivalence between small and big step semantics
 
 ### Safety theorems
 * `progress-lemmas.elf`: lemmas used in `progress.elf`
