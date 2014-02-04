@@ -80,32 +80,18 @@ progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> ty
 %total {E} (progress-cond _ E _ _ _).
 
 
-progress-zro? : {D} eof Sig E nat -> non-stuck (zro? E) D -> type.
-%mode progress-zro? +D +E -NS.
+progress-mtch : {D} eof Sig E nat -> {C1} {C2} non-stuck (mtch E C1 C2) D -> type.
+%mode progress-mtch +D +E +C1 +C2 -NS.
 
-- : progress-zro? D eof/zro (non-stuck/step ~>/zro?-zro).
+- : progress-mtch _ eof/zro _ _ (non-stuck/step ~>/mtch-zro).
 
-- : progress-zro? D (eof/suc _) (non-stuck/step ~>/zro?-suc).
+- : progress-mtch _ (eof/suc _) _ _ (non-stuck/step ~>/mtch-suc).
 
-- : progress-zro? D (eof/sub E _) NS
-     <- progress-zro? D E NS.
+- : progress-mtch D (eof/sub E _) _ _ NS
+     <- progress-mtch D E _ _ NS.
 
-%worlds () (progress-zro? _ _ _).
-%total {E} (progress-zro? _ E _).
-
-
-progress-pred : {D} eof Sig E nat -> non-stuck (pred E) D -> type.
-%mode progress-pred +D +E -NS.
-
-- : progress-pred D eof/zro (non-stuck/step ~>/pred-zro).
-
-- : progress-pred D (eof/suc _) (non-stuck/step ~>/pred-suc).
-
-- : progress-pred D (eof/sub E _) NS
-     <- progress-pred D E NS.
-
-%worlds () (progress-pred _ _ _).
-%total {E} (progress-pred _ E _).
+%worlds () (progress-mtch _ _ _ _ _).
+%total {E} (progress-mtch _ E _ _ _).
 
 
 progress-absd : {D} eof Sig E empty -> non-stuck (absd E) D -> type.

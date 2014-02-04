@@ -75,9 +75,9 @@ cof/cond : cof Sig (cond E C1 C2) B
             <- cof Sig C2 B
             <- cof Sig C1 B
             <- eof Sig E bool.
-cof/zro? : cof Sig (zro? E) (bool ! D)
-            <- eof Sig E nat.
-cof/pred : cof Sig (pred E) (nat ! D)
+cof/mtch : cof Sig (mtch E C1 C2) B
+            <- ({x} var x nat -> cof Sig (C2 x) B)
+            <- cof Sig C1 B
             <- eof Sig E nat.
 cof/absd : cof Sig (absd E) B
             <- eof Sig E empty.

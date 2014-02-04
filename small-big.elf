@@ -29,13 +29,11 @@
 - : =>/~>* (=>/cond-fls C=>R) (~>*/step ~>/cond-fls C~>*R)
      <- =>/~>* C=>R C~>*R.
 
-- : =>/~>* =>/zro?-zro (~>*/step ~>/zro?-zro ~>*/val).
+- : =>/~>* (=>/mtch-zro C=>R) (~>*/step ~>/mtch-zro C~>*R)
+     <- =>/~>* C=>R C~>*R.
 
-- : =>/~>* =>/zro?-suc (~>*/step ~>/zro?-suc ~>*/val).
-
-- : =>/~>* =>/pred-zro (~>*/step ~>/pred-zro ~>*/val).
-
-- : =>/~>* =>/pred-suc (~>*/step ~>/pred-suc ~>*/val).
+- : =>/~>* (=>/mtch-suc C=>R) (~>*/step ~>/mtch-suc C~>*R)
+     <- =>/~>* C=>R C~>*R.
 
 - : =>/~>* (=>/app C=>R) (~>*/step ~>/app C~>*R)
      <- =>/~>* C=>R C~>*R.

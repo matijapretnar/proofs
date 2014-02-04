@@ -90,11 +90,10 @@ subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov)
      <- subst-cof X A1<A2 C1 C1'
      <- subst-cof X A1<A2 C2 C2'.
 
-- : subst-cof X A1<A2 ([x] cof/zro? (E x)) (cof/zro? E')
-     <- subst-eof X A1<A2 E E'.
-
-- : subst-cof X A1<A2 ([x] cof/pred (E x)) (cof/pred E')
-     <- subst-eof X A1<A2 E E'.
+- : subst-cof X A1<A2 ([x] cof/mtch (E x) (C1 x) ([y] [dy] C2 x y dy)) (cof/mtch E' C1' C2')
+     <- subst-eof X A1<A2 E E'
+     <- subst-cof X A1<A2 C1 C1'
+     <- {y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy).
 
 - : subst-cof X A1<A2 ([x] cof/absd (E x)) (cof/absd E')
      <- subst-eof X A1<A2 E E'.

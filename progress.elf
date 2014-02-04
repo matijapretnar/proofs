@@ -6,11 +6,8 @@ progress : cof Sig C (_ ! D) -> non-stuck C D -> type.
 - : progress (cof/cond E _ _) NS
      <- progress-cond _ E _ _ NS.
 
-- : progress (cof/zro? E) NS
-     <- progress-zro? _ E NS.
-
-- : progress (cof/pred E) NS
-     <- progress-pred _ E NS.
+- : progress (cof/mtch E _ _) NS
+     <- progress-mtch _ E _ _ NS.
 
 - : progress (cof/absd E) NS
      <- progress-absd _ E NS.

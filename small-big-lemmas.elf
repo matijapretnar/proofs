@@ -11,13 +11,9 @@
 
 - : ~>/=> ~>/cond-fls C'=>R (=>/cond-fls C'=>R).
 
-- : ~>/=> ~>/zro?-zro _ =>/zro?-zro.
+- : ~>/=> ~>/mtch-zro C'=>R (=>/mtch-zro C'=>R).
 
-- : ~>/=> ~>/zro?-suc _ =>/zro?-suc.
-
-- : ~>/=> ~>/pred-zro _ =>/pred-zro.
-
-- : ~>/=> ~>/pred-suc _ =>/pred-suc.
+- : ~>/=> ~>/mtch-suc C'=>R (=>/mtch-suc C'=>R).
 
 - : ~>/=> ~>/app C'=>R (=>/app C'=>R).
 

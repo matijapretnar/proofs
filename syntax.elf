@@ -28,8 +28,7 @@ op-cases/nil  : op-cases.
 op-cases/cons : expr -> opsym Eff -> op-case -> op-cases -> op-cases.
 
 cond : expr -> comp -> comp -> comp.   % conditional statement
-zro? : expr -> comp.                   % zero test
-pred : expr -> comp.                   % predecessor
+mtch : expr -> comp -> (expr -> comp) -> comp. % natural number matching
 absd : expr -> comp.                   % eliminator for empty type
 app  : expr -> expr -> comp.           % application
 val  : expr -> comp.                   % injection of values into computations

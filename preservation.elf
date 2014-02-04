@@ -17,12 +17,8 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
 
 - : preservation (cof/cond _ _ C2) ~>/cond-fls C2.
 
-- : preservation (cof/zro? _) ~>/zro?-zro (cof/val eof/tru).
-
-- : preservation (cof/zro? _) ~>/zro?-suc (cof/val eof/fls).
-
-- : preservation (cof/pred E) S C'
-     <- preservation-pred _ E S C'.
+- : preservation (cof/mtch E C1 C2) S C'
+     <- preservation-mtch E C1 C2 S C'.
 
 - : preservation (cof/app E1 E2) S C'
      <- preservation-app E1 E2 S C'.

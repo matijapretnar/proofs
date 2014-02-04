@@ -3,18 +3,21 @@
 % Like in the proof of the progress theorem, there are a couple of cases
 % for which we need to perform further induction due to subtyping.
 
-preservation-pred : {D} eof Sig E nat -> pred E ~> C' -> cof Sig C' (nat ! D) -> type.
-%mode preservation-pred +D +E +S -C'.
+preservation-mtch : eof Sig E nat -> cof Sig C1 B
+                     -> ({x} var x nat -> cof Sig (C2 x) B)
+                     -> mtch E C1 C2 ~> C -> cof Sig C B -> type.
+%mode preservation-mtch +E +C1 +C2 +S -C'.
 
-- : preservation-pred _ eof/zro ~>/pred-zro (cof/val eof/zro).
+- : preservation-mtch eof/zro C1 _ ~>/mtch-zro C1.
 
-- : preservation-pred _ (eof/suc E) ~>/pred-suc (cof/val E).
+- : preservation-mtch (eof/suc E) _ C2 ~>/mtch-suc C2'
+     <- subst C2 E C2'.
 
-- : preservation-pred D (eof/sub E _) S C'
-     <- preservation-pred D E S C'.
+- : preservation-mtch (eof/sub E _) C1 C2 S C'
+     <- preservation-mtch E C1 C2 S C'.
 
-%worlds () (preservation-pred _ _ _ _).
-%total {E} (preservation-pred _ E _ _).
+%worlds () (preservation-mtch _ _ _ _ _).
+%total {E} (preservation-mtch E _ _ _ _).
 
 
 preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> app E1 E2 ~> C -> cof Sig C B -> type.
