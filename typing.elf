@@ -56,9 +56,8 @@ eof/hnd : eof Sig (hnd Cv OCs) (A ! D ==> A' ! D')
  
 add-if-singleton : dirt -> region Eff -> opsym Eff -> dirt -> type.
 
-add-if-singleton/zero : add-if-singleton D region/empty _ D.
-add-if-singleton/one  : add-if-singleton D (region/cons I region/empty) O (dirt/cons (I # O) D).
-add-if-singleton/more : add-if-singleton D (region/cons _ (region/cons _ _)) _ D.
+add-if-singleton/singleton  : add-if-singleton D (region/singleton I) O (dirt/cons (I # O) D).
+add-if-singleton/all        : add-if-singleton D _ _ D.
 
 opcof/nil  : opcof Sig op-cases/nil B dirt/empty.
 opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'

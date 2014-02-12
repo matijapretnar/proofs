@@ -63,10 +63,10 @@ preservation-handled-op : in-dirt (I # O) Dcov -> sig Sig O A1 A2
 
 - : preservation-handled-op IOinDcov O Ep K
      (get-op-case/there OC A)
-     (opcof/cons R _ _ OCs Add)
+     (opcof/cons R _ _ OCs add-if-singleton/singleton)
      C'
      <- instance-expr-in-region R IinR
-     <- unequal-instance-in-rest IinR IOinDcov Add A IOinDcov'
+     <- unequal-instance-in-rest IinR IOinDcov add-if-singleton/singleton A IOinDcov'
      <- preservation-handled-op IOinDcov' O Ep K OC OCs C'.
 
 %worlds () (preservation-handled-op _ _ _ _ _ _ _).
@@ -84,8 +84,8 @@ preservation-unhandled-op : in-dirt (I # O) D' -> sig Sig O A1 A2
 - : preservation-unhandled-op IOinD' O Ep K
      get-op-case/nil
      opcof/nil
-     (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K (eof/var x))
-      (in-dirt-region/cons IOinD' in-dirt-region/empty)).
+     (cof/op (eof/ins in-region/singleton) O Ep ([_] [x] cof/app K (eof/var x))
+      (in-dirt-region/singleton IOinD')).
 
 - : preservation-unhandled-op _ _ Ep K
      get-op-case/here
