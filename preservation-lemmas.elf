@@ -66,7 +66,7 @@ preservation-handled-op : in-dirt (I # O) Dcov -> sig Sig O A1 A2
      (opcof/cons R _ _ OCs add-if-singleton/take)
      C'
      <- instance-expr-in-region R IinR
-     <- unequal-instance-in-rest IinR IOinDcov add-if-singleton/take A IOinDcov'
+     <- unequal-instance-in-rest IinR IOinDcov A IOinDcov'
      <- preservation-handled-op IOinDcov' O Ep K OC OCs C'.
 
 %worlds () (preservation-handled-op _ _ _ _ _ _ _).
