@@ -102,3 +102,46 @@ non-stuck/step  : non-stuck C _
                <- OC E (fun ([y] with (hnd Cv OCs) (K y))) => R
                <- get-op-case IO OCs OC
                <- C => result/op IO E K.
+
+
+%%% Handler-stack semantics %%%
+
+handler-stack : type.
+
+handler-stack/nil  : handler-stack.
+handler-stack/cons : val-case -> op-cases -> handler-stack -> handler-stack.
+
+
+nest : handler-stack -> comp -> comp -> type.
+
+nest/nil  : nest handler-stack/nil C C.
+nest/cons : nest (handler-stack/cons Cv OCs Hs) C C'
+             <- nest Hs (with (hnd Cv OCs) C) C'.
+
+
+stack-eval : handler-stack -> comp -> expr -> type.
+
+stack-eval/cond-tru : stack-eval Hs (cond tru C1 _) E
+                       <- stack-eval Hs C1 E.
+stack-eval/cond-fls : stack-eval Hs (cond fls _ C2) E
+                       <- stack-eval Hs C2 E.
+stack-eval/mtch-zro : stack-eval Hs (mtch zro C1 _) E
+                       <- stack-eval Hs C1 E.
+stack-eval/mtch-suc : stack-eval Hs (mtch (suc E) _ C2) E'
+                       <- stack-eval Hs (C2 E) E'.
+stack-eval/app      : stack-eval Hs (app (fun E1) E2) E
+                       <- stack-eval Hs (E1 E2) E.
+stack-eval/val-nil  : stack-eval handler-stack/nil (val E) E.
+stack-eval/val-cons : stack-eval (handler-stack/cons Cv _ Hs) (val E) E'
+                       <- stack-eval Hs (Cv E) E'.
+stack-eval/op-cons  : stack-eval (handler-stack/cons _ OCs Hs) (op (ins I) O E K) E'
+                       <- get-op-case (I # O) OCs OC
+                       <- stack-eval Hs (OC E (fun ([y] with (hnd Cv OCs) (K y)))) E'.
+stack-eval/let      : stack-eval Hs (let C1 C2) E
+                       <- stack-eval (handler-stack/cons C2 op-cases/nil Hs) C1 E.
+stack-eval/letr     : stack-eval Hs (letr C1 C2) E
+                       <- stack-eval Hs (C2 (fun ([x] letr C1 ([f] C1 f x)))) E.
+stack-eval/letv     : stack-eval Hs (letv E C) E'
+                       <- stack-eval Hs (C E) E'.
+stack-eval/with     : stack-eval Hs (with (hnd Cv OCs) C) E
+                       <- stack-eval (handler-stack/cons Cv OCs Hs) C E.
