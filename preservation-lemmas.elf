@@ -49,18 +49,24 @@ preservation-handled-op : in-dirt (I # O) Dcov -> sig Sig O A1 A2
                            -> cof Sig (OC Ep K) B -> type.
 %mode preservation-handled-op +IOinDcov +O +Ep +K +OC +OCs -C'.
 
+% When the first case matches.
 - : preservation-handled-op _ _ Ep K
      get-op-case/here
      (opcof/cons _ _ OC _ _)
      OC'
      <- subst2 OC Ep K OC'.
 
+% When the first case does not match and does not have a singleton region.
+% In this case, the covered dirt remains the same, so we continue as before.
 - : preservation-handled-op IOinDcov O Ep K
      (get-op-case/there OC _)
      (opcof/cons _ _ _ OCs _)
      C'
      <- preservation-handled-op IOinDcov O Ep K OC OCs C'.
 
+% When the first case does not match but has a singleton region, the covered
+% dirt changes. However, since the case did not match, the handled operation
+% must be in the remainder of the covered dirt, so we continue as before.
 - : preservation-handled-op IOinDcov O Ep K
      (get-op-case/there OC A)
      (opcof/cons R _ _ OCs add-if-singleton/take)
@@ -81,23 +87,28 @@ preservation-unhandled-op : in-dirt (I # O) D' -> sig Sig O A1 A2
                              -> cof Sig (OC Ep K) (A' ! D') -> type.
 %mode preservation-unhandled-op +IOinD' +O +Ep +K +OC +OCs -C'.
 
-- : preservation-unhandled-op IOinD' O Ep K
-     get-op-case/nil
-     opcof/nil
-     (cof/op (eof/ins in-region/singleton) O Ep ([_] [x] cof/app K (eof/var x))
-      (in-dirt-region/singleton IOinD')).
-
+% When the first case matches.
 - : preservation-unhandled-op _ _ Ep K
      get-op-case/here
      (opcof/cons _ _ OC _ _)
      OC'
      <- subst2 OC Ep K OC'.
 
+% When the first case does not match, but there are more cases,
+% we continue as before.
 - : preservation-unhandled-op IOinD' O Ep K
      (get-op-case/there OC _)
      (opcof/cons _ _ _ OCs _)
      C'
      <- preservation-unhandled-op IOinD' O Ep K OC OCs C'.
+
+% When there are no more cases, we propagate the operation call.
+- : preservation-unhandled-op IOinD' O Ep K
+     get-op-case/nil
+     opcof/nil
+     (cof/op (eof/ins in-region/singleton) O Ep ([_] [x] cof/app K (eof/var x))
+      (in-dirt-region/singleton IOinD')).
+
 
 %worlds () (preservation-unhandled-op _ _ _ _ _ _ _).
 %total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
