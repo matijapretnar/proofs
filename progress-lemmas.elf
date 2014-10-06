@@ -15,6 +15,19 @@ non-stuck/<d : non-stuck Sig C D -> D <d D' -> non-stuck Sig C D' -> type.
 %total {NS} (non-stuck/<d NS _ _).
 
 
+% If an operation call is well-typed, the operation appears in the signature.
+
+cof-op/sig : cof Sig (op _ O _ _) _ -> sig Sig O _ _ -> type.
+%mode cof-op/sig +C -O.
+
+- : cof-op/sig (cof/op _ O _ _ _) O.
+
+- : cof-op/sig (cof/sub C _) O
+     <- cof-op/sig C O.
+
+%worlds () (cof-op/sig _ _).
+%total {C} (cof-op/sig C _).
+
 
 %%% Effectiveness of "get-op-case" %%%
 
@@ -144,21 +157,21 @@ progress-let : non-stuck Sig C1 D -> {C2} non-stuck Sig (let C1 C2) D -> type.
 %total {NS1} (progress-let NS1 _ _).
 
 
-progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> non-stuck Sig C D1 -> non-stuck Sig (with E C) D2 -> type.
-%mode progress-with +E +NS1 -NS2.
+progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C D1 -> non-stuck Sig (with E C) D2 -> type.
+%mode progress-with +E +C +NS1 -NS2.
 
-- : progress-with (eof/hnd _ _ _) non-stuck/val (non-stuck/step step/with-val).
+- : progress-with (eof/hnd _ _ _) _ non-stuck/val (non-stuck/step step/with-val).
 
-% Need to ensure that the called operation appears in the signature
-% - : progress-with (eof/hnd _ OCs _) (non-stuck/op _) (non-stuck/step (step/with-op OC))
-%      <- get-op-case-total _ OCs OC.
+- : progress-with (eof/hnd _ OCs _) C (non-stuck/op _) (non-stuck/step (step/with-op OC O))
+     <- cof-op/sig C O
+     <- get-op-case-total _ OCs OC.
 
-- : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (step/with-step S)).
+- : progress-with (eof/hnd _ _ _) _ (non-stuck/step S) (non-stuck/step (step/with-step S)).
 
-- : progress-with (eof/sub E (<t/==> (<dt/! _ D1<D1') (<dt/! _ D2'<D2))) NS1 NS2
+- : progress-with (eof/sub E (<t/==> (<dt/! _ D1<D1') (<dt/! _ D2'<D2))) C NS1 NS2
      <- non-stuck/<d NS1 D1<D1' NS1'
-     <- progress-with E NS1' NS2'
+     <- progress-with E C NS1' NS2'
      <- non-stuck/<d NS2' D2'<D2 NS2.
 
-%worlds () (progress-with _ _ _).
-%trustme %total {E} (progress-with E _ _).
+%worlds () (progress-with _ _ _ _).
+%trustme %total {E} (progress-with E _ _ _).

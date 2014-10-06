@@ -30,7 +30,7 @@ progress : cof Sig C (_ ! D) -> non-stuck Sig C D -> type.
 
 - : progress (cof/with E C) NS'
      <- progress C NS
-     <- progress-with E NS NS'.
+     <- progress-with E C NS NS'.
 
 - : progress (cof/sub C (<dt/! _ D<D')) NS'
      <- progress C NS
