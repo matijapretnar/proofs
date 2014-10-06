@@ -1,45 +1,5 @@
 %%%%% Abstract syntax %%%%%
 
-%%% Terms %%%
-
-expr : type.
-comp : type.
-op-cases : type.
-%name comp C.
-%name expr E.
-%name op-cases OCs.
-
-% Abbreviations for handler cases
-
-%abbrev val-case = expr -> comp.
-%abbrev op-case = expr -> expr -> comp.
-%name op-case OC.
-
-tru : expr.                            % true
-fls : expr.                            % false
-zro : expr.                            % zero
-suc : expr -> expr.                    % successor
-unt : expr.                            % unit
-fun : (expr -> comp) -> expr.          % function
-ins : instance Eff -> expr.            % instance
-hnd : val-case -> op-cases -> expr.    % handler
-
-op-cases/nil  : op-cases.
-op-cases/cons : expr -> opsym Eff -> op-case -> op-cases -> op-cases.
-
-cond : expr -> comp -> comp -> comp.   % conditional statement
-mtch : expr -> comp -> (expr -> comp) -> comp. % natural number matching
-absd : expr -> comp.                   % eliminator for empty type
-app  : expr -> expr -> comp.           % application
-val  : expr -> comp.                   % injection of values into computations
-op   : expr -> opsym Eff -> expr -> (expr -> comp) -> comp. % operation call
-let  : comp -> (expr -> comp) -> comp. % let-binding
-letv : expr -> (expr -> comp) -> comp. % polymorphic binding of values
-letr : (expr -> expr -> comp) -> (expr -> comp) -> comp. % recursive definition
-with : expr -> comp -> comp.           % handling construct
-
-
-
 %%% Types %%%
 
 ty : type.
@@ -67,3 +27,40 @@ inst  : region Eff -> ty.     % the type of instances of a given effect
 
 
 
+%%% Terms %%%
+
+expr : type.
+comp : type.
+op-cases : type.
+%name comp C.
+%name expr E.
+%name op-cases OCs.
+
+% Abbreviations for handler cases
+
+%abbrev val-case = expr -> comp.
+%abbrev op-case = expr -> expr -> comp.
+%name op-case OC.
+
+tru : expr.                               % true
+fls : expr.                               % false
+zro : expr.                               % zero
+suc : expr -> expr.                       % successor
+unt : expr.                               % unit
+fun : ty -> (expr -> comp) -> expr.       % function
+ins : instance Eff -> expr.               % instance
+hnd : ty -> val-case -> op-cases -> expr. % handler
+
+op-cases/nil  : dirty -> op-cases.
+op-cases/cons : expr -> opsym Eff -> op-case -> op-cases -> op-cases.
+
+cond : expr -> comp -> comp -> comp.   % conditional statement
+mtch : expr -> comp -> (expr -> comp) -> comp. % natural number matching
+absd : dirty -> expr -> comp.          % eliminator for empty type
+app  : expr -> expr -> comp.           % application
+val  : expr -> comp.                   % injection of values into computations
+op   : expr -> opsym Eff -> expr -> (expr -> comp) -> comp. % operation call
+let  : comp -> (expr -> comp) -> comp. % let-binding
+letv : expr -> (expr -> comp) -> comp. % polymorphic binding of values
+letr : ty -> dirty -> (expr -> expr -> comp) -> (expr -> comp) -> comp. % recursive definition
+with : expr -> comp -> comp.           % handling construct

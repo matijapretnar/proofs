@@ -4,11 +4,11 @@
 % use preservation of the type computations in the evaluation context of either
 % let-binding or handling construct.
 
-preservation      : cof Sig C A -> step C C' -> cof Sig C' A -> type.
+preservation      : cof Sig C A -> step Sig C C' -> cof Sig C' A -> type.
 preservation-let  : cof Sig C1 (A ! D) -> D <d D' -> ({x} var x A -> cof Sig (C2 x) (A' ! D'))
-                     -> step (let C1 C2) C' -> cof Sig C' (A' ! D') -> type.
+                     -> step Sig (let C1 C2) C' -> cof Sig C' (A' ! D') -> type.
 preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
-                     -> step (with E C) C' -> cof Sig C' B2 -> type.
+                     -> step Sig (with E C) C' -> cof Sig C' B2 -> type.
 %mode preservation +C +S -C'.
 %mode preservation-let +C1 +D<D' +C2 +S -C'.
 %mode preservation-with +C +B1<B1' +E +S -C'.
@@ -69,7 +69,7 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
 - : preservation-with (cof/val E) (<dt/! A<A' _) (eof/hnd Cv _ _) step/with-val C'
      <- subst Cv (eof/sub E A<A') C'.
 
-- : preservation-with (cof/op Ei O Ep K ROinD) (<dt/! A<A' D<D') (eof/hnd Cv OCs Cov) (step/with-op OC) C'
+- : preservation-with (cof/op Ei _ Ep K ROinD) (<dt/! A<A' D<D') (eof/hnd Cv OCs Cov) (step/with-op OC O) C'
      <- instance-expr-in-region Ei IinR
      <- in-dirt-region/<d ROinD D<D' ROinD'
      <- in-region-in-dirt IinR ROinD' IOinD'

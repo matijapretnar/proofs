@@ -1,6 +1,6 @@
 %%%%% Progress theorem %%%%%
 
-progress : cof Sig C (_ ! D) -> non-stuck C D -> type.
+progress : cof Sig C (_ ! D) -> non-stuck Sig C D -> type.
 %mode progress +C -NS.
 
 - : progress (cof/cond E _ _) NS
@@ -10,7 +10,7 @@ progress : cof Sig C (_ ! D) -> non-stuck C D -> type.
      <- progress-mtch _ E _ _ NS.
 
 - : progress (cof/absd E) NS
-     <- progress-absd _ E NS.
+     <- progress-absd _ _ E NS.
 
 - : progress (cof/app E1 _) NS
      <- progress-app _ E1 _ NS.

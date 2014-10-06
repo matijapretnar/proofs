@@ -2,7 +2,7 @@
 
 %%% First half of the equivalence %%%
 
-step*/eval : step* C R -> eval C R -> type.
+step*/eval : step* Sig C R -> eval Sig C R -> type.
 %mode step*/eval +C~>*R -C=>R.
 
 - : step*/eval step*/val eval/val.
@@ -20,7 +20,7 @@ step*/eval : step* C R -> eval C R -> type.
 
 %%% Second half of the equivalence %%%
 
-eval/step* : eval C R -> step* C R -> type.
+eval/step* : eval Sig C R -> step* Sig C R -> type.
 %mode eval/step* +C=>R -C~>*R.
 
 - : eval/step* (eval/cond-tru C=>R) (step*/step step/cond-tru C~>*R)
@@ -60,12 +60,12 @@ eval/step* : eval C R -> step* C R -> type.
 - : eval/step* (eval/with-val C=>E CvE=>R) HC~>*R
      <- eval/step* C=>E C~>*E
      <- eval/step* CvE=>R CvE~>*R
-     <- ~>*-with-val C~>*E CvE~>*R _ HC~>*R.
+     <- ~>*-with-val C~>*E CvE~>*R _ _ HC~>*R.
 
-- : eval/step* (eval/with-op C=>Op OC OC=>R) HC~>*R
+- : eval/step* (eval/with-op C=>Op OC O OC=>R) HC~>*R
      <- eval/step* C=>Op C~>*Op
      <- eval/step* OC=>R OC~>*R
-     <- ~>*-with-op C~>*Op OC OC~>*R HC~>*R.
+     <- ~>*-with-op C~>*Op OC O OC~>*R HC~>*R.
 
 %worlds () (eval/step* _ _).
 %total {C=>R} (eval/step* C=>R _).

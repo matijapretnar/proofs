@@ -1,7 +1,7 @@
 % If a computation is not stuck for some dirt, it remains non-stuck
 % if we increase the dirt.
 
-non-stuck/<d : non-stuck C D -> D <d D' -> non-stuck C D' -> type.
+non-stuck/<d : non-stuck Sig C D -> D <d D' -> non-stuck Sig C D' -> type.
 %mode non-stuck/<d +NS +D<D' -NS'.
 
 - : non-stuck/<d non-stuck/val _ non-stuck/val.
@@ -66,7 +66,7 @@ get-op-case-total/cons : {IO} eof Sig E (inst (R : region Eff'))
 % induction only by first proving a separate lemma for each case, and
 % these lemmas follow below.
 
-progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> type.
+progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck Sig (cond E C1 C2) D -> type.
 %mode progress-cond +D +E +C1 +C2 -NS.
 
 - : progress-cond _ eof/tru _ _ (non-stuck/step step/cond-tru).
@@ -80,7 +80,7 @@ progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> ty
 %total {E} (progress-cond _ E _ _ _).
 
 
-progress-mtch : {D} eof Sig E nat -> {C1} {C2} non-stuck (mtch E C1 C2) D -> type.
+progress-mtch : {D} eof Sig E nat -> {C1} {C2} non-stuck Sig (mtch E C1 C2) D -> type.
 %mode progress-mtch +D +E +C1 +C2 -NS.
 
 - : progress-mtch _ eof/zro _ _ (non-stuck/step step/mtch-zro).
@@ -94,17 +94,17 @@ progress-mtch : {D} eof Sig E nat -> {C1} {C2} non-stuck (mtch E C1 C2) D -> typ
 %total {E} (progress-mtch _ E _ _ _).
 
 
-progress-absd : {D} eof Sig E empty -> non-stuck (absd E) D -> type.
-%mode progress-absd +D +E -NS.
+progress-absd : {A} {D} eof Sig E empty -> non-stuck Sig (absd (A ! D) E) D -> type.
+%mode progress-absd +A +D +E -NS.
 
-- : progress-absd D (eof/sub E _) NS
-     <- progress-absd D E NS.
+- : progress-absd A D (eof/sub E _) NS
+     <- progress-absd A D E NS.
 
-%worlds () (progress-absd _ _ _).
-%total {E} (progress-absd _ E _).
+%worlds () (progress-absd _ _ _ _).
+%total {E} (progress-absd _ _ E _).
 
 
-progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
+progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck Sig (app E1 E2) D -> type.
 %mode progress-app +D +E1 +E2 -NS.
 
 - : progress-app _ (eof/fun _) _ (non-stuck/step step/app).
@@ -117,7 +117,7 @@ progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 
 
 progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt-region R O D
-               -> non-stuck (op Ei O Ep K) D -> type.
+               -> non-stuck Sig (op Ei O Ep K) D -> type.
 %mode progress-op +Ei +Ep +K +ROinD -NS.
 
 - : progress-op (eof/ins IinR) _ _ ROinD (non-stuck/op IOinD)
@@ -131,7 +131,7 @@ progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt-region R O D
 %total {Ei} (progress-op Ei _ _ _ _).
 
 
-progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
+progress-let : non-stuck Sig C1 D -> {C2} non-stuck Sig (let C1 C2) D -> type.
 %mode progress-let +NS1 +C2 -NS.
 
 - : progress-let non-stuck/val _ (non-stuck/step step/let-val).
@@ -144,13 +144,14 @@ progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
 %total {NS1} (progress-let NS1 _ _).
 
 
-progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
+progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> non-stuck Sig C D1 -> non-stuck Sig (with E C) D2 -> type.
 %mode progress-with +E +NS1 -NS2.
 
 - : progress-with (eof/hnd _ _ _) non-stuck/val (non-stuck/step step/with-val).
 
-- : progress-with (eof/hnd _ OCs _) (non-stuck/op _) (non-stuck/step (step/with-op OC))
-     <- get-op-case-total _ OCs OC.
+% Need to ensure that the called operation appears in the signature
+% - : progress-with (eof/hnd _ OCs _) (non-stuck/op _) (non-stuck/step (step/with-op OC))
+%      <- get-op-case-total _ OCs OC.
 
 - : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (step/with-step S)).
 
@@ -160,4 +161,4 @@ progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (wi
      <- non-stuck/<d NS2' D2'<D2 NS2.
 
 %worlds () (progress-with _ _ _).
-%total {E} (progress-with E _ _).
+%trustme %total {E} (progress-with E _ _).

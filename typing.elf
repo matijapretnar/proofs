@@ -34,14 +34,14 @@ eof/zro : eof _ zro nat.
 eof/suc : eof Sig (suc E) nat
            <- eof Sig E nat.
 eof/unt : eof _ unt unit.
-eof/fun : eof Sig (fun E) (A --> B)
+eof/fun : eof Sig (fun A E) (A --> B)
            <- ({x} var x A -> cof Sig (E x) B).
 eof/ins : eof _ (ins I) (inst R)
            <- in-region I R.
 eof/sub : eof Sig E A'
            <- A <t A'
            <- eof Sig E A.
-eof/hnd : eof Sig (hnd Cv OCs) (A ! D ==> A' ! D')
+eof/hnd : eof Sig (hnd A Cv OCs) (A ! D ==> A' ! D')
            <- covers D Dcov D'
            <- opcof Sig OCs (A' ! D') Dcov
            <- ({x} var x A -> cof Sig (Cv x) (A' ! D')).
@@ -59,7 +59,7 @@ add-if-singleton : dirt -> region Eff -> opsym Eff -> dirt -> type.
 add-if-singleton/take : add-if-singleton D (region/singleton I) O (dirt/cons (I # O) D).
 add-if-singleton/skip : add-if-singleton D _ _ D.
 
-opcof/nil  : opcof Sig op-cases/nil B dirt/empty.
+opcof/nil  : opcof Sig (op-cases/nil B) B dirt/empty.
 opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
               <- add-if-singleton D R O D'
               <- opcof Sig OCs B D
@@ -78,7 +78,7 @@ cof/mtch : cof Sig (mtch E C1 C2) B
             <- ({x} var x nat -> cof Sig (C2 x) B)
             <- cof Sig C1 B
             <- eof Sig E nat.
-cof/absd : cof Sig (absd E) B
+cof/absd : cof Sig (absd B E) B
             <- eof Sig E empty.
 cof/app  : cof Sig (app E1 E2) B
             <- eof Sig E2 A
@@ -94,7 +94,7 @@ cof/op   : cof Sig (op Ei O Ep K) (B ! D)
 cof/let  : cof Sig (let C1 C2) (A' ! D)
             <- ({x} var x A -> cof Sig (C2 x) (A' ! D))
             <- cof Sig C1 (A ! D).
-cof/letr : cof Sig (letr C1 C2) B'
+cof/letr : cof Sig (letr A B C1 C2) B'
             <- ({f} var f (A --> B) -> cof Sig (C2 f) B')
             <- ({f} var f (A --> B) -> {x} var x A -> cof Sig (C1 f x) B).
 cof/letv : cof Sig (letv E C) B
