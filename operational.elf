@@ -24,25 +24,24 @@ result/op  : operation Eff -> expr -> (expr -> comp) -> result.
 
 %%% Small step semantics %%%
 
-~> : comp -> comp -> type.
-%infix none 40 ~>.
+step : comp -> comp -> type.
 
-~>/cond-tru  : cond tru C1 _ ~> C1.
-~>/cond-fls  : cond fls _ C2 ~> C2.
-~>/mtch-zro  : mtch zro C1 _ ~> C1.
-~>/mtch-suc  : mtch (suc E) _ C2 ~> C2 E.
-~>/app       : app (fun E1) E2 ~> E1 E2.
-~>/let-val   : let (val E) C2 ~> C2 E.
-~>/let-op    : let (op (ins I) O Ep K) C2 ~> op (ins I) O Ep ([x] let (K x) C2).
-~>/let-step  : let C1 C2 ~> let C1' C2
-                <- C1 ~> C1'.
-~>/letr      : letr C1 C2 ~> C2 (fun ([x] letr C1 ([f] C1 f x))).
-~>/letv      : letv E C ~> C E.
-~>/with-val  : with (hnd Cv _) (val E) ~> Cv E.
-~>/with-op   : with (hnd Cv OCs) (op (ins I) O Ep K) ~> OC Ep (fun ([y] with (hnd Cv OCs) (K y)))
-                <- get-op-case (I # O) OCs OC.
-~>/with-step : with E C ~> with E C'
-                <- C ~> C'.
+step/cond-tru  : step (cond tru C1 _) C1.
+step/cond-fls  : step (cond fls _ C2) C2.
+step/mtch-zro  : step (mtch zro C1 _) C1.
+step/mtch-suc  : step (mtch (suc E) _ C2) (C2 E).
+step/app       : step (app (fun E1) E2) (E1 E2).
+step/let-val   : step (let (val E) C2) (C2 E).
+step/let-op    : step (let (op (ins I) O Ep K) C2) (op (ins I) O Ep ([x] let (K x) C2)).
+step/let-step  : step (let C1 C2) (let C1' C2)
+                  <- step C1 C1'.
+step/letr      : step (letr C1 C2) (C2 (fun ([x] letr C1 ([f] C1 f x)))).
+step/letv      : step (letv E C) (C E).
+step/with-val  : step (with (hnd Cv _) (val E)) (Cv E).
+step/with-op   : step (with (hnd Cv OCs) (op (ins I) O Ep K)) (OC Ep (fun ([y] with (hnd Cv OCs) (K y))))
+                  <- get-op-case (I # O) OCs OC.
+step/with-step : step (with E C) (with E C')
+                  <- step C C'.
 
 
 % To state the progress theorem, we need to define when a computation is not stuck
@@ -53,55 +52,54 @@ non-stuck/val   : non-stuck (val _) _.
 non-stuck/op    : non-stuck (op (ins I) O _ _) D
                    <- in-dirt (I # O) D.
 non-stuck/step  : non-stuck C _
-                   <- C ~> _.
+                   <- step C _.
 
 
 % The "transitive closure" of the small step relation
 
-~>* : comp -> result -> type.
-%infix none 40 ~>*.
+step* : comp -> result -> type.
 
-~>*/val  : val E ~>* result/val E.
-~>*/op   : op (ins I) O E K ~>* result/op (I # O) E K.
-~>*/step : C ~>* R
-            <- C' ~>* R
-            <- C ~> C'.
+step*/val  : step* (val E) (result/val E).
+step*/op   : step* (op (ins I) O E K) (result/op (I # O) E K).
+step*/step : step* C R
+              <- step* C' R
+              <- step C C'.
 
 
 
 %%% Big step semantics %%%
 
-=> : comp -> result -> type.
-%infix none 40 =>.
+eval : comp -> result -> type.
 
-=>/cond-tru : cond tru C1 _ => R
-               <- C1 => R.
-=>/cond-fls : cond fls _ C2 => R
-               <- C2 => R.
-=>/mtch-zro : mtch zro C1 _ => R
-               <- C1 => R.
-=>/mtch-suc : mtch (suc E) _ C2 => R
-               <- C2 E => R.
-=>/app      : app (fun E1) E2 => R
-               <- E1 E2 => R.
-=>/val      : val E => result/val E.
-=>/op       : op (ins I) O E K => result/op (I # O) E K.
-=>/let-val  : let C1 C2 => R
-               <- C2 E => R
-               <- C1 => result/val E.
-=>/let-op   : let C1 C2 => result/op IO E ([x] let (K x) C2)
-               <- C1 => result/op IO E K.
-=>/letr     : letr C1 C2 => R
-               <- C2 (fun ([x] letr C1 ([f] C1 f x))) => R.
-=>/letv     : letv E C => R
-               <- C E => R.
-=>/with-val : with (hnd Cv _) C => R
-               <- Cv E => R
-               <- C => result/val E.
-=>/with-op  : with (hnd Cv OCs) C => R
-               <- OC E (fun ([y] with (hnd Cv OCs) (K y))) => R
-               <- get-op-case IO OCs OC
-               <- C => result/op IO E K.
+eval/cond-tru : eval (cond tru C1 _) R
+                 <- eval C1 R.
+eval/cond-fls : eval (cond fls _ C2) R
+                 <- eval C2 R.
+eval/mtch-zro : eval (mtch zro C1 _) R
+                 <- eval C1 R.
+eval/mtch-suc : eval (mtch (suc E) _ C2) R
+                 <- eval (C2 E) R.
+eval/app      : eval (app (fun E1) E2) R
+                 <- eval (E1 E2) R.
+eval/val      : eval (val E) (result/val E).
+eval/op       : eval (op (ins I) O E K) (result/op (I # O) E K).
+eval/let-val  : eval (let C1 C2) R
+                 <- eval (C2 E) R
+                 <- eval C1 (result/val E).
+eval/let-op   : eval (let C1 C2) (result/op IO E ([x] let (K x) C2))
+                 <- eval C1 (result/op IO E K).
+eval/letr     : eval (letr C1 C2) R
+                 <- eval (C2 (fun ([x] letr C1 ([f] C1 f x)))) R.
+eval/letv     : eval (letv E C) R
+                 <- eval (C E) R.
+eval/with-val : eval (with (hnd Cv _) C) R
+                 <- eval (Cv E) R
+                 <- eval C (result/val E).
+eval/with-op  : eval (with (hnd Cv OCs) C) R
+                 <- eval (OC E (fun ([y] with (hnd Cv OCs) (K y)))) R
+                 <- get-op-case IO OCs OC
+                 <- eval C (result/op IO E K).
+
 
 
 %%% Handler-stack semantics %%%

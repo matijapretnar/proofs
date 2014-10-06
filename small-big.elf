@@ -2,71 +2,71 @@
 
 %%% First half of the equivalence %%%
 
-~>*/=> : C ~>* R -> C => R -> type.
-%mode ~>*/=> +C~>*R -C=>R.
+step*/eval : step* C R -> eval C R -> type.
+%mode step*/eval +C~>*R -C=>R.
 
-- : ~>*/=> ~>*/val =>/val.
+- : step*/eval step*/val eval/val.
 
-- : ~>*/=> ~>*/op =>/op.
+- : step*/eval step*/op eval/op.
 
-- : ~>*/=> (~>*/step C~>C' C'~>*R) C=>R
-     <- ~>*/=> C'~>*R C'=>R
-     <- ~>/=> C~>C' C'=>R C=>R.
+- : step*/eval (step*/step C~>C' C'~>*R) C=>R
+     <- step*/eval C'~>*R C'=>R
+     <- step/eval C~>C' C'=>R C=>R.
 
-%worlds () (~>*/=> _ _).
-%total {C~>*R} (~>*/=> C~>*R _).
+%worlds () (step*/eval _ _).
+%total {C~>*R} (step*/eval C~>*R _).
 
 
 
 %%% Second half of the equivalence %%%
 
-=>/~>* : C => R -> C ~>* R -> type.
-%mode =>/~>* +C=>R -C~>*R.
+eval/step* : eval C R -> step* C R -> type.
+%mode eval/step* +C=>R -C~>*R.
 
-- : =>/~>* (=>/cond-tru C=>R) (~>*/step ~>/cond-tru C~>*R)
-     <- =>/~>* C=>R C~>*R.
+- : eval/step* (eval/cond-tru C=>R) (step*/step step/cond-tru C~>*R)
+     <- eval/step* C=>R C~>*R.
 
-- : =>/~>* (=>/cond-fls C=>R) (~>*/step ~>/cond-fls C~>*R)
-     <- =>/~>* C=>R C~>*R.
+- : eval/step* (eval/cond-fls C=>R) (step*/step step/cond-fls C~>*R)
+     <- eval/step* C=>R C~>*R.
 
-- : =>/~>* (=>/mtch-zro C=>R) (~>*/step ~>/mtch-zro C~>*R)
-     <- =>/~>* C=>R C~>*R.
+- : eval/step* (eval/mtch-zro C=>R) (step*/step step/mtch-zro C~>*R)
+     <- eval/step* C=>R C~>*R.
 
-- : =>/~>* (=>/mtch-suc C=>R) (~>*/step ~>/mtch-suc C~>*R)
-     <- =>/~>* C=>R C~>*R.
+- : eval/step* (eval/mtch-suc C=>R) (step*/step step/mtch-suc C~>*R)
+     <- eval/step* C=>R C~>*R.
 
-- : =>/~>* (=>/app C=>R) (~>*/step ~>/app C~>*R)
-     <- =>/~>* C=>R C~>*R.
+- : eval/step* (eval/app C=>R) (step*/step step/app C~>*R)
+     <- eval/step* C=>R C~>*R.
 
-- : =>/~>* =>/val ~>*/val.
+- : eval/step* eval/val step*/val.
 
-- : =>/~>* =>/op ~>*/op.
+- : eval/step* eval/op step*/op.
 
-- : =>/~>* (=>/let-val C1=>E C2E=>R) C1C2~>*R
-     <- =>/~>* C1=>E C1~>*E
-     <- =>/~>* C2E=>R C2E~>*R
+- : eval/step* (eval/let-val C1=>E C2E=>R) C1C2~>*R
+     <- eval/step* C1=>E C1~>*E
+     <- eval/step* C2E=>R C2E~>*R
      <- ~>*-let-val C1~>*E C2E~>*R C1C2~>*R.
 
-- : =>/~>* (=>/let-op C1=>Op) C1C2~>*Op
-     <- =>/~>* C1=>Op C1~>*Op
+- : eval/step* (eval/let-op C1=>Op) C1C2~>*Op
+     <- eval/step* C1=>Op C1~>*Op
      <- ~>*-let-op C1~>*Op _ C1C2~>*Op.
 
-- : =>/~>* (=>/letr C=>R) (~>*/step ~>/letr C~>*R)
-     <- =>/~>* C=>R C~>*R.
+- : eval/step* (eval/letr C=>R) (step*/step step/letr C~>*R)
+     <- eval/step* C=>R C~>*R.
 
-- : =>/~>* (=>/letv CE=>R) (~>*/step ~>/letv CE~>*R)
-     <- =>/~>* CE=>R CE~>*R.
+- : eval/step* (eval/letv CE=>R) (step*/step step/letv CE~>*R)
+     <- eval/step* CE=>R CE~>*R.
 
-- : =>/~>* (=>/with-val C=>E CvE=>R) HC~>*R
-     <- =>/~>* C=>E C~>*E
-     <- =>/~>* CvE=>R CvE~>*R
+- : eval/step* (eval/with-val C=>E CvE=>R) HC~>*R
+     <- eval/step* C=>E C~>*E
+     <- eval/step* CvE=>R CvE~>*R
      <- ~>*-with-val C~>*E CvE~>*R _ HC~>*R.
 
-- : =>/~>* (=>/with-op C=>Op OC OC=>R) HC~>*R
-     <- =>/~>* C=>Op C~>*Op
-     <- =>/~>* OC=>R OC~>*R
+- : eval/step* (eval/with-op C=>Op OC OC=>R) HC~>*R
+     <- eval/step* C=>Op C~>*Op
+     <- eval/step* OC=>R OC~>*R
      <- ~>*-with-op C~>*Op OC OC~>*R HC~>*R.
 
-%worlds () (=>/~>* _ _).
-%total {C=>R} (=>/~>* C=>R _).
+%worlds () (eval/step* _ _).
+%total {C=>R} (eval/step* C=>R _).
 

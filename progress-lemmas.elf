@@ -69,9 +69,9 @@ get-op-case-total/cons : {IO} eof Sig E (inst (R : region Eff'))
 progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> type.
 %mode progress-cond +D +E +C1 +C2 -NS.
 
-- : progress-cond _ eof/tru _ _ (non-stuck/step ~>/cond-tru).
+- : progress-cond _ eof/tru _ _ (non-stuck/step step/cond-tru).
 
-- : progress-cond _ eof/fls _ _ (non-stuck/step ~>/cond-fls).
+- : progress-cond _ eof/fls _ _ (non-stuck/step step/cond-fls).
 
 - : progress-cond D (eof/sub E _) _ _ NS
      <- progress-cond D E _ _ NS.
@@ -83,9 +83,9 @@ progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck (cond E C1 C2) D -> ty
 progress-mtch : {D} eof Sig E nat -> {C1} {C2} non-stuck (mtch E C1 C2) D -> type.
 %mode progress-mtch +D +E +C1 +C2 -NS.
 
-- : progress-mtch _ eof/zro _ _ (non-stuck/step ~>/mtch-zro).
+- : progress-mtch _ eof/zro _ _ (non-stuck/step step/mtch-zro).
 
-- : progress-mtch _ (eof/suc _) _ _ (non-stuck/step ~>/mtch-suc).
+- : progress-mtch _ (eof/suc _) _ _ (non-stuck/step step/mtch-suc).
 
 - : progress-mtch D (eof/sub E _) _ _ NS
      <- progress-mtch D E _ _ NS.
@@ -107,7 +107,7 @@ progress-absd : {D} eof Sig E empty -> non-stuck (absd E) D -> type.
 progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck (app E1 E2) D -> type.
 %mode progress-app +D +E1 +E2 -NS.
 
-- : progress-app _ (eof/fun _) _ (non-stuck/step ~>/app).
+- : progress-app _ (eof/fun _) _ (non-stuck/step step/app).
 
 - : progress-app D (eof/sub E1 _) E2 NS
      <- progress-app D E1 E2 NS.
@@ -134,11 +134,11 @@ progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt-region R O D
 progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
 %mode progress-let +NS1 +C2 -NS.
 
-- : progress-let non-stuck/val _ (non-stuck/step ~>/let-val).
+- : progress-let non-stuck/val _ (non-stuck/step step/let-val).
 
-- : progress-let (non-stuck/op _) _ (non-stuck/step ~>/let-op).
+- : progress-let (non-stuck/op _) _ (non-stuck/step step/let-op).
 
-- : progress-let (non-stuck/step S1) _ (non-stuck/step (~>/let-step S1)).
+- : progress-let (non-stuck/step S1) _ (non-stuck/step (step/let-step S1)).
 
 %worlds () (progress-let _ _ _).
 %total {NS1} (progress-let NS1 _ _).
@@ -147,12 +147,12 @@ progress-let : non-stuck C1 D -> {C2} non-stuck (let C1 C2) D -> type.
 progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
 %mode progress-with +E +NS1 -NS2.
 
-- : progress-with (eof/hnd _ _ _) non-stuck/val (non-stuck/step ~>/with-val).
+- : progress-with (eof/hnd _ _ _) non-stuck/val (non-stuck/step step/with-val).
 
-- : progress-with (eof/hnd _ OCs _) (non-stuck/op _) (non-stuck/step (~>/with-op OC))
+- : progress-with (eof/hnd _ OCs _) (non-stuck/op _) (non-stuck/step (step/with-op OC))
      <- get-op-case-total _ OCs OC.
 
-- : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (~>/with-step S)).
+- : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (step/with-step S)).
 
 - : progress-with (eof/sub E (<t/==> (<dt/! _ D1<D1') (<dt/! _ D2'<D2))) NS1 NS2
      <- non-stuck/<d NS1 D1<D1' NS1'
