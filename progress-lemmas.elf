@@ -174,4 +174,4 @@ progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C 
      <- non-stuck/<d NS2' D2'<D2 NS2.
 
 %worlds () (progress-with _ _ _ _).
-%trustme %total {E} (progress-with E _ _ _).
+%total {E} (progress-with E _ _ _).
