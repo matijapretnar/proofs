@@ -60,20 +60,18 @@ comparable/apart : comparable IO I'O'
 
 %%% Regions %%%
 
-% For the sake of simplicity, we represent regions with non-empty lists.
+% For the sake of simplicity, we represent regions with lists.
 % This representation is sufficient, because we only need to test for containment,
 % which we do by "in-region" for instances and "<r" for regions.
 
 region : effect -> type.
 %name region R.
  
-region/singleton : instance Eff -> region Eff.
-region/cons      : instance Eff -> region Eff -> region Eff.
- 
- 
+region/empty : region Eff.
+region/cons  : instance Eff -> region Eff -> region Eff.
+
 in-region : instance Eff -> region Eff -> type.
  
-in-region/singleton : in-region I (region/singleton I).
 in-region/here      : in-region I (region/cons I R).
 in-region/there     : in-region I (region/cons _ R)
                        <- in-region I R.
@@ -82,11 +80,10 @@ in-region/there     : in-region I (region/cons _ R)
 <r : region Eff -> region Eff -> type.
 %infix none 30 <r.
  
-<r/singleton : region/singleton I <r R
-                <- in-region I R.
-<r/cons      : region/cons I R <r R'
-                <- R <r R'
-                <- in-region I R'.
+<r/empty : region/empty <r R.
+<r/cons  : region/cons I R <r R'
+            <- R <r R'
+            <- in-region I R'.
  
 
 
@@ -136,8 +133,7 @@ covers/cons-there : covers (dirt/cons IO D) D1 D2
 
 in-dirt-region : region Eff -> opsym Eff -> dirt -> type.
  
-in-dirt-region/singleton : in-dirt-region (region/singleton I) O D
-                            <- in-dirt (I # O) D.
-in-dirt-region/cons      : in-dirt-region (region/cons I R) O D
-                            <- in-dirt-region R O D
-                            <- in-dirt (I # O) D.
+in-dirt-region/empty : in-dirt-region region/empty O D.
+in-dirt-region/cons  : in-dirt-region (region/cons I R) O D
+                        <- in-dirt-region R O D
+                        <- in-dirt (I # O) D.

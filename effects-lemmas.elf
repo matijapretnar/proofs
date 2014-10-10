@@ -39,7 +39,7 @@ compare : {IO : operation Eff} {I'O' : operation Eff'} comparable IO I'O' -> typ
 <r/rest : R <r R' -> {I'} R <r (region/cons I' R') -> type. 
 %mode <r/rest +R<R' +I' -R<I'R'.
 
-- : <r/rest (<r/singleton IinR') _ (<r/singleton (in-region/there IinR')).
+- : <r/rest <r/empty _ <r/empty.
 
 - : <r/rest (<r/cons IinR' R<R') _ (<r/cons (in-region/there IinR') R<I'R')
      <- <r/rest R<R' _ R<I'R'.
@@ -51,7 +51,7 @@ compare : {IO : operation Eff} {I'O' : operation Eff'} comparable IO I'O' -> typ
 <r/refl : {R} R <r R -> type.
 %mode <r/refl +R -R<R.
 
-- : <r/refl _ (<r/singleton (in-region/singleton)).
+- : <r/refl _ <r/empty.
 
 - : <r/refl (region/cons _ R) (<r/cons in-region/here R<IR)
      <- <r/refl R R<R
@@ -63,8 +63,6 @@ compare : {IO : operation Eff} {I'O' : operation Eff'} comparable IO I'O' -> typ
 
 in-region/<r : in-region I R -> R <r R' -> in-region I R' -> type.
 %mode in-region/<r +IinR +R<R' -IinR'.
-
-- : in-region/<r in-region/singleton (<r/singleton IinR') IinR'.
 
 - : in-region/<r in-region/here (<r/cons IinR' _) IinR'.
 
@@ -78,8 +76,7 @@ in-region/<r : in-region I R -> R <r R' -> in-region I R' -> type.
 <r/trans : R <r R' -> R' <r R'' -> R <r R'' -> type.
 %mode <r/trans +R<R' +R'>R'' -R<R''.
 
-- : <r/trans (<r/singleton IinR') R'<R'' (<r/singleton IinR'')
-     <- in-region/<r IinR' R'<R'' IinR''.
+- : <r/trans <r/empty R'<R'' <r/empty.
 - : <r/trans (<r/cons IinR' R<R') R'<R'' (<r/cons IinR'' R<R'')
      <- <r/trans R<R' R'<R'' R<R''
      <- in-region/<r IinR' R'<R'' IinR''.
@@ -157,7 +154,6 @@ covers-rest : covers (dirt/cons _ D) D1 D2 -> covers D D1 D2 -> type.
 in-region-in-dirt : in-region I R -> in-dirt-region R O D -> in-dirt (I # O) D -> type.
 %mode in-region-in-dirt +IinR +ROinD -IOinD.
 
-- : in-region-in-dirt in-region/singleton (in-dirt-region/singleton IOinD) IOinD.
 - : in-region-in-dirt in-region/here (in-dirt-region/cons IOinD _) IOinD.
 - : in-region-in-dirt (in-region/there IinR) (in-dirt-region/cons _ ROinD) IOinD
      <- in-region-in-dirt IinR ROinD IOinD.
@@ -169,8 +165,7 @@ in-region-in-dirt : in-region I R -> in-dirt-region R O D -> in-dirt (I # O) D -
 <r/in-dirt-region : R <r R' -> in-dirt-region R' O D -> in-dirt-region R O D -> type.
 %mode <r/in-dirt-region +R<R' +R'OinD -ROinD.
 
-- : <r/in-dirt-region (<r/singleton IinR') R'OinD (in-dirt-region/singleton IOinD)
-     <- in-region-in-dirt IinR' R'OinD IOinD.
+- : <r/in-dirt-region <r/empty _ in-dirt-region/empty.
 - : <r/in-dirt-region (<r/cons IinR' R<R') R'OinD (in-dirt-region/cons IOinD ROinD)
      <- in-region-in-dirt IinR' R'OinD IOinD
      <- <r/in-dirt-region R<R' R'OinD ROinD.
@@ -182,8 +177,7 @@ in-region-in-dirt : in-region I R -> in-dirt-region R O D -> in-dirt (I # O) D -
 in-dirt-region/<d : in-dirt-region R O D -> D <d D' -> in-dirt-region R O D' -> type.
 %mode in-dirt-region/<d +ROinD +D<D' -ROinD'.
 
-- : in-dirt-region/<d (in-dirt-region/singleton IOinD) D<D' (in-dirt-region/singleton IOinD')
-     <- in-dirt/<d IOinD D<D' IOinD'.
+- : in-dirt-region/<d in-dirt-region/empty D<D' in-dirt-region/empty.
 
 - : in-dirt-region/<d (in-dirt-region/cons IOinD ROinD) D<D'
      (in-dirt-region/cons IOinD' ROinD')

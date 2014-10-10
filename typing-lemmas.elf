@@ -25,7 +25,8 @@ apart-not-refl : {IO} {D} apart-name X X -> in-dirt IO D -> type.
 %total {X!X} (apart-not-refl _ _ X!X _).
 
 
-unequal-instance-in-rest : in-region I (region/singleton I') -> in-dirt IO (dirt/cons (I' # O') D)
+unequal-instance-in-rest : in-region I (region/cons I' region/empty)
+                            -> in-dirt IO (dirt/cons (I' # O') D)
                             -> apart IO (I # O') -> in-dirt IO D -> type.
 %mode unequal-instance-in-rest +IinR +IOinD' +IO!I'O' -IOinD.
 
@@ -36,6 +37,7 @@ unequal-instance-in-rest : in-region I (region/singleton I') -> in-dirt IO (dirt
      <- apart-not-refl _ _ X!X IOinD.
 - : unequal-instance-in-rest _ in-dirt/here (apart/opsym X!X) IOinD
      <- apart-not-refl _ _ X!X IOinD.
+- : unequal-instance-in-rest in-region/here in-dirt/here _ in-dirt/here.
 
 %worlds () (unequal-instance-in-rest _ _ _ _).
 %total {} (unequal-instance-in-rest _ _ _ _).
