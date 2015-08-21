@@ -47,12 +47,11 @@ step/with-step : step Sig (with E C) (with E C')
 
 % To state the progress theorem, we need to define when a computation is not stuck
 
-non-stuck : signature -> comp -> dirt -> type.
+non-stuck : signature -> comp -> type.
 
-non-stuck/val   : non-stuck _ (val _) _.
-non-stuck/op    : non-stuck _ (op (ins I) O _ _) D
-                   <- in-dirt (I # O) D.
-non-stuck/step  : non-stuck Sig C _
+non-stuck/val   : non-stuck _ (val _).
+non-stuck/op    : non-stuck _ (op (ins (I : instance Eff)) (O : opsym Eff) _ _).
+non-stuck/step  : non-stuck Sig C
                    <- step Sig C _.
 
 

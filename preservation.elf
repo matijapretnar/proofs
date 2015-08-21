@@ -5,12 +5,12 @@
 % let-binding or handling construct.
 
 preservation      : cof Sig C A -> step Sig C C' -> cof Sig C' A -> type.
-preservation-let  : cof Sig C1 (A ! D) -> D <d D' -> ({x} var x A -> cof Sig (C2 x) (A' ! D'))
-                     -> step Sig (let C1 C2) C' -> cof Sig C' (A' ! D') -> type.
-preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
+preservation-let  : cof Sig C1 A -> ({x} var x A -> cof Sig (C2 x) A')
+                     -> step Sig (let C1 C2) C' -> cof Sig C' A' -> type.
+preservation-with : cof Sig C B1 -> B1 <t B1' -> eof Sig E (B1' ==> B2)
                      -> step Sig (with E C) C' -> cof Sig C' B2 -> type.
 %mode preservation +C +S -C'.
-%mode preservation-let +C1 +D<D' +C2 +S -C'.
+%mode preservation-let +C1 +C2 +S -C'.
 %mode preservation-with +C +B1<B1' +E +S -C'.
 
 - : preservation (cof/cond _ C1 _) step/cond-tru C1.
@@ -24,8 +24,7 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
      <- preservation-app E1 E2 S C'.
 
 - : preservation (cof/let C1 C2) S C'
-     <- <d/refl _ D<D
-     <- preservation-let C1 D<D C2 S C'.
+     <- preservation-let C1 C2 S C'.
 
 - : preservation (cof/letr C1 C2) S C'
      <- subst C2 (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ f _ x)))) C'.
@@ -33,52 +32,45 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
 - : preservation (cof/letv _ C) step/letv C.
 
 - : preservation (cof/with E C) S C'
-     <- <dt/refl _ B1<B1
+     <- <t/refl _ B1<B1
      <- preservation-with C B1<B1 E S C'.
 
 - : preservation (cof/sub C B<B') S (cof/sub C' B<B')
      <- preservation C S C'.
 
 
-- : preservation-let (cof/sub C1 (<dt/! A<A' D<D')) D'<D'' C2 S C'
-     <- <d/trans D<D' D'<D'' D<D''
+- : preservation-let (cof/sub C1 A<A') C2 S C'
      <- ({x} {e : var x A'} subst-cof (eof/var e) A<A' (C2 x) (C2' x e))
-     <- preservation-let C1 D<D'' C2' S C'.
+     <- preservation-let C1 C2' S C'.
 
-- : preservation-let (cof/val E) _ C2 step/let-val C'
+- : preservation-let (cof/val E) C2 step/let-val C'
      <- subst C2 E C'.
 
-- : preservation-let (cof/op Ei O Ep K ROinD) D<D' C2 step/let-op
-     (cof/op Ei O Ep ([_] [y] (cof/let (cof/sub (K _ y) (<dt/! A<A D<D')) C2)) ROinD')
-     <- in-dirt-region/<d ROinD D<D' ROinD'
-     <- <t/refl A A<A.
+- : preservation-let (cof/op Ei O Ep K) C2 step/let-op
+     (cof/op Ei O Ep ([_] [y] (cof/let (K _ y) C2))).
 
-- : preservation-let C1 D<D' C2 (step/let-step S) (cof/let C1' C2)
-     <- <t/refl _ A<A
-     <- preservation (cof/sub C1 (<dt/! A<A D<D')) S C1'.
+- : preservation-let C1 C2 (step/let-step S) (cof/let C1' C2)
+     <- preservation C1 S C1'.
 
 
 - : preservation-with (cof/sub C B1<B1') B1'<B1'' E S C'
-     <- <dt/trans B1<B1' B1'<B1'' B1<B1''
+     <- <t/trans B1<B1' B1'<B1'' B1<B1''
      <- preservation-with C B1<B1'' E S C'.
 
 - : preservation-with C B1<B1' (eof/sub E (<t/==> B1'<B1'' B2''<B2')) S (cof/sub C' B2''<B2')
-     <- <dt/trans B1<B1' B1'<B1'' B1<B1''
+     <- <t/trans B1<B1' B1'<B1'' B1<B1''
      <- preservation-with C B1<B1'' E S C'.
 
-- : preservation-with (cof/val E) (<dt/! A<A' _) (eof/hnd Cv _ _) step/with-val C'
+- : preservation-with (cof/val E) A<A' (eof/hnd Cv _) step/with-val C'
      <- subst Cv (eof/sub E A<A') C'.
 
-- : preservation-with (cof/op Ei _ Ep K ROinD) (<dt/! A<A' D<D') (eof/hnd Cv OCs Cov) (step/with-op OC O) C'
-     <- instance-expr-in-region Ei IinR
-     <- in-dirt-region/<d ROinD D<D' ROinD'
-     <- in-region-in-dirt IinR ROinD' IOinD'
-     <- preservation-with-op IOinD' O Ep
-         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (cof/sub (K x e) (<dt/! A<A' D<D')))
-         OC OCs Cov C'.
+- : preservation-with (cof/op Ei _ Ep K) A<A' (eof/hnd Cv OCs) (step/with-op OC O) C'
+     <- preservation-with-op O Ep
+         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs) (cof/sub (K x e) A<A'))
+         OC OCs C'.
 
 - : preservation-with C B1<B1' E (step/with-step S) (cof/with E C')
      <- preservation (cof/sub C B1<B1') S C'.
 
-%worlds () (preservation _ _ _) (preservation-let _ _ _ _ _) (preservation-with _ _ _ _ _).
-%total {(S Sl Sw) (C Cl Ew) (C Cl Cw)} (preservation C S _) (preservation-let Cl _ _ Sl _) (preservation-with Cw _ Ew Sw _).
+%worlds () (preservation _ _ _) (preservation-let _ _ _ _) (preservation-with _ _ _ _ _).
+%total {(S Sl Sw) (C Cl Ew) (C Cl Cw)} (preservation C S _) (preservation-let Cl _ Sl _) (preservation-with Cw _ Ew Sw _).

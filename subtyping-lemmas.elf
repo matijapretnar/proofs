@@ -1,9 +1,7 @@
 %%% Reflexivity of subtyping %%%
 
 <t/refl : {A} A <t A -> type.
-<dt/refl : {B} B <dt B -> type.
 %mode <t/refl +A -A<A.
-%mode <dt/refl +B -B<B.
 
 - : <t/refl _ <t/nat.
 
@@ -13,24 +11,18 @@
 
 - : <t/refl _ <t/empty.
 
-- : <t/refl (inst R) (<t/inst R<R)
-     <- <r/refl R R<R.
+- : <t/refl _ <t/inst.
 
 - : <t/refl (A --> B) (<t/--> A<A B<B)
      <- <t/refl A A<A
-     <- <dt/refl B B<B.
+     <- <t/refl B B<B.
 
 - : <t/refl (B1 ==> B2) (<t/==> B1<B1 B2<B2)
-     <- <dt/refl B1 B1<B1
-     <- <dt/refl B2 B2<B2.
+     <- <t/refl B1 B1<B1
+     <- <t/refl B2 B2<B2.
 
-
-- : <dt/refl (A ! D) (<dt/! A<A D<D)
-     <- <t/refl A A<A
-     <- <d/refl D D<D.
-
-%worlds () (<t/refl _ _) (<dt/refl _ _).
-%total {(A B)} (<t/refl A _) (<dt/refl B _).
+%worlds () (<t/refl _ _).
+%total {A} (<t/refl A _).
 
 
 
@@ -41,13 +33,9 @@
 % that also state transitivity, but with a different order of premises.
 
 <t/trans : A <t A' -> A' <t A'' -> A <t A'' -> type.
-<dt/trans : B <dt B' -> B' <dt B'' -> B <dt B'' -> type.
 <t/snart : A' <t A -> A'' <t A' -> A'' <t A -> type.
-<dt/snart : B' <dt B -> B'' <dt B' -> B'' <dt B -> type.
 %mode <t/trans +A<A' +A'<A'' -A<A''.
-%mode <dt/trans +B<B' +B'<B'' -B<B''.
 %mode <t/snart +A'<A +A''<A' -A''<A.
-%mode <dt/snart +B'<B +B''<B' -B''<B.
 
 - : <t/trans _ _ <t/nat.
 
@@ -59,19 +47,13 @@
 
 - : <t/trans (<t/--> A'<A B<B') (<t/--> A''<A' B'<B'')  (<t/--> A''<A B<B'')
      <- <t/snart A'<A A''<A' A''<A
-     <- <dt/trans B<B' B'<B'' B<B''.
+     <- <t/trans B<B' B'<B'' B<B''.
 
-- : <t/trans (<t/inst R<R') (<t/inst R'<R'') (<t/inst R<R'')
-     <- <r/trans R<R' R'<R'' R<R''.
+- : <t/trans _ _ <t/inst.
 
 - : <t/trans (<t/==> B1'<B1 B2<B2') (<t/==> B1''<B1' B2'<B2'')  (<t/==> B1''<B1 B2<B2'')
-     <- <dt/snart B1'<B1 B1''<B1' B1''<B1
-     <- <dt/trans B2<B2' B2'<B2'' B2<B2''.
-
-
-- : <dt/trans (<dt/! A<A' D<D') (<dt/! A'<A'' D'<D'') (<dt/! A<A'' D<D'')
-     <- <d/trans D<D' D'<D'' D<D''
-     <- <t/trans A<A' A'<A'' A<A''.
+     <- <t/snart B1'<B1 B1''<B1' B1''<B1
+     <- <t/trans B2<B2' B2'<B2'' B2<B2''.
 
 
 - : <t/snart _ _ <t/nat.
@@ -84,19 +66,14 @@
 
 - : <t/snart (<t/--> A<A' B'<B) (<t/--> A'<A'' B''<B')  (<t/--> A<A'' B''<B)
      <- <t/trans A<A' A'<A'' A<A''
-     <- <dt/snart B'<B B''<B' B''<B.
+     <- <t/snart B'<B B''<B' B''<B.
 
-- : <t/snart (<t/inst R'<R) (<t/inst R''<R') (<t/inst R''<R)
-     <- <r/trans R''<R' R'<R R''<R.
+- : <t/snart _ _ <t/inst.
 
 - : <t/snart (<t/==> B1<B1' B2'<B2) (<t/==> B1'<B1'' B2''<B2')  (<t/==> B1<B1'' B2''<B2)
-     <- <dt/trans B1<B1' B1'<B1'' B1<B1''
-     <- <dt/snart B2'<B2 B2''<B2' B2''<B2.
+     <- <t/trans B1<B1' B1'<B1'' B1<B1''
+     <- <t/snart B2'<B2 B2''<B2' B2''<B2.
 
 
-- : <dt/snart (<dt/! A'<A D'<D) (<dt/! A''<A' D''<D') (<dt/! A''<A D''<D)
-     <- <d/trans D''<D' D'<D D''<D
-     <- <t/snart A'<A A''<A' A''<A.
-
-%worlds () (<t/trans _ _ _) (<dt/trans _ _ _) (<t/snart _ _ _) (<dt/snart _ _ _).
-%total {(A<A' A'<A B<B' B'<B)} (<t/trans A<A' _ _) (<dt/trans B<B' _ _) (<t/snart A'<A _ _) (<dt/snart B'<B _ _).
+%worlds () (<t/trans _ _ _) (<t/snart _ _ _).
+%total {(A<A' A'<A)} (<t/trans A<A' _ _) (<t/snart A'<A _ _).

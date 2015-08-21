@@ -2,13 +2,13 @@
 
 % The three typing judgments that correspond to the three families of terms:
 % - "eof Sig E A" means that expression "E" has type "A" under signature "Sig"
-% - "cof Sig C B" states the same for computation "C" and dirty type "B"
+% - "cof Sig C B" states the same for computation "C" and ty type "B"
 % - "opcof Sig OCs B D" states that operation cases "OCs" all have a return type "B"
 %   and cover operations from dirt "D"
 
 eof : signature -> expr -> ty -> type.
-cof : signature -> comp -> dirty -> type.
-opcof : signature -> op-cases -> dirty -> dirt -> type.
+cof : signature -> comp -> ty -> type.
+opcof : signature -> op-cases -> ty -> type.
 
 % We have an additional judgment "var E A" to represent variables of type "A"
 % in a context. We could use "eof" instead of "var" in hypothetical judgments,
@@ -36,36 +36,23 @@ eof/suc : eof Sig (suc E) nat
 eof/unt : eof _ unt unit.
 eof/fun : eof Sig (fun A E) (A --> B)
            <- ({x} var x A -> cof Sig (E x) B).
-eof/ins : eof _ (ins I) (inst R)
-           <- in-region I R.
+eof/ins : eof _ (ins (I : instance Eff)) (inst Eff).
 eof/sub : eof Sig E A'
            <- A <t A'
            <- eof Sig E A.
-eof/hnd : eof Sig (hnd A Cv OCs) (A ! D ==> A' ! D')
-           <- covers D Dcov D'
-           <- opcof Sig OCs (A' ! D') Dcov
-           <- ({x} var x A -> cof Sig (Cv x) (A' ! D')).
+eof/hnd : eof Sig (hnd A Cv OCs) (A ==> A')
+           <- opcof Sig OCs A'
+           <- ({x} var x A -> cof Sig (Cv x) A').
 
 
 %%% Operation cases %%%
 
-% We can guarantee that an operation case matches a given operation only if
-% its instance expressions is a singleton.
-% To do so, we introduce "add-if-singleton D R O D'",
-% which adds "I#O" to dirt "D" to obtain dirt "D'", if "R" is exactly singleton "I".
- 
-add-if-singleton : dirt -> region Eff -> opsym Eff -> dirt -> type.
-
-add-if-singleton/take : add-if-singleton D (region/cons I region/empty) O (dirt/cons (I # O) D).
-add-if-singleton/skip : add-if-singleton D _ _ D.
- 
-opcof/nil  : opcof Sig (op-cases/nil B) B dirt/empty.
-opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
-              <- add-if-singleton D R O D'
-              <- opcof Sig OCs B D
+opcof/nil  : opcof Sig (op-cases/nil B) B.
+opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B
+              <- opcof Sig OCs B
               <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof Sig (OC x k) B)
-              <- sig Sig O A1 A2
-              <- eof Sig E (inst R).
+              <- sig Sig (O : opsym Eff) A1 A2
+              <- eof Sig E (inst Eff).
 
 
 %%% Computations %%%
@@ -83,17 +70,16 @@ cof/absd : cof Sig (absd B E) B
 cof/app  : cof Sig (app E1 E2) B
             <- eof Sig E2 A
             <- eof Sig E1 (A --> B).
-cof/val  : cof Sig (val E) (A ! D)
+cof/val  : cof Sig (val E) A
             <- eof Sig E A.
-cof/op   : cof Sig (op Ei O Ep K) (B ! D)
-            <- in-dirt-region R O D
-            <- ({x} var x A2 -> cof Sig (K x) (B ! D))
+cof/op   : cof Sig (op Ei O Ep K) B
+            <- ({x} var x A2 -> cof Sig (K x) B)
             <- eof Sig Ep A1
-            <- sig Sig O A1 A2
-            <- eof Sig Ei (inst R).
-cof/let  : cof Sig (let C1 C2) (A' ! D)
-            <- ({x} var x A -> cof Sig (C2 x) (A' ! D))
-            <- cof Sig C1 (A ! D).
+            <- sig Sig (O : opsym Eff) A1 A2
+            <- eof Sig Ei (inst Eff).
+cof/let  : cof Sig (let C1 C2) A'
+            <- ({x} var x A -> cof Sig (C2 x) A')
+            <- cof Sig C1 A.
 cof/letr : cof Sig (letr A B C1 C2) B'
             <- ({f} var f (A --> B) -> cof Sig (C2 f) B')
             <- ({f} var f (A --> B) -> {x} var x A -> cof Sig (C1 f x) B).
@@ -104,5 +90,5 @@ cof/with : cof Sig (with E C) B'
             <- cof Sig C B
             <- eof Sig E (B ==> B').
 cof/sub  : cof Sig C B'
-            <- B <dt B'
+            <- B <t B'
             <- cof Sig C B.
