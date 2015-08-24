@@ -26,8 +26,6 @@ step/eval-with : step Sig C2 C2' -> eval Sig (with E C2') R -> eval Sig (with E 
 
 - : step/eval step/letr C'=>R (eval/letr C'=>R).
 
-- : step/eval step/letv C'=>R (eval/letv C'=>R).
-
 - : step/eval step/with-val C'=>R (eval/with-val eval/val C'=>R).
 
 - : step/eval (step/with-op CO O) C'=>R (eval/with-op eval/op CO O C'=>R).

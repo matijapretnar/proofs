@@ -54,9 +54,6 @@ eval/step* : eval Sig C R -> step* Sig C R -> type.
 - : eval/step* (eval/letr C=>R) (step*/step step/letr C~>*R)
      <- eval/step* C=>R C~>*R.
 
-- : eval/step* (eval/letv CE=>R) (step*/step step/letv CE~>*R)
-     <- eval/step* CE=>R CE~>*R.
-
 - : eval/step* (eval/with-val C=>E CvE=>R) HC~>*R
      <- eval/step* C=>E C~>*E
      <- eval/step* CvE=>R CvE~>*R

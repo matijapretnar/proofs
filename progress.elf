@@ -26,8 +26,6 @@ progress : cof Sig C _ -> non-stuck Sig C -> type.
 
 - : progress (cof/letr _ _) (non-stuck/step step/letr).
 
-- : progress (cof/letv _ _) (non-stuck/step step/letv).
-
 - : progress (cof/with E C) NS'
      <- progress C NS
      <- progress-with E C NS NS'.

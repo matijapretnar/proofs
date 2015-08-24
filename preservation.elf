@@ -29,8 +29,6 @@ preservation-with : cof Sig C B1 -> B1 <t B1' -> eof Sig E (B1' ==> B2)
 - : preservation (cof/letr C1 C2) S C'
      <- subst C2 (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ f _ x)))) C'.
 
-- : preservation (cof/letv _ C) step/letv C.
-
 - : preservation (cof/with E C) S C'
      <- <t/refl _ B1<B1
      <- preservation-with C B1<B1 E S C'.

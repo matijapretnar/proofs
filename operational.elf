@@ -36,7 +36,6 @@ step/let-op    : step _ (let (op (ins I) O Ep K) C2) (op (ins I) O Ep ([x] let (
 step/let-step  : step Sig (let C1 C2) (let C1' C2)
                   <- step Sig C1 C1'.
 step/letr      : step _ (letr A B C1 C2) (C2 (fun A ([x] letr A B C1 ([f] C1 f x)))).
-step/letv      : step _ (letv E C) (C E).
 step/with-val  : step _ (with (hnd _ Cv _) (val E)) (Cv E).
 step/with-op   : step Sig (with (hnd Av Cv OCs) (op (ins I) O Ep K)) (OC Ep (fun Aop ([y] with (hnd Av Cv OCs) (K y))))
                   <- sig Sig O _ Aop
@@ -90,8 +89,6 @@ eval/let-op   : eval Sig (let C1 C2) (result/op IO E ([x] let (K x) C2))
                  <- eval Sig C1 (result/op IO E K).
 eval/letr     : eval Sig (letr A B C1 C2) R
                  <- eval Sig (C2 (fun A ([x] letr A B C1 ([f] C1 f x)))) R.
-eval/letv     : eval Sig (letv E C) R
-                 <- eval Sig (C E) R.
 eval/with-val : eval Sig (with (hnd _ Cv _) C) R
                  <- eval Sig (Cv E) R
                  <- eval Sig C (result/val E).
@@ -140,7 +137,5 @@ stack-eval/let      : stack-eval Hs (let C1 C2) E
                        <- stack-eval (handler-stack/cons C2 (op-cases/nil _) Hs) C1 E.
 stack-eval/letr     : stack-eval Hs (letr A B C1 C2) E
                        <- stack-eval Hs (C2 (fun A ([x] letr A B C1 ([f] C1 f x)))) E.
-stack-eval/letv     : stack-eval Hs (letv E C) E'
-                       <- stack-eval Hs (C E) E'.
 stack-eval/with     : stack-eval Hs (with (hnd _ Cv OCs) C) E
                        <- stack-eval (handler-stack/cons Cv OCs Hs) C E.

@@ -83,9 +83,6 @@ cof/let  : cof Sig (let C1 C2) A'
 cof/letr : cof Sig (letr A B C1 C2) B'
             <- ({f} var f (A --> B) -> cof Sig (C2 f) B')
             <- ({f} var f (A --> B) -> {x} var x A -> cof Sig (C1 f x) B).
-cof/letv : cof Sig (letv E C) B
-            <- cof Sig (C E) B
-            <- eof Sig E _.
 cof/with : cof Sig (with E C) B'
             <- cof Sig C B
             <- eof Sig E (B ==> B').
