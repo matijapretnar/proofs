@@ -8,6 +8,7 @@
 
 eof : signature -> expr -> ty -> type.
 cof : signature -> comp -> ty -> type.
+sof : signature -> comp -> sch -> type.
 opcof : signature -> op-cases -> ty -> type.
 
 % We have an additional judgment "var E A" to represent variables of type "A"
@@ -17,10 +18,13 @@ opcof : signature -> op-cases -> ty -> type.
 % and type inference judgments.
 
 var : expr -> ty -> type.
+pvar : expr -> sch -> type.
 
 % Block declaration to be used in theorems that hold for open typed terms.
 
-%block open : some {A : ty} block {x : expr}{_ : var x A}.
+%block mopen : some {A : ty} block {x : expr}{_ : var x A}.
+%block popen : some {S : sch} block {x : expr}{_ : pvar x S}.
+%block open = (mopen | popen).
 
 
 
@@ -28,6 +32,9 @@ var : expr -> ty -> type.
 
 eof/var : eof _ E A
            <- var E A.
+eof/pvar : eof _ E A
+           <- concrete S A
+           <- pvar E S.
 eof/tru : eof _ tru bool.
 eof/fls : eof _ fls bool.
 eof/zro : eof _ zro nat.
@@ -77,9 +84,9 @@ cof/op   : cof Sig (op Ei O Ep K) B
             <- eof Sig Ep A1
             <- sig Sig (O : opsym Eff) A1 A2
             <- eof Sig Ei (inst Eff).
-cof/let  : cof Sig (let C1 C2) A'
-            <- ({x} var x A -> cof Sig (C2 x) A')
-            <- cof Sig C1 A.
+cof/let  : cof Sig (let C1 C2) A
+            <- ({x} pvar x S -> cof Sig (C2 x) A)
+            <- sof Sig C1 S.
 cof/letr : cof Sig (letr A B C1 C2) B'
             <- ({f} var f (A --> B) -> cof Sig (C2 f) B')
             <- ({f} var f (A --> B) -> {x} var x A -> cof Sig (C1 f x) B).

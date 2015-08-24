@@ -21,6 +21,20 @@ inst  : effect -> ty.         % the type of instances of a given effect
 %infix right 55 ==>.
 
 
+%%% Schemes %%%
+
+sch : type.
+%name sch S.
+
+plain  : ty -> sch.            % the type of booleans
+forall : (ty -> sch) -> sch.   % the type of natural numbers
+
+
+concrete : sch -> ty -> type.
+
+concrete/plain : concrete (plain A) A.
+concrete/forall : {A} concrete (forall S) A'
+                    <- concrete (S A) A'.
 
 %%% Terms %%%
 
