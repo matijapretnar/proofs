@@ -1,7 +1,9 @@
 %%%%% Progress theorem %%%%%
 
-progress : cof Sig C _ -> non-stuck Sig C -> type.
-%mode progress +C -NS.
+progress     : cof Sig C _ -> non-stuck Sig C -> type.
+progress-sch : sof Sig C _ -> non-stuck Sig C -> type.
+%mode progress     +C -NS.
+%mode progress-sch +C -NS.
 
 - : progress (cof/cond E _ _) NS
      <- progress-cond E _ _ NS.
@@ -21,7 +23,7 @@ progress : cof Sig C _ -> non-stuck Sig C -> type.
      <- progress-op Ei _ _ _ NS.
 
 - : progress (cof/let C1 _) NS
-     <- progress C1 NS1
+     <- progress-sch C1 NS1
      <- progress-let NS1 _ NS.
 
 - : progress (cof/letr _ _) (non-stuck/step step/letr).
@@ -33,5 +35,11 @@ progress : cof Sig C _ -> non-stuck Sig C -> type.
 - : progress (cof/sub C _) NS
      <- progress C NS.
 
-%worlds () (progress _ _).
-%total {C} (progress C _).
+- : progress-sch (sof/plain C) NS
+     <- progress C NS.
+
+- : progress-sch (sof/forall ([x] (C x))) (NS unit)
+     <- {x} progress-sch (C x) (NS x).
+
+%worlds (topen) (progress _ _) (progress-sch _ _).
+%total {(C C')} (progress C _) (progress-sch C' _).

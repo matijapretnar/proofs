@@ -6,94 +6,103 @@
 
 subst-eof   : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> eof Sig E A) -> eof Sig E A -> type.
 subst-cof   : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> cof Sig C B) -> cof Sig C B -> type.
+subst-sof   : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> sof Sig C S) -> sof Sig C S -> type.
 subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B)
                -> opcof Sig OCs B -> type.
 %mode subst-eof +X +A1<A2 +E -E'.
 %mode subst-cof +X +A1<A2 +C -C'.
+%mode subst-sof +X +A1<A2 +C -C'.
 %mode subst-opcof +X +A1<A2 +OCs -OCs'.
 
-- : subst-eof X A1<A2 ([x] (eof/var x)) (eof/sub X A1<A2).
+- : subst-eof X A1<A2 ([dx] (eof/var dx)) (eof/sub X A1<A2).
 
-- : subst-eof _ _ ([x] (eof/var Y)) (eof/var Y).
+- : subst-eof _ _ ([dx] (eof/var  Y   )) (eof/var  Y).
 
-- : subst-eof _ _ ([x] eof/tru) eof/tru.
+- : subst-eof _ _ ([dx] (eof/pvar Y SA)) (eof/pvar Y SA).
 
-- : subst-eof _ _ ([x] eof/fls) eof/fls.
+- : subst-eof _ _ ([dx] eof/tru) eof/tru.
 
-- : subst-eof _ _ ([x] eof/zro) eof/zro.
+- : subst-eof _ _ ([dx] eof/fls) eof/fls.
 
-- : subst-eof X A1<A2 ([x] eof/suc (E x)) (eof/suc E')
+- : subst-eof _ _ ([dx] eof/zro) eof/zro.
+
+- : subst-eof X A1<A2 ([dx] eof/suc (E dx)) (eof/suc E')
      <- subst-eof X A1<A2 E E'.
 
-- : subst-eof _ _ ([x] eof/unt) eof/unt.
+- : subst-eof _ _ ([dx] eof/unt) eof/unt.
 
-- : subst-eof X A1<A2 ([x] eof/fun (F x)) (eof/fun F')
-     <- {y} {dy} subst-cof X A1<A2 ([x] F x y dy) (F' y dy).
+- : subst-eof X A1<A2 ([dx] eof/fun (F dx)) (eof/fun F')
+     <- {y} {dy} subst-cof X A1<A2 ([dx] F dx y dy) (F' y dy).
 
-- : subst-eof X A1<A2 ([x] eof/hnd (Cv x) (OCs x)) (eof/hnd Cv' OCs')
-     <- ({y} {dy} subst-cof X A1<A2 ([x] Cv x y dy) (Cv' y dy))
+- : subst-eof X A1<A2 ([dx] eof/hnd (Cv dx) (OCs dx)) (eof/hnd Cv' OCs')
+     <- ({y} {dy} subst-cof X A1<A2 ([dx] Cv dx y dy) (Cv' y dy))
      <- subst-opcof X A1<A2 OCs OCs'.
 
-- : subst-eof _ _ ([x] eof/ins) eof/ins.
+- : subst-eof _ _ ([dx] eof/ins) eof/ins.
 
-- : subst-eof X A1<A2 ([x] eof/sub (E x) A<A') (eof/sub E' A<A')
+- : subst-eof X A1<A2 ([dx] eof/sub (E dx) A<A') (eof/sub E' A<A')
      <- subst-eof X A1<A2 E E'.
 
 
-- : subst-cof X A1<A2 ([x] cof/cond (E x) (C1 x) (C2 x)) (cof/cond E' C1' C2')
+- : subst-cof X A1<A2 ([dx] cof/cond (E dx) (C1 dx) (C2 dx)) (cof/cond E' C1' C2')
      <- subst-eof X A1<A2 E E'
      <- subst-cof X A1<A2 C1 C1'
      <- subst-cof X A1<A2 C2 C2'.
 
-- : subst-cof X A1<A2 ([x] cof/mtch (E x) (C1 x) ([y] [dy] C2 x y dy)) (cof/mtch E' C1' C2')
+- : subst-cof X A1<A2 ([dx] cof/mtch (E dx) (C1 dx) ([y] [dy] C2 dx y dy)) (cof/mtch E' C1' C2')
      <- subst-eof X A1<A2 E E'
      <- subst-cof X A1<A2 C1 C1'
-     <- {y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy).
+     <- {y} {dy} subst-cof X A1<A2 ([dx] C2 dx y dy) (C2' y dy).
 
-- : subst-cof X A1<A2 ([x] cof/absd (E x)) (cof/absd E')
+- : subst-cof X A1<A2 ([dx] cof/absd (E dx)) (cof/absd E')
      <- subst-eof X A1<A2 E E'.
 
-- : subst-cof X A1<A2 ([x] cof/app (E1 x) (E2 x)) (cof/app E1' E2')
+- : subst-cof X A1<A2 ([dx] cof/app (E1 dx) (E2 dx)) (cof/app E1' E2')
      <- subst-eof X A1<A2 E1 E1'
      <- subst-eof X A1<A2 E2 E2'.
 
-- : subst-cof X A1<A2 ([x] cof/val (E x)) (cof/val E')
+- : subst-cof X A1<A2 ([dx] cof/val (E dx)) (cof/val E')
      <- subst-eof X A1<A2 E E'.
 
-- : subst-cof X A1<A2 ([x] cof/op (Ei x) O (Ep x) ([y] [dy] K x y dy))
+- : subst-cof X A1<A2 ([dx] cof/op (Ei dx) O (Ep dx) ([y] [dy] K dx y dy))
      (cof/op Ei' O Ep' K')
      <- subst-eof X A1<A2 Ei Ei'
      <- subst-eof X A1<A2 Ep Ep'
-     <- {y} {dy} subst-cof X A1<A2 ([x] K x y dy) (K' y dy).
+     <- {y} {dy} subst-cof X A1<A2 ([dx] K dx y dy) (K' y dy).
 
-- : subst-cof X A1<A2 ([x] cof/let (C1 x) ([y] [dy] C2 x y dy)) (cof/let C1' C2')
-     <- subst-cof X A1<A2 C1 C1'
-     <- {y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy).
+- : subst-cof X A1<A2 ([dx] cof/let (C1 dx) ([y] [dy] C2 dx y dy)) (cof/let C1' C2')
+     <- subst-sof X A1<A2 C1 C1'
+     <- {y} {dy} subst-cof X A1<A2 ([dx] C2 dx y dy) (C2' y dy).
 
 - : subst-cof X A1<A2
-     ([x] cof/letr ([f : expr] [df : var f _] [y] [dy] C1 x f df y dy) ([f] [df] C2 x f df))
+     ([dx] cof/letr ([f : expr] [df : var f _] [y] [dy] C1 dx f df y dy) ([f] [df] C2 dx f df))
      (cof/letr C1' C2')
-     <- ({y} {dy} {f : expr} {df : var f _} subst-cof X A1<A2 ([x] C1 x y dy f df) (C1' y dy f df))
-     <- ({y} {dy} subst-cof X A1<A2 ([x] C2 x y dy) (C2' y dy)).
+     <- ({y} {dy} {f : expr} {df : var f _} subst-cof X A1<A2 ([dx] C1 dx y dy f df) (C1' y dy f df))
+     <- ({y} {dy} subst-cof X A1<A2 ([dx] C2 dx y dy) (C2' y dy)).
 
-- : subst-cof X A1<A2 ([x] cof/with (E x) (C x)) (cof/with E' C')
+- : subst-cof X A1<A2 ([dx] cof/with (E dx) (C dx)) (cof/with E' C')
      <- subst-eof X A1<A2 E E'
      <- subst-cof X A1<A2 C C'.
 
-- : subst-cof X A1<A2 ([x] cof/sub (C x) B<B') (cof/sub C' B<B')
+- : subst-cof X A1<A2 ([dx] cof/sub (C dx) B<B') (cof/sub C' B<B')
      <- subst-cof X A1<A2 C C'.
 
+- : subst-sof X A1<A2 ([dx] sof/plain (C dx)) (sof/plain C')
+     <- subst-cof X A1<A2 C C'.
 
-- : subst-opcof _ _ ([x] opcof/nil) opcof/nil.
+- : subst-sof X A1<A2 ([dx] sof/forall ([t] C dx t)) (sof/forall C')
+     <- {t} subst-sof X A1<A2 ([dx] C dx t) (C' t).
 
-- : subst-opcof X A1<A2 ([x] opcof/cons (E x) O ([y] [dy] [k] [dk] K x y dy k dk) (OCs x))
+- : subst-opcof _ _ ([dx] opcof/nil) opcof/nil.
+
+- : subst-opcof X A1<A2 ([dx] opcof/cons (E dx) O ([y] [dy] [k] [dk] K dx y dy k dk) (OCs dx))
      (opcof/cons E' O K' OCs')
      <- subst-eof X A1<A2 E E'
-     <- ({y} {dy} {k} {dk} subst-cof X A1<A2 ([x] K x y dy k dk) (K' y dy k dk))
+     <- ({y} {dy} {k} {dk} subst-cof X A1<A2 ([dx] K dx y dy k dk) (K' y dy k dk))
      <- subst-opcof X A1<A2 OCs OCs'.
 
-%worlds (open) (subst-eof _ _ _ _) (subst-cof _ _ _ _) (subst-opcof _ _ _ _).
-%total {(E C C')} (subst-eof _ _ E _) (subst-cof _ _ C _) (subst-opcof _ _ C' _).
+%worlds (open) (subst-eof _ _ _ _) (subst-cof _ _ _ _) (subst-sof _ _ _ _) (subst-opcof _ _ _ _).
+%total {(E C C' C'')} (subst-eof _ _ E _) (subst-cof _ _ C _) (subst-sof _ _ C' _) (subst-opcof _ _ C'' _).
 
 
 % Two frequently used instances of the substitution lemma

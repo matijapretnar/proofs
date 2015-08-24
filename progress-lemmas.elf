@@ -8,7 +8,7 @@ cof-op/sig : cof Sig (op _ O _ _) _ -> sig Sig O _ _ -> type.
 - : cof-op/sig (cof/sub C _) O
      <- cof-op/sig C O.
 
-%worlds () (cof-op/sig _ _).
+%worlds (topen) (cof-op/sig _ _).
 %total {C} (cof-op/sig C _).
 
 
@@ -24,7 +24,7 @@ decide-op-case : comparable IO (I' # O') -> {OC} get-op-case IO OCs OC'
 - : decide-op-case comparable/equal _ _ get-op-case/here.
 - : decide-op-case (comparable/apart A) _ OC (get-op-case/there OC A).
 
-%worlds () (decide-op-case _ _ _ _).
+%worlds (topen) (decide-op-case _ _ _ _).
 %total {} (decide-op-case _ _ _ _).
 
 
@@ -49,7 +49,7 @@ get-op-case-total/cons : {IO} eof Sig E (inst Eff')
 - : get-op-case-total/cons IO (eof/sub E _) _ _ OC' OC''
      <- get-op-case-total/cons IO E _ _ OC' OC''.
 
-%worlds () (get-op-case-total _ _ _) (get-op-case-total/cons _ _ _ _ _ _).
+%worlds (topen) (get-op-case-total _ _ _) (get-op-case-total/cons _ _ _ _ _ _).
 %total {(OCs E)} (get-op-case-total _ OCs _) (get-op-case-total/cons _ E _ _ _ _).
 
 
@@ -72,7 +72,7 @@ progress-cond : eof Sig E bool -> {C1} {C2} non-stuck Sig (cond E C1 C2) -> type
 - : progress-cond (eof/sub E _) _ _ NS
      <- progress-cond E _ _ NS.
 
-%worlds () (progress-cond _ _ _ _).
+%worlds (topen) (progress-cond _ _ _ _).
 %total {E} (progress-cond E _ _ _).
 
 
@@ -86,7 +86,7 @@ progress-mtch : eof Sig E nat -> {C1} {C2} non-stuck Sig (mtch E C1 C2) -> type.
 - : progress-mtch (eof/sub E _) _ _ NS
      <- progress-mtch E _ _ NS.
 
-%worlds () (progress-mtch _ _ _ _).
+%worlds (topen) (progress-mtch _ _ _ _).
 %total {E} (progress-mtch E _ _ _).
 
 
@@ -96,7 +96,7 @@ progress-absd : {A} eof Sig E empty -> non-stuck Sig (absd A E) -> type.
 - : progress-absd A (eof/sub E _) NS
      <- progress-absd A E NS.
 
-%worlds () (progress-absd _ _ _).
+%worlds (topen) (progress-absd _ _ _).
 %total {E} (progress-absd _ E _).
 
 
@@ -108,7 +108,7 @@ progress-app : eof Sig E1 (A --> B) -> {E2} non-stuck Sig (app E1 E2) -> type.
 - : progress-app (eof/sub E1 _) E2 NS
      <- progress-app E1 E2 NS.
 
-%worlds () (progress-app _ _ _).
+%worlds (topen) (progress-app _ _ _).
 %total {E1} (progress-app E1 _ _).
 
 
@@ -120,7 +120,7 @@ progress-op : eof Sig Ei (inst Eff) -> {O : opsym Eff} {Ep} {K} non-stuck Sig (o
 - : progress-op (eof/sub Ei _) O Ep K NS
      <- progress-op Ei O Ep K NS.
 
-%worlds () (progress-op _ _ _ _ _).
+%worlds (topen) (progress-op _ _ _ _ _).
 %total {Ei} (progress-op Ei _ _ _ _).
 
 
@@ -133,7 +133,7 @@ progress-let : non-stuck Sig C1 -> {C2} non-stuck Sig (let C1 C2) -> type.
 
 - : progress-let (non-stuck/step S1) _ (non-stuck/step (step/let-step S1)).
 
-%worlds () (progress-let _ _ _).
+%worlds (topen) (progress-let _ _ _).
 %total {NS1} (progress-let NS1 _ _).
 
 
@@ -151,5 +151,5 @@ progress-with : eof Sig E (_ ==> _) -> cof Sig C _ -> non-stuck Sig C -> non-stu
 - : progress-with (eof/sub E (<t/==> _ _)) C NS1 NS2
      <- progress-with E C NS1 NS2.
 
-%worlds () (progress-with _ _ _ _).
+%worlds (topen) (progress-with _ _ _ _).
 %total {E} (progress-with E _ _ _).

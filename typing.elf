@@ -24,8 +24,8 @@ pvar : expr -> sch -> type.
 
 %block mopen : some {A : ty} block {x : expr}{_ : var x A}.
 %block popen : some {S : sch} block {x : expr}{_ : pvar x S}.
-%block open = (mopen | popen).
-
+%block topen : block {t : ty}.
+%block open = (mopen | popen | topen).
 
 
 %%% Expressions %%%
@@ -96,3 +96,9 @@ cof/with : cof Sig (with E C) B'
 cof/sub  : cof Sig C B'
             <- B <t B'
             <- cof Sig C B.
+
+sof/plain : sof Sig C (plain A)
+             <- cof Sig C A.
+
+sof/forall: sof Sig C (forall A)
+             <- {x} sof Sig C (A x).
