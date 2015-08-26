@@ -29,33 +29,45 @@ ohads-lemma : scof Sig (op O E K) S D -> sig Sig O A1 A2 -> eof Sig E A1 -> ({x}
 
 preservation      : cof Sig C A -> step Sig C C' -> cof Sig C' A -> type.
 preservation-scof  : scof Sig C S D -> step Sig C C' -> scof Sig C' S D -> type.
-preservation-let  : scof Sig C1 S D -> ({x} pvar x S -> cof Sig (C2 x) (A ! D))
-                     -> step Sig (let C1 C2) C' -> cof Sig C' (A ! D) -> type.
-preservation-with : cof Sig C B1 -> eof Sig E (B1 ==> B2)
-                     -> step Sig (with E C) C' -> cof Sig C' B2 -> type.
 %mode preservation +C +S -C'.
 %mode preservation-scof +C +S -C'.
-%mode preservation-let +C1 +C2 +S -C'.
-%mode preservation-with +C +E +S -C'.
 
 - : preservation (cof/cond _ C1 _) step/cond-tru C1.
 
 - : preservation (cof/cond _ _ C2) step/cond-fls C2.
 
-- : preservation (cof/mtch E C1 C2) S C'
-     <- preservation-mtch E C1 C2 S C'.
+- : preservation (cof/mtch _ C1 _) step/mtch-zro C1.
 
-- : preservation (cof/app E1 E2) S C'
-     <- preservation-app E1 E2 S C'.
+- : preservation (cof/mtch (eof/suc E) _ C2) step/mtch-suc C2'
+     <- subst C2 E C2'.
 
-- : preservation (cof/let C1 C2) S C'
-     <- preservation-let C1 C2 S C'.
+- : preservation (cof/app (eof/fun C) E) step/app C'
+     <- subst C E C'.
 
-- : preservation (cof/letr C1 C2) S C'
+- : preservation (cof/let C1 C2) step/let-val C2'
+     <- val-ceof C1 E
+     <- psubst-cof E C2 C2'.
+
+- : preservation (cof/let C1 C2) step/let-op (cof/op O Ep ([_] [y] (cof/let (K _ y) C2)) OinD)
+     <- matijas-lemma C1 O
+     <- ohads-lemma C1 O Ep K OinD.
+
+- : preservation (cof/let C1 C2) (step/let-step S) (cof/let C1' C2)
+     <- preservation-scof C1 S C1'.
+
+- : preservation (cof/letr C1 C2) step/letr C'
      <- subst C2 (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ f _ x)))) C'.
 
-- : preservation (cof/with E C) S C'
-     <- preservation-with C E S C'.
+- : preservation (cof/with (eof/hnd Cv _ _) (cof/val E)) step/with-val C'
+     <- subst Cv E C'.
+
+- : preservation (cof/with (eof/hnd Cv OCs Cov) (cof/op _ E K OinD)) (step/with-op OC O) C'
+     <- preservation-with-op OinD O E
+         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (K x e))
+         OC OCs Cov C'.
+
+- : preservation (cof/with E C) (step/with-step S) (cof/with E C')
+     <- preservation C S C'.
 
 
 - : preservation-scof (scof/plain C) S (scof/plain C')
@@ -65,28 +77,5 @@ preservation-with : cof Sig C B1 -> eof Sig E (B1 ==> B2)
      <- {t} preservation-scof (C t) S (C' t).
 
 
-- : preservation-let C1 C2 step/let-op (cof/op O Ep ([_] [y] (cof/let (K _ y) C2)) OinD)
-     <- matijas-lemma C1 O
-     <- ohads-lemma C1 O Ep K OinD.
-
-- : preservation-let C1 C2 step/let-val C'
-     <- val-ceof C1 E
-     <- psubst-cof E C2 C'.
-
-- : preservation-let C1 C2 (step/let-step S) (cof/let C1' C2)
-     <- preservation-scof C1 S C1'.
-
-
-- : preservation-with (cof/val E) (eof/hnd Cv _ _) step/with-val C'
-     <- subst Cv E C'.
-
-- : preservation-with (cof/op _ E K OinD) (eof/hnd Cv OCs Cov) (step/with-op OC O) C'
-     <- preservation-with-op OinD O E
-         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (K x e))
-         OC OCs Cov C'.
-
-- : preservation-with C E (step/with-step S) (cof/with E C')
-     <- preservation C S C'.
-
-%worlds (topen) (preservation _ _ _) (preservation-scof _ _ _) (preservation-let _ _ _ _) (preservation-with _ _ _ _).
-%total {(S S' Sl Sw) (C C' Cl Ew) (C C' Cl Cw)} (preservation C S _) (preservation-scof C' S' _) (preservation-let Cl _ Sl _) (preservation-with Cw Ew Sw _).
+%worlds (topen) (preservation _ _ _) (preservation-scof _ _ _).
+%total {(S S') (C C')} (preservation C S _) (preservation-scof C' S' _).

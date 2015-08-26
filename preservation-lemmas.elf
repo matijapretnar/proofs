@@ -1,32 +1,5 @@
 %%% Subcases of the preservation theorem %%%
 
-% Like in the proof of the progress theorem, there are a couple of cases
-% for which we need to perform further induction due to subtyping.
-
-preservation-mtch : eof Sig E nat -> cof Sig C1 B
-                     -> ({x} var x nat -> cof Sig (C2 x) B)
-                     -> step Sig (mtch E C1 C2) C -> cof Sig C B -> type.
-%mode preservation-mtch +E +C1 +C2 +S -C'.
-
-- : preservation-mtch eof/zro C1 _ step/mtch-zro C1.
-
-- : preservation-mtch (eof/suc E) _ C2 step/mtch-suc C2'
-     <- subst C2 E C2'.
-
-%worlds (topen) (preservation-mtch _ _ _ _ _).
-%total {E} (preservation-mtch E _ _ _ _).
-
-
-preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> step Sig (app E1 E2) C -> cof Sig C B -> type.
-%mode preservation-app +E1 +E2 +S -C.
-
-- : preservation-app (eof/fun E1) E2 step/app E1'
-     <- subst E1 E2 E1'.
-
-%worlds (topen) (preservation-app _ _ _ _).
-%total {E1} (preservation-app E1 _ _ _).
-
-
 
 %%% Preservation of handled operations %%%
 

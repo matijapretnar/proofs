@@ -48,44 +48,6 @@ get-op-case-total : {O} opcof Sig OCs B D -> get-op-case O OCs OC -> type.
 % induction only by first proving a separate lemma for each case, and
 % these lemmas follow below.
 
-progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck Sig (cond E C1 C2) D -> type.
-%mode progress-cond +D +E +C1 +C2 -NS.
-
-- : progress-cond _ eof/tru _ _ (non-stuck/step step/cond-tru).
-
-- : progress-cond _ eof/fls _ _ (non-stuck/step step/cond-fls).
-
-%worlds (topen) (progress-cond _ _ _ _ _).
-%total {E} (progress-cond _ E _ _ _).
-
-
-progress-mtch : {D} eof Sig E nat -> {C1} {C2} non-stuck Sig (mtch E C1 C2) D -> type.
-%mode progress-mtch +D +E +C1 +C2 -NS.
-
-- : progress-mtch _ eof/zro _ _ (non-stuck/step step/mtch-zro).
-
-- : progress-mtch _ (eof/suc _) _ _ (non-stuck/step step/mtch-suc).
-
-%worlds (topen) (progress-mtch _ _ _ _ _).
-%total {E} (progress-mtch _ E _ _ _).
-
-
-progress-absd : {A} {D} eof Sig E empty -> non-stuck Sig (absd (A ! D) E) D -> type.
-%mode progress-absd +A +D +E -NS.
-
-
-%worlds (topen) (progress-absd _ _ _ _).
-%total {E} (progress-absd _ _ E _).
-
-
-progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck Sig (app E1 E2) D -> type.
-%mode progress-app +D +E1 +E2 -NS.
-
-- : progress-app _ (eof/fun _) _ (non-stuck/step step/app).
-
-%worlds (topen) (progress-app _ _ _ _).
-%total {E1} (progress-app _ E1 _ _).
-
 
 progress-let : non-stuck Sig C1 D -> {C2} non-stuck Sig (let C1 C2) D -> type.
 %mode progress-let +NS1 +C2 -NS.
@@ -100,7 +62,7 @@ progress-let : non-stuck Sig C1 D -> {C2} non-stuck Sig (let C1 C2) D -> type.
 %total {NS1} (progress-let NS1 _ _).
 
 
-progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C D1 -> non-stuck Sig (with E C) D2 -> type.
+progress-with : eof Sig E (_ ! _ ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C _ -> non-stuck Sig (with E C) D2 -> type.
 %mode progress-with +E +C +NS1 -NS2.
 
 - : progress-with (eof/hnd _ _ _) _ non-stuck/val (non-stuck/step step/with-val).

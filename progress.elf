@@ -2,20 +2,18 @@
 
 progress : cof Sig C (_ ! D) -> non-stuck Sig C D -> type.
 progress-scof : scof Sig C S D -> non-stuck Sig C D -> type.
-%mode progress     +C -NS.
+%mode progress +C -NS.
 %mode progress-scof +C -NS.
 
-- : progress (cof/cond E _ _) NS
-     <- progress-cond _ E _ _ NS.
+- : progress (cof/cond eof/tru _ _) (non-stuck/step step/cond-tru).
 
-- : progress (cof/mtch E _ _) NS
-     <- progress-mtch _ E _ _ NS.
+- : progress (cof/cond eof/fls _ _) (non-stuck/step step/cond-fls).
 
-- : progress (cof/absd E) NS
-     <- progress-absd _ _ E NS.
+- : progress (cof/mtch eof/zro _ _) (non-stuck/step step/mtch-zro).
 
-- : progress (cof/app E1 _) NS
-     <- progress-app _ E1 _ NS.
+- : progress (cof/mtch (eof/suc _) _ _) (non-stuck/step step/mtch-suc).
+
+- : progress (cof/app (eof/fun _) _) (non-stuck/step step/app).
 
 - : progress (cof/val _) non-stuck/val.
 
