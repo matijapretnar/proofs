@@ -3,6 +3,9 @@
 <t : ty -> ty -> type.
 %infix none 30 <t.
 
+%block topen : block {t : ty}.
+
+
 <t/bool  : bool <t bool.
 <t/nat   : nat <t nat.
 <t/unit  : unit <t unit.

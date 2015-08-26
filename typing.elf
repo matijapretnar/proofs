@@ -8,7 +8,8 @@
 
 eof : signature -> expr -> ty -> type.
 cof : signature -> comp -> ty -> type.
-sof : signature -> comp -> sch -> type.
+seof : signature -> expr -> sch -> type.
+scof : signature -> comp -> sch -> type.
 opcof : signature -> op-cases -> ty -> type.
 
 % We have an additional judgment "var E A" to represent variables of type "A"
@@ -24,7 +25,6 @@ pvar : expr -> sch -> type.
 
 %block mopen : some {A : ty} block {x : expr}{_ : var x A}.
 %block popen : some {S : sch} block {x : expr}{_ : pvar x S}.
-%block topen : block {t : ty}.
 %block open = (mopen | popen | topen).
 
 
@@ -86,7 +86,7 @@ cof/op   : cof Sig (op Ei O Ep K) B
             <- eof Sig Ei (inst Eff).
 cof/let  : cof Sig (let C1 C2) A
             <- ({x} pvar x S -> cof Sig (C2 x) A)
-            <- sof Sig C1 S.
+            <- scof Sig C1 S.
 cof/letr : cof Sig (letr A B C1 C2) B'
             <- ({f} var f (A --> B) -> cof Sig (C2 f) B')
             <- ({f} var f (A --> B) -> {x} var x A -> cof Sig (C1 f x) B).
@@ -97,8 +97,14 @@ cof/sub  : cof Sig C B'
             <- B <t B'
             <- cof Sig C B.
 
-sof/plain : sof Sig C (plain A)
+scof/plain : scof Sig C (plain A)
              <- cof Sig C A.
 
-sof/forall: sof Sig C (forall A)
-             <- {x} sof Sig C (A x).
+scof/forall: scof Sig C (forall A)
+             <- {x} scof Sig C (A x).
+
+seof/plain : seof Sig E (plain A)
+             <- eof Sig E A.
+
+seof/forall: seof Sig E (forall A)
+             <- {x} seof Sig E (A x).

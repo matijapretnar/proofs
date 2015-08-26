@@ -16,7 +16,7 @@ preservation-mtch : eof Sig E nat -> cof Sig C1 B
 - : preservation-mtch (eof/sub E _) C1 C2 S C'
      <- preservation-mtch E C1 C2 S C'.
 
-%worlds () (preservation-mtch _ _ _ _ _).
+%worlds (topen) (preservation-mtch _ _ _ _ _).
 %total {E} (preservation-mtch E _ _ _ _).
 
 
@@ -29,7 +29,7 @@ preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> step Sig (app E1 E2) 
 - : preservation-app (eof/sub E1 (<t/--> A'<A B<B')) E2 S (cof/sub C B<B')
      <- preservation-app E1 (eof/sub E2 A'<A) S C.
 
-%worlds () (preservation-app _ _ _ _).
+%worlds (topen) (preservation-app _ _ _ _).
 %total {E1} (preservation-app E1 _ _ _).
 
 
@@ -66,5 +66,5 @@ preservation-with-op : sig Sig O A1 A2
      (cof/op eof/ins O Ep ([_] [x] cof/app K (eof/var x))).
 
 
-%worlds () (preservation-with-op _ _ _ _ _ _).
+%worlds (topen) (preservation-with-op _ _ _ _ _ _).
 %total {OC} (preservation-with-op _ _ _ OC _ _).

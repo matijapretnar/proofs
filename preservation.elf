@@ -1,15 +1,39 @@
 %%%%% Preservation theorem %%%%%
 
+preservation-let-val : scof Sig (val E) S -> ({x} pvar x S -> cof Sig (C2 x) A) ->
+    cof Sig (C2 E) A -> type.
+%mode preservation-let-val +C1 +C2 -C.
+
+%worlds (topen) (preservation-let-val _ _ _).
+%trustme %total {} (preservation-let-val _ _ _).
+
+ohads-lemma : scof Sig (op Ei O Ep K) S -> sig Sig (O : opsym Eff) A1 A2 -> eof Sig Ei (inst Eff) -> eof Sig Ep A1 -> ({x} var x A2 -> scof Sig (K x) S) -> type.
+%mode ohads-lemma +OpCall -O -Ei -Ep -K.
+
+- : ohads-lemma (scof/plain (cof/op Ei O Ep K)) O Ei Ep ([x] [dx] scof/plain (K x dx)).
+
+- : ohads-lemma (scof/plain (cof/sub OpCall A1<A2)) O Ei Ep ([x] [dx] scof/plain (cof/sub (K x dx) A1<A2))
+    <- ohads-lemma (scof/plain OpCall) O Ei Ep ([x] [dx] scof/plain (K x dx)).
+
+- : ohads-lemma (scof/forall S) O Ei Ep ([x] [dx] scof/forall ([t] K t x dx))
+     <- {t} ohads-lemma (S t) O Ei Ep (K t).
+
+%worlds (topen) (ohads-lemma _ _ _ _ _).
+%trustme %total {S} (ohads-lemma S _ _ _ _).
+
+
 % To prove preservation, we need to simultaneously prove two other lemmas that
 % use preservation of the type computations in the evaluation context of either
 % let-binding or handling construct.
 
 preservation      : cof Sig C A -> step Sig C C' -> cof Sig C' A -> type.
-preservation-let  : cof Sig C1 A -> ({x} var x A -> cof Sig (C2 x) A')
-                     -> step Sig (let C1 C2) C' -> cof Sig C' A' -> type.
+preservation-scof  : scof Sig C S -> step Sig C C' -> scof Sig C' S -> type.
+preservation-let  : scof Sig C1 S -> ({x} pvar x S -> cof Sig (C2 x) A)
+                     -> step Sig (let C1 C2) C' -> cof Sig C' A -> type.
 preservation-with : cof Sig C B1 -> B1 <t B1' -> eof Sig E (B1' ==> B2)
                      -> step Sig (with E C) C' -> cof Sig C' B2 -> type.
 %mode preservation +C +S -C'.
+%mode preservation-scof +C +S -C'.
 %mode preservation-let +C1 +C2 +S -C'.
 %mode preservation-with +C +B1<B1' +E +S -C'.
 
@@ -37,18 +61,21 @@ preservation-with : cof Sig C B1 -> B1 <t B1' -> eof Sig E (B1' ==> B2)
      <- preservation C S C'.
 
 
-- : preservation-let (cof/sub C1 A<A') C2 S C'
-     <- ({x} {e : var x A'} subst-cof (eof/var e) A<A' (C2 x) (C2' x e))
-     <- preservation-let C1 C2' S C'.
+- : preservation-scof (scof/plain C) S (scof/plain C')
+     <- preservation C S C'.
 
-- : preservation-let (cof/val E) C2 step/let-val C'
-     <- subst C2 E C'.
+- : preservation-scof (scof/forall C) S (scof/forall C')
+     <- {t} preservation-scof (C t) S (C' t).
 
-- : preservation-let (cof/op Ei O Ep K) C2 step/let-op
-     (cof/op Ei O Ep ([_] [y] (cof/let (K _ y) C2))).
+
+- : preservation-let C1 C2 step/let-op (cof/op Ei O Ep ([_] [y] (cof/let (K _ y) C2)))
+     <- ohads-lemma C1 O Ei Ep K.
+
+- : preservation-let C1 C2 step/let-val C'
+     <- preservation-let-val C1 C2 C'.
 
 - : preservation-let C1 C2 (step/let-step S) (cof/let C1' C2)
-     <- preservation C1 S C1'.
+     <- preservation-scof C1 S C1'.
 
 
 - : preservation-with (cof/sub C B1<B1') B1'<B1'' E S C'
@@ -70,5 +97,5 @@ preservation-with : cof Sig C B1 -> B1 <t B1' -> eof Sig E (B1' ==> B2)
 - : preservation-with C B1<B1' E (step/with-step S) (cof/with E C')
      <- preservation (cof/sub C B1<B1') S C'.
 
-%worlds () (preservation _ _ _) (preservation-let _ _ _ _) (preservation-with _ _ _ _ _).
-%total {(S Sl Sw) (C Cl Ew) (C Cl Cw)} (preservation C S _) (preservation-let Cl _ Sl _) (preservation-with Cw _ Ew Sw _).
+%worlds (topen) (preservation _ _ _) (preservation-scof _ _ _) (preservation-let _ _ _ _) (preservation-with _ _ _ _ _).
+%total {(S S' Sl Sw) (C C' Cl Ew) (C C' Cl Cw)} (preservation C S _) (preservation-scof C' S' _) (preservation-let Cl _ Sl _) (preservation-with Cw _ Ew Sw _).

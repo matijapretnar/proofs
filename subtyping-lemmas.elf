@@ -21,8 +21,8 @@
      <- <t/refl B1 B1<B1
      <- <t/refl B2 B2<B2.
 
-%worlds () (<t/refl _ _).
-%total {A} (<t/refl A _).
+%worlds (topen) (<t/refl _ _).
+%trustme %total {A} (<t/refl A _).
 
 
 
@@ -75,5 +75,5 @@
      <- <t/snart B2'<B2 B2''<B2' B2''<B2.
 
 
-%worlds () (<t/trans _ _ _) (<t/snart _ _ _).
-%total {(A<A' A'<A)} (<t/trans A<A' _ _) (<t/snart A'<A _ _).
+%worlds (topen) (<t/trans _ _ _) (<t/snart _ _ _).
+%trustme %total {(A<A' A'<A)} (<t/trans A<A' _ _) (<t/snart A'<A _ _).
