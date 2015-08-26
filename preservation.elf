@@ -1,12 +1,5 @@
 %%%%% Preservation theorem %%%%%
 
-preservation-let-val : scof Sig (val E) S -> ({x} pvar x S -> cof Sig (C2 x) A) ->
-    cof Sig (C2 E) A -> type.
-%mode preservation-let-val +C1 +C2 -C.
-
-%worlds (topen) (preservation-let-val _ _ _).
-%trustme %total {} (preservation-let-val _ _ _).
-
 ohads-lemma : scof Sig (op Ei O Ep K) S -> sig Sig (O : opsym Eff) A1 A2 -> eof Sig Ei (inst Eff) -> eof Sig Ep A1 -> ({x} var x A2 -> scof Sig (K x) S) -> type.
 %mode ohads-lemma +OpCall -O -Ei -Ep -K.
 
@@ -72,7 +65,8 @@ preservation-with : cof Sig C B1 -> B1 <t B1' -> eof Sig E (B1' ==> B2)
      <- ohads-lemma C1 O Ei Ep K.
 
 - : preservation-let C1 C2 step/let-val C'
-     <- preservation-let-val C1 C2 C'.
+     <- val-ceof C1 E
+     <- psubst-cof E C2 C'.
 
 - : preservation-let C1 C2 (step/let-step S) (cof/let C1' C2)
      <- preservation-scof C1 S C1'.
