@@ -1,14 +1,3 @@
-% If an operation call is well-typed, the operation appears in the signature.
-
-cof-op/sig : cof Sig (op O _ _) _ -> sig Sig O _ _ -> type.
-%mode cof-op/sig +C -O.
-
-- : cof-op/sig (cof/op O _ _ _) O.
-
-%worlds (topen) (cof-op/sig _ _).
-%total {C} (cof-op/sig C _).
-
-
 %%% Effectiveness of "get-op-case" %%%
 
 % The main result here is "get-op-case-total", which says that for well-typed
@@ -67,8 +56,7 @@ progress-with : eof Sig E (_ ! _ ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C _
 
 - : progress-with (eof/hnd _ _ _) _ non-stuck/val (non-stuck/step step/with-val).
 
-- : progress-with (eof/hnd _ OCs _) C (non-stuck/op _) (non-stuck/step (step/with-op OC O))
-     <- cof-op/sig C O
+- : progress-with (eof/hnd _ OCs _) (cof/op O _ _ _) (non-stuck/op _) (non-stuck/step (step/with-op OC O))
      <- get-op-case-total _ OCs OC.
 
 - : progress-with (eof/hnd _ _ _) _ (non-stuck/step S) (non-stuck/step (step/with-step S)).

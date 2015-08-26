@@ -13,15 +13,6 @@ get-op-case/there : get-op-case O (op-cases/cons O' _ OCs) OC
                      <- get-op-case O OCs OC.
 
 
-% The type of final results
-
-result : type.
-
-result/val : expr -> result.
-result/op  : operation -> expr -> (expr -> comp) -> result.
-
-
-
 %%% Small step semantics %%%
 
 step : signature -> comp -> comp -> type.
