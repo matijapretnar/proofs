@@ -55,3 +55,85 @@ comparable : operation Eff -> operation Eff' -> type.
 comparable/equal : comparable IO IO.
 comparable/apart : comparable IO I'O'
                    <- apart IO I'O'.
+ 
+
+
+%%% Regions %%%
+
+% For the sake of simplicity, we represent regions with lists.
+% This representation is sufficient, because we only need to test for containment,
+% which we do by "in-region" for instances and "<r" for regions.
+
+region : effect -> type.
+%name region R.
+ 
+region/empty : region Eff.
+region/cons  : instance Eff -> region Eff -> region Eff.
+
+in-region : instance Eff -> region Eff -> type.
+ 
+in-region/here      : in-region I (region/cons I R).
+in-region/there     : in-region I (region/cons _ R)
+                       <- in-region I R.
+ 
+
+<r : region Eff -> region Eff -> type.
+%infix none 30 <r.
+ 
+<r/empty : region/empty <r R.
+<r/cons  : region/cons I R <r R'
+            <- R <r R'
+            <- in-region I R'.
+ 
+
+
+%%% Dirt %%%
+
+% Like regions, we represent dirt with lists, and define "in-dirt" and "<d".
+
+dirt : type.
+%name dirt D.
+ 
+dirt/empty : dirt.
+dirt/cons  : operation Eff -> dirt -> dirt.
+ 
+ 
+in-dirt : operation Eff -> dirt -> type.
+ 
+in-dirt/here  : in-dirt IO (dirt/cons IO D).
+in-dirt/there : in-dirt IO (dirt/cons _ D)
+                 <- in-dirt IO D.
+ 
+
+<d : dirt -> dirt -> type.
+%infix none 30 <d.
+ 
+<d/empty : dirt/empty <d D.
+<d/cons  : dirt/cons IO D <d D'
+            <- D <d D'
+            <- in-dirt IO D'.
+ 
+
+% In the typing rule for handlers, we use "covers D D1 D2",
+% which states that the dirt "D" is contained in the union of "D1" and "D2".
+
+covers : dirt -> dirt -> dirt -> type.
+ 
+covers/empty      : covers dirt/empty _ _.
+covers/cons-here  : covers (dirt/cons IO D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt IO D1.
+covers/cons-there : covers (dirt/cons IO D) D1 D2
+                     <- covers D D1 D2
+                     <- in-dirt IO D2.
+ 
+
+% In the typing rule for operation calls, we use "in-dirt-region R O D",
+% which states that "I # O" is in "D" for every "I" in "R".
+
+in-dirt-region : region Eff -> opsym Eff -> dirt -> type.
+ 
+in-dirt-region/empty : in-dirt-region region/empty O D.
+in-dirt-region/cons  : in-dirt-region (region/cons I R) O D
+                        <- in-dirt-region R O D
+                        <- in-dirt (I # O) D.

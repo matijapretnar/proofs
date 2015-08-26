@@ -1,15 +1,61 @@
+%%% Instance membership %%%
+
+instance-expr-in-region : eof _ (ins I) (inst R) -> in-region I R -> type.
+%mode instance-expr-in-region +E -IinR.
+
+- : instance-expr-in-region (eof/ins IinR) IinR.
+
+- : instance-expr-in-region (eof/sub E (<t/inst R<R')) IinR'
+     <- instance-expr-in-region E IinR
+     <- in-region/<r IinR R<R' IinR'.
+
+%worlds (topen) (instance-expr-in-region _ _).
+%total {E} (instance-expr-in-region E _).
+
+
+% We need to use contradiction in the following lemma.
+
+apart-not-refl : {IO} {D} apart-name X X -> in-dirt IO D -> type.
+%mode apart-not-refl +IO +D +X!X -IOinD.
+
+- : apart-not-refl IO D (apart-name/ss X!X) IOinD
+     <- apart-not-refl IO D X!X IOinD.
+
+%worlds (topen) (apart-not-refl _ _ _ _).
+%total {X!X} (apart-not-refl _ _ X!X _).
+
+
+unequal-instance-in-rest : in-region I (region/cons I' region/empty)
+                            -> in-dirt IO (dirt/cons (I' # O') D)
+                            -> apart IO (I # O') -> in-dirt IO D -> type.
+%mode unequal-instance-in-rest +IinR +IOinD' +IO!I'O' -IOinD.
+
+- : unequal-instance-in-rest _ (in-dirt/there IOinD) _ IOinD.
+- : unequal-instance-in-rest _ in-dirt/here (apart/effect X!X) IOinD
+     <- apart-not-refl _ _ X!X IOinD.
+- : unequal-instance-in-rest _ in-dirt/here (apart/instance X!X) IOinD
+     <- apart-not-refl _ _ X!X IOinD.
+- : unequal-instance-in-rest _ in-dirt/here (apart/opsym X!X) IOinD
+     <- apart-not-refl _ _ X!X IOinD.
+- : unequal-instance-in-rest in-region/here in-dirt/here _ in-dirt/here.
+
+%worlds () (unequal-instance-in-rest _ _ _ _).
+%total {} (unequal-instance-in-rest _ _ _ _).
+
+
+
 %%% Substitution lemma %%%
 
 % Because we represent variable judgments by "var" instead of "eof",
 % we cannot use Twelf substitution, but need to prove an explicit substitution lemma.
 % To make the proof go through, we need to add an additional subtyping assumption.
 
-val-ceof : scof Sig (val E) S -> seof Sig E S -> type.
+val-ceof : scof Sig (val E) S _ -> seof Sig E S -> type.
 %mode val-ceof +V -E.
 
 - : val-ceof (scof/plain (cof/val E)) (seof/plain E).
 
-- : val-ceof (scof/plain (cof/sub E A1<A2)) (seof/plain (eof/sub E' A1<A2))
+- : val-ceof (scof/plain (cof/sub E (<dt/! A1<A2 _))) (seof/plain (eof/sub E' A1<A2))
      <- val-ceof (scof/plain E) (seof/plain E').
 
 - : val-ceof (scof/forall S) (seof/forall S')
@@ -32,9 +78,9 @@ concrete-seof : seof Sig E S -> concrete S A -> eof Sig E A -> type.
 
 psubst-eof   : seof Sig E' S -> ({x} pvar x S -> eof Sig (E x) A) -> eof Sig (E E') A -> type.
 psubst-cof   : seof Sig E S -> ({x} pvar x S -> cof Sig (C x) B) -> cof Sig (C E) B -> type.
-psubst-scof   : seof Sig E S -> ({x} pvar x S -> scof Sig (C x) S') -> scof Sig (C E) S' -> type.
-psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B)
-               -> opcof Sig (OCs E) B -> type.
+psubst-scof   : seof Sig E S -> ({x} pvar x S -> scof Sig (C x) S' D) -> scof Sig (C E) S' D -> type.
+psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
+               -> opcof Sig (OCs E) B Dcov -> type.
 %mode psubst-eof +X +E -E'.
 %mode psubst-cof +X +C -C'.
 %mode psubst-scof +X +C -C'.
@@ -61,11 +107,11 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B)
 - : psubst-eof X ([x] [dx] eof/fun (F x dx)) (eof/fun F')
      <- {y} {dy} psubst-cof X ([x] [dx] F x dx y dy) (F' y dy).
 
-- : psubst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx)) (eof/hnd Cv' OCs')
+- : psubst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx) Cov) (eof/hnd Cv' OCs' Cov)
      <- ({y} {dy} psubst-cof X ([x] [dx] Cv x dx y dy) (Cv' y dy))
      <- psubst-opcof X OCs OCs'.
 
-- : psubst-eof _ ([_] [_] (eof/ins : eof _ (ins I) (inst Eff))) eof/ins.
+- : psubst-eof _ ([_] [_] (eof/ins IinR)) (eof/ins IinR).
 
 - : psubst-eof X ([x] [dx] eof/sub (E x dx) A<A') (eof/sub E' A<A')
      <- psubst-eof X E E'.
@@ -91,8 +137,8 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B)
 - : psubst-cof X ([x] [dx] cof/val (E x dx)) (cof/val E')
      <- psubst-eof X E E'.
 
-- : psubst-cof X ([x] [dx] cof/op (Ei x dx) O (Ep x dx) ([y] [dy] K x dx y dy))
-     (cof/op Ei' O Ep' K')
+- : psubst-cof X ([x] [dx] cof/op (Ei x dx) O (Ep x dx) ([y] [dy] K x dx y dy) IOinD)
+     (cof/op Ei' O Ep' K' IOinD)
      <- psubst-eof X Ei Ei'
      <- psubst-eof X Ep Ep'
      <- {y} {dy} psubst-cof X ([x] [dx] K x dx y dy) (K' y dy).
@@ -122,8 +168,8 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B)
 
 - : psubst-opcof _ ([x] [dx] opcof/nil) opcof/nil.
 
-- : psubst-opcof X ([x] [dx] opcof/cons (E x dx) O ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
-     (opcof/cons E' O K' OCs')
+- : psubst-opcof X ([x] [dx] opcof/cons (E x dx) O ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx) Add)
+     (opcof/cons E' O K' OCs' Add)
      <- psubst-eof X E E'
      <- ({y} {dy} {k} {dk} psubst-cof X ([x] [dx] K x dx y dy k dk) (K' y dy k dk))
      <- psubst-opcof X OCs OCs'.
@@ -134,9 +180,9 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B)
 
 subst-eof   : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> eof Sig E A) -> eof Sig E A -> type.
 subst-cof   : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> cof Sig C B) -> cof Sig C B -> type.
-subst-scof   : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> scof Sig C S) -> scof Sig C S -> type.
-subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B)
-               -> opcof Sig OCs B -> type.
+subst-scof   : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> scof Sig C S D) -> scof Sig C S D -> type.
+subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B Dcov)
+               -> opcof Sig OCs B Dcov -> type.
 %mode subst-eof +X +A1<A2 +E -E'.
 %mode subst-cof +X +A1<A2 +C -C'.
 %mode subst-scof +X +A1<A2 +C -C'.
@@ -162,11 +208,11 @@ subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B)
 - : subst-eof X A1<A2 ([dx] eof/fun (F dx)) (eof/fun F')
      <- {y} {dy} subst-cof X A1<A2 ([dx] F dx y dy) (F' y dy).
 
-- : subst-eof X A1<A2 ([dx] eof/hnd (Cv dx) (OCs dx)) (eof/hnd Cv' OCs')
+- : subst-eof X A1<A2 ([dx] eof/hnd (Cv dx) (OCs dx) Cov) (eof/hnd Cv' OCs' Cov)
      <- ({y} {dy} subst-cof X A1<A2 ([dx] Cv dx y dy) (Cv' y dy))
      <- subst-opcof X A1<A2 OCs OCs'.
 
-- : subst-eof _ _ ([dx] eof/ins) eof/ins.
+- : subst-eof _ _ ([_] eof/ins IinR) (eof/ins IinR).
 
 - : subst-eof X A1<A2 ([dx] eof/sub (E dx) A<A') (eof/sub E' A<A')
      <- subst-eof X A1<A2 E E'.
@@ -192,8 +238,8 @@ subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B)
 - : subst-cof X A1<A2 ([dx] cof/val (E dx)) (cof/val E')
      <- subst-eof X A1<A2 E E'.
 
-- : subst-cof X A1<A2 ([dx] cof/op (Ei dx) O (Ep dx) ([y] [dy] K dx y dy))
-     (cof/op Ei' O Ep' K')
+- : subst-cof X A1<A2 ([dx] cof/op (Ei dx) O (Ep dx) ([y] [dy] K dx y dy) ROinD)
+     (cof/op Ei' O Ep' K' ROinD)
      <- subst-eof X A1<A2 Ei Ei'
      <- subst-eof X A1<A2 Ep Ep'
      <- {y} {dy} subst-cof X A1<A2 ([dx] K dx y dy) (K' y dy).
@@ -223,8 +269,8 @@ subst-opcof : eof Sig E' A1 -> A1 <t A2 -> (var E' A2 -> opcof Sig OCs B)
 
 - : subst-opcof _ _ ([dx] opcof/nil) opcof/nil.
 
-- : subst-opcof X A1<A2 ([dx] opcof/cons (E dx) O ([y] [dy] [k] [dk] K dx y dy k dk) (OCs dx))
-     (opcof/cons E' O K' OCs')
+- : subst-opcof X A1<A2 ([dx] opcof/cons (E dx) O ([y] [dy] [k] [dk] K dx y dy k dk) (OCs dx) Add)
+     (opcof/cons E' O K' OCs' Add)
      <- subst-eof X A1<A2 E E'
      <- ({y} {dy} {k} {dk} subst-cof X A1<A2 ([dx] K dx y dy k dk) (K' y dy k dk))
      <- subst-opcof X A1<A2 OCs OCs'.
