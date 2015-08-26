@@ -1,18 +1,26 @@
 %%%%% Preservation theorem %%%%%
 
-ohads-lemma : scof Sig (op Ei O Ep K) S D -> sig Sig O A1 A2 -> eof Sig Ei (inst R) -> eof Sig Ep A1 -> ({x} var x A2 -> scof Sig (K x) S D) -> in-dirt-region R O D -> type.
-%mode ohads-lemma +OpCall -O -Ei -Ep -K -ROinD.
+matijas-lemma : scof Sig (op O E K) S D -> sig Sig O A1 A2 -> type.
+%mode matijas-lemma +OpCall -O.
 
-- : ohads-lemma (scof/plain (cof/op Ei O Ep K ROinD)) O Ei Ep ([x] [dx] scof/plain (K x dx)) ROinD.
+- : matijas-lemma (scof/forall S) (O unit)
+    <- {t} matijas-lemma (S t) (O t).
 
-- : ohads-lemma (scof/plain (cof/sub OpCall A1<A2)) O Ei Ep ([x] [dx] scof/plain (cof/sub (K x dx) A1<A2)) ROinD
-    <- ohads-lemma (scof/plain OpCall) O Ei Ep ([x] [dx] scof/plain (K x dx)) ROinD.
+- : matijas-lemma (scof/plain (cof/op O _ _ _)) O.
 
-- : ohads-lemma (scof/forall S) O Ei Ep ([x] [dx] scof/forall ([t] K t x dx)) ROinD
-     <- {t} ohads-lemma (S t) O Ei Ep (K t) ROinD.
+%worlds (topen) (matijas-lemma _ _).
+%total {OpCall} (matijas-lemma OpCall _).
 
-%worlds (topen) (ohads-lemma _ _ _ _ _ _).
-%trustme %total {S} (ohads-lemma S _ _ _ _ _).
+ohads-lemma : scof Sig (op O E K) S D -> sig Sig O A1 A2 -> eof Sig E A1 -> ({x} var x A2 -> scof Sig (K x) S D) -> in-dirt O D -> type.
+%mode ohads-lemma +OpCall +O -E -K -OinD.
+
+- : ohads-lemma (scof/forall S) O (E unit) ([x] [dx] scof/forall ([t] K t x dx)) OinD
+     <- {t} ohads-lemma (S t) O (E t) (K t) OinD.
+
+- : ohads-lemma (scof/plain (cof/op O E K OinD)) _ E ([x] [dx] scof/plain (K x dx)) OinD.
+
+%worlds (topen) (ohads-lemma _ _ _ _ _).
+%total {S} (ohads-lemma S _ _ _ _).
 
 
 % To prove preservation, we need to simultaneously prove two other lemmas that
@@ -23,12 +31,12 @@ preservation      : cof Sig C A -> step Sig C C' -> cof Sig C' A -> type.
 preservation-scof  : scof Sig C S D -> step Sig C C' -> scof Sig C' S D -> type.
 preservation-let  : scof Sig C1 S D -> ({x} pvar x S -> cof Sig (C2 x) (A ! D))
                      -> step Sig (let C1 C2) C' -> cof Sig C' (A ! D) -> type.
-preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
+preservation-with : cof Sig C B1 -> eof Sig E (B1 ==> B2)
                      -> step Sig (with E C) C' -> cof Sig C' B2 -> type.
 %mode preservation +C +S -C'.
 %mode preservation-scof +C +S -C'.
 %mode preservation-let +C1 +C2 +S -C'.
-%mode preservation-with +C +B1<B1' +E +S -C'.
+%mode preservation-with +C +E +S -C'.
 
 - : preservation (cof/cond _ C1 _) step/cond-tru C1.
 
@@ -47,11 +55,7 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
      <- subst C2 (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ f _ x)))) C'.
 
 - : preservation (cof/with E C) S C'
-     <- <dt/refl _ B1<B1
-     <- preservation-with C B1<B1 E S C'.
-
-- : preservation (cof/sub C B<B') S (cof/sub C' B<B')
-     <- preservation C S C'.
+     <- preservation-with C E S C'.
 
 
 - : preservation-scof (scof/plain C) S (scof/plain C')
@@ -61,8 +65,9 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
      <- {t} preservation-scof (C t) S (C' t).
 
 
-- : preservation-let C1 C2 step/let-op (cof/op Ei O Ep ([_] [y] (cof/let (K _ y) C2)) ROinD)
-     <- ohads-lemma C1 O Ei Ep K ROinD.
+- : preservation-let C1 C2 step/let-op (cof/op O Ep ([_] [y] (cof/let (K _ y) C2)) OinD)
+     <- matijas-lemma C1 O
+     <- ohads-lemma C1 O Ep K OinD.
 
 - : preservation-let C1 C2 step/let-val C'
      <- val-ceof C1 E
@@ -72,27 +77,16 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
      <- preservation-scof C1 S C1'.
 
 
-- : preservation-with (cof/sub C B1<B1') B1'<B1'' E S C'
-     <- <dt/trans B1<B1' B1'<B1'' B1<B1''
-     <- preservation-with C B1<B1'' E S C'.
+- : preservation-with (cof/val E) (eof/hnd Cv _ _) step/with-val C'
+     <- subst Cv E C'.
 
-- : preservation-with C B1<B1' (eof/sub E (<t/==> B1'<B1'' B2''<B2')) S (cof/sub C' B2''<B2')
-     <- <dt/trans B1<B1' B1'<B1'' B1<B1''
-     <- preservation-with C B1<B1'' E S C'.
-
-- : preservation-with (cof/val E) (<dt/! A<A' _) (eof/hnd Cv _ _) step/with-val C'
-     <- subst Cv (eof/sub E A<A') C'.
-
-- : preservation-with (cof/op Ei _ Ep K ROinD) (<dt/! A<A' D<D') (eof/hnd Cv OCs Cov) (step/with-op OC O) C'
-     <- instance-expr-in-region Ei IinR
-     <- in-dirt-region/<d ROinD D<D' ROinD'
-     <- in-region-in-dirt IinR ROinD' IOinD'
-     <- preservation-with-op IOinD' O Ep
-         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (cof/sub (K x e) (<dt/! A<A' D<D')))
+- : preservation-with (cof/op _ E K OinD) (eof/hnd Cv OCs Cov) (step/with-op OC O) C'
+     <- preservation-with-op OinD O E
+         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (K x e))
          OC OCs Cov C'.
 
-- : preservation-with C B1<B1' E (step/with-step S) (cof/with E C')
-     <- preservation (cof/sub C B1<B1') S C'.
+- : preservation-with C E (step/with-step S) (cof/with E C')
+     <- preservation C S C'.
 
-%worlds (topen) (preservation _ _ _) (preservation-scof _ _ _) (preservation-let _ _ _ _) (preservation-with _ _ _ _ _).
-%total {(S S' Sl Sw) (C C' Cl Ew) (C C' Cl Cw)} (preservation C S _) (preservation-scof C' S' _) (preservation-let Cl _ Sl _) (preservation-with Cw _ Ew Sw _).
+%worlds (topen) (preservation _ _ _) (preservation-scof _ _ _) (preservation-let _ _ _ _) (preservation-with _ _ _ _).
+%total {(S S' Sl Sw) (C C' Cl Ew) (C C' Cl Cw)} (preservation C S _) (preservation-scof C' S' _) (preservation-let Cl _ Sl _) (preservation-with Cw Ew Sw _).

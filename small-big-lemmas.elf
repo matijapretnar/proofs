@@ -91,8 +91,8 @@ step/eval-with : step Sig C2 C2' -> eval Sig (with E C2') R -> eval Sig (with E 
 
 
 ~>*-with-op :
-  step* Sig C (result/op (I # O) E K)
-  -> get-op-case (I # O) OCs OC
+  step* Sig C (result/op O E K)
+  -> get-op-case O OCs OC
   -> sig Sig O _ Aop
   -> step* Sig (OC E (fun Aop ([y] with (hnd Av Cv OCs) (K y)))) R
   -> step* Sig (with (hnd Av Cv OCs) C) R -> type.

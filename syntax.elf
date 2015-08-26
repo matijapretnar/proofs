@@ -17,7 +17,6 @@ nat   : ty.                   % the type of natural numbers
 unit  : ty.                   % the unit type
 empty : ty.                   % the empty type
 -->   : ty -> dirty -> ty.    % the function type
-inst  : region Eff -> ty.     % the type of instances of a given effect
 ==>   : dirty -> dirty -> ty. % the type of handlers
 %infix right 50 -->.
 %infix right 55 ==>.
@@ -25,6 +24,7 @@ inst  : region Eff -> ty.     % the type of instances of a given effect
 ! : ty -> dirt -> dirty.
 %infix none 60 !.
 
+%block topen : block {t : ty}.
 
 %%% Schemes %%%
 
@@ -61,18 +61,17 @@ zro : expr.                               % zero
 suc : expr -> expr.                       % successor
 unt : expr.                               % unit
 fun : ty -> (expr -> comp) -> expr.       % function
-ins : instance Eff -> expr.               % instance
 hnd : ty -> val-case -> op-cases -> expr. % handler
 
 op-cases/nil  : dirty -> op-cases.
-op-cases/cons : expr -> opsym Eff -> op-case -> op-cases -> op-cases.
+op-cases/cons : operation -> op-case -> op-cases -> op-cases.
 
 cond : expr -> comp -> comp -> comp.   % conditional statement
 mtch : expr -> comp -> (expr -> comp) -> comp. % natural number matching
 absd : dirty -> expr -> comp.          % eliminator for empty type
 app  : expr -> expr -> comp.           % application
 val  : expr -> comp.                   % injection of values into computations
-op   : expr -> opsym Eff -> expr -> (expr -> comp) -> comp. % operation call
+op   : operation -> expr -> (expr -> comp) -> comp. % operation call
 let  : comp -> (expr -> comp) -> comp. % let-binding
 letr : ty -> dirty -> (expr -> expr -> comp) -> (expr -> comp) -> comp. % recursive definition
 with : expr -> comp -> comp.           % handling construct

@@ -43,36 +43,24 @@ eof/suc : eof Sig (suc E) nat
 eof/unt : eof _ unt unit.
 eof/fun : eof Sig (fun A E) (A --> B)
            <- ({x} var x A -> cof Sig (E x) B).
-eof/ins : eof _ (ins I) (inst R)
-           <- in-region I R.
-eof/sub : eof Sig E A'
-           <- A <t A'
-           <- eof Sig E A.
 eof/hnd : eof Sig (hnd A Cv OCs) (A ! D ==> A' ! D')
            <- covers D Dcov D'
            <- opcof Sig OCs (A' ! D') Dcov
            <- ({x} var x A -> cof Sig (Cv x) (A' ! D')).
 
+scof/plain : scof Sig C (plain A) D
+             <- cof Sig C (A ! D).
+scof/forall: scof Sig C (forall S) D
+             <- {x} scof Sig C (S x) D.
+
 
 %%% Operation cases %%%
 
-% We can guarantee that an operation case matches a given operation only if
-% its instance expressions is a singleton.
-% To do so, we introduce "add-if-singleton D R O D'",
-% which adds "I#O" to dirt "D" to obtain dirt "D'", if "R" is exactly singleton "I".
- 
-add-if-singleton : dirt -> region Eff -> opsym Eff -> dirt -> type.
-
-add-if-singleton/take : add-if-singleton D (region/cons I region/empty) O (dirt/cons (I # O) D).
-add-if-singleton/skip : add-if-singleton D _ _ D.
- 
 opcof/nil  : opcof Sig (op-cases/nil B) B dirt/empty.
-opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
-              <- add-if-singleton D R O D'
+opcof/cons : opcof Sig (op-cases/cons O OC OCs) B (dirt/cons O D)
               <- opcof Sig OCs B D
               <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof Sig (OC x k) B)
-              <- sig Sig O A1 A2
-              <- eof Sig E (inst R).
+              <- sig Sig O A1 A2.
 
 
 %%% Computations %%%
@@ -92,12 +80,11 @@ cof/app  : cof Sig (app E1 E2) B
             <- eof Sig E1 (A --> B).
 cof/val  : cof Sig (val E) (A ! D)
             <- eof Sig E A.
-cof/op   : cof Sig (op Ei O Ep K) (B ! D)
-            <- in-dirt-region R O D
+cof/op   : cof Sig (op O E K) (B ! D)
+            <- in-dirt O D
             <- ({x} var x A2 -> cof Sig (K x) (B ! D))
-            <- eof Sig Ep A1
-            <- sig Sig O A1 A2
-            <- eof Sig Ei (inst R).
+            <- eof Sig E A1
+            <- sig Sig O A1 A2.
 cof/let  : cof Sig (let C1 C2) (A ! D)
             <- ({x} pvar x S -> cof Sig (C2 x) (A ! D))
             <- scof Sig C1 S D.
@@ -107,18 +94,8 @@ cof/letr : cof Sig (letr A B C1 C2) B'
 cof/with : cof Sig (with E C) B'
             <- cof Sig C B
             <- eof Sig E (B ==> B').
-cof/sub  : cof Sig C B'
-            <- B <dt B'
-            <- cof Sig C B.
-
-scof/plain : scof Sig C (plain A) D
-             <- cof Sig C (A ! D).
-
-scof/forall: scof Sig C (forall S) D
-             <- {x} scof Sig C (S x) D.
 
 seof/plain : seof Sig E (plain A)
              <- eof Sig E A.
-
 seof/forall: seof Sig E (forall S)
              <- {x} seof Sig E (S x).

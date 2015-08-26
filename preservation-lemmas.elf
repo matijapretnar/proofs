@@ -13,9 +13,6 @@ preservation-mtch : eof Sig E nat -> cof Sig C1 B
 - : preservation-mtch (eof/suc E) _ C2 step/mtch-suc C2'
      <- subst C2 E C2'.
 
-- : preservation-mtch (eof/sub E _) C1 C2 S C'
-     <- preservation-mtch E C1 C2 S C'.
-
 %worlds (topen) (preservation-mtch _ _ _ _ _).
 %total {E} (preservation-mtch E _ _ _ _).
 
@@ -25,9 +22,6 @@ preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> step Sig (app E1 E2) 
 
 - : preservation-app (eof/fun E1) E2 step/app E1'
      <- subst E1 E2 E1'.
-
-- : preservation-app (eof/sub E1 (<t/--> A'<A B<B')) E2 S (cof/sub C B<B')
-     <- preservation-app E1 (eof/sub E2 A'<A) S C.
 
 %worlds (topen) (preservation-app _ _ _ _).
 %total {E1} (preservation-app E1 _ _ _).
@@ -43,37 +37,28 @@ preservation-app : eof Sig E1 (A --> B) -> eof Sig E2 A -> step Sig (app E1 E2) 
 
 % Preservation in case an operation is covered by some operation case
 
-preservation-handled-op : in-dirt (I # O) Dcov -> sig Sig O A1 A2
-                           -> eof Sig Ep A1 -> eof Sig K (A2 --> B)
-                           -> get-op-case (I # O) OCs OC -> opcof Sig OCs B Dcov
-                           -> cof Sig (OC Ep K) B -> type.
-%mode preservation-handled-op +IOinDcov +O +Ep +K +OC +OCs -C'.
+preservation-handled-op : in-dirt O Dcov -> sig Sig O A1 A2
+                           -> eof Sig E A1 -> eof Sig K (A2 --> B)
+                           -> get-op-case O OCs OC -> opcof Sig OCs B Dcov
+                           -> cof Sig (OC E K) B -> type.
+%mode preservation-handled-op +OinDcov +O +E +K +OC +OCs -C'.
 
 % When the first case matches.
-- : preservation-handled-op _ _ Ep K
+- : preservation-handled-op _ _ E K
      get-op-case/here
-     (opcof/cons _ _ OC _ _)
+     (opcof/cons _ OC _)
      OC'
-     <- subst2 OC Ep K OC'.
+     <- subst2 OC E K OC'.
 
-% When the first case does not match and does not have a singleton region.
-% In this case, the covered dirt remains the same, so we continue as before.
-- : preservation-handled-op IOinDcov O Ep K
-     (get-op-case/there OC _)
-     (opcof/cons _ _ _ OCs _)
-     C'
-     <- preservation-handled-op IOinDcov O Ep K OC OCs C'.
-
-% When the first case does not match but has a singleton region, the covered
-% dirt changes. However, since the case did not match, the handled operation
+% When the first case does not match, the covered dirt changes.
+% However, since the case did not match, the handled operation
 % must be in the remainder of the covered dirt, so we continue as before.
-- : preservation-handled-op IOinDcov O Ep K
+- : preservation-handled-op OinDcov O E K
      (get-op-case/there OC A)
-     (opcof/cons R _ _ OCs add-if-singleton/take)
+     (opcof/cons _ _ OCs)
      C'
-     <- instance-expr-in-region R IinR
-     <- unequal-instance-in-rest IinR IOinDcov A IOinDcov'
-     <- preservation-handled-op IOinDcov' O Ep K OC OCs C'.
+     <- unequal-instance-in-rest OinDcov A OinDcov'
+     <- preservation-handled-op OinDcov' O E K OC OCs C'.
 
 %worlds (topen) (preservation-handled-op _ _ _ _ _ _ _).
 %total {OC} (preservation-handled-op _ _ _ _ OC _ _).
@@ -81,33 +66,32 @@ preservation-handled-op : in-dirt (I # O) Dcov -> sig Sig O A1 A2
 
 % Preservation in case an operation appears in the outgoing dirt
 
-preservation-unhandled-op : in-dirt (I # O) D' -> sig Sig O A1 A2
-                             -> eof Sig Ep A1 -> eof Sig K (A2 --> A' ! D')
-                             -> get-op-case (I # O) OCs OC -> opcof Sig OCs (A' ! D') _
-                             -> cof Sig (OC Ep K) (A' ! D') -> type.
-%mode preservation-unhandled-op +IOinD' +O +Ep +K +OC +OCs -C'.
+preservation-unhandled-op : in-dirt O D' -> sig Sig O A1 A2
+                             -> eof Sig E A1 -> eof Sig K (A2 --> A' ! D')
+                             -> get-op-case O OCs OC -> opcof Sig OCs (A' ! D') _
+                             -> cof Sig (OC E K) (A' ! D') -> type.
+%mode preservation-unhandled-op +OinD' +O +E +K +OC +OCs -C'.
 
 % When the first case matches.
 - : preservation-unhandled-op _ _ Ep K
      get-op-case/here
-     (opcof/cons _ _ OC _ _)
+     (opcof/cons _ OC _)
      OC'
      <- subst2 OC Ep K OC'.
 
 % When the first case does not match, but there are more cases,
 % we continue as before.
-- : preservation-unhandled-op IOinD' O Ep K
+- : preservation-unhandled-op OinD' O Ep K
      (get-op-case/there OC _)
-     (opcof/cons _ _ _ OCs _)
+     (opcof/cons _ _ OCs)
      C'
-     <- preservation-unhandled-op IOinD' O Ep K OC OCs C'.
+     <- preservation-unhandled-op OinD' O Ep K OC OCs C'.
 
 % When there are no more cases, we propagate the operation call.
-- : preservation-unhandled-op IOinD' O Ep K
+- : preservation-unhandled-op OinD' O Ep K
      get-op-case/nil
      opcof/nil
-     (cof/op (eof/ins in-region/here) O Ep ([_] [x] cof/app K (eof/var x))
-      (in-dirt-region/cons IOinD' in-dirt-region/empty)).
+     (cof/op O Ep ([_] [x] cof/app K (eof/var x)) OinD').
 
 
 %worlds (topen) (preservation-unhandled-op _ _ _ _ _ _ _).
@@ -116,22 +100,22 @@ preservation-unhandled-op : in-dirt (I # O) D' -> sig Sig O A1 A2
 
 % Preservation in any case
 
-preservation-with-op : in-dirt (I # O) D -> sig Sig O A1 A2
+preservation-with-op : in-dirt O D -> sig Sig O A1 A2
                         -> eof Sig Ep A1 -> eof Sig K (A2 --> A' ! D')
-                        -> get-op-case (I # O) OCs OC -> opcof Sig OCs (A' ! D') Dcov
+                        -> get-op-case O OCs OC -> opcof Sig OCs (A' ! D') Dcov
                         -> covers D Dcov D'
                         -> cof Sig (OC Ep K) (A' ! D') -> type.
-%mode preservation-with-op +IOinD +O +Ep +K +OC +OCs +Cov -OC.
+%mode preservation-with-op +OinD +O +Ep +K +OC +OCs +Cov -OC.
 
-- : preservation-with-op in-dirt/here O Ep K OC OCs (covers/cons-here IOinDcov _) C'
-     <- preservation-handled-op IOinDcov O Ep K OC OCs C'.
+- : preservation-with-op in-dirt/here O Ep K OC OCs (covers/cons-here OinDcov _) C'
+     <- preservation-handled-op OinDcov O Ep K OC OCs C'.
 
-- : preservation-with-op in-dirt/here O Ep K OC OCs (covers/cons-there IOinD' _) C'
-     <- preservation-unhandled-op IOinD' O Ep K OC OCs C'.
+- : preservation-with-op in-dirt/here O Ep K OC OCs (covers/cons-there OinD' _) C'
+     <- preservation-unhandled-op OinD' O Ep K OC OCs C'.
 
-- : preservation-with-op (in-dirt/there IOinD) O Ep K OC OCs Cov C'
+- : preservation-with-op (in-dirt/there OinD) O Ep K OC OCs Cov C'
      <- covers-rest Cov Cov' 
-     <- preservation-with-op IOinD O Ep K OC OCs Cov' C'.
+     <- preservation-with-op OinD O Ep K OC OCs Cov' C'.
 
 %worlds (topen) (preservation-with-op _ _ _ _ _ _ _ _).
-%total {IOinD} (preservation-with-op IOinD _ _ _ _ _ _ _).
+%total {OinD} (preservation-with-op OinD _ _ _ _ _ _ _).
