@@ -23,12 +23,10 @@ ohads-lemma : scof Sig (op O E K) S D -> sig Sig O A1 A2 -> eof Sig E A1 -> ({x}
 %total {S} (ohads-lemma S _ _ _ _).
 
 
-% To prove preservation, we need to simultaneously prove two other lemmas that
-% use preservation of the type computations in the eretuation context of either
-% let-binding or handling construct.
+% We need to simultaneously prove both preservation of dirty types and schemes.
 
-preservation      : cof Sig C A -> step Sig C C' -> cof Sig C' A -> type.
-preservation-scof  : scof Sig C S D -> step Sig C C' -> scof Sig C' S D -> type.
+preservation      : cof Sig C B -> step Sig C C' -> cof Sig C' B -> type.
+preservation-scof : scof Sig C S D -> step Sig C C' -> scof Sig C' S D -> type.
 %mode preservation +C +S -C'.
 %mode preservation-scof +C +S -C'.
 
@@ -39,15 +37,15 @@ preservation-scof  : scof Sig C S D -> step Sig C C' -> scof Sig C' S D -> type.
 - : preservation (cof/app (eof/fun C) E) step/app C'
      <- subst C E C'.
 
-- : preservation (cof/let C1 C2) step/let-ret C2'
+- : preservation (cof/seq C1 C2) step/seq-ret C2'
      <- ret-ceof C1 E
      <- psubst-cof E C2 C2'.
 
-- : preservation (cof/let C1 C2) step/let-op (cof/op O Ep ([_] [y] (cof/let (K _ y) C2)) OinD)
+- : preservation (cof/seq C1 C2) step/seq-op (cof/op O Ep ([_] [y] (cof/seq (K _ y) C2)) OinD)
      <- matijas-lemma C1 O
      <- ohads-lemma C1 O Ep K OinD.
 
-- : preservation (cof/let C1 C2) (step/let-step S) (cof/let C1' C2)
+- : preservation (cof/seq C1 C2) (step/seq-step S) (cof/seq C1' C2)
      <- preservation-scof C1 S C1'.
 
 - : preservation (cof/with (eof/hnd Cv _ _) (cof/ret E)) step/with-ret C'

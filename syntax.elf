@@ -64,5 +64,5 @@ cond : expr -> comp -> comp -> comp.   % conditional statement
 app  : expr -> expr -> comp.           % application
 ret  : expr -> comp.                   % injection of values into computations
 op   : operation -> expr -> (expr -> comp) -> comp. % operation call
-let  : comp -> (expr -> comp) -> comp. % let-binding
+seq  : comp -> (expr -> comp) -> comp. % sequencing
 with : expr -> comp -> comp.           % handling construct

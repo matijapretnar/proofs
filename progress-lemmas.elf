@@ -38,17 +38,17 @@ get-op-case-total : {O} opcof Sig OCs B D -> get-op-case O OCs OC -> type.
 % these lemmas follow below.
 
 
-progress-let : non-stuck Sig C1 D -> {C2} non-stuck Sig (let C1 C2) D -> type.
-%mode progress-let +NS1 +C2 -NS.
+progress-seq : non-stuck Sig C1 D -> {C2} non-stuck Sig (seq C1 C2) D -> type.
+%mode progress-seq +NS1 +C2 -NS.
 
-- : progress-let non-stuck/ret _ (non-stuck/step step/let-ret).
+- : progress-seq non-stuck/ret _ (non-stuck/step step/seq-ret).
 
-- : progress-let (non-stuck/op _) _ (non-stuck/step step/let-op).
+- : progress-seq (non-stuck/op _) _ (non-stuck/step step/seq-op).
 
-- : progress-let (non-stuck/step S1) _ (non-stuck/step (step/let-step S1)).
+- : progress-seq (non-stuck/step S1) _ (non-stuck/step (step/seq-step S1)).
 
-%worlds (topen) (progress-let _ _ _).
-%total {NS1} (progress-let NS1 _ _).
+%worlds (topen) (progress-seq _ _ _).
+%total {NS1} (progress-seq NS1 _ _).
 
 
 progress-with : eof Sig E (_ ! _ ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C _ -> non-stuck Sig (with E C) D2 -> type.

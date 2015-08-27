@@ -20,9 +20,9 @@ step : signature -> comp -> comp -> type.
 step/cond-tru  : step _ (cond tru C1 _) C1.
 step/cond-fls  : step _ (cond fls _ C2) C2.
 step/app       : step _ (app (fun _ E1) E2) (E1 E2).
-step/let-ret   : step _ (let (ret E) C2) (C2 E).
-step/let-op    : step _ (let (op O Ep K) C2) (op O Ep ([x] let (K x) C2)).
-step/let-step  : step Sig (let C1 C2) (let C1' C2)
+step/seq-ret   : step _ (seq (ret E) C2) (C2 E).
+step/seq-op    : step _ (seq (op O Ep K) C2) (op O Ep ([x] seq (K x) C2)).
+step/seq-step  : step Sig (seq C1 C2) (seq C1' C2)
                   <- step Sig C1 C1'.
 step/with-ret  : step _ (with (hnd _ Cv _) (ret E)) (Cv E).
 step/with-op   : step Sig (with (hnd Av Cv OCs) (op O Ep K)) (OC Ep (fun Aop ([y] with (hnd Av Cv OCs) (K y))))

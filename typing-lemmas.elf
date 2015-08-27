@@ -99,7 +99,7 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
      <- psubst-eof X E E'
      <- {y} {dy} psubst-cof X ([x] [dx] K x dx y dy) (K' y dy).
 
-- : psubst-cof X ([x] [dx] cof/let (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/let C1' C2')
+- : psubst-cof X ([x] [dx] cof/seq (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/seq C1' C2')
      <- psubst-scof X C1 C1'
      <- {y} {dy} psubst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy).
 
@@ -168,7 +168,7 @@ subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof
      <- subst-eof X E E'
      <- {y} {dy} subst-cof X ([x] [dx] K x dx y dy) (K' y dy).
 
-- : subst-cof X ([x] [dx] cof/let (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/let C1' C2')
+- : subst-cof X ([x] [dx] cof/seq (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/seq C1' C2')
      <- subst-scof X C1 C1'
      <- {y} {dy} subst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy).
 

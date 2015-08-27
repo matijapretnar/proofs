@@ -15,9 +15,9 @@ progress-scof : scof Sig C S D -> non-stuck Sig C D -> type.
 
 - : progress (cof/op _ _ _ OinD) (non-stuck/op OinD).
 
-- : progress (cof/let C1 _) NS
+- : progress (cof/seq C1 _) NS
      <- progress-scof C1 NS1
-     <- progress-let NS1 _ NS.
+     <- progress-seq NS1 _ NS.
 
 - : progress (cof/with E C) NS'
      <- progress C NS

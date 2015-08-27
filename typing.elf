@@ -75,7 +75,7 @@ cof/op   : cof Sig (op O E K) (B ! D)
             <- ({x} var x A2 -> cof Sig (K x) (B ! D))
             <- eof Sig E A1
             <- sig Sig O A1 A2.
-cof/let  : cof Sig (let C1 C2) (A ! D)
+cof/seq  : cof Sig (seq C1 C2) (A ! D)
             <- ({x} pvar x S -> cof Sig (C2 x) (A ! D))
             <- scof Sig C1 S D.
 cof/with : cof Sig (with E C) B'
