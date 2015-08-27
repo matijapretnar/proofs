@@ -11,7 +11,7 @@ progress-scof : scof Sig C S D -> non-stuck Sig C D -> type.
 
 - : progress (cof/app (eof/fun _) _) (non-stuck/step step/app).
 
-- : progress (cof/val _) non-stuck/val.
+- : progress (cof/ret _) non-stuck/ret.
 
 - : progress (cof/op _ _ _ OinD) (non-stuck/op OinD).
 

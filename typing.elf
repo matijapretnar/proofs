@@ -68,7 +68,7 @@ cof/cond : cof Sig (cond E C1 C2) B
 cof/app  : cof Sig (app E1 E2) B
             <- eof Sig E2 A
             <- eof Sig E1 (A --> B).
-cof/val  : cof Sig (val E) (A ! D)
+cof/ret  : cof Sig (ret E) (A ! D)
             <- eof Sig E A.
 cof/op   : cof Sig (op O E K) (B ! D)
             <- in-dirt O D

@@ -41,7 +41,7 @@ get-op-case-total : {O} opcof Sig OCs B D -> get-op-case O OCs OC -> type.
 progress-let : non-stuck Sig C1 D -> {C2} non-stuck Sig (let C1 C2) D -> type.
 %mode progress-let +NS1 +C2 -NS.
 
-- : progress-let non-stuck/val _ (non-stuck/step step/let-val).
+- : progress-let non-stuck/ret _ (non-stuck/step step/let-ret).
 
 - : progress-let (non-stuck/op _) _ (non-stuck/step step/let-op).
 
@@ -54,7 +54,7 @@ progress-let : non-stuck Sig C1 D -> {C2} non-stuck Sig (let C1 C2) D -> type.
 progress-with : eof Sig E (_ ! _ ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C _ -> non-stuck Sig (with E C) D2 -> type.
 %mode progress-with +E +C +NS1 -NS2.
 
-- : progress-with (eof/hnd _ _ _) _ non-stuck/val (non-stuck/step step/with-val).
+- : progress-with (eof/hnd _ _ _) _ non-stuck/ret (non-stuck/step step/with-ret).
 
 - : progress-with (eof/hnd _ OCs _) (cof/op O _ _ _) (non-stuck/op _) (non-stuck/step (step/with-op OC O))
      <- get-op-case-total _ OCs OC.

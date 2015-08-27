@@ -30,16 +30,16 @@ unequal-instance-in-rest : in-dirt O (dirt/cons O' D)
 % we cannot use Twelf substitution, but need to prove an explicit substitution lemma.
 % To make the proof go through, we need to add an additional subtyping assumption.
 
-val-ceof : scof Sig (val E) S _ -> seof Sig E S -> type.
-%mode val-ceof +V -E.
+ret-ceof : scof Sig (ret E) S _ -> seof Sig E S -> type.
+%mode ret-ceof +V -E.
 
-- : val-ceof (scof/plain (cof/val E)) (seof/plain E).
+- : ret-ceof (scof/plain (cof/ret E)) (seof/plain E).
 
-- : val-ceof (scof/forall S) (seof/forall S')
-     <- {t} val-ceof (S t) (S' t).
+- : ret-ceof (scof/forall S) (seof/forall S')
+     <- {t} ret-ceof (S t) (S' t).
 
-%worlds (topen) (val-ceof _ _).
-%total {V} (val-ceof V _).
+%worlds (topen) (ret-ceof _ _).
+%total {V} (ret-ceof V _).
 
 concrete-seof : seof Sig E S -> concrete S A -> eof Sig E A -> type.
 %mode concrete-seof +S +SA -A.
@@ -91,7 +91,7 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
      <- psubst-eof X E1 E1'
      <- psubst-eof X E2 E2'.
 
-- : psubst-cof X ([x] [dx] cof/val (E x dx)) (cof/val E')
+- : psubst-cof X ([x] [dx] cof/ret (E x dx)) (cof/ret E')
      <- psubst-eof X E E'.
 
 - : psubst-cof X ([x] [dx] cof/op O (E x dx) ([y] [dy] K x dx y dy) IOinD)
@@ -160,7 +160,7 @@ subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof
      <- subst-eof X E1 E1'
      <- subst-eof X E2 E2'.
 
-- : subst-cof X ([x] [dx] cof/val (E x dx)) (cof/val E')
+- : subst-cof X ([x] [dx] cof/ret (E x dx)) (cof/ret E')
      <- subst-eof X E E'.
 
 - : subst-cof X ([x] [dx] cof/op O (E x dx) ([y] [dy] K x dx y dy) OinD)

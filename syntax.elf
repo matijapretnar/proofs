@@ -48,21 +48,21 @@ op-cases : type.
 
 % Abbreviations for handler cases
 
-%abbrev val-case = expr -> comp.
+%abbrev ret-case = expr -> comp.
 %abbrev op-case = expr -> expr -> comp.
 %name op-case OC.
 
 tru : expr.                               % true
 fls : expr.                               % false
 fun : ty -> (expr -> comp) -> expr.       % function
-hnd : ty -> val-case -> op-cases -> expr. % handler
+hnd : ty -> ret-case -> op-cases -> expr. % handler
 
 op-cases/nil  : dirty -> op-cases.
 op-cases/cons : operation -> op-case -> op-cases -> op-cases.
 
 cond : expr -> comp -> comp -> comp.   % conditional statement
 app  : expr -> expr -> comp.           % application
-val  : expr -> comp.                   % injection of values into computations
+ret  : expr -> comp.                   % injection of values into computations
 op   : operation -> expr -> (expr -> comp) -> comp. % operation call
 let  : comp -> (expr -> comp) -> comp. % let-binding
 with : expr -> comp -> comp.           % handling construct

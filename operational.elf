@@ -20,11 +20,11 @@ step : signature -> comp -> comp -> type.
 step/cond-tru  : step _ (cond tru C1 _) C1.
 step/cond-fls  : step _ (cond fls _ C2) C2.
 step/app       : step _ (app (fun _ E1) E2) (E1 E2).
-step/let-val   : step _ (let (val E) C2) (C2 E).
+step/let-ret   : step _ (let (ret E) C2) (C2 E).
 step/let-op    : step _ (let (op O Ep K) C2) (op O Ep ([x] let (K x) C2)).
 step/let-step  : step Sig (let C1 C2) (let C1' C2)
                   <- step Sig C1 C1'.
-step/with-val  : step _ (with (hnd _ Cv _) (val E)) (Cv E).
+step/with-ret  : step _ (with (hnd _ Cv _) (ret E)) (Cv E).
 step/with-op   : step Sig (with (hnd Av Cv OCs) (op O Ep K)) (OC Ep (fun Aop ([y] with (hnd Av Cv OCs) (K y))))
                   <- sig Sig O _ Aop
                   <- get-op-case O OCs OC.
@@ -36,7 +36,7 @@ step/with-step : step Sig (with E C) (with E C')
 
 non-stuck : signature -> comp -> dirt -> type.
 
-non-stuck/val   : non-stuck _ (val _) _.
+non-stuck/ret   : non-stuck _ (ret _) _.
 non-stuck/op    : non-stuck _ (op O _ _) D
                    <- in-dirt O D.
 non-stuck/step  : non-stuck Sig C _
