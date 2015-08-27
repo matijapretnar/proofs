@@ -13,9 +13,6 @@ dirty : type.
 % thus we label dirty types by "B".
 
 bool  : ty.                   % the type of booleans
-nat   : ty.                   % the type of natural numbers
-unit  : ty.                   % the unit type
-empty : ty.                   % the empty type
 -->   : ty -> dirty -> ty.    % the function type
 ==>   : dirty -> dirty -> ty. % the type of handlers
 %infix right 50 -->.
@@ -57,9 +54,6 @@ op-cases : type.
 
 tru : expr.                               % true
 fls : expr.                               % false
-zro : expr.                               % zero
-suc : expr -> expr.                       % successor
-unt : expr.                               % unit
 fun : ty -> (expr -> comp) -> expr.       % function
 hnd : ty -> val-case -> op-cases -> expr. % handler
 
@@ -67,11 +61,8 @@ op-cases/nil  : dirty -> op-cases.
 op-cases/cons : operation -> op-case -> op-cases -> op-cases.
 
 cond : expr -> comp -> comp -> comp.   % conditional statement
-mtch : expr -> comp -> (expr -> comp) -> comp. % natural number matching
-absd : dirty -> expr -> comp.          % eliminator for empty type
 app  : expr -> expr -> comp.           % application
 val  : expr -> comp.                   % injection of values into computations
 op   : operation -> expr -> (expr -> comp) -> comp. % operation call
 let  : comp -> (expr -> comp) -> comp. % let-binding
-letr : ty -> dirty -> (expr -> expr -> comp) -> (expr -> comp) -> comp. % recursive definition
 with : expr -> comp -> comp.           % handling construct

@@ -37,10 +37,6 @@ eof/pvar : eof _ E A
            <- pvar E S.
 eof/tru : eof _ tru bool.
 eof/fls : eof _ fls bool.
-eof/zro : eof _ zro nat.
-eof/suc : eof Sig (suc E) nat
-           <- eof Sig E nat.
-eof/unt : eof _ unt unit.
 eof/fun : eof Sig (fun A E) (A --> B)
            <- ({x} var x A -> cof Sig (E x) B).
 eof/hnd : eof Sig (hnd A Cv OCs) (A ! D ==> A' ! D')
@@ -69,12 +65,6 @@ cof/cond : cof Sig (cond E C1 C2) B
             <- cof Sig C2 B
             <- cof Sig C1 B
             <- eof Sig E bool.
-cof/mtch : cof Sig (mtch E C1 C2) B
-            <- ({x} var x nat -> cof Sig (C2 x) B)
-            <- cof Sig C1 B
-            <- eof Sig E nat.
-cof/absd : cof Sig (absd B E) B
-            <- eof Sig E empty.
 cof/app  : cof Sig (app E1 E2) B
             <- eof Sig E2 A
             <- eof Sig E1 (A --> B).
@@ -88,9 +78,6 @@ cof/op   : cof Sig (op O E K) (B ! D)
 cof/let  : cof Sig (let C1 C2) (A ! D)
             <- ({x} pvar x S -> cof Sig (C2 x) (A ! D))
             <- scof Sig C1 S D.
-cof/letr : cof Sig (letr A B C1 C2) B'
-            <- ({f} var f (A --> B) -> cof Sig (C2 f) B')
-            <- ({f} var f (A --> B) -> {x} var x A -> cof Sig (C1 f x) B).
 cof/with : cof Sig (with E C) B'
             <- cof Sig C B
             <- eof Sig E (B ==> B').

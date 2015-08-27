@@ -9,10 +9,6 @@ progress-scof : scof Sig C S D -> non-stuck Sig C D -> type.
 
 - : progress (cof/cond eof/fls _ _) (non-stuck/step step/cond-fls).
 
-- : progress (cof/mtch eof/zro _ _) (non-stuck/step step/mtch-zro).
-
-- : progress (cof/mtch (eof/suc _) _ _) (non-stuck/step step/mtch-suc).
-
 - : progress (cof/app (eof/fun _) _) (non-stuck/step step/app).
 
 - : progress (cof/val _) non-stuck/val.
@@ -23,8 +19,6 @@ progress-scof : scof Sig C S D -> non-stuck Sig C D -> type.
      <- progress-scof C1 NS1
      <- progress-let NS1 _ NS.
 
-- : progress (cof/letr _ _) (non-stuck/step step/letr).
-
 - : progress (cof/with E C) NS'
      <- progress C NS
      <- progress-with E C NS NS'.
@@ -32,7 +26,7 @@ progress-scof : scof Sig C S D -> non-stuck Sig C D -> type.
 - : progress-scof (scof/plain C) NS
      <- progress C NS.
 
-- : progress-scof (scof/forall ([x] (C x))) (NS unit)
+- : progress-scof (scof/forall ([x] (C x))) (NS bool)
      <- {x} progress-scof (C x) (NS x).
 
 %worlds (topen) (progress _ _) (progress-scof _ _).

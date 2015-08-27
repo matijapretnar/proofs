@@ -3,7 +3,7 @@
 matijas-lemma : scof Sig (op O E K) S D -> sig Sig O A1 A2 -> type.
 %mode matijas-lemma +OpCall -O.
 
-- : matijas-lemma (scof/forall S) (O unit)
+- : matijas-lemma (scof/forall S) (O bool)
     <- {t} matijas-lemma (S t) (O t).
 
 - : matijas-lemma (scof/plain (cof/op O _ _ _)) O.
@@ -14,7 +14,7 @@ matijas-lemma : scof Sig (op O E K) S D -> sig Sig O A1 A2 -> type.
 ohads-lemma : scof Sig (op O E K) S D -> sig Sig O A1 A2 -> eof Sig E A1 -> ({x} var x A2 -> scof Sig (K x) S D) -> in-dirt O D -> type.
 %mode ohads-lemma +OpCall +O -E -K -OinD.
 
-- : ohads-lemma (scof/forall S) O (E unit) ([x] [dx] scof/forall ([t] K t x dx)) OinD
+- : ohads-lemma (scof/forall S) O (E bool) ([x] [dx] scof/forall ([t] K t x dx)) OinD
      <- {t} ohads-lemma (S t) O (E t) (K t) OinD.
 
 - : ohads-lemma (scof/plain (cof/op O E K OinD)) _ E ([x] [dx] scof/plain (K x dx)) OinD.
@@ -36,11 +36,6 @@ preservation-scof  : scof Sig C S D -> step Sig C C' -> scof Sig C' S D -> type.
 
 - : preservation (cof/cond _ _ C2) step/cond-fls C2.
 
-- : preservation (cof/mtch _ C1 _) step/mtch-zro C1.
-
-- : preservation (cof/mtch (eof/suc E) _ C2) step/mtch-suc C2'
-     <- subst C2 E C2'.
-
 - : preservation (cof/app (eof/fun C) E) step/app C'
      <- subst C E C'.
 
@@ -54,9 +49,6 @@ preservation-scof  : scof Sig C S D -> step Sig C C' -> scof Sig C' S D -> type.
 
 - : preservation (cof/let C1 C2) (step/let-step S) (cof/let C1' C2)
      <- preservation-scof C1 S C1'.
-
-- : preservation (cof/letr C1 C2) step/letr C'
-     <- subst C2 (eof/fun ([_] [x] (cof/letr C1 ([_] [f] C1 _ f _ x)))) C'.
 
 - : preservation (cof/with (eof/hnd Cv _ _) (cof/val E)) step/with-val C'
      <- subst Cv E C'.

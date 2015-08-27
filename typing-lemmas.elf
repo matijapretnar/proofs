@@ -74,13 +74,6 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
 
 - : psubst-eof _ ([x] [dx] eof/fls) eof/fls.
 
-- : psubst-eof _ ([x] [dx] eof/zro) eof/zro.
-
-- : psubst-eof X ([x] [dx] eof/suc (E x dx)) (eof/suc E')
-     <- psubst-eof X E E'.
-
-- : psubst-eof _ ([x] [dx] eof/unt) eof/unt.
-
 - : psubst-eof X ([x] [dx] eof/fun (F x dx)) (eof/fun F')
      <- {y} {dy} psubst-cof X ([x] [dx] F x dx y dy) (F' y dy).
 
@@ -93,14 +86,6 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
      <- psubst-eof X E E'
      <- psubst-cof X C1 C1'
      <- psubst-cof X C2 C2'.
-
-- : psubst-cof X ([x] [dx] cof/mtch (E x dx) (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/mtch E' C1' C2')
-     <- psubst-eof X E E'
-     <- psubst-cof X C1 C1'
-     <- {y} {dy} psubst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy).
-
-- : psubst-cof X ([x] [dx] cof/absd (E x dx)) (cof/absd E')
-     <- psubst-eof X E E'.
 
 - : psubst-cof X ([x] [dx] cof/app (E1 x dx) (E2 x dx)) (cof/app E1' E2')
      <- psubst-eof X E1 E1'
@@ -117,12 +102,6 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
 - : psubst-cof X ([x] [dx] cof/let (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/let C1' C2')
      <- psubst-scof X C1 C1'
      <- {y} {dy} psubst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy).
-
-- : psubst-cof X
-     ([x] [dx] cof/letr ([f : expr] [df : var f _] [y] [dy] C1 x dx f df y dy) ([f] [df] C2 x dx f df))
-     (cof/letr C1' C2')
-     <- ({y} {dy} {f : expr} {df : var f _} psubst-cof X ([x] [dx] C1 x dx y dy f df) (C1' y dy f df))
-     <- ({y} {dy} psubst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy)).
 
 - : psubst-cof X ([x] [dx] cof/with (E x dx) (C x dx)) (cof/with E' C')
      <- psubst-eof X E E'
@@ -164,13 +143,6 @@ subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof
 
 - : subst-eof _ ([x] [dx] eof/fls) eof/fls.
 
-- : subst-eof _ ([x] [dx] eof/zro) eof/zro.
-
-- : subst-eof X ([x] [dx] eof/suc (E x dx)) (eof/suc E')
-     <- subst-eof X E E'.
-
-- : subst-eof _ ([x] [dx] eof/unt) eof/unt.
-
 - : subst-eof X ([x] [dx] eof/fun (F x dx)) (eof/fun F')
      <- {y} {dy} subst-cof X ([x] [dx] F x dx y dy) (F' y dy).
 
@@ -183,14 +155,6 @@ subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof
      <- subst-eof X E E'
      <- subst-cof X C1 C1'
      <- subst-cof X C2 C2'.
-
-- : subst-cof X ([x] [dx] cof/mtch (E x dx) (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/mtch E' C1' C2')
-     <- subst-eof X E E'
-     <- subst-cof X C1 C1'
-     <- {y} {dy} subst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy).
-
-- : subst-cof X ([x] [dx] cof/absd (E x dx)) (cof/absd E')
-     <- subst-eof X E E'.
 
 - : subst-cof X ([x] [dx] cof/app (E1 x dx) (E2 x dx)) (cof/app E1' E2')
      <- subst-eof X E1 E1'
@@ -207,12 +171,6 @@ subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof
 - : subst-cof X ([x] [dx] cof/let (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/let C1' C2')
      <- subst-scof X C1 C1'
      <- {y} {dy} subst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy).
-
-- : subst-cof X
-     ([x] [dx] cof/letr ([f : expr] [df : var f _] [y] [dy] C1 x dx f df y dy) ([f] [df] C2 x dx f df))
-     (cof/letr C1' C2')
-     <- ({y} {dy} {f : expr} {df : var f _} subst-cof X ([x] [dx] C1 x dx y dy f df) (C1' y dy f df))
-     <- ({y} {dy} subst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy)).
 
 - : subst-cof X ([x] [dx] cof/with (E x dx) (C x dx)) (cof/with E' C')
      <- subst-eof X E E'
