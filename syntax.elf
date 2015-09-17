@@ -6,6 +6,8 @@ ty : type.
 dirty : type.
 %name ty A.
 %name dirty B.
+dirt : type.
+%name dirt D.
 
 % Usually, we write underlined "C" and "D" for computation types.
 % However, all variables in Twelf need to be capital letters,
@@ -20,6 +22,17 @@ bool  : ty.                   % the type of booleans
 
 ! : ty -> dirt -> dirty.
 %infix none 60 !.
+
+%%% Dirt %%%
+
+% For the sake of simplicity, we represent dirt with lists.
+% This representation is sufficient, because we only need to test for containment,
+% which we do by "in-dirt".
+
+ 
+dirt/empty : dirt.
+dirt/cons  : operation -> ty -> ty -> dirt -> dirt.
+ 
 
 %block topen : block {t : ty}.
 
@@ -54,8 +67,8 @@ op-cases : type.
 
 tru : expr.                               % true
 fls : expr.                               % false
-fun : ty -> (expr -> comp) -> expr.       % function
-hnd : ty -> ret-case -> op-cases -> expr. % handler
+fun : (expr -> comp) -> expr.             % function
+hnd : ret-case -> op-cases -> expr.       % handler
 
 op-cases/nil  : dirty -> op-cases.
 op-cases/cons : operation -> op-case -> op-cases -> op-cases.

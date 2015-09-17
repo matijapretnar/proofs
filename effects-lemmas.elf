@@ -25,17 +25,3 @@ compare : {O1} {O2} comparable O1 O2 -> type.
 
 %worlds () (compare _ _ _).
 %total {O1 O2} (compare O1 O2 _).
-
-
-
-%%% Dirt %%%
-
-
-covers-rest : covers (dirt/cons _ D) D1 D2 -> covers D D1 D2 -> type.
-%mode covers-rest +Cov -Cov'.
-
-- : covers-rest (covers/cons-here _ Cov') Cov'.
-- : covers-rest (covers/cons-there _ Cov') Cov'.
-
-%worlds () (covers-rest _ _).
-%total {} (covers-rest _ _).

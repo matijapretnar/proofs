@@ -14,18 +14,15 @@ decide-op-case : comparable O O' -> {OC} get-op-case O OCs OC'
 %total {} (decide-op-case _ _ _ _).
 
 
-get-op-case-total : {O} opcof Sig OCs B D -> get-op-case O OCs OC -> type.
+get-op-case-total : sig D O _ _ -> opcof OCs B D -> get-op-case O OCs OC -> type.
 %mode get-op-case-total +O +OCs -OC.
 
-- : get-op-case-total _ opcof/nil get-op-case/nil.
-
-- : get-op-case-total O (opcof/cons _ _ OCs) OC''
-     <- get-op-case-total O OCs OC'
-     <- compare _ _ Dec
-     <- decide-op-case Dec _ OC' OC''.
+- : get-op-case-total sig/here (opcof/cons _ _) get-op-case/here.
+- : get-op-case-total (sig/there O Ap) (opcof/cons _ OCs) (get-op-case/there OC Ap)
+     <- get-op-case-total O OCs OC.
 
 %worlds (topen) (get-op-case-total _ _ _).
-%total {OCs} (get-op-case-total _ OCs _).
+%total {O} (get-op-case-total O _ _).
 
 
 
@@ -38,7 +35,7 @@ get-op-case-total : {O} opcof Sig OCs B D -> get-op-case O OCs OC -> type.
 % these lemmas follow below.
 
 
-progress-seq : non-stuck Sig C1 D -> {C2} non-stuck Sig (seq C1 C2) D -> type.
+progress-seq : non-stuck C1 D -> {C2} non-stuck (seq C1 C2) D -> type.
 %mode progress-seq +NS1 +C2 -NS.
 
 - : progress-seq non-stuck/ret _ (non-stuck/step step/seq-ret).
@@ -51,15 +48,15 @@ progress-seq : non-stuck Sig C1 D -> {C2} non-stuck Sig (seq C1 C2) D -> type.
 %total {NS1} (progress-seq NS1 _ _).
 
 
-progress-with : eof Sig E (_ ! _ ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C _ -> non-stuck Sig (with E C) D2 -> type.
-%mode progress-with +E +C +NS1 -NS2.
+progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
+%mode progress-with +E +NS1 -NS2.
 
-- : progress-with (eof/hnd _ _ _) _ non-stuck/ret (non-stuck/step step/with-ret).
+- : progress-with (eof/hnd _ _) non-stuck/ret (non-stuck/step step/with-ret).
 
-- : progress-with (eof/hnd _ OCs _) (cof/op O _ _ _) (non-stuck/op _) (non-stuck/step (step/with-op OC O))
-     <- get-op-case-total _ OCs OC.
+- : progress-with (eof/hnd _ OCs) (non-stuck/op O) (non-stuck/step (step/with-op OC))
+     <- get-op-case-total O OCs OC.
 
-- : progress-with (eof/hnd _ _ _) _ (non-stuck/step S) (non-stuck/step (step/with-step S)).
+- : progress-with (eof/hnd _ _) (non-stuck/step S) (non-stuck/step (step/with-step S)).
 
-%worlds (topen) (progress-with _ _ _ _).
-%total {E} (progress-with E _ _ _).
+%worlds (topen) (progress-with _ _ _).
+%total {E} (progress-with E _ _).

@@ -1,16 +1,16 @@
 %%%%% Typing judgments %%%%%
 
 % The three typing judgments that correspond to the three families of terms:
-% - "eof Sig E A" means that expression "E" has type "A" under signature "Sig"
-% - "cof Sig C B" states the same for computation "C" and dirty type "B"
-% - "opcof Sig OCs B D" states that operation cases "OCs" all have a return type "B"
+% - "eof E A" means that expression "E" has type "A" under signature "Sig"
+% - "cof C B" states the same for computation "C" and dirty type "B"
+% - "opcof OCs B D" states that operation cases "OCs" all have a return type "B"
 %   and cover operations from dirt "D"
 
-eof : signature -> expr -> ty -> type.
-cof : signature -> comp -> dirty -> type.
-seof : signature -> expr -> scheme -> type.
-scof : signature -> comp -> scheme -> dirt -> type.
-opcof : signature -> op-cases -> dirty -> dirt -> type.
+eof : expr -> ty -> type.
+cof : comp -> dirty -> type.
+seof : expr -> scheme -> type.
+scof : comp -> scheme -> dirt -> type.
+opcof : op-cases -> dirty -> dirt -> type.
 
 % We have an additional judgment "var E A" to represent variables of type "A"
 % in a context. We could use "eof" instead of "var" in hypothetical judgments,
@@ -30,59 +30,56 @@ pvar : expr -> scheme -> type.
 
 %%% Expressions %%%
 
-eof/var : eof _ E A
+eof/var : eof E A
            <- var E A.
-eof/pvar : eof _ E A
+eof/pvar : eof E A
            <- concrete S A
            <- pvar E S.
-eof/tru : eof _ tru bool.
-eof/fls : eof _ fls bool.
-eof/fun : eof Sig (fun A E) (A --> B)
-           <- ({x} var x A -> cof Sig (E x) B).
-eof/hnd : eof Sig (hnd A Cv OCs) (A ! D ==> A' ! D')
-           <- covers D Dcov D'
-           <- opcof Sig OCs (A' ! D') Dcov
-           <- ({x} var x A -> cof Sig (Cv x) (A' ! D')).
+eof/tru : eof tru bool.
+eof/fls : eof fls bool.
+eof/fun : eof (fun E) (A --> B)
+           <- ({x} var x A -> cof (E x) B).
+eof/hnd : eof (hnd Cv OCs) (A ! D ==> A' ! D')
+           <- opcof OCs (A' ! D') D
+           <- ({x} var x A -> cof (Cv x) (A' ! D')).
 
-scof/plain : scof Sig C (plain A) D
-             <- cof Sig C (A ! D).
-scof/forall: scof Sig C (forall S) D
-             <- {x} scof Sig C (S x) D.
+scof/plain : scof C (plain A) D
+             <- cof C (A ! D).
+scof/forall: scof C (forall S) D
+             <- {x} scof C (S x) D.
 
 
 %%% Operation cases %%%
 
-opcof/nil  : opcof Sig (op-cases/nil B) B dirt/empty.
-opcof/cons : opcof Sig (op-cases/cons O OC OCs) B (dirt/cons O D)
-              <- opcof Sig OCs B D
-              <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof Sig (OC x k) B)
-              <- sig Sig O A1 A2.
+opcof/nil  : opcof (op-cases/nil B) B dirt/empty.
+opcof/cons : opcof (op-cases/cons O OC OCs) B (dirt/cons O A1 A2 D)
+              <- opcof OCs B D
+              <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof (OC x k) B).
 
 
 %%% Computations %%%
 
-cof/cond : cof Sig (cond E C1 C2) B
-            <- cof Sig C2 B
-            <- cof Sig C1 B
-            <- eof Sig E bool.
-cof/app  : cof Sig (app E1 E2) B
-            <- eof Sig E2 A
-            <- eof Sig E1 (A --> B).
-cof/ret  : cof Sig (ret E) (A ! D)
-            <- eof Sig E A.
-cof/op   : cof Sig (op O E K) (B ! D)
-            <- in-dirt O D
-            <- ({x} var x A2 -> cof Sig (K x) (B ! D))
-            <- eof Sig E A1
-            <- sig Sig O A1 A2.
-cof/seq  : cof Sig (seq C1 C2) (A ! D)
-            <- ({x} pvar x S -> cof Sig (C2 x) (A ! D))
-            <- scof Sig C1 S D.
-cof/with : cof Sig (with E C) B'
-            <- cof Sig C B
-            <- eof Sig E (B ==> B').
+cof/cond : cof (cond E C1 C2) B
+            <- cof C2 B
+            <- cof C1 B
+            <- eof E bool.
+cof/app  : cof (app E1 E2) B
+            <- eof E2 A
+            <- eof E1 (A --> B).
+cof/ret  : cof (ret E) (A ! D)
+            <- eof E A.
+cof/op   : cof (op O E K) (B ! D)
+            <- ({x} var x A2 -> cof (K x) (B ! D))
+            <- eof E A1
+            <- sig D O A1 A2.
+cof/seq  : cof (seq C1 C2) (A ! D)
+            <- ({x} pvar x S -> cof (C2 x) (A ! D))
+            <- scof C1 S D.
+cof/with : cof (with E C) B'
+            <- cof C B
+            <- eof E (B ==> B').
 
-seof/plain : seof Sig E (plain A)
-             <- eof Sig E A.
-seof/forall: seof Sig E (forall S)
-             <- {x} seof Sig E (S x).
+seof/plain : seof E (plain A)
+             <- eof E A.
+seof/forall: seof E (forall S)
+             <- {x} seof E (S x).

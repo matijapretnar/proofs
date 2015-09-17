@@ -1,26 +1,38 @@
+%%% Dirt %%%
+
+
+% covers-rest : covers (dirt/cons _ D) D1 D2 -> covers D D1 D2 -> type.
+% %mode covers-rest +Cov -Cov'.
+
+% - : covers-rest (covers/cons-here _ Cov') Cov'.
+% - : covers-rest (covers/cons-there _ Cov') Cov'.
+
+% %worlds () (covers-rest _ _).
+% %total {} (covers-rest _ _).
+
 % We need to use contradiction in the following lemma.
 
-apart-not-refl : apart O O -> {O'} {D} in-dirt O' D -> type.
-%mode apart-not-refl +O!O +O' +D -OinD.
+% apart-not-refl : apart O O -> {O'} {D} in-dirt O' D -> type.
+% %mode apart-not-refl +O!O +O' +D -OinD.
 
-- : apart-not-refl (apart/ss O!O) O' D OinD
-     <- apart-not-refl O!O O' D OinD.
+% - : apart-not-refl (apart/ss O!O) O' D OinD
+%      <- apart-not-refl O!O O' D OinD.
 
-%worlds (topen) (apart-not-refl _ _ _ _).
-%total {O!O} (apart-not-refl O!O _ _ _).
+% %worlds (topen) (apart-not-refl _ _ _ _).
+% %total {O!O} (apart-not-refl O!O _ _ _).
 
 
-unequal-instance-in-rest : in-dirt O (dirt/cons O' D)
-                            -> apart O O' -> in-dirt O D -> type.
-%mode unequal-instance-in-rest +OinO'D +O!O' -OinD.
+% unequal-instance-in-rest : in-dirt O (dirt/cons O' _ _ D)
+%                             -> apart O O' -> in-dirt O D -> type.
+% %mode unequal-instance-in-rest +OinO'D +O!O' -OinD.
 
-- : unequal-instance-in-rest (in-dirt/there OinD) _ OinD.
-- : unequal-instance-in-rest in-dirt/here O!O OinD
-     <- apart-not-refl O!O _ _ OinD.
-- : unequal-instance-in-rest in-dirt/here _ in-dirt/here.
+% - : unequal-instance-in-rest (in-dirt/there OinD) _ OinD.
+% - : unequal-instance-in-rest in-dirt/here O!O OinD
+%      <- apart-not-refl O!O _ _ OinD.
+% - : unequal-instance-in-rest in-dirt/here _ in-dirt/here.
 
-%worlds () (unequal-instance-in-rest _ _ _).
-%total {} (unequal-instance-in-rest _ _ _).
+% %worlds () (unequal-instance-in-rest _ _ _).
+% %total {} (unequal-instance-in-rest _ _ _).
 
 
 
@@ -30,7 +42,7 @@ unequal-instance-in-rest : in-dirt O (dirt/cons O' D)
 % we cannot use Twelf substitution, but need to prove an explicit substitution lemma.
 % To make the proof go through, we need to add an additional subtyping assumption.
 
-ret-ceof : scof Sig (ret E) S _ -> seof Sig E S -> type.
+ret-ceof : scof (ret E) S _ -> seof E S -> type.
 %mode ret-ceof +V -E.
 
 - : ret-ceof (scof/plain (cof/ret E)) (seof/plain E).
@@ -41,7 +53,7 @@ ret-ceof : scof Sig (ret E) S _ -> seof Sig E S -> type.
 %worlds (topen) (ret-ceof _ _).
 %total {V} (ret-ceof V _).
 
-concrete-seof : seof Sig E S -> concrete S A -> eof Sig E A -> type.
+concrete-seof : seof E S -> concrete S A -> eof E A -> type.
 %mode concrete-seof +S +SA -A.
 
 - : concrete-seof (seof/plain A) _ A.
@@ -53,11 +65,11 @@ concrete-seof : seof Sig E S -> concrete S A -> eof Sig E A -> type.
 %total {S} (concrete-seof S _ _).
 
 
-psubst-eof   : seof Sig E' S -> ({x} pvar x S -> eof Sig (E x) A) -> eof Sig (E E') A -> type.
-psubst-cof   : seof Sig E S -> ({x} pvar x S -> cof Sig (C x) B) -> cof Sig (C E) B -> type.
-psubst-scof   : seof Sig E S -> ({x} pvar x S -> scof Sig (C x) S' D) -> scof Sig (C E) S' D -> type.
-psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
-               -> opcof Sig (OCs E) B Dcov -> type.
+psubst-eof   : seof E' S -> ({x} pvar x S -> eof (E x) A) -> eof (E E') A -> type.
+psubst-cof   : seof E S -> ({x} pvar x S -> cof (C x) B) -> cof (C E) B -> type.
+psubst-scof   : seof E S -> ({x} pvar x S -> scof (C x) S' D) -> scof (C E) S' D -> type.
+psubst-opcof : seof E S -> ({x} pvar x S -> opcof (OCs x) B Dcov)
+               -> opcof (OCs E) B Dcov -> type.
 %mode psubst-eof +X +E -E'.
 %mode psubst-cof +X +C -C'.
 %mode psubst-scof +X +C -C'.
@@ -77,7 +89,7 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
 - : psubst-eof X ([x] [dx] eof/fun (F x dx)) (eof/fun F')
      <- {y} {dy} psubst-cof X ([x] [dx] F x dx y dy) (F' y dy).
 
-- : psubst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx) Cov) (eof/hnd Cv' OCs' Cov)
+- : psubst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx)) (eof/hnd Cv' OCs')
      <- ({y} {dy} psubst-cof X ([x] [dx] Cv x dx y dy) (Cv' y dy))
      <- psubst-opcof X OCs OCs'.
 
@@ -94,8 +106,8 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
 - : psubst-cof X ([x] [dx] cof/ret (E x dx)) (cof/ret E')
      <- psubst-eof X E E'.
 
-- : psubst-cof X ([x] [dx] cof/op O (E x dx) ([y] [dy] K x dx y dy) IOinD)
-     (cof/op O E' K' IOinD)
+- : psubst-cof X ([x] [dx] cof/op O (E x dx) ([y] [dy] K x dx y dy))
+     (cof/op O E' K')
      <- psubst-eof X E E'
      <- {y} {dy} psubst-cof X ([x] [dx] K x dx y dy) (K' y dy).
 
@@ -115,8 +127,8 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
 
 - : psubst-opcof _ ([x] [dx] opcof/nil) opcof/nil.
 
-- : psubst-opcof X ([x] [dx] opcof/cons O ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
-     (opcof/cons O K' OCs')
+- : psubst-opcof X ([x] [dx] opcof/cons ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
+     (opcof/cons K' OCs')
      <- ({y} {dy} {k} {dk} psubst-cof X ([x] [dx] K x dx y dy k dk) (K' y dy k dk))
      <- psubst-opcof X OCs OCs'.
 
@@ -124,10 +136,10 @@ psubst-opcof : seof Sig E S -> ({x} pvar x S -> opcof Sig (OCs x) B Dcov)
 %total {(E C C' C'')} (psubst-eof _ E _) (psubst-cof _ C _) (psubst-scof _ C' _) (psubst-opcof _ C'' _).
 
 
-subst-eof   : eof Sig E' A -> ({x} var x A -> eof Sig (E x) A') -> eof Sig (E E') A' -> type.
-subst-cof   : eof Sig E' A -> ({x} var x A -> cof Sig (C x) B) -> cof Sig (C E') B -> type.
-subst-scof   : eof Sig E' A -> ({x} var x A -> scof Sig (C x) S D) -> scof Sig (C E') S D -> type.
-subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof Sig (OCs E') B Dcov -> type.
+subst-eof   : eof E' A -> ({x} var x A -> eof (E x) A') -> eof (E E') A' -> type.
+subst-cof   : eof E' A -> ({x} var x A -> cof (C x) B) -> cof (C E') B -> type.
+subst-scof   : eof E' A -> ({x} var x A -> scof (C x) S D) -> scof (C E') S D -> type.
+subst-opcof : eof E' A -> ({x} var x A -> opcof (OCs x) B Dcov) -> opcof (OCs E') B Dcov -> type.
 %mode subst-eof +X +E -E'.
 %mode subst-cof +X +C -C'.
 %mode subst-scof +X +C -C'.
@@ -146,7 +158,7 @@ subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof
 - : subst-eof X ([x] [dx] eof/fun (F x dx)) (eof/fun F')
      <- {y} {dy} subst-cof X ([x] [dx] F x dx y dy) (F' y dy).
 
-- : subst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx) Cov) (eof/hnd Cv' OCs' Cov)
+- : subst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx)) (eof/hnd Cv' OCs')
      <- ({y} {dy} subst-cof X ([x] [dx] Cv x dx y dy) (Cv' y dy))
      <- subst-opcof X OCs OCs'.
 
@@ -163,8 +175,8 @@ subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof
 - : subst-cof X ([x] [dx] cof/ret (E x dx)) (cof/ret E')
      <- subst-eof X E E'.
 
-- : subst-cof X ([x] [dx] cof/op O (E x dx) ([y] [dy] K x dx y dy) OinD)
-     (cof/op O E' K' OinD)
+- : subst-cof X ([x] [dx] cof/op O (E x dx) ([y] [dy] K x dx y dy))
+     (cof/op O E' K')
      <- subst-eof X E E'
      <- {y} {dy} subst-cof X ([x] [dx] K x dx y dy) (K' y dy).
 
@@ -184,8 +196,8 @@ subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof
 
 - : subst-opcof _ ([x] [dx] opcof/nil) opcof/nil.
 
-- : subst-opcof X ([x] [dx] opcof/cons O ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
-     (opcof/cons O K' OCs')
+- : subst-opcof X ([x] [dx] opcof/cons ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
+     (opcof/cons K' OCs')
      <- ({y} {dy} {k} {dk} subst-cof X ([x] [dx] K x dx y dy k dk) (K' y dy k dk))
      <- subst-opcof X OCs OCs'.
 
@@ -195,7 +207,7 @@ subst-opcof : eof Sig E' A -> ({x} var x A -> opcof Sig (OCs x) B Dcov) -> opcof
 
 % Two frequently used instances of the substitution lemma
 
-subst : ({x} var x A -> cof Sig (C x) B) -> eof Sig E A -> cof Sig (C E) B -> type.
+subst : ({x} var x A -> cof (C x) B) -> eof E A -> cof (C E) B -> type.
 %mode subst +C +X -C'.
 
 - : subst C E C'
@@ -205,8 +217,8 @@ subst : ({x} var x A -> cof Sig (C x) B) -> eof Sig E A -> cof Sig (C E) B -> ty
 %total {} (subst _ _ _).
 
 
-subst2 : ({x1} var x1 A1 -> {x2} var x2 A2 -> cof Sig (C x1 x2) B)
-          -> eof Sig E1 A1 -> eof Sig E2 A2 -> cof Sig (C E1 E2) B -> type.
+subst2 : ({x1} var x1 A1 -> {x2} var x2 A2 -> cof (C x1 x2) B)
+          -> eof E1 A1 -> eof E2 A2 -> cof (C E1 E2) B -> type.
 %mode subst2 +C +X1 +X2 -C'.
 
 - : subst2 C E1 E2 C''

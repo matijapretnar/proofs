@@ -8,23 +8,16 @@
 % Note that this representation implies that in typed terms,
 % we can only consider a finite number of operations.
 
-signature : type.
-
-signature/empty : signature.
-signature/cons : ty -> ty -> signature -> signature.
-
-
 % "sig Sig O A1 A2" states that the signature "Sig" assigns
 % a parameter type "A1" and a result type "A2" to the operation "O".
 
-sig : signature -> operation -> ty -> ty -> type.
+sig : dirt -> operation -> ty -> ty -> type.
 
-sig/here : sig (signature/cons A1 A2 _) (operation/z) A1 A2.
-sig/there : sig (signature/cons _ _ Sig) (operation/s O) A1 A2
-            <- sig Sig O A1 A2.
+sig/here : sig (dirt/cons O A1 A2 _) O A1 A2.
+sig/there : sig (dirt/cons O _ _ D) O' A1 A2
+            <- apart O' O
+            <- sig D O' A1 A2.
 
-%worlds () (sig _ _ _ _).
-%unique sig +Sig +O -1A1 -1A2.
 
 % We need to state that "sig" assigns
 % a unique parameter and result type to each operation symbol.

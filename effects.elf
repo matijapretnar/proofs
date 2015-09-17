@@ -30,7 +30,6 @@ apart/zs : apart operation/z (operation/s _).
 apart/ss : apart (operation/s O1) (operation/s O2)
                  <- apart O1 O2.
 
-
 % Two operations are comparable if they are either equal or apart.
 
 comparable : operation -> operation -> type.
@@ -38,38 +37,3 @@ comparable : operation -> operation -> type.
 comparable/equal : comparable O O.
 comparable/apart : comparable O1 O2
                          <- apart O1 O2.
-
- 
-
-%%% Dirt %%%
-
-% For the sake of simplicity, we represent dirt with lists.
-% This representation is sufficient, because we only need to test for containment,
-% which we do by "in-dirt".
-
-dirt : type.
-%name dirt D.
- 
-dirt/empty : dirt.
-dirt/cons  : operation -> dirt -> dirt.
- 
- 
-in-dirt : operation -> dirt -> type.
- 
-in-dirt/here  : in-dirt O (dirt/cons O D).
-in-dirt/there : in-dirt O (dirt/cons _ D)
-                 <- in-dirt O D.
-
-
-% In the typing rule for handlers, we use "covers D D1 D2",
-% which states that the dirt "D" is contained in the union of "D1" and "D2".
-
-covers : dirt -> dirt -> dirt -> type.
- 
-covers/empty      : covers dirt/empty _ _.
-covers/cons-here  : covers (dirt/cons IO D) D1 D2
-                     <- covers D D1 D2
-                     <- in-dirt IO D1.
-covers/cons-there : covers (dirt/cons IO D) D1 D2
-                     <- covers D D1 D2
-                     <- in-dirt IO D2.

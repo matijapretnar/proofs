@@ -6,7 +6,6 @@
 
 get-op-case : operation -> op-cases -> op-case -> type.
 
-get-op-case/nil   : get-op-case O (op-cases/nil _) ([x] [k] op O x ([y] app k y)).
 get-op-case/here  : get-op-case O (op-cases/cons O OC _) OC.
 get-op-case/there : get-op-case O (op-cases/cons O' _ OCs) OC
                      <- apart O O'
@@ -15,29 +14,28 @@ get-op-case/there : get-op-case O (op-cases/cons O' _ OCs) OC
 
 %%% Small step semantics %%%
 
-step : signature -> comp -> comp -> type.
+step : comp -> comp -> type.
 
-step/cond-tru  : step _ (cond tru C1 _) C1.
-step/cond-fls  : step _ (cond fls _ C2) C2.
-step/app       : step _ (app (fun _ E1) E2) (E1 E2).
-step/seq-ret   : step _ (seq (ret E) C2) (C2 E).
-step/seq-op    : step _ (seq (op O Ep K) C2) (op O Ep ([x] seq (K x) C2)).
-step/seq-step  : step Sig (seq C1 C2) (seq C1' C2)
-                  <- step Sig C1 C1'.
-step/with-ret  : step _ (with (hnd _ Cv _) (ret E)) (Cv E).
-step/with-op   : step Sig (with (hnd Av Cv OCs) (op O Ep K)) (OC Ep (fun Aop ([y] with (hnd Av Cv OCs) (K y))))
-                  <- sig Sig O _ Aop
+step/cond-tru  : step (cond tru C1 _) C1.
+step/cond-fls  : step (cond fls _ C2) C2.
+step/app       : step (app (fun E1) E2) (E1 E2).
+step/seq-ret   : step (seq (ret E) C2) (C2 E).
+step/seq-op    : step (seq (op O Ep K) C2) (op O Ep ([x] seq (K x) C2)).
+step/seq-step  : step (seq C1 C2) (seq C1' C2)
+                  <- step C1 C1'.
+step/with-ret  : step (with (hnd Cv _) (ret E)) (Cv E).
+step/with-op   : step (with (hnd Cv OCs) (op O Ep K)) (OC Ep (fun ([y] with (hnd Cv OCs) (K y))))
                   <- get-op-case O OCs OC.
-step/with-step : step Sig (with E C) (with E C')
-                  <- step Sig C C'.
+step/with-step : step (with E C) (with E C')
+                  <- step C C'.
 
 
 % To state the progress theorem, we need to define when a computation is not stuck
 
-non-stuck : signature -> comp -> dirt -> type.
+non-stuck : comp -> dirt -> type.
 
-non-stuck/ret   : non-stuck _ (ret _) _.
-non-stuck/op    : non-stuck _ (op O _ _) D
-                   <- in-dirt O D.
-non-stuck/step  : non-stuck Sig C _
-                   <- step Sig C _.
+non-stuck/ret   : non-stuck (ret _) _.
+non-stuck/op    : non-stuck (op O _ _) D
+                   <- sig D O _ _.
+non-stuck/step  : non-stuck C _
+                   <- step C _.

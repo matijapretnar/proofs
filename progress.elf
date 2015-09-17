@@ -1,7 +1,7 @@
 %%%%% Progress theorem %%%%%
 
-progress : cof Sig C (_ ! D) -> non-stuck Sig C D -> type.
-progress-scof : scof Sig C S D -> non-stuck Sig C D -> type.
+progress : cof C (_ ! D) -> non-stuck C D -> type.
+progress-scof : scof C S D -> non-stuck C D -> type.
 %mode progress +C -NS.
 %mode progress-scof +C -NS.
 
@@ -13,7 +13,7 @@ progress-scof : scof Sig C S D -> non-stuck Sig C D -> type.
 
 - : progress (cof/ret _) non-stuck/ret.
 
-- : progress (cof/op _ _ _ OinD) (non-stuck/op OinD).
+- : progress (cof/op O _ _) (non-stuck/op O).
 
 - : progress (cof/seq C1 _) NS
      <- progress-scof C1 NS1
@@ -21,7 +21,7 @@ progress-scof : scof Sig C S D -> non-stuck Sig C D -> type.
 
 - : progress (cof/with E C) NS'
      <- progress C NS
-     <- progress-with E C NS NS'.
+     <- progress-with E NS NS'.
 
 - : progress-scof (scof/plain C) NS
      <- progress C NS.
