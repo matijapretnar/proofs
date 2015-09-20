@@ -80,6 +80,15 @@ apart-not-refl : apart O O -> {C} {B} cof C B -> type.
 %worlds (topen) (apart-not-refl _ _ _ _).
 %total {O!O} (apart-not-refl O!O _ _ _).
 
+apart-not-refl-eof : apart O O -> {C} {B} eof C B -> type.
+%mode apart-not-refl-eof +O!O +C +B -CofB.
+
+- : apart-not-refl-eof (apart/ss O!O) C B CofB
+     <- apart-not-refl-eof O!O C B CofB.
+
+%worlds (topen) (apart-not-refl-eof _ _ _ _).
+%total {O!O} (apart-not-refl-eof O!O _ _ _).
+
 % % Preservation in any case
 
 preservation-with-op : sig D O A1 A2
