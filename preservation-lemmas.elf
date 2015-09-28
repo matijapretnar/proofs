@@ -1,76 +1,6 @@
 %%% Subcases of the preservation theorem %%%
 
 
-%%% Preservation of handled operations %%%
-
-% The most technical part of the proof lies here. We know an operation is
-% handled by a handler either if one of the cases is guaranteed to match it,
-% or if it appears in the outgoing dirt. We analyze both cases and show that
-% types are preserved in both of them.
-
-% Preservation in case an operation is covered by some operation case
-
-% preservation-handled-op : in-dirt O Dcov -> sig Sig O A1 A2
-%                            -> eof Sig E A1 -> eof Sig K (A2 --> B)
-%                            -> get-op-case O OCs OC -> opcof Sig OCs B Dcov
-%                            -> cof Sig (OC E K) B -> type.
-% %mode preservation-handled-op +OinDcov +O +E +K +OC +OCs -C'.
-
-% % When the first case matches.
-% - : preservation-handled-op _ _ E K
-%      get-op-case/here
-%      (opcof/cons _ OC _)
-%      OC'
-%      <- subst2 OC E K OC'.
-
-% % When the first case does not match, the covered dirt changes.
-% % However, since the case did not match, the handled operation
-% % must be in the remainder of the covered dirt, so we continue as before.
-% - : preservation-handled-op OinDcov O E K
-%      (get-op-case/there OC A)
-%      (opcof/cons _ _ OCs)
-%      C'
-%      <- unequal-instance-in-rest OinDcov A OinDcov'
-%      <- preservation-handled-op OinDcov' O E K OC OCs C'.
-
-% %worlds (topen) (preservation-handled-op _ _ _ _ _ _ _).
-% %total {OC} (preservation-handled-op _ _ _ _ OC _ _).
-
-
-% % Preservation in case an operation appears in the outgoing dirt
-
-% preservation-unhandled-op : in-dirt O D' -> sig Sig O A1 A2
-%                              -> eof Sig E A1 -> eof Sig K (A2 --> A' ! D')
-%                              -> get-op-case O OCs OC -> opcof Sig OCs (A' ! D') _
-%                              -> cof Sig (OC E K) (A' ! D') -> type.
-% %mode preservation-unhandled-op +OinD' +O +E +K +OC +OCs -C'.
-
-% % When the first case matches.
-% - : preservation-unhandled-op _ _ Ep K
-%      get-op-case/here
-%      (opcof/cons _ OC _)
-%      OC'
-%      <- subst2 OC Ep K OC'.
-
-% % When the first case does not match, but there are more cases,
-% % we continue as before.
-% - : preservation-unhandled-op OinD' O Ep K
-%      (get-op-case/there OC _)
-%      (opcof/cons _ _ OCs)
-%      C'
-%      <- preservation-unhandled-op OinD' O Ep K OC OCs C'.
-
-% % When there are no more cases, we propagate the operation call.
-% - : preservation-unhandled-op OinD' O Ep K
-%      get-op-case/nil
-%      opcof/nil
-%      (cof/op O Ep ([_] [x] cof/app K (eof/var x)) OinD').
-
-
-% %worlds (topen) (preservation-unhandled-op _ _ _ _ _ _ _).
-% %total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
-
-
 apart-not-refl : apart O O -> {C} {B} cof C B -> type.
 %mode apart-not-refl +O!O +C +B -CofB.
 
@@ -88,8 +18,6 @@ apart-not-refl-eof : apart O O -> {C} {B} eof C B -> type.
 
 %worlds (topen) (apart-not-refl-eof _ _ _ _).
 %total {O!O} (apart-not-refl-eof O!O _ _ _).
-
-% % Preservation in any case
 
 preservation-with-op : sig D O A1 A2
                         -> eof Ep A1 -> eof K (A2 --> A' ! D')
@@ -111,3 +39,91 @@ preservation-with-op : sig D O A1 A2
 
 %worlds (topen) (preservation-with-op _ _ _ _ _ _).
 %total {O} (preservation-with-op O _ _ _ _ _).
+
+ty-eq : ty -> ty -> type.
+ty-eq/refl : ty-eq A A.
+
+expr-eq : expr -> expr -> type.
+expr-eq/refl : expr-eq A A.
+
+strengthen : ({t:ty} sig D O (A1 t) (A2 t)) -> sig D O A1' A2' -> ({t:ty} ty-eq (A1 t) A1') -> ({t:ty} ty-eq (A2 t) A2') -> type.
+%mode strengthen +O -O' -Eq1 -Eq2.
+
+- : strengthen ([_] sig/here) sig/here ([_] ty-eq/refl) ([_] ty-eq/refl).
+
+- : strengthen ([t] (sig/there (O t) Ap)) (sig/there O' Ap) Eq1 Eq2
+     <- strengthen O O' Eq1 Eq2.
+
+%worlds (topen) (strengthen _ _ _ _).
+%total {O} (strengthen O _ _ _).
+
+undependent-sig : scof (op O _ _) _ D -> sig D O A1 A2 -> type.
+%mode undependent-sig +C -O.
+
+- : undependent-sig (scof/plain (cof/op O _ _)) O.
+
+- : undependent-sig (scof/forall S) O'
+     <- ({t} undependent-sig (S t) (O t))
+     <- strengthen O O' _ _.
+
+%worlds (topen) (undependent-sig _ _).
+%total {S} (undependent-sig S _).
+
+absurd-eq : apart O O -> {A} {B} {K} ({x} var x A -> cof (K x) B) -> type.
+%mode absurd-eq +O!O +A +B +K -Eq.
+
+- : absurd-eq (apart/ss O!O) A B K Eq
+     <- absurd-eq O!O A B K Eq.
+
+%worlds (topen) (absurd-eq _ _ _ _ _).
+%total {O!O} (absurd-eq O!O _ _ _ _).
+
+sig-unique : sig D O A1 A2 -> sig D O A1' A2' -> eof E A1 -> eof E A1' -> type.
+%mode sig-unique +O +O' +E -E'.
+
+- : sig-unique sig/here sig/here E E.
+
+- : sig-unique (sig/there O _) (sig/there O' _) Eq1 Eq2
+     <- sig-unique O O' Eq1 Eq2.
+
+- : sig-unique sig/here (sig/there _ O!O) Eq1 Eq2
+     <- apart-not-refl-eof O!O _ _ Eq2.
+
+- : sig-unique (sig/there _ O!O) sig/here Eq1 Eq2
+     <- apart-not-refl-eof O!O _ _ Eq2.
+
+%worlds (topen) (sig-unique _ _ _ _).
+%total O (sig-unique O _ _ _).
+
+sig-unique2 : sig D O A1 A2 -> sig D O A1' A2' -> ({x} var x A2 -> cof (K x) B) -> ({x} var x A2' -> cof (K x) B) -> type.
+%mode sig-unique2 +O +O' +K -K'.
+
+- : sig-unique2 sig/here sig/here E E.
+
+- : sig-unique2 (sig/there O _) (sig/there O' _) Eq1 Eq2
+     <- sig-unique2 O O' Eq1 Eq2.
+
+- : sig-unique2 sig/here (sig/there _ O!O) Eq1 Eq2
+     <- absurd-eq O!O _ _ _ Eq2.
+
+- : sig-unique2 (sig/there _ O!O) sig/here Eq1 Eq2
+     <- absurd-eq O!O _ _ _ Eq2.
+
+%worlds (topen) (sig-unique2 _ _ _ _).
+%total O (sig-unique2 O _ _ _).
+
+operation-scheme-inversion : scof (op O E K) S D ->
+              sig D O A1 A2 ->
+              eof E A1 -> 
+              ({x} var x A2 -> scof (K x) S D) -> type.
+%mode operation-scheme-inversion +C +O -E -K.
+
+- : operation-scheme-inversion (scof/forall S) O (E bool) ([x] [dx] (scof/forall ([t] K' x dx t)))
+     <- ({t} operation-scheme-inversion (S t) O (E t) ([x] [dx] (K' x dx t))).
+
+- : operation-scheme-inversion (scof/plain (cof/op O E K)) O' E' ([x] [dx] scof/plain (K' x dx))
+     <- sig-unique O O' E E'
+     <- sig-unique2 O O' K K'.
+
+%worlds (topen) (operation-scheme-inversion _ _ _ _).
+%total {S} (operation-scheme-inversion S _ _ _).

@@ -1,92 +1,3 @@
-ty-eq : ty -> ty -> type.
-ty-eq/refl : ty-eq A A.
-
-expr-eq : expr -> expr -> type.
-expr-eq/refl : expr-eq A A.
-
-strengthen : ({t:ty} sig D O (A1 t) (A2 t)) -> sig D O A1' A2' -> ({t:ty} ty-eq (A1 t) A1') -> ({t:ty} ty-eq (A2 t) A2') -> type.
-%mode strengthen +O -O' -Eq1 -Eq2.
-
-- : strengthen ([_] sig/here) sig/here ([_] ty-eq/refl) ([_] ty-eq/refl).
-
-- : strengthen ([t] (sig/there (O t) Ap)) (sig/there O' Ap) Eq1 Eq2
-     <- strengthen O O' Eq1 Eq2.
-
-%worlds (topen) (strengthen _ _ _ _).
-%total {O} (strengthen O _ _ _).
-
-matijas-lemma : scof (op O _ _) _ D -> sig D O A1 A2 -> type.
-%mode matijas-lemma +C -O.
-
-- : matijas-lemma (scof/plain (cof/op O _ _)) O.
-
-- : matijas-lemma (scof/forall S) O'
-     <- ({t} matijas-lemma (S t) (O t))
-     <- strengthen O O' _ _.
-
-%worlds (topen) (matijas-lemma _ _).
-%total {S} (matijas-lemma S _).
-
-absurd-eq : apart O O -> {A} {B} {K} ({x} var x A -> cof (K x) B) -> type.
-%mode absurd-eq +O!O +A +B +K -Eq.
-
-- : absurd-eq (apart/ss O!O) A B K Eq
-     <- absurd-eq O!O A B K Eq.
-
-%worlds (topen) (absurd-eq _ _ _ _ _).
-%total {O!O} (absurd-eq O!O _ _ _ _).
-
-sig-unique : sig D O A1 A2 -> sig D O A1' A2' -> eof E A1 -> eof E A1' -> type.
-%mode sig-unique +O +O' +E -E'.
-
-- : sig-unique sig/here sig/here E E.
-
-- : sig-unique (sig/there O _) (sig/there O' _) Eq1 Eq2
-     <- sig-unique O O' Eq1 Eq2.
-
-- : sig-unique sig/here (sig/there _ O!O) Eq1 Eq2
-     <- apart-not-refl-eof O!O _ _ Eq2.
-
-- : sig-unique (sig/there _ O!O) sig/here Eq1 Eq2
-     <- apart-not-refl-eof O!O _ _ Eq2.
-
-%worlds (topen) (sig-unique _ _ _ _).
-%total O (sig-unique O _ _ _).
-
-sig-unique2 : sig D O A1 A2 -> sig D O A1' A2' -> ({x} var x A2 -> cof (K x) B) -> ({x} var x A2' -> cof (K x) B) -> type.
-%mode sig-unique2 +O +O' +K -K'.
-
-- : sig-unique2 sig/here sig/here E E.
-
-- : sig-unique2 (sig/there O _) (sig/there O' _) Eq1 Eq2
-     <- sig-unique2 O O' Eq1 Eq2.
-
-- : sig-unique2 sig/here (sig/there _ O!O) Eq1 Eq2
-     <- absurd-eq O!O _ _ _ Eq2.
-
-- : sig-unique2 (sig/there _ O!O) sig/here Eq1 Eq2
-     <- absurd-eq O!O _ _ _ Eq2.
-
-%worlds (topen) (sig-unique2 _ _ _ _).
-%total O (sig-unique2 O _ _ _).
-
-ohads-lemma : scof (op O E K) S D ->
-              sig D O A1 A2 ->
-              eof E A1 -> 
-              ({x} var x A2 -> scof (K x) S D) -> type.
-%mode ohads-lemma +C +O -E -K.
-
-- : ohads-lemma (scof/forall S) O (E bool) ([x] [dx] (scof/forall ([t] K' x dx t)))
-     <- ({t} ohads-lemma (S t) O (E t) ([x] [dx] (K' x dx t))).
-
-- : ohads-lemma (scof/plain (cof/op O E K)) O' E' ([x] [dx] scof/plain (K' x dx))
-     <- sig-unique O O' E E'
-     <- sig-unique2 O O' K K'.
-
-%worlds (topen) (ohads-lemma _ _ _ _).
-%total {S} (ohads-lemma S _ _ _).
-
-
 % We need to simultaneously prove both preservation of dirty types and schemes.
 
 preservation      : cof C B -> step C C' -> cof C' B -> type.
@@ -127,8 +38,8 @@ preservation-scof : scof C S D -> step C C' -> scof C' S D -> type.
      <- {t} preservation-scof (C t) S (C' t).
 
 - : preservation (cof/seq C1 C2) step/seq-op (cof/op O E ([y] [dy] cof/seq (K y dy) C2))
-     <- matijas-lemma C1 O
-     <- ohads-lemma C1 O E K.
+     <- undependent-sig C1 O
+     <- operation-scheme-inversion C1 O E K.
 
 
 

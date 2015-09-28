@@ -1,12 +1,13 @@
 %%%%% Abstract syntax %%%%%
 
-%%% Types %%%
+%%% Types, dirty types, and dirt %%%
 
 ty : type.
 dirty : type.
+dirt : type.
+
 %name ty A.
 %name dirty B.
-dirt : type.
 %name dirt D.
 
 % Usually, we write underlined "C" and "D" for computation types.
@@ -23,26 +24,34 @@ bool  : ty.                   % the type of booleans
 ! : ty -> dirt -> dirty.
 %infix none 60 !.
 
-%%% Dirt %%%
-
-% For the sake of simplicity, we represent dirt with lists.
-% This representation is sufficient, because we only need to test for containment,
-% which we do by "in-dirt".
-
+% For the sake of simplicity, we represent dirt with association lists.
+% If an operation is assigned two different signatures, the first one is
+% taken, making assignment unique.
  
 dirt/empty : dirt.
 dirt/cons  : operation -> ty -> ty -> dirt -> dirt.
- 
 
-%block topen : block {t : ty}.
+% "sig D O A1 A2" states that in the dirt "D" the operation "O" is assigned
+% a parameter type "A1" and a result type "A2".
+
+sig : dirt -> operation -> ty -> ty -> type.
+
+sig/here : sig (dirt/cons O A1 A2 _) O A1 A2.
+sig/there : sig (dirt/cons O _ _ D) O' A1 A2
+            <- apart O' O
+            <- sig D O' A1 A2.
 
 %%% Schemes %%%
 
 scheme : type.
 %name scheme S.
 
-plain  : ty -> scheme.            % the type of booleans
-forall : (ty -> scheme) -> scheme.   % the type of natural numbers
+plain  : ty -> scheme.             % plain type
+forall : (ty -> scheme) -> scheme. % universally quantified type
+
+
+% "concrete S A" states that the type "A" is obtained by replacing all
+% universally quantified type variables in "S" by closed types.
 
 concrete : scheme -> ty -> type.
 

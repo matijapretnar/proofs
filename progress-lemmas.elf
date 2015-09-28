@@ -1,7 +1,7 @@
 %%% Effectiveness of "get-op-case" %%%
 
 % The main result here is "get-op-case-total", which says that for well-typed
-% operation cases OCs, "get-op-case IO OCs OC" always delivers an answer "OC"
+% operation cases OCs, "get-op-case O OCs OC" always delivers an answer "OC"
 
 decide-op-case : comparable O O' -> {OC} get-op-case O OCs OC'
                   -> get-op-case O (op-cases/cons O' OC OCs) OC'' -> type.
@@ -29,10 +29,9 @@ get-op-case-total : sig D O _ _ -> opcof OCs B D -> get-op-case O OCs OC -> type
 %%% Subcases of the progress theorem %%%
 
 % When proving progress, we first do induction on the structure of the term
-% being reduced, and then in most cases, due to subtyping, we need to do
-% a second induction on the typing derivation. In Twelf, we can do nested
-% induction only by first proving a separate lemma for each case, and
-% these lemmas follow below.
+% being reduced, and then in some cases, due to subtyping, we need to do
+% a further induction. In Twelf, we can do this only by first proving a
+% separate lemma for each case, and these lemmas follow below.
 
 
 progress-seq : non-stuck C1 D -> {C2} non-stuck (seq C1 C2) D -> type.

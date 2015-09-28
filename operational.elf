@@ -1,8 +1,8 @@
 %%%%% Operational semantics %%%%%
 
 % In defining both small and big step semantics, we use "get-op-case O OCs OC",
-% such that "OC" is the first operation casein "OCs" that matches the
-% operation "O", or the default handler if there are none.
+% such that "OC" is the first operation case in "OCs" that matches the
+% operation "O".
 
 get-op-case : operation -> op-cases -> op-case -> type.
 

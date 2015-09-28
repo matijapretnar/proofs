@@ -26,20 +26,14 @@ Alternatively, you can run `twelf-server` in the main directory, and type `make`
 * `sources.cfg`: Twelf configuration file determining the order of files
 
 ### Core language
-* `names.elf`: an auxiliary type of comparable names
-* `effects.elf`: definitions involving effects, operations, regions and dirt
-* `effects-lemmas.elf`: various lemmas about the above definitions
+* `operations.elf`: definitions involving operations, regions and dirt
+* `operations-lemmas.elf`: various lemmas about the above definitions
 * `syntax.elf`: abstract syntax
 
 ### Dynamic semantics
 * `operational.elf`: definition of small step and big step operational semantics
-* `small-big-lemmas.elf`: lemmas used in `small-big.elf`
-* `small-big.elf`: equivalence between small and big step semantics
 
 ### Static semantics
-* `signature.elf`: definitions of effect signatures and signatures
-* `subtyping.elf`: definition of the subtyping relation
-* `subtyping-lemmas.elf`: reflexivity and transitivity of subtyping
 * `typing.elf`: definition of typing judgments
 * `typing-lemmas.elf`: various typing lemmas, mainly substitution lemma
 

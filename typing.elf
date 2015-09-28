@@ -1,8 +1,11 @@
 %%%%% Typing judgments %%%%%
 
 % The three typing judgments that correspond to the three families of terms:
-% - "eof E A" means that expression "E" has type "A" under signature "Sig"
+% - "eof E A" means that expression "E" has type "A"
 % - "cof C B" states the same for computation "C" and dirty type "B"
+% - "seof E A" means that expression "E" has a scheme "S"
+%   (this is not used in the paper, but is technically useful in the formalization)
+% - "scof C S B" states the same for computation "C" a scheme "S" and dirt "D"
 % - "opcof OCs B D" states that operation cases "OCs" all have a return type "B"
 %   and cover operations from dirt "D"
 
@@ -13,18 +16,20 @@ scof : comp -> scheme -> dirt -> type.
 opcof : op-cases -> dirty -> dirt -> type.
 
 % We have an additional judgment "var E A" to represent variables of type "A"
-% in a context. We could use "eof" instead of "var" in hypothetical judgments,
-% but the latter presentation of contexts is closer to the formalization
-% in the paper, and also later allow us to relate variables between typing
-% and type inference judgments.
+% in a context. Similarly, we use "pvar E S" to represent polymorphic variables.
 
 var : expr -> ty -> type.
 pvar : expr -> scheme -> type.
 
-% Block declaration to be used in theorems that hold for open typed terms.
+% Block declaration to be used in theorems that hold for open terms.
 
+% Free type variables may appear in a theorem.
+%block topen : block {t : ty}.
+% Free monomorphic variables may appear in a theorem (used only to define open).
 %block mopen : some {A : ty} block {x : expr}{_ : var x A}.
+% Free polymorphic variables may appear in a theorem (used only to define open).
 %block popen : some {S : scheme} block {x : expr}{_ : pvar x S}.
+% Any free variable may appear in a theorem.
 %block open = (mopen | popen | topen).
 
 
