@@ -9,6 +9,9 @@ instance-expr-in-region : eof _ (ins I) (inst R) -> in-region I R -> type.
      <- instance-expr-in-region E IinR
      <- in-region/<r IinR R<R' IinR'.
 
+- : instance-expr-in-region (eof/sub E <t/ref) IinR
+     <- instance-expr-in-region E IinR.
+
 %worlds (topen) (instance-expr-in-region _ _).
 %total {E} (instance-expr-in-region E _).
 

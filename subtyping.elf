@@ -20,6 +20,7 @@
 <t/==>   : B1 ==> B2 <t B1' ==> B2'
             <- B2 <dt B2'
             <- B1' <dt B1.
+<t/ref   : A <t A.
 
 <dt/!    : A ! D <dt A' ! D'
             <- D <d D'

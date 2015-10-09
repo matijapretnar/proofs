@@ -80,6 +80,9 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
      <- <dt/trans B1<B1' B1'<B1'' B1<B1''
      <- preservation-with C B1<B1'' E S C'.
 
+- : preservation-with C B1<B1' (eof/sub E <t/ref) S C'
+     <- preservation-with C B1<B1' E S C'.
+
 - : preservation-with (cof/val E) (<dt/! A<A' _) (eof/hnd Cv _ _) step/with-val C'
      <- subst Cv (eof/sub E A<A') C'.
 

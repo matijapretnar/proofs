@@ -5,24 +5,7 @@
 %mode <t/refl +A -A<A.
 %mode <dt/refl +B -B<B.
 
-- : <t/refl _ <t/nat.
-
-- : <t/refl _ <t/bool.
-
-- : <t/refl _ <t/unit.
-
-- : <t/refl _ <t/empty.
-
-- : <t/refl (inst R) (<t/inst R<R)
-     <- <r/refl R R<R.
-
-- : <t/refl (A --> B) (<t/--> A<A B<B)
-     <- <t/refl A A<A
-     <- <dt/refl B B<B.
-
-- : <t/refl (B1 ==> B2) (<t/==> B1<B1 B2<B2)
-     <- <dt/refl B1 B1<B1
-     <- <dt/refl B2 B2<B2.
+- : <t/refl _ <t/ref.
 
 
 - : <dt/refl (A ! D) (<dt/! A<A D<D)
@@ -30,7 +13,7 @@
      <- <d/refl D D<D.
 
 %worlds (topen) (<t/refl _ _) (<dt/refl _ _).
-%trustme %total {(A B)} (<t/refl A _) (<dt/refl B _).
+%total {(A B)} (<t/refl A _) (<dt/refl B _).
 
 
 
@@ -48,6 +31,14 @@
 %mode <dt/trans +B<B' +B'<B'' -B<B''.
 %mode <t/snart +A'<A +A''<A' -A''<A.
 %mode <dt/snart +B'<B +B''<B' -B''<B.
+
+- : <t/trans <t/ref A<A' A<A'.
+
+- : <t/trans A<A' <t/ref A<A'.
+
+- : <t/snart <t/ref A<A' A<A'.
+
+- : <t/snart A<A' <t/ref A<A'.
 
 - : <t/trans _ _ <t/nat.
 
