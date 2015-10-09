@@ -53,19 +53,28 @@ unequal-instance-in-rest : in-region I (region/cons I' region/empty)
 % we cannot use Twelf substitution, but need to prove an explicit substitution lemma.
 % To make the proof go through, we need to add an additional subtyping assumption.
 
+val-ceof-plain : cof Sig (val E) (A ! _) -> eof Sig E A -> type.
+%mode val-ceof-plain +V -E.
+
+- : val-ceof-plain (cof/val E) E.
+
+- : val-ceof-plain (cof/sub E (<dt/! A1<A2 _)) (eof/sub E' A1<A2)
+     <- val-ceof-plain E E'.
+
+%worlds (topen) (val-ceof-plain _ _).
+%total {E} (val-ceof-plain E _).
+
 val-ceof : scof Sig (val E) S _ -> seof Sig E S -> type.
 %mode val-ceof +V -E.
 
-- : val-ceof (scof/plain (cof/val E)) (seof/plain E).
-
-- : val-ceof (scof/plain (cof/sub E (<dt/! A1<A2 _))) (seof/plain (eof/sub E' A1<A2))
-     <- val-ceof (scof/plain E) (seof/plain E').
+- : val-ceof (scof/plain B) (seof/plain A)
+     <- val-ceof-plain B A.
 
 - : val-ceof (scof/forall S) (seof/forall S')
      <- {t} val-ceof (S t) (S' t).
 
 %worlds (topen) (val-ceof _ _).
-%trustme %total {V} (val-ceof V _).
+%total {V} (val-ceof V _).
 
 concrete-seof : seof Sig E S -> concrete S A -> eof Sig E A -> type.
 %mode concrete-seof +S +SA -A.
