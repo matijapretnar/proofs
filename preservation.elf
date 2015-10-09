@@ -1,26 +1,93 @@
 %%%%% Preservation theorem %%%%%
 
-matijas-lemma : cof Sig (op Ei O Ep K) (A ! D) -> sig Sig O A1 A2 -> eof Sig Ei (inst R) -> eof Sig Ep A1 -> ({x} var x A2 -> cof Sig (K x) (A ! D)) -> in-dirt-region R O D -> type.
-%mode matijas-lemma +OpCall -O -Ei -Ep -K -ROinD.
+ty-eq : ty -> ty -> type.
+ty-eq/refl : ty-eq A A.
+ 
+expr-eq : expr -> expr -> type.
+expr-eq/refl : expr-eq A A.
+ 
+strengthen-effsig : ({t:ty} effsig EffSig O (A1 t) (A2 t)) -> effsig EffSig O A1' A2' -> ({t:ty} ty-eq (A1 t) A1') -> ({t:ty} ty-eq (A2 t) A2') -> type.
+%mode strengthen-effsig +O -O' -Eq1 -Eq2.
+ 
+- : strengthen-effsig ([_] effsig/here) effsig/here ([_] ty-eq/refl) ([_] ty-eq/refl).
+ 
+- : strengthen-effsig ([t] (effsig/there (O t))) (effsig/there O') Eq1 Eq2
+     <- strengthen-effsig O O' Eq1 Eq2.
+ 
+%worlds (topen) (strengthen-effsig _ _ _ _).
+%total {O} (strengthen-effsig O _ _ _).
 
-- : matijas-lemma (cof/op Ei O Ep K ROinD) O Ei Ep K ROinD.
+strengthen-eof : ({t:ty} eof Sig E (A1 t)) -> ({t:ty} ty-eq (A1 t) A1') -> eof Sig E A1' -> type.
+%mode strengthen-eof +E +Eq -E'.
+
+- : strengthen-eof E  _ (E bool).
+
+%worlds (topen) (strengthen-eof _ _ _).
+%total {} (strengthen-eof _ _ _).
+
+strengthen : ({t:ty} sig Sig O (A1 t) (A2 t)) -> sig Sig O A1' A2' -> ({t:ty} ty-eq (A1 t) A1') -> ({t:ty} ty-eq (A2 t) A2') -> type.
+%mode strengthen +O -O' -Eq1 -Eq2.
+ 
+- : strengthen ([t] (sig/here (Eff t))) (sig/here Eff') Eq1 Eq2
+     <- strengthen-effsig Eff Eff' Eq1 Eq2.
+ 
+- : strengthen ([t] (sig/there (O t))) (sig/there O') Eq1 Eq2
+     <- strengthen O O' Eq1 Eq2.
+ 
+%worlds (topen) (strengthen _ _ _ _).
+%total {O} (strengthen O _ _ _).
+ 
+matijas-lemma3 : cof Sig (op _ O _ _) _ -> sig Sig O A1 A2 -> type.
+%mode matijas-lemma3 +C -O.
+ 
+- : matijas-lemma3 (cof/op _ O _ _ _) O.
+
+- : matijas-lemma3 (cof/sub C _) O
+     <- matijas-lemma3 C O.
+ 
+%worlds (topen) (matijas-lemma3 _ _).
+%total {S} (matijas-lemma3 S _).
+
+matijas-lemma2 : scof Sig (op _ O _ _) _ _ -> sig Sig O A1 A2 -> type.
+%mode matijas-lemma2 +C -O.
+ 
+- : matijas-lemma2 (scof/plain C) O
+     <- matijas-lemma3 C O.
+ 
+- : matijas-lemma2 (scof/forall S) O'
+     <- ({t} matijas-lemma2 (S t) (O t))
+     <- strengthen O O' _ _.
+ 
+%worlds (topen) (matijas-lemma2 _ _).
+%total {S} (matijas-lemma2 S _).
+
+matijas-lemma : cof Sig (op Ei O Ep K) (A ! D) -> sig Sig O A1 A2 -> eof Sig Ei (inst R) -> eof Sig Ep A1 -> ({x} var x A2 -> cof Sig (K x) (A ! D)) -> in-dirt-region R O D -> type.
+%mode matijas-lemma +OpCall +O -Ei -Ep -K -ROinD.
 
 - : matijas-lemma (cof/sub OpCall (<dt/! A1<A2 D<D')) O Ei Ep ([x] [dx] (cof/sub (K x dx) (<dt/! A1<A2 D<D'))) ROinD'
     <- matijas-lemma OpCall O Ei Ep K ROinD
     <- in-dirt-region/<d ROinD D<D' ROinD'.
 
+- : matijas-lemma (cof/op Ei O Ep K ROinD) _ Ei Ep K ROinD.
+
 %worlds (topen) (matijas-lemma _ _ _ _ _ _).
-%total {S} (matijas-lemma S _ _ _ _ _).
+%total {C} (matijas-lemma C _ _ _ _ _).
 
-ohads-lemma : scof Sig (op Ei O Ep K) S D -> sig Sig O A1 A2 -> eof Sig Ei (inst R) -> eof Sig Ep A1 -> ({x} var x A2 -> scof Sig (K x) S D) -> in-dirt-region R O D -> type.
-%mode ohads-lemma +OpCall -O -Ei -Ep -K -ROinD.
 
+ohads-lemma : scof Sig (op Ei O Ep K) S D ->
+              sig Sig O A1 A2 ->
+              eof Sig Ei (inst R) ->
+              eof Sig Ep A1 -> 
+              ({x} var x A2 -> scof Sig (K x) S D) ->
+              in-dirt-region R O D -> type.
+%mode ohads-lemma +C +O -Ei -Ep -K -ROinD.
+ 
+- : ohads-lemma (scof/forall S) O (Ei bool) (Ep bool) ([x] [dx] (scof/forall ([t] K' x dx t))) ROinD
+     <- ({t} ohads-lemma (S t) O (Ei t) (Ep t) ([x] [dx] (K' x dx t)) ROinD).
+ 
 - : ohads-lemma (scof/plain OpCall) O Ei Ep ([x] [dx] scof/plain (K x dx)) ROinD
      <- matijas-lemma OpCall O Ei Ep K ROinD.
-
-- : ohads-lemma (scof/forall S) O Ei Ep ([x] [dx] scof/forall ([t] K t x dx)) ROinD
-     <- {t} ohads-lemma (S t) O Ei Ep (K t) ROinD.
-
+ 
 %worlds (topen) (ohads-lemma _ _ _ _ _ _).
 %total {S} (ohads-lemma S _ _ _ _ _).
 
@@ -72,6 +139,7 @@ preservation-with : cof Sig C B1 -> B1 <dt B1' -> eof Sig E (B1' ==> B2)
 
 
 - : preservation-let C1 C2 step/let-op (cof/op Ei O Ep ([_] [y] (cof/let (K _ y) C2)) ROinD)
+    <- matijas-lemma2 C1 O
      <- ohads-lemma C1 O Ei Ep K ROinD.
 
 - : preservation-let C1 C2 step/let-val C'
