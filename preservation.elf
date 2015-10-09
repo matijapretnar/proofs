@@ -1,18 +1,28 @@
 %%%%% Preservation theorem %%%%%
 
+matijas-lemma : cof Sig (op Ei O Ep K) (A ! D) -> sig Sig O A1 A2 -> eof Sig Ei (inst R) -> eof Sig Ep A1 -> ({x} var x A2 -> cof Sig (K x) (A ! D)) -> in-dirt-region R O D -> type.
+%mode matijas-lemma +OpCall -O -Ei -Ep -K -ROinD.
+
+- : matijas-lemma (cof/op Ei O Ep K ROinD) O Ei Ep K ROinD.
+
+- : matijas-lemma (cof/sub OpCall (<dt/! A1<A2 D<D')) O Ei Ep ([x] [dx] (cof/sub (K x dx) (<dt/! A1<A2 D<D'))) ROinD'
+    <- matijas-lemma OpCall O Ei Ep K ROinD
+    <- in-dirt-region/<d ROinD D<D' ROinD'.
+
+%worlds (topen) (matijas-lemma _ _ _ _ _ _).
+%total {S} (matijas-lemma S _ _ _ _ _).
+
 ohads-lemma : scof Sig (op Ei O Ep K) S D -> sig Sig O A1 A2 -> eof Sig Ei (inst R) -> eof Sig Ep A1 -> ({x} var x A2 -> scof Sig (K x) S D) -> in-dirt-region R O D -> type.
 %mode ohads-lemma +OpCall -O -Ei -Ep -K -ROinD.
 
-- : ohads-lemma (scof/plain (cof/op Ei O Ep K ROinD)) O Ei Ep ([x] [dx] scof/plain (K x dx)) ROinD.
-
-- : ohads-lemma (scof/plain (cof/sub OpCall A1<A2)) O Ei Ep ([x] [dx] scof/plain (cof/sub (K x dx) A1<A2)) ROinD
-    <- ohads-lemma (scof/plain OpCall) O Ei Ep ([x] [dx] scof/plain (K x dx)) ROinD.
+- : ohads-lemma (scof/plain OpCall) O Ei Ep ([x] [dx] scof/plain (K x dx)) ROinD
+     <- matijas-lemma OpCall O Ei Ep K ROinD.
 
 - : ohads-lemma (scof/forall S) O Ei Ep ([x] [dx] scof/forall ([t] K t x dx)) ROinD
      <- {t} ohads-lemma (S t) O Ei Ep (K t) ROinD.
 
 %worlds (topen) (ohads-lemma _ _ _ _ _ _).
-%trustme %total {S} (ohads-lemma S _ _ _ _ _).
+%total {S} (ohads-lemma S _ _ _ _ _).
 
 
 % To prove preservation, we need to simultaneously prove two other lemmas that
