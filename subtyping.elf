@@ -8,10 +8,7 @@
 %block topen : block {t : ty}.
 
 
-<t/bool  : bool <t bool.
-<t/nat   : nat <t nat.
-<t/unit  : unit <t unit.
-<t/empty : empty <t empty.
+<t/refl   : A <t A.
 <t/-->   : A --> B <t A' --> B'
             <- B <dt B'
             <- A' <t A.
@@ -20,7 +17,6 @@
 <t/==>   : B1 ==> B2 <t B1' ==> B2'
             <- B2 <dt B2'
             <- B1' <dt B1.
-<t/ref   : A <t A.
 
 <dt/!    : A ! D <dt A' ! D'
             <- D <d D'

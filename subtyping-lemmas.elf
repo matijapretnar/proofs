@@ -1,19 +1,13 @@
 %%% Reflexivity of subtyping %%%
 
-<t/refl : {A} A <t A -> type.
 <dt/refl : {B} B <dt B -> type.
-%mode <t/refl +A -A<A.
 %mode <dt/refl +B -B<B.
 
-- : <t/refl _ <t/ref.
-
-
-- : <dt/refl (A ! D) (<dt/! A<A D<D)
-     <- <t/refl A A<A
+- : <dt/refl (A ! D) (<dt/! <t/refl D<D)
      <- <d/refl D D<D.
 
-%worlds (topen) (<t/refl _ _) (<dt/refl _ _).
-%total {(A B)} (<t/refl A _) (<dt/refl B _).
+%worlds (topen) (<dt/refl _ _).
+%total {} (<dt/refl _ _).
 
 
 
@@ -32,21 +26,9 @@
 %mode <t/snart +A'<A +A''<A' -A''<A.
 %mode <dt/snart +B'<B +B''<B' -B''<B.
 
-- : <t/trans <t/ref A<A' A<A'.
+- : <t/trans <t/refl A<A' A<A'.
 
-- : <t/trans A<A' <t/ref A<A'.
-
-- : <t/snart <t/ref A<A' A<A'.
-
-- : <t/snart A<A' <t/ref A<A'.
-
-- : <t/trans _ _ <t/nat.
-
-- : <t/trans _ _ <t/bool.
-
-- : <t/trans _ _ <t/unit.
-
-- : <t/trans _ _ <t/empty.
+- : <t/trans A<A' <t/refl A<A'.
 
 - : <t/trans (<t/--> A'<A B<B') (<t/--> A''<A' B'<B'')  (<t/--> A''<A B<B'')
      <- <t/snart A'<A A''<A' A''<A
@@ -65,13 +47,9 @@
      <- <t/trans A<A' A'<A'' A<A''.
 
 
-- : <t/snart _ _ <t/nat.
+- : <t/snart <t/refl A<A' A<A'.
 
-- : <t/snart _ _ <t/bool.
-
-- : <t/snart _ _ <t/unit.
-
-- : <t/snart _ _ <t/empty.
+- : <t/snart A<A' <t/refl A<A'.
 
 - : <t/snart (<t/--> A<A' B'<B) (<t/--> A'<A'' B''<B')  (<t/--> A<A'' B''<B)
      <- <t/trans A<A' A'<A'' A<A''

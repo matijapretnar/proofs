@@ -125,7 +125,7 @@ progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck Sig (app E1 E2) D -> t
 - : progress-app D (eof/sub E1 _) E2 NS
      <- progress-app D E1 E2 NS.
 
-- : progress-app D (eof/sub E1 <t/ref) E2 NS
+- : progress-app D (eof/sub E1 <t/refl) E2 NS
      <- progress-app D E1 E2 NS.
 
 %worlds (topen) (progress-app _ _ _ _).
@@ -143,7 +143,7 @@ progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt-region R O D
      <- <r/in-dirt-region R<R' R'OinD ROinD
      <- progress-op Ei Ep K ROinD NS.
 
-- : progress-op (eof/sub Ei <t/ref) Ep K ROinD NS
+- : progress-op (eof/sub Ei <t/refl) Ep K ROinD NS
      <- progress-op Ei Ep K ROinD NS.
 
 %worlds (topen) (progress-op _ _ _ _ _).
@@ -179,7 +179,7 @@ progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C 
      <- progress-with E C NS1' NS2'
      <- non-stuck/<d NS2' D2'<D2 NS2.
 
-- : progress-with (eof/sub E <t/ref) C NS1 NS2
+- : progress-with (eof/sub E <t/refl) C NS1 NS2
      <- progress-with E C NS1 NS2.
 
 %worlds (topen) (progress-with _ _ _ _).
