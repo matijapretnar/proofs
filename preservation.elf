@@ -23,9 +23,7 @@ preservation-scof : scof C S D -> step C C' -> scof C' S D -> type.
      <- subst Cv E C'.
 
 - : preservation (cof/with (eof/hnd Cv OCs) (cof/op O E K)) (step/with-op OC) C'
-     <- preservation-with-op O E
-         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs) (K x e))
-         OC OCs C'.
+     <- preservation-with-op O E (eof/fun K) OC OCs C'.
 
 - : preservation (cof/with E C) (step/with-step S) (cof/with E C')
      <- preservation C S C'.

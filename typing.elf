@@ -13,7 +13,7 @@ eof : expr -> ty -> type.
 cof : comp -> dirty -> type.
 seof : expr -> scheme -> type.
 scof : comp -> scheme -> dirt -> type.
-opcof : op-cases -> dirty -> dirt -> type.
+opcof : op-cases -> dirty -> dirty -> dirt -> type.
 
 % We have an additional judgment "var E A" to represent variables of type "A"
 % in a context. Similarly, we use "pvar E S" to represent polymorphic variables.
@@ -45,7 +45,7 @@ eof/fls : eof fls bool.
 eof/fun : eof (fun E) (A --> B)
            <- ({x} var x A -> cof (E x) B).
 eof/hnd : eof (hnd Cv OCs) (A ! D ==> A' ! D')
-           <- opcof OCs (A' ! D') D
+           <- opcof OCs (A ! D) (A' ! D') D
            <- ({x} var x A -> cof (Cv x) (A' ! D')).
 
 scof/plain : scof C (plain A) D
@@ -56,10 +56,10 @@ scof/forall: scof C (forall S) D
 
 %%% Operation cases %%%
 
-opcof/nil  : opcof (op-cases/nil B) B dirt/empty.
-opcof/cons : opcof (op-cases/cons O OC OCs) B (dirt/cons O A1 A2 D)
-              <- opcof OCs B D
-              <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof (OC x k) B).
+opcof/nil  : opcof (op-cases/nil B) _ B dirt/empty.
+opcof/cons : opcof (op-cases/cons O OC OCs) B B' (dirt/cons O A1 A2 D)
+              <- opcof OCs B B' D
+              <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof (OC x k) B').
 
 
 %%% Computations %%%

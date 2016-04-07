@@ -14,7 +14,7 @@ decide-op-case : comparable O O' -> {OC} get-op-case O OCs OC'
 %total {} (decide-op-case _ _ _ _).
 
 
-get-op-case-total : sig D O _ _ -> opcof OCs B D -> get-op-case O OCs OC -> type.
+get-op-case-total : sig D O _ _ -> opcof OCs _ _ D -> get-op-case O OCs OC -> type.
 %mode get-op-case-total +O +OCs -OC.
 
 - : get-op-case-total sig/here (opcof/cons _ _) get-op-case/here.

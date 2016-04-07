@@ -21,8 +21,8 @@ apart-not-refl-eof : apart O O -> {C} {B} eof C B -> type.
 
 preservation-with-op : sig D O A1 A2
                         -> eof Ep A1 -> eof K (A2 --> A' ! D')
-                        -> get-op-case O OCs OC -> opcof OCs (A' ! D') D
-                        -> cof (OC Ep K) (A' ! D') -> type.
+                        -> get-op-case O OCs OC -> opcof OCs (A' ! D') B D
+                        -> cof (OC Ep K) B -> type.
 %mode preservation-with-op +O +Ep +K +OC +OCs -OC.
 
 - : preservation-with-op sig/here Ep K get-op-case/here (opcof/cons OC _) OC'

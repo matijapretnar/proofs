@@ -29,7 +29,7 @@ concrete-seof : seof E S -> concrete S A -> eof E A -> type.
 subst-eof   : eof E' A -> ({x} var x A -> eof (E x) A') -> eof (E E') A' -> type.
 subst-cof   : eof E' A -> ({x} var x A -> cof (C x) B) -> cof (C E') B -> type.
 subst-scof   : eof E' A -> ({x} var x A -> scof (C x) S D) -> scof (C E') S D -> type.
-subst-opcof : eof E' A -> ({x} var x A -> opcof (OCs x) B Dcov) -> opcof (OCs E') B Dcov -> type.
+subst-opcof : eof E' A -> ({x} var x A -> opcof (OCs x) B B' Dcov) -> opcof (OCs E') B B' Dcov -> type.
 %mode subst-eof +X +E -E'.
 %mode subst-cof +X +C -C'.
 %mode subst-scof +X +C -C'.
@@ -99,8 +99,8 @@ subst-opcof : eof E' A -> ({x} var x A -> opcof (OCs x) B Dcov) -> opcof (OCs E'
 psubst-eof   : seof E' S -> ({x} pvar x S -> eof (E x) A) -> eof (E E') A -> type.
 psubst-cof   : seof E S -> ({x} pvar x S -> cof (C x) B) -> cof (C E) B -> type.
 psubst-scof   : seof E S -> ({x} pvar x S -> scof (C x) S' D) -> scof (C E) S' D -> type.
-psubst-opcof : seof E S -> ({x} pvar x S -> opcof (OCs x) B Dcov)
-               -> opcof (OCs E) B Dcov -> type.
+psubst-opcof : seof E S -> ({x} pvar x S -> opcof (OCs x) B B' Dcov)
+               -> opcof (OCs E) B B' Dcov -> type.
 %mode psubst-eof +X +E -E'.
 %mode psubst-cof +X +C -C'.
 %mode psubst-scof +X +C -C'.
