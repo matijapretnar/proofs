@@ -1,0 +1,141 @@
+Specification "eff".
+
+Theorem equal-not-apart : forall Op, {apart Op Op} -> false.
+induction on 1. intros. case H1.
+    apply IH to H2.
+
+Theorem op-sig-det : forall Eff Op A1 A2 B1 B2,
+    {op-sig Eff Op A1 A2} -> {op-sig Eff Op B1 B2} -> A1 = B1 /\ A2 = B2.
+induction on 1. intros. case H1.
+    case H2. search.
+    apply equal-not-apart to H3.
+    case H2.
+        apply equal-not-apart to H3.
+        apply IH to H4 H6. search.
+
+Theorem pluggable : forall E, {handlerfree E} -> exists ER, {pi x\ plug E (ret x) (ER x)}.
+induction on 1. intros. case H1.
+    exists x\ ret x. search.
+    apply IH to H2. exists x\ (bind (ER x x) X). search.
+    apply IH to H2. exists x\ (app (ER x x) X). search.
+
+Theorem can-get-opcase : forall H A Eff C Op A1 A2,
+    {of/handler H A Eff C} -> {op-sig Eff Op A1 A2} -> exists M, {get-opcase H Op M}.
+induction on 1. intros. case H1.
+    case H2.
+    case H2.
+        search.
+        apply IH to H3 H6. search.
+
+Theorem can-get-valcase : forall H A Eff C,
+    {of/handler H A Eff C} -> exists M, {get-valcase H M}.
+induction on 1. intros. case H1.
+    search.
+    apply IH to H2. search.
+
+Theorem of/valcase : forall H A Eff C M,
+    {of/handler H A Eff C} -> {get-valcase H M} -> nabla x, {of/value x A |- of/comp (M x) C}.
+induction on 2. intros. case H2.
+    case H1. search.
+    case H1. apply IH to H4 H3. search.
+
+Theorem of/opcase : forall H A Eff C Op M,
+    {of/handler H A Eff C} ->
+    {get-opcase H Op M} ->
+    exists A1, exists A2,
+    {op-sig Eff Op A1 A2} /\ nabla x, nabla k, {of/value x A1, of/value k (u (arrow A2 C)) |- of/comp (M x k) C}.
+induction on 2. intros. case H2.
+    case H1. search.
+    case H1. apply IH to H5 H4. search.
+
+Theorem progress : forall M C, {of/comp M C} -> {progresses M C}.
+induction on 1. intros. case H1.
+    search.
+    search.
+    case H2.
+        search.
+    case H2.
+        search.
+        search.
+    case H2.
+        search.
+    apply IH to H3. case H5.
+        search.
+        case H3.
+        case H6. search.
+        case H6. search.
+    apply IH to H2. case H4.
+        case H2.
+        search.
+        case H5. search.
+        case H5. search.
+        search.
+    apply IH to H2. case H4.
+        apply can-get-valcase to H3. search.
+        case H2.
+        case H5. search.
+        case H5. apply pluggable to H8. apply can-get-opcase to H3 H6. search.
+
+Theorem of/plug : forall L E M EM C1 C2,
+    {of/evctx E C1 C2} -> {L |- of/comp M C1} -> {plug E M EM} -> {L |- of/comp EM C2}.
+induction on 1. intros. case H1.
+    case H3. search.
+    case H3. apply IH to H5 H2 H7. search.
+    case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H4 H2 H6. search.
+
+Theorem of/unplug : forall E M EM C2,
+    {plug E M EM} -> {of/comp EM C2} -> exists C1, {of/comp M C1} /\ {of/evctx E C1 C2}.
+induction on 1. intros. case H1.
+    search.
+    case H2. apply IH to H3 H5. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem eff-kind-det : forall C Eff1 Eff2, {eff-kind C Eff1} -> {eff-kind C Eff2} -> Eff1 = Eff2.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem of/handlerfree : forall E C1 C2 Eff1 Eff2,
+    {handlerfree E} -> {of/evctx E C1 C2} -> {eff-kind C1 Eff1} -> {eff-kind C2 Eff2} -> Eff1 = Eff2.
+induction on 1. intros. case H1.
+    case H2. apply eff-kind-det to H3 H4. search.
+    case H2. apply IH to H5 H7 H3 _ with Eff2 = Eff. apply eff-kind-det to H4 H6. search.
+    case H2. apply IH to H5 H6 H3 _ with Eff2 = Eff2. search.
+
+Theorem op/unplug : forall Eff Op A1 A2 EOp C E V,
+    {op-sig Eff Op A1 A2} ->
+    {of/comp EOp C} ->
+    {plug E (call Op V) EOp} ->
+    {handlerfree E} ->
+    {eff-kind C Eff} ->
+     {of/evctx E (f Eff A2) C} /\
+     {of/value V A1}.
+induction on 3. intros. case H3.
+    case H2. case H5. apply op-sig-det to H1 H6. search.
+    case H2. case H4. apply eff-kind-det to H5 H7. apply IH to H1 H8 H6 H10 _. search.
+    case H2. case H4. apply IH to H1 H7 H6 H9 _. search.
+    case H2. case H4.
+
+Theorem reduce-preservation : forall M M' C, {of/comp M C} -> {reduce M M'} -> {of/comp M' C}.
+induction on 2. intros. case H2.
+    case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
+    case H1. case H3. inst H4 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. search.
+    case H1. case H4. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H6. search.
+    case H1. case H4. apply of/valcase to H5 H3. inst H7 with n1 = V. cut H8. search.
+    case H1. apply of/opcase to H8 H6.
+        apply op/unplug to H9 H7 H3 H5 _.
+        inst H10 with n1 = V, n2 = (thunk (fun x\ handle (ER x) H)).
+        assert {of/value n1 A2 |- of/comp (ER n1) (f Eff A)}.
+            apply of/plug to H11 _ H4 with L = of/value n1 A2 :: nil. search.
+        cut H13. search.
+
+Theorem preservation : forall M M' C, {of/comp M C} -> {step M M'} -> {of/comp M' C}.
+intros. case H2.
+    apply of/unplug to H3 H1.
+    apply reduce-preservation to H6 H4.
+    apply of/plug to H7 H8 H5 with L = nil. search.

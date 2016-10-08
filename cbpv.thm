@@ -1,0 +1,50 @@
+Specification "cbpv".
+
+Theorem progress : forall M C, {of/comp M C} -> {progresses M C}.
+induction on 1. intros. case H1.
+    search.
+    search.
+    case H2.
+        search.
+    case H2.
+        search.
+        search.
+    case H2.
+        search.
+    apply IH to H3. case H5.
+        search.
+        case H3.
+        case H6. search.
+    apply IH to H2. case H4.
+        case H2.
+        search.
+        case H5. search.
+       
+Theorem reduce-preservation : forall M M' C, {of/comp M C} -> {reduce M M'} -> {of/comp M' C}.
+induction on 2. intros. case H2.
+    case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
+    case H1. case H3. inst H4 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. search.
+    case H1. case H4. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H6. search.
+
+Theorem of/plug : forall E M EM C1 C2,
+    {of/evctx E C1 C2} -> {of/comp M C1} -> {plug E M EM} -> {of/comp EM C2}.
+induction on 1. intros. case H1.
+    case H3. search.
+    case H3. apply IH to H5 H2 H7. search.
+    case H3. apply IH to H4 H2 H6. search.
+
+Theorem of/unplug : forall E M EM C2,
+    {plug E M EM} -> {of/comp EM C2} -> exists C1, {of/comp M C1} /\ {of/evctx E C1 C2}.
+induction on 1. intros. case H1.
+    search.
+    case H2. apply IH to H3 H5. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem preservation : forall M M' C, {of/comp M C} -> {step M M'} -> {of/comp M' C}.
+intros. case H2.
+    apply of/unplug to H3 H1.
+    apply reduce-preservation to H6 H4.
+    apply of/plug to H7 H8 H5. search.

@@ -1,0 +1,94 @@
+Specification "del".
+
+Theorem pluggable : forall E, {resetfree E} -> exists ER, {pi x\ plug E (ret x) (ER x)}.
+induction on 1. intros. case H1.
+    exists x\ ret x. search.
+    apply IH to H2. exists x\ (bind (ER x x) X). search.
+    apply IH to H2. exists x\ (app (ER x x) X). search.
+
+Theorem progress : forall M C, {of/comp M C} -> {progresses M C}.
+induction on 1. intros. case H1.
+    search.
+    search.
+    case H2.
+        search.
+    case H2.
+        search.
+        search.
+    case H2.
+        search.
+    apply IH to H3. case H5.
+        search.
+        case H3.
+        case H6. search.
+        case H6. search.
+    apply IH to H2. case H4.
+        case H2.
+        search.
+        case H5. search.
+        case H5. search.
+    apply IH to H4. case H5.
+        search.
+        case H4.
+        case H6. search.
+        apply pluggable to H7. search.
+    search. 
+
+Close   eff, valty, compty, value, comp.
+
+Theorem eff-kind-deterministic : forall C Eff Eff', {eff-kind C Eff} -> {eff-kind C Eff'} -> Eff = Eff'.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem shift/unplug : forall M ESM E Eff C C',
+    {eff-kind C' (cons Eff C)} ->
+    {of/comp ESM C'} ->
+    {plug E (shift M) ESM} ->
+    {resetfree E} ->
+    exists A,
+         {of/evctx E (f (cons Eff C) A) C'} /\
+         {of/value n1 (u (arrow A C)) |- of/comp (M n1) C}.
+induction on 3. intros. case H3.
+    case H2. exists A. case H1. inst H6 with n2 = n1. search.
+    case H2. case H4. apply eff-kind-deterministic to H1 H6. apply IH to _ H7 H5 H9. search.
+    case H2. case H4. apply IH to _ H6 H5 H8. search.
+    case H4.
+
+Theorem of/plug : forall L E M EM C1 C2,
+    {of/evctx E C1 C2} -> {L |- of/comp M C1} -> {plug E M EM} -> {L |- of/comp EM C2}.
+induction on 1. intros. case H1.
+    case H3. search.
+    case H3. apply IH to H5 H2 H7. search.
+    case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H6 H2 H7. search.
+
+Theorem of/unplug : forall E M EM C2,
+    {plug E M EM} -> {of/comp EM C2} -> exists C1, {of/comp M C1} /\ {of/evctx E C1 C2}.
+induction on 1. intros. case H1.
+    search.
+    case H2. apply IH to H3 H5. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H6. search.
+
+Theorem reduce-preservation : forall M M' C, {of/comp M C} -> {reduce M M'} -> {of/comp M' C}.
+induction on 2. intros. case H2.
+    case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
+    case H1. case H3. inst H4 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. search.
+    case H1. case H4. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H6. search.
+    case H1. case H5. inst H4 with n1 = V. cut H7. search.
+    case H1.
+        apply shift/unplug to _ H8 H3 H4.
+        inst H10 with n1 = thunk (fun (x\reset (ER x) N)).
+        assert {of/value n1 A1 |- of/comp (ER n1) (f (cons Eff C) A)}.
+            apply of/plug to H9 _ H5 with L = of/value n1 A1 :: nil. search.
+        cut H11. search.
+
+Theorem preservation : forall M M' C, {of/comp M C} -> {step M M'} -> {of/comp M' C}.
+intros. case H2.
+    apply of/unplug to H3 H1.
+    apply reduce-preservation to H6 H4.
+    apply of/plug to H7 H8 H5 with L = nil. search.
