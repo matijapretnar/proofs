@@ -20,15 +20,6 @@ induction on 1. intros. case H1.
         search.
         case H5. search.
        
-Theorem reduce-preservation : forall M M' C, {of/comp M C} -> {reduce M M'} -> {of/comp M' C}.
-induction on 2. intros. case H2.
-    case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
-    case H1. case H3. inst H4 with n1 = V. cut H7. search.
-    case H1. case H3. inst H5 with n1 = V. cut H7. search.
-    case H1. case H3. search.
-    case H1. case H4. inst H5 with n1 = V. cut H7. search.
-    case H1. case H3. inst H5 with n1 = V. cut H6. search.
-
 Theorem of/plug : forall E M EM C1 C2,
     {of/evctx E C1 C2} -> {of/comp M C1} -> {plug E M EM} -> {of/comp EM C2}.
 induction on 1. intros. case H1.
@@ -42,6 +33,15 @@ induction on 1. intros. case H1.
     search.
     case H2. apply IH to H3 H5. search.
     case H2. apply IH to H3 H4. search.
+
+Theorem reduce-preservation : forall M M' C, {of/comp M C} -> {reduce M M'} -> {of/comp M' C}.
+intros. case H2.
+    case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
+    case H1. case H3. inst H4 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. search.
+    case H1. case H4. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H6. search.
 
 Theorem preservation : forall M M' C, {of/comp M C} -> {step M M'} -> {of/comp M' C}.
 intros. case H2.

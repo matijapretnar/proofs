@@ -119,7 +119,7 @@ induction on 3. intros. case H3.
     case H2. case H4.
 
 Theorem reduce-preservation : forall M M' C, {of/comp M C} -> {reduce M M'} -> {of/comp M' C}.
-induction on 2. intros. case H2.
+intros. case H2.
     case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
     case H1. case H3. inst H4 with n1 = V. cut H7. search.
     case H1. case H3. inst H5 with n1 = V. cut H7. search.
