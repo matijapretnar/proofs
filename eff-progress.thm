@@ -1,0 +1,49 @@
+Specification "eff".
+
+Theorem pluggable : forall E, {hoisting E} -> exists ER, {pi x\ plug E (ret x) (ER x)}.
+induction on 1. intros. case H1.
+    exists x\ ret x. search.
+    apply IH to H2. exists x\ (bind (ER x x) X). search.
+    apply IH to H2. exists x\ (app (ER x x) X). search.
+
+Theorem can-get-valcase : forall H A Eff C,
+    {of/handler H A Eff C} -> exists M, {get-valcase H M}.
+induction on 1. intros. case H1.
+    search.
+    apply IH to H2. search.
+
+Theorem can-get-opcase : forall H A Eff C Op A1 A2,
+    {of/handler H A Eff C} -> {op-sig Eff Op A1 A2} -> exists M, {get-opcase H Op M}.
+induction on 1. intros. case H1.
+    case H2.
+    case H2.
+        search.
+        apply IH to H3 H6. search.
+
+Theorem progress : forall M C, {of/comp M C} -> {progresses M C}.
+induction on 1. intros. case H1.
+    search.
+    search.
+    case H2.
+        search.
+    case H2.
+        search.
+        search.
+    case H2.
+        search.
+    apply IH to H3. case H5.
+        search.
+        case H3.
+        case H6. search.
+        case H6. search.
+    apply IH to H2. case H4.
+        case H2.
+        search.
+        case H5. search.
+        case H5. search.
+        search.
+    apply IH to H2. case H4.
+        apply can-get-valcase to H3. search.
+        case H2.
+        case H5. search.
+        case H5. apply pluggable to H8. apply can-get-opcase to H3 H6. search.

@@ -1,25 +1,5 @@
 Specification "cbpv".
 
-Theorem progress : forall M C, {of/comp M C} -> {progresses M C}.
-induction on 1. intros. case H1.
-    search.
-    search.
-    case H2.
-        search.
-    case H2.
-        search.
-        search.
-    case H2.
-        search.
-    apply IH to H3. case H5.
-        search.
-        case H3.
-        case H6. search.
-    apply IH to H2. case H4.
-        case H2.
-        search.
-        case H5. search.
-       
 Theorem of/plug : forall E M EM C1 C2,
     {of/evctx E C1 C2} -> {of/comp M C1} -> {plug E M EM} -> {of/comp EM C2}.
 induction on 1. intros. case H1.
