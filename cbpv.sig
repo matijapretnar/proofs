@@ -38,6 +38,8 @@ type    hole            evctx.
 type    evctx/bind      evctx -> (value -> comp) -> evctx.
 type    evctx/app       evctx -> value -> evctx.
 
+type    hoisting        evctx -> o.
+
 type    of/value        value -> valty -> o.
 type    of/comp         comp -> compty -> o.
 type    of/evctx        evctx -> compty -> compty -> o.

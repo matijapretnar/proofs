@@ -1,6 +1,19 @@
 Specification "mon".
 
-Theorem pluggable : forall E, {reifyfree E} -> exists ER, {pi x\ plug E (ret x) (ER x)}.
+Theorem eff-kind-deterministic : forall C Eff Eff', {eff-kind C Eff} -> {eff-kind C Eff'} -> Eff = Eff'.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem hoisting-equal-eff : forall E C1 C2 Eff1 Eff2,
+    {hoisting E} -> {of/evctx E C1 C2} ->
+    {eff-kind C1 Eff1} -> {eff-kind C2 Eff2} -> Eff1 = Eff2.
+induction on 1. intros. case H1.
+    case H2. apply eff-kind-deterministic to H3 H4. search.
+    case H2. apply IH to H5 H7 H3 _. apply eff-kind-deterministic to H4 H6. search.
+    case H2. apply IH to H5 H6 H3 _. search.
+
+Theorem pluggable : forall E, {hoisting E} -> exists ER, {pi x\ plug E (ret x) (ER x)}.
 induction on 1. intros. case H1.
     exists x\ ret x. search.
     apply IH to H2. exists x\ (bind (ER x x) X). search.
@@ -55,21 +68,6 @@ induction on 1. intros. case H1.
     case H2. search.
     case H2. apply IH to H3 H4. search.
 
-Theorem reflect/unplug : forall N ERN C E Eff Nu Nb C',
-    {eff-kind C' (cons Eff C Nu Nb)} ->
-    {of/comp ERN C'} ->
-    {plug E (reflect N) ERN} ->
-    {reifyfree E} ->
-    exists A,
-         {of/evctx E (f (cons Eff C Nu Nb) A) C'} /\
-         {of/comp N (C A)}.
-induction on 3. intros. case H3.
-    case H2. exists A. case H1. search.
-    case H4. case H2. apply eff-kind-deterministic to H1 H7. apply IH to _ H8 H5 H6. search.
-    case H2. case H4. apply IH to _ H6 H5 H8. search.
-    case H4.
-
-
 Theorem reduce-preservation : forall M M' C, {of/comp M C} -> {reduce M M'} -> {of/comp M' C}.
 intros. case H2.
     case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
@@ -80,12 +78,13 @@ intros. case H2.
     case H1. case H3. inst H5 with n1 = V. cut H6. search.
     case H1. case H3. case H4. inst H5 with n1 = A, n2 = V. cut H8. search.
     case H1.
-        apply reflect/unplug to _ H7 H3 H4. case H6.
+        apply of/unplug to H3 H7. case H8. case H6.
+        apply hoisting-equal-eff to H4 H9 _ _.
         assert {of/value (thunk N) (u (C1 A1))}.
         assert {of/value n1 A1 |- of/comp (reify (ER n1) (mon Nu1 Nb1)) (C1 A)}.
-            apply of/plug to H8 _ H5 with L = of/value n1 A1 :: nil. search.
-        inst H11 with n1 = A1, n2 = A, n3 = thunk N, n4 = thunk (fun (x\reify (ER x) (mon Nu1 Nb1))).
-        cut H14. search.
+            apply of/plug to H9 _ H5 with L = of/value n1 A1 :: nil. search.
+        inst H12 with n1 = A1, n2 = A, n3 = thunk N, n4 = thunk (fun (x\reify (ER x) (mon Nu1 Nb1))).
+        cut H15. search.
     
 
 Theorem preservation : forall M M' C, {of/comp M C} -> {step M M'} -> {of/comp M' C}.

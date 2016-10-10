@@ -8,5 +8,3 @@ type    reset           comp -> (value -> comp) -> comp.
 type    shift           (value -> comp) -> comp.
 
 type    evctx/reset     evctx -> (value -> comp) -> evctx.
-
-type    resetfree       evctx -> o.

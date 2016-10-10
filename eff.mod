@@ -15,12 +15,6 @@ op-sig (cons Eff Op' _ _) Op A B :-
 plug (evctx/handle E H) M (handle EM H) :-
     plug E M EM.
 
-handlerfree hole.
-handlerfree (evctx/bind E _) :-
-    handlerfree E.
-handlerfree (evctx/app E _) :-
-    handlerfree E.
-
 get-valcase (valcase M) M.
 get-valcase (opcase H _ _) M :-
     get-valcase H M.
@@ -35,7 +29,7 @@ reduce (handle (ret V) H) (M V) :-
 reduce (handle EOp H) (M V (thunk (fun x\ handle (ER x) H))) :-
     plug E (call Op V) EOp,
     pi x\ plug E (ret x) (ER x),
-    handlerfree E,
+    hoisting E,
     get-opcase H Op M.
 
 
@@ -60,4 +54,4 @@ progresses EOp C :-
     eff-kind C Eff,
     op-sig Eff Op _ _,
     plug E (call Op _) EOp,
-    handlerfree E.
+    hoisting E.

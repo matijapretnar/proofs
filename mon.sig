@@ -13,5 +13,3 @@ type    reify           comp -> monad -> comp.
 type    of/monad        monad -> eff -> o.
 
 type    evctx/reify     evctx -> monad -> evctx.
-
-type    reifyfree       evctx -> o.

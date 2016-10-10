@@ -49,6 +49,12 @@ plug (evctx/bind E N) M (bind EM N) :-
 plug (evctx/app E V) M (app EM V) :-
     plug E M EM.
 
+hoisting hole.
+hoisting (evctx/bind E _) :-
+    hoisting E.
+hoisting (evctx/app E _) :-
+    hoisting E.
+
 step M M' :-
     plug E R M,
     reduce R R',

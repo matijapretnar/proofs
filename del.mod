@@ -5,21 +5,15 @@ accumulate cbpv.
 plug (evctx/reset E N) M (reset EM N) :-
     plug E M EM.
 
-resetfree hole.
-resetfree (evctx/bind E _) :-
-    resetfree E.
-resetfree (evctx/app E _) :-
-    resetfree E.
-
 reduce (reset (ret V) N) (N V).
 reduce (reset ESM N) (M (thunk (fun (x\ reset (ER x) N)))) :-
     plug E (shift M) ESM,
-    resetfree E,
+    hoisting E,
     pi x\ plug E (ret x) (ER x).
 
 progresses ES C :-
     eff-kind C (cons _ _),
-    resetfree E,
+    hoisting E,
     plug E (shift _) ES.
 
 of/comp (reset M N) C :-

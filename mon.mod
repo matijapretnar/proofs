@@ -5,16 +5,10 @@ accumulate cbpv.
 plug (evctx/reify E T) M (reify EM T) :-
     plug E M EM.
 
-reifyfree hole.
-reifyfree (evctx/bind E _) :-
-    reifyfree E.
-reifyfree (evctx/app E _) :-
-    reifyfree E.
-
 reduce (reify (ret V) (mon Nu _)) (Nu V).
 reduce (reify ERN (mon Nu Nb)) (Nb (thunk N) (thunk (fun (x\ reify (ER x) (mon Nu Nb))))) :-
     plug E (reflect N) ERN,
-    reifyfree E,
+    hoisting E,
     pi x\ plug E (ret x) (ER x).
 
 of/monad (mon Nu Nb) (cons Eff C Nu Nb) :-
@@ -33,5 +27,5 @@ of/evctx (evctx/reify E T) D (C A) :-
 
 progresses ES C :-
     eff-kind C (cons _ _ _ _),
-    reifyfree E,
+    hoisting E,
     plug E (reflect _) ES.

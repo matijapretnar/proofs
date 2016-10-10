@@ -30,5 +30,3 @@ type    handle          comp -> handler -> comp.
 type    of/handler      handler -> valty -> eff -> compty -> o.
 
 type    evctx/handle    evctx -> handler -> evctx.
-
-type    handlerfree     evctx -> o.
