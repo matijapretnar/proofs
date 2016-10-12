@@ -35,7 +35,7 @@ induction on 2. intros. case H2.
 Theorem of/opcase : forall H A Eff C Op M,
     {of/handler H A Eff C} ->
     {get-opcase H Op M} ->
-    exists A1, exists A2,
+    exists A1 A2,
     {op-sig Eff Op A1 A2} /\ nabla x, nabla k, {of/value x A1, of/value k (u (arrow A2 C)) |- of/comp (M x k) C}.
 induction on 2. intros. case H2.
     case H1. search.
