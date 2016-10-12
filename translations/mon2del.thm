@@ -83,6 +83,12 @@ intros. case H2.
     % app
     case H3. apply IH1 to H1 H4 H6. apply IH to H1 H5 H7. search.
     apply ctx_mem to H1 H7. case H6.
+    % reify
+    case H3. apply IH1 to H1 H4 H6. apply IH1 to _ H5 H7. search.
+    apply ctx_mem to H1 H7. case H6.
+    % reflect
+    case H3. apply IH1 to H1 H4 H6. apply IH1 to _ H5 H7. search.
+    apply ctx_mem to H1 H7. case H6.
     % backchain
     apply ctx_mem to H1 H5. case H4.
 
@@ -94,6 +100,7 @@ induction on 1. intros. case H1.
     case H2. search.
     case H2. apply IH to H3 H5. apply mon2del/value/unique to _ H4 H6. search.
     case H2. apply IH to H3 H5. apply mon2del/comp/unique to _ H4 H6. search.
+    case H2. apply IH to H3 H5. apply mon2del/comp/unique to _ H4 H6. search.
 
 Theorem mon2del/unplug : forall E M EM EM',
     {mon/plug E M EM} -> {mon2del/comp EM EM'} ->
@@ -102,6 +109,7 @@ induction on 1. intros. case H1.
     exists del/hole, EM'. search.
     case H2. apply IH to H3 H4. exists (del/evctx/bind E' N'), M'1. search.
     case H2. apply IH to H3 H4. exists (del/evctx/app E' V'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (del/evctx/reset E' Nu'), M'1. search.
 
 Theorem mon2del/plug : forall L E M EM E' M',
     {mon/plug E M EM} -> {mon2del/evctx E E'} -> {L |- mon2del/comp M M'} ->
@@ -110,6 +118,7 @@ induction on 1. intros. case H1.
     case H2. exists M'. search.
     case H2. apply IH to H4 H5 H3. exists (del/bind EM' N'). search.
     case H2. apply IH to H4 H5 H3. exists (del/app EM' V'). search.
+    case H2. apply IH to H4 H5 H3. exists (del/reset EM' Nu'). search.
 
 Define del/teeter : del/comp -> del/comp -> prop by
     del/teeter M1 M2 := {del/step M1 M2};
@@ -143,11 +152,18 @@ induction on 3. intros. case H3.
     case H1. case H4. inst H6 with n1 = V, n2 = V'.
     assert {mon2del/comp (M V) (M'1 V')}. cut H7. search.
     apply mon2del/comp/unique to _ H2 H8. search.
+% reify (ret V) (mon Nu Nb) ~> Nu V
+    case H1. case H4. inst H5 with n1 = V, n2 = V'.
+    assert {mon2del/comp (Nu V) (Nu' V')}. cut H7. search.
+    apply mon2del/comp/unique to _ H2 H8. search.
+% reify H[reflect M T] T ~> Nb {M} {\x. reify H[ret x] T}
+    skip.
 
 Theorem plug/step : forall E M1 EM1 M2 EM2,
     {del/plug E M1 EM1} -> {del/plug E M2 EM2} -> {del/step M1 M2} -> {del/step EM1 EM2}.
 induction on 1. intros. case H1.
     case H2. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
     case H2. apply IH to H4 H5 H3. case H6. search.
     case H2. apply IH to H4 H5 H3. case H6. search.
 
