@@ -82,7 +82,7 @@ mon/reduce (mon/force (mon/thunk M)) M.
 mon/reduce (mon/bind (mon/ret V) M) (M V).
 mon/reduce (mon/app (mon/fun M) V) (M V).
 mon/reduce (mon/reify (mon/ret V) (mon/mon Nu _)) (Nu V).
-mon/reduce (mon/reify ERN (mon/mon Nu Nb)) (Nb (mon/thunk N) (mon/thunk (mon/fun (x\ mon/reify (ER x) (mon/mon Nu Nb))))) :-
+mon/reduce (mon/reify ERN (mon/mon Nu Nb)) (Nb (mon/thunk M) (mon/thunk (mon/fun (x\ mon/reify (ER x) (mon/mon Nu Nb))))) :-
     mon/plug E (mon/reflect M (mon/mon Nu Nb)) ERN,
     mon/hoisting E,
     pi x\ mon/plug E (mon/ret x) (ER x).
