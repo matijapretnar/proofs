@@ -1,9 +1,9 @@
 Specification "mon2del".
 
-Define del/teeter : del/comp -> del/comp -> prop by
-    del/teeter M1 M2 := {del/step M1 M2};
-    del/teeter M1 M2 := {del/step M2 M1};
-    del/teeter M1 M3 := exists M2, del/teeter M1 M2 /\ del/teeter M1 M3.
+Define del/cong : del/comp -> del/comp -> prop by
+    del/cong M M' := {del/step M M'};
+    del/cong CM CM' := exists C M M', CM = C M /\ del/cong M M' /\ C M' = CM';
+    del/cong M1 M3 := exists M2, del/cong M1 M2 /\ del/cong M2 M3.
 
 Define ctx : olist -> prop by
     ctx nil;
@@ -140,7 +140,7 @@ induction on 2. intros. case H2.
 
 Theorem mon2del/reduce : forall M1 M2 M1' M2',
     {mon2del/comp M1 M1'} -> {mon2del/comp M2 M2'} -> 
-    {mon/reduce M1 M2} -> del/teeter M1' M2'.
+    {mon/reduce M1 M2} -> del/cong M1' M2'.
 induction on 3. intros. case H3.
 % split (pair V1 V2) M ~> M V1 V2
     case H1. case H4. inst H5 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
@@ -191,20 +191,48 @@ induction on 1. intros. case H1.
     case H2. apply IH to H4 H5 H3. case H6. search.
     case H2. apply IH to H4 H5 H3. case H6. search.
 
-Theorem plug/teeter : forall E M1 EM1 M2 EM2,
-    {del/plug E M1 EM1} -> {del/plug E M2 EM2} -> del/teeter M1 M2 -> del/teeter EM1 EM2.
-induction on 3. intros. case H3.
-    apply plug/step to H1 H2 H4. search.
-    apply plug/step to H2 H1 H4. search.
-    apply IH to H1 H2 H5. search.
+Theorem plug/context : forall E, {del/is-evctx E} -> exists E', forall M, {del/plug E M (E' M)}.
+induction on 1. intros. case H1.
+    exists m\ m. intros. search.
+    apply IH to H2. exists m\ del/bind (E' m) N. intros.
+    assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ del/reset (E' m) T. intros.
+    assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ del/app (E' m) V. intros.
+    assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+
+Theorem plug/unique : forall E M EM EM',
+    {del/plug E M EM} -> {del/plug E M EM'} -> EM = EM'.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem plug/is-evctx : forall E M EM, {del/plug E M EM} -> {del/is-evctx E}.
+induction on 1. intros. case H1.
+    search.
+    apply IH to H2. search.
+    apply IH to H2. search.
+    apply IH to H2. search.
+
+Theorem plug/cong : forall E M1 EM1 M2 EM2,
+    {del/plug E M1 EM1} -> {del/plug E M2 EM2} -> del/cong M1 M2 -> del/cong EM1 EM2.
+intros.
+    apply plug/context to _ with E = E.
+        apply plug/is-evctx to H1. search.
+    apply H4 with M = M1.
+    apply H4 with M = M2.
+    apply plug/unique to H1 H5. apply plug/unique to H2 H6.
+    unfold 2. exists E', M1, M2. search.
 
 Theorem mon2del/simulation : forall M1 M2 M1' M2',
     {mon2del/comp M1 M1'} -> {mon2del/comp M2 M2'} -> 
-    {mon/step M1 M2} -> del/teeter M1' M2'.
+    {mon/step M1 M2} -> del/cong M1' M2'.
 intros. case H3.
     apply mon2del/unplug to H4 H1.
     apply mon2del/unplug to H6 H2.
     apply mon2del/reduce to H8 H11 H5.
     apply mon2del/evctx-unique to H7 H10.
-    apply plug/teeter to H9 H12 H13.
+    apply plug/cong to H9 H12 H13.
     search.

@@ -70,3 +70,7 @@ mon2del/evctx (mon/evctx/reify E (mon/mon Nu _)) (del/evctx/reset E' Nu') :-
         mon2del/value x x' =>
         mon2del/comp (Nu x) (Nu' x').
 
+del/is-evctx del/hole.
+del/is-evctx (del/evctx/bind E N) :- del/is-evctx E.
+del/is-evctx (del/evctx/reset E T) :- del/is-evctx E.
+del/is-evctx (del/evctx/app E V) :- del/is-evctx E.
