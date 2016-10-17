@@ -3,7 +3,8 @@ Specification "mon2del".
 Define del/cong : del/comp -> del/comp -> prop by
     del/cong M M' := {del/step M M'};
     del/cong CM CM' := exists C M M', CM = C M /\ del/cong M M' /\ C M' = CM';
-    del/cong M1 M3 := exists M2, del/cong M1 M2 /\ del/cong M2 M3.
+    del/cong M1 M3 := exists M2, del/cong M1 M2 /\ del/cong M2 M3;
+    del/cong CM CM' := exists C (M : del/value -> del/comp) M', CM = C M /\ (forall y, del/cong (M y) (M' y)) /\ C M' = CM'.
 
 Define ctx : olist -> prop by
     ctx nil;
@@ -89,11 +90,11 @@ intros. case H2.
     case H3. apply IH1 to H1 H4 H6. apply IH to H1 H5 H7. search.
     apply ctx-member to H1 H7. case H6.
     % reify
-    case H3. apply IH1 to H1 H4 H6. apply IH1 to _ H5 H7. search.
-    apply ctx-member to H1 H7. case H6.
+    case H3. apply IH1 to H1 H4 H7. apply IH1 to _ H5 H8. apply IH1 to _ H6 H9. search.
+    apply ctx-member to H1 H8. case H7.
     % reflect
-    case H3. apply IH1 to H1 H4 H6. apply IH1 to _ H5 H7. search.
-    apply ctx-member to H1 H7. case H6.
+    case H3. apply IH1 to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
     % backchain
     apply ctx-member to H1 H5. case H4.
 
@@ -105,7 +106,7 @@ induction on 1. intros. case H1.
     case H2. search.
     case H2. apply IH to H3 H5. apply mon2del/value-unique to _ H4 H6. search.
     case H2. apply IH to H3 H5. apply mon2del/comp-unique to _ H4 H6. search.
-    case H2. apply IH to H3 H5. apply mon2del/comp-unique to _ H4 H6. search.
+    case H2. apply IH to H3 H6. apply mon2del/comp-unique to _ H4 H7. apply mon2del/comp-unique to _ H5 H8. search.
 
 Theorem mon2del/hoisting : forall E E',
     {mon/hoisting E} -> {mon2del/evctx E E'} -> {del/hoisting E'}.
@@ -121,7 +122,7 @@ induction on 1. intros. case H1.
     exists del/hole, EM'. search.
     case H2. apply IH to H3 H4. exists (del/evctx/bind E' N'), M'1. search.
     case H2. apply IH to H3 H4. exists (del/evctx/app E' V'), M'1.  search.
-    case H2. apply IH to H3 H4. exists (del/evctx/reset E' Nu'), M'1. search.
+    case H2. apply IH to H3 H4. exists (del/evctx/app (del/evctx/reset E' (x\ del/fun nb\ Nu' x)) (del/thunk (del/fun (x\del/fun (k\Nb' x k))))), M'1. search.
 
 Theorem del/pluggable : forall E, {del/hoisting E} -> exists ER, {pi x\ del/plug E (del/ret x) (ER x)}.
 induction on 1. intros. case H1.
@@ -136,7 +137,7 @@ induction on 2. intros. case H2.
     case H1. case H4. search.
     case H1. case H4. apply IH to H7 H5 H3 H8. search.
     case H1. case H4. apply IH to H7 H5 H3 H8. search.
-    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. case H9. apply IH to H8 H5 H3 H10. search.
 
 Theorem mon2del/reduce : forall M1 M2 M1' M2',
     {mon2del/comp M1 M1'} -> {mon2del/comp M2 M2'} -> 
@@ -167,20 +168,129 @@ induction on 3. intros. case H3.
     apply mon2del/comp-unique to _ H2 H8. search.
 % reify (ret V) (mon Nu Nb) ~> Nu V
     case H1. case H4. inst H5 with n1 = V, n2 = V'.
-    assert {mon2del/comp (Nu V) (Nu' V')}. cut H7. search.
-    apply mon2del/comp-unique to _ H2 H8. search.
+    unfold 3.
+    exists (del/app (del/fun (nb\Nu' V'))
+             (del/thunk (del/fun (x\del/fun (k\Nb' x k))))).
+    split. search.
+    assert {mon2del/comp (Nu V) (Nu' V')}. cut H8. search.
+    apply mon2del/comp-unique to _ H2 H9. search.
 % reify H[reflect M T] T ~> Nb {M} {\x. reify H[ret x] T}
-    case H1. apply mon2del/unplug to H4 H7. case H10.
-    apply mon2del/hoisting to H5 H9.
+    case H1. apply mon2del/unplug to H4 H7. case H11.
+    apply mon2del/hoisting to H5 H10.
     apply del/pluggable to H14. inst H15 with n1 = n2.
-    apply mon2del/plug to H6 H9 _ H16 with L = mon2del/value n1 n2 :: nil.
-    inst H13 with
+    apply mon2del/plug to H6 H10 _ H16 with L = mon2del/value n1 n2 :: nil.
+    inst H9 with
         n1 = (mon/thunk M),
         n2 = (mon/thunk (mon/fun (x\mon/reify (ER x) (mon/mon Nu Nb)))),
         n3 = (del/thunk M'2),
-        n4 = (del/thunk (del/fun (x\del/reset (ER1 x x) Nu'))).
+        n4 = (del/thunk (del/fun (x\del/app (del/reset (ER1 x x) (x\ del/fun nb\ Nu' x)) (del/thunk (del/fun x\ del/fun k\ Nb' x k))))).
     cut H18.
     apply mon2del/comp-unique to _ H2 H19.
+    unfold 3.
+    exists (
+        del/app
+            (
+                (k\del/fun
+                 (nb\del/app (del/app (del/force nb) (del/thunk M'2))
+                       (del/thunk
+                          (del/fun (y\del/app (del/app (del/force k) y) nb)))))
+                (del/thunk (del/fun (x\ del/reset (ER1 x x) (x\ del/fun nb\ Nu' x))))
+            )
+            (del/thunk (del/fun (x\del/fun (k\Nb' x k))))
+    ).
+    split. search.
+    unfold 3.
+    exists (
+         (nb\del/app (del/app (del/force nb) (del/thunk M'2))
+               (del/thunk
+                  (del/fun
+                     (y\del/app
+                          (del/app
+                             (del/force
+                                (del/thunk
+                                   (del/fun
+                                      (x\del/reset (ER1 x x)
+                                           (x1\del/fun (nb1\Nu' x1))))))
+                             y)
+                          nb))))
+          (del/thunk (del/fun (x\del/fun (k\Nb' x k))))
+    ).
+    split. search.
+    unfold 3.
+    exists (
+       (del/app
+          (del/app (del/fun (x\del/fun (k\Nb' x k)))
+             (del/thunk M'2))
+          (del/thunk
+             (del/fun
+                (y\del/app
+                     (del/app
+                        (del/force
+                           (del/thunk
+                              (del/fun
+                                 (x\del/reset (ER1 x x) (x1\del/fun (nb1\Nu' x1))))))
+                        y)
+                     (del/thunk (del/fun (x\del/fun (k\Nb' x k))))))))
+    ).
+    split. search.
+    unfold 3.
+    exists (
+   (del/app ((x\del/fun (k\Nb' x k)) (del/thunk M'2))
+      (del/thunk
+         (del/fun
+            (y\del/app
+                 (del/app
+                    (del/force
+                       (del/thunk
+                          (del/fun
+                             (x\del/reset (ER1 x x) (x1\del/fun (nb1\Nu' x1))))))
+                    y)
+                 (del/thunk (del/fun (x\del/fun (k\Nb' x k))))))))
+
+    ).
+    split. search.
+    unfold 3.
+    exists
+      (k\Nb' (del/thunk M'2) k)
+      (del/thunk
+         (del/fun
+            (y\del/app
+                 (del/app
+                    (del/force
+                       (del/thunk
+                          (del/fun
+                             (x\del/reset (ER1 x x) (x1\del/fun (nb1\Nu' x1))))))
+                    y)
+                 (del/thunk (del/fun (x\del/fun (k\Nb' x k))))))).
+    split. search.
+    unfold 3.
+    exists
+      (Nb' (del/thunk M'2)
+      (del/thunk
+         (del/fun
+            (y\del/app
+                 (del/app
+                          (del/fun
+                             (x\del/reset (ER1 x x) (x1\del/fun (nb1\Nu' x1))))
+                    y)
+                 (del/thunk (del/fun (x\del/fun (k\Nb' x k)))))))).
+    split.
+        unfold 2.
+        exists
+           red\ (Nb' (del/thunk M'2)
+              (del/thunk
+                 (del/fun
+                    (y\del/app
+                         (del/app
+                            red
+                            y)
+                         (del/thunk (del/fun (x\del/fun (k\Nb' x k)))))))).
+           search.
+    unfold 4.
+    exists
+      red\ Nb' (del/thunk M'2)
+      (del/thunk
+         (del/fun red)).
     search.
 
 Theorem plug/step : forall E M1 EM1 M2 EM2,
