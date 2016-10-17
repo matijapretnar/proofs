@@ -2,9 +2,12 @@ Specification "mon2del".
 
 Define del/cong : del/comp -> del/comp -> prop by
     del/cong M M' := {del/step M M'};
-    del/cong CM CM' := exists C M M', CM = C M /\ del/cong M M' /\ C M' = CM';
-    del/cong M1 M3 := exists M2, del/cong M1 M2 /\ del/cong M2 M3;
-    del/cong CM CM' := exists C (M : del/value -> del/comp) M', CM = C M /\ (forall y, del/cong (M y) (M' y)) /\ C M' = CM'.
+    del/cong CM CM' := exists C (M : del/value -> del/comp) M', CM = C M /\ (forall y, del/cong (M y) (M' y)) /\ C M' = CM';
+    del/cong M1 M3 := exists M2, del/cong M1 M2 /\ del/cong M2 M3.
+
+Theorem del/cong/plain : forall CM CM',
+  (exists C M M', CM = C M /\ del/cong M M' /\ C M' = CM') -> del/cong CM CM'.
+intros. case H1. unfold 2. exists m\ C (m del/unit), x\ M, x\ M'. search.
 
 Define ctx : olist -> prop by
     ctx nil;
@@ -275,7 +278,7 @@ induction on 3. intros. case H3.
                     y)
                  (del/thunk (del/fun (x\del/fun (k\Nb' x k)))))))).
     split.
-        unfold 2.
+    backchain del/cong/plain.
         exists
            red\ (Nb' (del/thunk M'2)
               (del/thunk
@@ -286,7 +289,7 @@ induction on 3. intros. case H3.
                             y)
                          (del/thunk (del/fun (x\del/fun (k\Nb' x k)))))))).
            search.
-    unfold 4.
+    unfold 2.
     exists
       red\ Nb' (del/thunk M'2)
       (del/thunk
@@ -334,7 +337,8 @@ intros.
     apply H4 with M = M1.
     apply H4 with M = M2.
     apply plug/unique to H1 H5. apply plug/unique to H2 H6.
-    unfold 2. exists E', M1, M2. search.
+    backchain del/cong/plain.
+    exists E', M1, M2. search.
 
 Theorem mon2del/simulation : forall M1 M2 M1' M2',
     {mon2del/comp M1 M1'} -> {mon2del/comp M2 M2'} -> 
