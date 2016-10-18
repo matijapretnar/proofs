@@ -45,11 +45,15 @@ xxx2yyy/comp (xxx/app M V) (yyy/app M' V') :-
     xxx2yyy/value V V'.
 
 xxx2yyy/evctx xxx/hole yyy/hole.
-xxx2yyy/evctx (xxx/evctx/app E V) (yyy/evctx/app E' V') :-
-    xxx2yyy/evctx E E',
-    xxx2yyy/value V V'.
 xxx2yyy/evctx (xxx/evctx/bind E N) (yyy/evctx/bind E' N') :-
     xxx2yyy/evctx E E',
     pi x\ pi x'\
         xxx2yyy/value x x' =>
         xxx2yyy/comp (N x) (N' x').
+xxx2yyy/evctx (xxx/evctx/app E V) (yyy/evctx/app E' V') :-
+    xxx2yyy/evctx E E',
+    xxx2yyy/value V V'.
+
+yyy/is-evctx yyy/hole.
+yyy/is-evctx (yyy/evctx/bind E N) :- yyy/is-evctx E.
+yyy/is-evctx (yyy/evctx/app E V) :- yyy/is-evctx E.
