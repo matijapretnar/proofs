@@ -13,7 +13,7 @@ induction on 1. intros. case H1.
     case H2. apply IH to H5 H7 H3 _. apply eff-kind-deterministic to H4 H6. search.
     case H2. apply IH to H5 H6 H3 _. search.
 
-Theorem equal-not-apart : forall Op, {apart Op Op} -> false.
+Theorem equal-not-apart : forall Op, {op/apart Op Op} -> false.
 induction on 1. intros. case H1.
     apply IH to H2.
 
@@ -57,11 +57,27 @@ induction on 1. intros. case H1.
     case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H4. search.
 
+
+Theorem of/get-case : forall Ms L M As C A,
+    {get-case Ms L M} -> {of/cases Ms As C} -> {valtys/get As L A} ->
+    {pi x\ of/value x A => of/comp (M x) C}.
+induction on 1. intros.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H4. apply IH1 to H5.
+case H1.
+    case H2.
+        case H3.
+            search.
+            case H7. apply H4 to H9.
+    case H2.
+        case H3.
+            case H5. apply H4 to H9.
+            apply IH to H6 H7 H10. search.
+
 Theorem reduce-preservation : forall M M' C, {of/comp M C} -> {reduce M M'} -> {of/comp M' C}.
 intros. case H2.
     case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
-    case H1. case H3. inst H4 with n1 = V. cut H7. search.
-    case H1. case H3. inst H5 with n1 = V. cut H7. search.
+    case H1. case H4. apply of/get-case to H3 H5 H7. inst H8 with n1 = V. cut H9. search.
     case H1. case H3. search.
     case H1. case H4. inst H5 with n1 = V. cut H7. search.
     case H1. case H3. inst H5 with n1 = V. cut H6. search.

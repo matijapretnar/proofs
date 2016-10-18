@@ -43,10 +43,38 @@ induction on 1. intros. case H1.
             apply member-prune to H5.
             apply IH to H4 H5 H6. search.
 
+Theorem mon2del/nat-unique : forall L N N' N'',
+    ctx L -> {L |- mon2del/nat N N'} -> {L |- mon2del/nat N N''} -> N' = N''.
+induction on 2. intros. case H2.
+    case H3. search.
+    apply ctx-member to H1 H5. case H4.
+    case H3. apply IH to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    apply ctx-member to H1 H5. case H4.
+
+Theorem mon2del/label-unique : forall L N N' N'',
+    ctx L -> {L |- mon2del/label N N'} -> {L |- mon2del/label N N''} -> N' = N''.
+intros.
+    case H2.
+        case H3.
+            apply mon2del/nat-unique to H1 H4 H5. search.
+            apply ctx-member to H1 H6. case H5.
+    apply ctx-member to H1 H5. case H4.
+
+Theorem mon2del/cases-unique : forall L N N' N'',
+    ctx L -> {L |- mon2del/label N N'} -> {L |- mon2del/label N N''} -> N' = N''.
+intros.
+    case H2.
+        case H3.
+            apply mon2del/nat-unique to H1 H4 H5. search.
+            apply ctx-member to H1 H6. case H5.
+    apply ctx-member to H1 H5. case H4.
+
 Theorem mon2del-unique :
     (forall L V V' V'', ctx L -> {L |- mon2del/value V V'} -> {L |- mon2del/value V V''} -> V' = V'') /\
-    (forall L M M' M'', ctx L -> {L |- mon2del/comp M M'} -> {L |- mon2del/comp M M''} -> M' = M'').
-induction on 2 2. split.
+    (forall L M M' M'', ctx L -> {L |- mon2del/comp M M'} -> {L |- mon2del/comp M M''} -> M' = M'') /\
+    (forall L Ms Ms' Ms'', ctx L -> {L |- mon2del/cases Ms Ms'} -> {L |- mon2del/cases Ms Ms''} -> Ms' = Ms'').
+induction on 2 2 2. split.
 % value
 intros. case H2.
     % unit
@@ -55,18 +83,15 @@ intros. case H2.
     % pair
     case H3. apply IH to H1 H4 H6. apply IH to H1 H5 H7. search.
     apply ctx-member to H1 H7. case H6. case H8.
-    % inl
-    case H3. apply IH to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5. case H7.
-    % inr
-    case H3. apply IH to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5. case H7.
+    % inj
+    case H3. apply mon2del/label-unique to H1 H4 H6. apply IH to H1 H5 H7. search.
+    apply ctx-member to H1 H7. case H6. case H8.
     % thunk
     case H3. apply IH1 to H1 H4 H5. search.
     apply ctx-member to H1 H6. case H5. case H7.
     % backchain
     apply ctx-member to H1 H5. case H4. case H3.
-        case H6. case H6. case H6. case H6. case H6.
+        case H6. case H6. case H6. case H6.
         apply ctx-member to H1 H9. case H8. apply ctx-unique to H1 H5 H9. search.
 
 % comp
@@ -81,8 +106,8 @@ intros. case H2.
     case H3. apply IH to H1 H4 H6. apply IH1 to _ H5 H7. search.
     apply ctx-member to H1 H7. case H6.
     % case
-    case H3. apply IH to H1 H4 H7. apply IH1 to _ H5 H8. apply IH1 to _ H6 H9. search.
-    apply ctx-member to H1 H8. case H7.
+    case H3. apply IH to H1 H4 H6. apply IH2 to _ H5 H7. search.
+    apply ctx-member to H1 H7. case H6.
     % force
     case H3. apply IH to H1 H4 H5. search.
     apply ctx-member to H1 H6. case H5.
@@ -98,6 +123,17 @@ intros. case H2.
     % reflect
     case H3. apply IH1 to H1 H4 H5. search.
     apply ctx-member to H1 H6. case H5.
+    % backchain
+    apply ctx-member to H1 H5. case H4.
+
+% cases
+intros. case H2.
+    % nil
+    case H3. search.
+    apply ctx-member to H1 H5. case H4.
+    % cons
+    case H3. apply IH2 to H1 H4 H7. apply mon2del/label-unique to H1 H5 H8. apply IH1 to _ H6 H9. search.
+    apply ctx-member to H1 H8. case H7.
     % backchain
     apply ctx-member to H1 H5. case H4.
 
@@ -142,6 +178,44 @@ induction on 2. intros. case H2.
     case H1. case H4. apply IH to H7 H5 H3 H8. search.
     case H1. case H4. case H9. apply IH to H8 H5 H3 H10. search.
 
+Theorem mon2del/apart : forall N1 N2 N1' N2',
+    {mon/apart N1 N2} -> {mon2del/nat N1 N1'} -> {mon2del/nat N2 N2'} -> {del/apart N1' N2'}.
+induction on 1. intros. case H1.
+    case H2. case H3. search.
+    case H2. case H3. search.
+    case H2. case H3. apply IH to H4 H5 H6. search.
+
+Theorem mon2del/label/apart : forall L1 L2 L1' L2',
+    {mon/label/apart L1 L2} -> {mon2del/label L1 L1'} -> {mon2del/label L2 L2'} ->
+    {del/label/apart L1' L2'}.
+intros. case H1. case H2. case H3. apply mon2del/apart to H4 H5 H6. search.
+
+Theorem mon2del/get-case : forall Ms L M Ms' L',
+    {mon/get-case Ms L M} -> {mon2del/cases Ms Ms'} -> {mon2del/label L L'} ->
+    exists M', {del/get-case Ms' L' M'}.
+induction on 1. intros. case H1.
+    case H2. apply mon2del/label-unique to _ H3 H5. search.
+    case H2.
+        apply IH to H5 H6 H3. exists M'1.
+        apply mon2del/label/apart to H4 H3 H7. search.
+
+Theorem mon2del/get-case/unique : forall Ms L M Ms' L' M',
+    {mon/get-case Ms L M} -> {mon2del/cases Ms Ms'} -> {mon2del/label L L'} ->
+    {del/get-case Ms' L' M'} -> {pi x\ pi x'\ mon2del/value x x' => mon2del/comp (M x) (M' x')}.
+induction on 1. intros.
+assert forall N, {del/apart N N} -> false.
+    induction on 1. intros. case H5. apply IH1 to H6.
+case H2.
+    case H1.
+    case H1.
+        apply mon2del/label-unique to _ H3 H7.
+        case H4.
+            search.
+            case H9. apply H5 to H11.
+        case H4.
+            apply mon2del/label/apart to H9 H3 H7. case H11. apply H5 to H12.
+            apply IH to H10 H6 H3 H12. search.
+
 Theorem mon2del/reduce : forall M1 M2 M1' M2',
     {mon2del/comp M1 M1'} -> {mon2del/comp M2 M2'} -> 
     {mon/reduce M1 M2} -> del/cong M1' M2'.
@@ -150,14 +224,12 @@ induction on 3. intros. case H3.
     case H1. case H4. inst H5 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
     assert {mon2del/comp (M V1 V2) (M' V1' V2')}. cut H8. search.
     apply mon2del/comp-unique to _ H2 H9. search.
-% case (inl V) M M2 ~> M1 V
-    case H1. case H4. inst H5 with n1 = V, n2 = V'1.
-    assert {mon2del/comp (M3 V) (M1'1 V'1)}. cut H8. search.
-    apply mon2del/comp-unique to _ H2 H9. search.
-% case (inr V) M1 M2 ~> M2 V
-    case H1. case H4. inst H6 with n1 = V, n2 = V'1.
-    assert {mon2del/comp (M3 V) (M2'1 V'1)}. cut H8. search.
-    apply mon2del/comp-unique to _ H2 H9. search.
+% case (inj V) Ms ~> M V
+    case H1. case H5.
+    apply mon2del/get-case to H4 H6 H7.
+    apply mon2del/get-case/unique to H4 H6 H7 H9.
+    inst H10 with n1 = V, n2 = V'1.
+    cut H11. apply mon2del/comp-unique to _ H2 H12. search.
 % force (thunk M) ~> M
     case H1. case H4.
     apply mon2del/comp-unique to _ H2 H5. search.

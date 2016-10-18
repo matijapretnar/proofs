@@ -7,7 +7,7 @@ kind    op              type.
 type    op/z            op.
 type    op/s            op -> op.
 
-type    apart           op -> op -> o.
+type    op/apart           op -> op -> o.
 
 
 type    cons            eff -> op -> valty -> valty -> eff.

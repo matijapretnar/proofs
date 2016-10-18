@@ -20,6 +20,15 @@ induction on 1. intros. case H1.
         search.
         apply IH to H3 H6. search.
 
+Theorem can-get-case : forall Ms As C L A,
+    {of/cases Ms As C} -> {valtys/get As L A} ->
+    exists M, {get-case Ms L M}.
+induction on 1. intros. case H1.
+    case H2.
+    case H2.
+        search.
+        apply IH to H3 H6. search.
+
 Theorem progress : forall M C, {of/comp M C} -> {progresses M C}.
 induction on 1. intros. case H1.
     search.
@@ -27,7 +36,7 @@ induction on 1. intros. case H1.
     case H2.
         search.
     case H2.
-        search.
+        apply can-get-case to H3 H5.
         search.
     case H2.
         search.

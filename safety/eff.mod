@@ -2,14 +2,14 @@ module eff.
 
 accumulate cbpv.
 
-apart op/z (op/s _).
-apart (op/s _) op/z.
-apart (op/s Op) (op/s Op') :-
-    apart Op Op'.
+op/apart op/z (op/s _).
+op/apart (op/s _) op/z.
+op/apart (op/s Op) (op/s Op') :-
+    op/apart Op Op'.
 
 op-sig (cons _ Op A B) Op A B.
 op-sig (cons Eff Op' _ _) Op A B :-
-    apart Op Op',
+    op/apart Op Op',
     op-sig Eff Op A B.
 
 plug (evctx/handle E H) M (handle EM H) :-
@@ -21,7 +21,7 @@ get-valcase (opcase H _ _) M :-
 
 get-opcase (opcase H Op M) Op M.
 get-opcase (opcase H Op' _) Op M :-
-    apart Op Op',
+    op/apart Op Op',
     get-opcase H Op M.
 
 reduce (handle (ret V) H) (M V) :-

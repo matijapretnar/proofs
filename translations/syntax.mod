@@ -1,12 +1,21 @@
 module syntax.
 
+cbpv/apart cbpv/z (cbpv/s _).
+cbpv/apart (cbpv/s _) cbpv/z.
+cbpv/apart (cbpv/s N) (cbpv/s N') :-
+    cbpv/apart N N'.
+
+cbpv/label/apart (cbpv/lbl N) (cbpv/lbl N') :-
+    cbpv/apart N N'.
+
 cbpv/eff-kind (cbpv/f Eff A) Eff.
 cbpv/eff-kind (cbpv/arrow _ C) Eff :- cbpv/eff-kind C Eff.
 
 cbpv/of/value cbpv/unit cbpv/unitty.
 cbpv/of/value (cbpv/pair V1 V2) (cbpv/prod A1 A2) :- cbpv/of/value V1 A1, cbpv/of/value V2 A2.
-cbpv/of/value (cbpv/inl V) (cbpv/sum A1 _) :- cbpv/of/value V A1.
-cbpv/of/value (cbpv/inr V) (cbpv/sum _ A2) :- cbpv/of/value V A2.
+cbpv/of/value (cbpv/inj L V) (cbpv/sum As) :-
+    cbpv/of/value V A,
+    cbpv/valtys/get As L A.
 cbpv/of/value (cbpv/thunk M) (cbpv/u C) :- cbpv/of/comp M C.
 
 cbpv/of/comp (cbpv/ret V) (cbpv/f _ A) :- cbpv/of/value V A.
@@ -14,10 +23,9 @@ cbpv/of/comp (cbpv/fun M) (cbpv/arrow A C) :- pi x\ (cbpv/of/value x A => cbpv/o
 cbpv/of/comp (cbpv/split V M) C :-
     cbpv/of/value V (cbpv/prod A1 A2),
     pi x1\ pi x2\ (cbpv/of/value x1 A1 => cbpv/of/value x2 A2 => cbpv/of/comp (M x1 x2) C).
-cbpv/of/comp (cbpv/case V M1 M2) C :-
-    cbpv/of/value V (cbpv/sum A1 A2),
-    pi x\ (cbpv/of/value x A1 => cbpv/of/comp (M1 x) C),
-    pi x\ (cbpv/of/value x A2 => cbpv/of/comp (M2 x) C).
+cbpv/of/comp (cbpv/case V Ms) C :-
+    cbpv/of/value V (cbpv/sum As),
+    cbpv/of/cases Ms As C.
 cbpv/of/comp (cbpv/force V) C :- cbpv/of/value V (cbpv/u C).
 cbpv/of/comp (cbpv/bind M N) C :-
     cbpv/eff-kind C Eff,
@@ -26,6 +34,11 @@ cbpv/of/comp (cbpv/bind M N) C :-
 cbpv/of/comp (cbpv/app M V) C :-
     cbpv/of/comp M (cbpv/arrow A C),
     cbpv/of/value V A.
+
+cbpv/of/cases cbpv/cases/nil cbpv/valtys/nil C.
+cbpv/of/cases (cbpv/cases/cons Ms L M) (cbpv/valtys/cons As L A) C :-
+    cbpv/of/cases Ms As C,
+    pi x\ (cbpv/of/value x A => cbpv/of/comp (M x) C).
 
 cbpv/of/evctx cbpv/hole C C.
 cbpv/of/evctx (cbpv/evctx/bind E N) C1 C2 :-
@@ -36,9 +49,19 @@ cbpv/of/evctx (cbpv/evctx/app E V) C1 C2 :-
     cbpv/of/evctx E C1 (cbpv/arrow A C2),
     cbpv/of/value V A.
 
+cbpv/valtys/get (cbpv/valtys/cons As L A) L A.
+cbpv/valtys/get (cbpv/valtys/cons As L' _) L A :-
+    cbpv/label/apart L L',
+    cbpv/valtys/get As L A.
+
+cbpv/get-case (cbpv/cases/cons Ms L M) L M.
+cbpv/get-case (cbpv/cases/cons Ms L' _) L M :-
+    cbpv/label/apart L L',
+    cbpv/get-case Ms L M.
+
 cbpv/reduce (cbpv/split (cbpv/pair V1 V2) M) (M V1 V2).
-cbpv/reduce (cbpv/case (cbpv/inl V) M1 _) (M1 V).
-cbpv/reduce (cbpv/case (cbpv/inr V) _ M2) (M2 V).
+cbpv/reduce (cbpv/case (cbpv/inj L V) Ms) (M V) :-
+    cbpv/get-case Ms L M.
 cbpv/reduce (cbpv/force (cbpv/thunk M)) M.
 cbpv/reduce (cbpv/bind (cbpv/ret V) M) (M V).
 cbpv/reduce (cbpv/app (cbpv/fun M) V) (M V).
@@ -66,13 +89,22 @@ cbpv/progresses M _ :-
     cbpv/step M _.
 
 
+mon/apart mon/z (mon/s _).
+mon/apart (mon/s _) mon/z.
+mon/apart (mon/s N) (mon/s N') :-
+    mon/apart N N'.
+
+mon/label/apart (mon/lbl N) (mon/lbl N') :-
+    mon/apart N N'.
+
 mon/eff-kind (mon/f Eff A) Eff.
 mon/eff-kind (mon/arrow _ C) Eff :- mon/eff-kind C Eff.
 
 mon/of/value mon/unit mon/unitty.
 mon/of/value (mon/pair V1 V2) (mon/prod A1 A2) :- mon/of/value V1 A1, mon/of/value V2 A2.
-mon/of/value (mon/inl V) (mon/sum A1 _) :- mon/of/value V A1.
-mon/of/value (mon/inr V) (mon/sum _ A2) :- mon/of/value V A2.
+mon/of/value (mon/inj L V) (mon/sum As) :-
+    mon/of/value V A,
+    mon/valtys/get As L A.
 mon/of/value (mon/thunk M) (mon/u C) :- mon/of/comp M C.
 
 mon/of/comp (mon/ret V) (mon/f _ A) :- mon/of/value V A.
@@ -80,10 +112,9 @@ mon/of/comp (mon/fun M) (mon/arrow A C) :- pi x\ (mon/of/value x A => mon/of/com
 mon/of/comp (mon/split V M) C :-
     mon/of/value V (mon/prod A1 A2),
     pi x1\ pi x2\ (mon/of/value x1 A1 => mon/of/value x2 A2 => mon/of/comp (M x1 x2) C).
-mon/of/comp (mon/case V M1 M2) C :-
-    mon/of/value V (mon/sum A1 A2),
-    pi x\ (mon/of/value x A1 => mon/of/comp (M1 x) C),
-    pi x\ (mon/of/value x A2 => mon/of/comp (M2 x) C).
+mon/of/comp (mon/case V Ms) C :-
+    mon/of/value V (mon/sum As),
+    mon/of/cases Ms As C.
 mon/of/comp (mon/force V) C :- mon/of/value V (mon/u C).
 mon/of/comp (mon/bind M N) C :-
     mon/eff-kind C Eff,
@@ -92,6 +123,11 @@ mon/of/comp (mon/bind M N) C :-
 mon/of/comp (mon/app M V) C :-
     mon/of/comp M (mon/arrow A C),
     mon/of/value V A.
+
+mon/of/cases mon/cases/nil mon/valtys/nil C.
+mon/of/cases (mon/cases/cons Ms L M) (mon/valtys/cons As L A) C :-
+    mon/of/cases Ms As C,
+    pi x\ (mon/of/value x A => mon/of/comp (M x) C).
 
 mon/of/evctx mon/hole C C.
 mon/of/evctx (mon/evctx/bind E N) C1 C2 :-
@@ -102,9 +138,19 @@ mon/of/evctx (mon/evctx/app E V) C1 C2 :-
     mon/of/evctx E C1 (mon/arrow A C2),
     mon/of/value V A.
 
+mon/valtys/get (mon/valtys/cons As L A) L A.
+mon/valtys/get (mon/valtys/cons As L' _) L A :-
+    mon/label/apart L L',
+    mon/valtys/get As L A.
+
+mon/get-case (mon/cases/cons Ms L M) L M.
+mon/get-case (mon/cases/cons Ms L' _) L M :-
+    mon/label/apart L L',
+    mon/get-case Ms L M.
+
 mon/reduce (mon/split (mon/pair V1 V2) M) (M V1 V2).
-mon/reduce (mon/case (mon/inl V) M1 _) (M1 V).
-mon/reduce (mon/case (mon/inr V) _ M2) (M2 V).
+mon/reduce (mon/case (mon/inj L V) Ms) (M V) :-
+    mon/get-case Ms L M.
 mon/reduce (mon/force (mon/thunk M)) M.
 mon/reduce (mon/bind (mon/ret V) M) (M V).
 mon/reduce (mon/app (mon/fun M) V) (M V).
@@ -161,13 +207,22 @@ mon/progresses ES C :-
     mon/plug E (mon/reflect _) ES.
 
 
+del/apart del/z (del/s _).
+del/apart (del/s _) del/z.
+del/apart (del/s N) (del/s N') :-
+    del/apart N N'.
+
+del/label/apart (del/lbl N) (del/lbl N') :-
+    del/apart N N'.
+
 del/eff-kind (del/f Eff A) Eff.
 del/eff-kind (del/arrow _ C) Eff :- del/eff-kind C Eff.
 
 del/of/value del/unit del/unitty.
 del/of/value (del/pair V1 V2) (del/prod A1 A2) :- del/of/value V1 A1, del/of/value V2 A2.
-del/of/value (del/inl V) (del/sum A1 _) :- del/of/value V A1.
-del/of/value (del/inr V) (del/sum _ A2) :- del/of/value V A2.
+del/of/value (del/inj L V) (del/sum As) :-
+    del/of/value V A,
+    del/valtys/get As L A.
 del/of/value (del/thunk M) (del/u C) :- del/of/comp M C.
 
 del/of/comp (del/ret V) (del/f _ A) :- del/of/value V A.
@@ -175,10 +230,9 @@ del/of/comp (del/fun M) (del/arrow A C) :- pi x\ (del/of/value x A => del/of/com
 del/of/comp (del/split V M) C :-
     del/of/value V (del/prod A1 A2),
     pi x1\ pi x2\ (del/of/value x1 A1 => del/of/value x2 A2 => del/of/comp (M x1 x2) C).
-del/of/comp (del/case V M1 M2) C :-
-    del/of/value V (del/sum A1 A2),
-    pi x\ (del/of/value x A1 => del/of/comp (M1 x) C),
-    pi x\ (del/of/value x A2 => del/of/comp (M2 x) C).
+del/of/comp (del/case V Ms) C :-
+    del/of/value V (del/sum As),
+    del/of/cases Ms As C.
 del/of/comp (del/force V) C :- del/of/value V (del/u C).
 del/of/comp (del/bind M N) C :-
     del/eff-kind C Eff,
@@ -187,6 +241,11 @@ del/of/comp (del/bind M N) C :-
 del/of/comp (del/app M V) C :-
     del/of/comp M (del/arrow A C),
     del/of/value V A.
+
+del/of/cases del/cases/nil del/valtys/nil C.
+del/of/cases (del/cases/cons Ms L M) (del/valtys/cons As L A) C :-
+    del/of/cases Ms As C,
+    pi x\ (del/of/value x A => del/of/comp (M x) C).
 
 del/of/evctx del/hole C C.
 del/of/evctx (del/evctx/bind E N) C1 C2 :-
@@ -197,9 +256,19 @@ del/of/evctx (del/evctx/app E V) C1 C2 :-
     del/of/evctx E C1 (del/arrow A C2),
     del/of/value V A.
 
+del/valtys/get (del/valtys/cons As L A) L A.
+del/valtys/get (del/valtys/cons As L' _) L A :-
+    del/label/apart L L',
+    del/valtys/get As L A.
+
+del/get-case (del/cases/cons Ms L M) L M.
+del/get-case (del/cases/cons Ms L' _) L M :-
+    del/label/apart L L',
+    del/get-case Ms L M.
+
 del/reduce (del/split (del/pair V1 V2) M) (M V1 V2).
-del/reduce (del/case (del/inl V) M1 _) (M1 V).
-del/reduce (del/case (del/inr V) _ M2) (M2 V).
+del/reduce (del/case (del/inj L V) Ms) (M V) :-
+    del/get-case Ms L M.
 del/reduce (del/force (del/thunk M)) M.
 del/reduce (del/bind (del/ret V) M) (M V).
 del/reduce (del/app (del/fun M) V) (M V).
@@ -255,13 +324,22 @@ del/of/evctx (del/evctx/reset E N) C D :-
     del/of/evctx E C (del/f (del/cons Eff D) A).
 
 
+eff/apart eff/z (eff/s _).
+eff/apart (eff/s _) eff/z.
+eff/apart (eff/s N) (eff/s N') :-
+    eff/apart N N'.
+
+eff/label/apart (eff/lbl N) (eff/lbl N') :-
+    eff/apart N N'.
+
 eff/eff-kind (eff/f Eff A) Eff.
 eff/eff-kind (eff/arrow _ C) Eff :- eff/eff-kind C Eff.
 
 eff/of/value eff/unit eff/unitty.
 eff/of/value (eff/pair V1 V2) (eff/prod A1 A2) :- eff/of/value V1 A1, eff/of/value V2 A2.
-eff/of/value (eff/inl V) (eff/sum A1 _) :- eff/of/value V A1.
-eff/of/value (eff/inr V) (eff/sum _ A2) :- eff/of/value V A2.
+eff/of/value (eff/inj L V) (eff/sum As) :-
+    eff/of/value V A,
+    eff/valtys/get As L A.
 eff/of/value (eff/thunk M) (eff/u C) :- eff/of/comp M C.
 
 eff/of/comp (eff/ret V) (eff/f _ A) :- eff/of/value V A.
@@ -269,10 +347,9 @@ eff/of/comp (eff/fun M) (eff/arrow A C) :- pi x\ (eff/of/value x A => eff/of/com
 eff/of/comp (eff/split V M) C :-
     eff/of/value V (eff/prod A1 A2),
     pi x1\ pi x2\ (eff/of/value x1 A1 => eff/of/value x2 A2 => eff/of/comp (M x1 x2) C).
-eff/of/comp (eff/case V M1 M2) C :-
-    eff/of/value V (eff/sum A1 A2),
-    pi x\ (eff/of/value x A1 => eff/of/comp (M1 x) C),
-    pi x\ (eff/of/value x A2 => eff/of/comp (M2 x) C).
+eff/of/comp (eff/case V Ms) C :-
+    eff/of/value V (eff/sum As),
+    eff/of/cases Ms As C.
 eff/of/comp (eff/force V) C :- eff/of/value V (eff/u C).
 eff/of/comp (eff/bind M N) C :-
     eff/eff-kind C Eff,
@@ -281,6 +358,11 @@ eff/of/comp (eff/bind M N) C :-
 eff/of/comp (eff/app M V) C :-
     eff/of/comp M (eff/arrow A C),
     eff/of/value V A.
+
+eff/of/cases eff/cases/nil eff/valtys/nil C.
+eff/of/cases (eff/cases/cons Ms L M) (eff/valtys/cons As L A) C :-
+    eff/of/cases Ms As C,
+    pi x\ (eff/of/value x A => eff/of/comp (M x) C).
 
 eff/of/evctx eff/hole C C.
 eff/of/evctx (eff/evctx/bind E N) C1 C2 :-
@@ -291,9 +373,19 @@ eff/of/evctx (eff/evctx/app E V) C1 C2 :-
     eff/of/evctx E C1 (eff/arrow A C2),
     eff/of/value V A.
 
+eff/valtys/get (eff/valtys/cons As L A) L A.
+eff/valtys/get (eff/valtys/cons As L' _) L A :-
+    eff/label/apart L L',
+    eff/valtys/get As L A.
+
+eff/get-case (eff/cases/cons Ms L M) L M.
+eff/get-case (eff/cases/cons Ms L' _) L M :-
+    eff/label/apart L L',
+    eff/get-case Ms L M.
+
 eff/reduce (eff/split (eff/pair V1 V2) M) (M V1 V2).
-eff/reduce (eff/case (eff/inl V) M1 _) (M1 V).
-eff/reduce (eff/case (eff/inr V) _ M2) (M2 V).
+eff/reduce (eff/case (eff/inj L V) Ms) (M V) :-
+    eff/get-case Ms L M.
 eff/reduce (eff/force (eff/thunk M)) M.
 eff/reduce (eff/bind (eff/ret V) M) (M V).
 eff/reduce (eff/app (eff/fun M) V) (M V).
@@ -321,14 +413,14 @@ eff/progresses M _ :-
     eff/step M _.
 
 
-eff/apart eff/op/z (eff/op/s _).
-eff/apart (eff/op/s _) eff/op/z.
-eff/apart (eff/op/s Op) (eff/op/s Op') :-
-    eff/apart Op Op'.
+eff/op/apart eff/op/z (eff/op/s _).
+eff/op/apart (eff/op/s _) eff/op/z.
+eff/op/apart (eff/op/s Op) (eff/op/s Op') :-
+    eff/op/apart Op Op'.
 
 eff/op-sig (eff/cons _ Op A B) Op A B.
 eff/op-sig (eff/cons Eff Op' _ _) Op A B :-
-    eff/apart Op Op',
+    eff/op/apart Op Op',
     eff/op-sig Eff Op A B.
 
 eff/plug (eff/evctx/handle E H) M (eff/handle EM H) :-
@@ -340,7 +432,7 @@ eff/get-valcase (eff/opcase H _ _) M :-
 
 eff/get-opcase (eff/opcase H Op M) Op M.
 eff/get-opcase (eff/opcase H Op' _) Op M :-
-    eff/apart Op Op',
+    eff/op/apart Op Op',
     eff/get-opcase H Op M.
 
 eff/reduce (eff/handle (eff/ret V) H) (M V) :-

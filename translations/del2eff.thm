@@ -43,10 +43,38 @@ induction on 1. intros. case H1.
             apply member-prune to H5.
             apply IH to H4 H5 H6. search.
 
+Theorem del2eff/nat-unique : forall L N N' N'',
+    ctx L -> {L |- del2eff/nat N N'} -> {L |- del2eff/nat N N''} -> N' = N''.
+induction on 2. intros. case H2.
+    case H3. search.
+    apply ctx-member to H1 H5. case H4.
+    case H3. apply IH to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    apply ctx-member to H1 H5. case H4.
+
+Theorem del2eff/label-unique : forall L N N' N'',
+    ctx L -> {L |- del2eff/label N N'} -> {L |- del2eff/label N N''} -> N' = N''.
+intros.
+    case H2.
+        case H3.
+            apply del2eff/nat-unique to H1 H4 H5. search.
+            apply ctx-member to H1 H6. case H5.
+    apply ctx-member to H1 H5. case H4.
+
+Theorem del2eff/cases-unique : forall L N N' N'',
+    ctx L -> {L |- del2eff/label N N'} -> {L |- del2eff/label N N''} -> N' = N''.
+intros.
+    case H2.
+        case H3.
+            apply del2eff/nat-unique to H1 H4 H5. search.
+            apply ctx-member to H1 H6. case H5.
+    apply ctx-member to H1 H5. case H4.
+
 Theorem del2eff-unique :
     (forall L V V' V'', ctx L -> {L |- del2eff/value V V'} -> {L |- del2eff/value V V''} -> V' = V'') /\
-    (forall L M M' M'', ctx L -> {L |- del2eff/comp M M'} -> {L |- del2eff/comp M M''} -> M' = M'').
-induction on 2 2. split.
+    (forall L M M' M'', ctx L -> {L |- del2eff/comp M M'} -> {L |- del2eff/comp M M''} -> M' = M'') /\
+    (forall L Ms Ms' Ms'', ctx L -> {L |- del2eff/cases Ms Ms'} -> {L |- del2eff/cases Ms Ms''} -> Ms' = Ms'').
+induction on 2 2 2. split.
 % value
 intros. case H2.
     % unit
@@ -55,18 +83,15 @@ intros. case H2.
     % pair
     case H3. apply IH to H1 H4 H6. apply IH to H1 H5 H7. search.
     apply ctx-member to H1 H7. case H6. case H8.
-    % inl
-    case H3. apply IH to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5. case H7.
-    % inr
-    case H3. apply IH to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5. case H7.
+    % inj
+    case H3. apply del2eff/label-unique to H1 H4 H6. apply IH to H1 H5 H7. search.
+    apply ctx-member to H1 H7. case H6. case H8.
     % thunk
     case H3. apply IH1 to H1 H4 H5. search.
     apply ctx-member to H1 H6. case H5. case H7.
     % backchain
     apply ctx-member to H1 H5. case H4. case H3.
-        case H6. case H6. case H6. case H6. case H6.
+        case H6. case H6. case H6. case H6.
         apply ctx-member to H1 H9. case H8. apply ctx-unique to H1 H5 H9. search.
 
 % comp
@@ -81,8 +106,8 @@ intros. case H2.
     case H3. apply IH to H1 H4 H6. apply IH1 to _ H5 H7. search.
     apply ctx-member to H1 H7. case H6.
     % case
-    case H3. apply IH to H1 H4 H7. apply IH1 to _ H5 H8. apply IH1 to _ H6 H9. search.
-    apply ctx-member to H1 H8. case H7.
+    case H3. apply IH to H1 H4 H6. apply IH2 to _ H5 H7. search.
+    apply ctx-member to H1 H7. case H6.
     % force
     case H3. apply IH to H1 H4 H5. search.
     apply ctx-member to H1 H6. case H5.
@@ -98,6 +123,17 @@ intros. case H2.
     % call
     case H3. apply IH1 to _ H4 H5. search.
     apply ctx-member to H1 H6. case H5.
+    % backchain
+    apply ctx-member to H1 H5. case H4.
+
+% cases
+intros. case H2.
+    % nil
+    case H3. search.
+    apply ctx-member to H1 H5. case H4.
+    % cons
+    case H3. apply IH2 to H1 H4 H7. apply del2eff/label-unique to H1 H5 H8. apply IH1 to _ H6 H9. search.
+    apply ctx-member to H1 H8. case H7.
     % backchain
     apply ctx-member to H1 H5. case H4.
 
@@ -142,6 +178,44 @@ induction on 2. intros. case H2.
     case H1. case H4. apply IH to H7 H5 H3 H8. search.
     case H1. case H4. apply IH to H7 H5 H3 H8. search.
 
+Theorem del2eff/apart : forall N1 N2 N1' N2',
+    {del/apart N1 N2} -> {del2eff/nat N1 N1'} -> {del2eff/nat N2 N2'} -> {eff/apart N1' N2'}.
+induction on 1. intros. case H1.
+    case H2. case H3. search.
+    case H2. case H3. search.
+    case H2. case H3. apply IH to H4 H5 H6. search.
+
+Theorem del2eff/label/apart : forall L1 L2 L1' L2',
+    {del/label/apart L1 L2} -> {del2eff/label L1 L1'} -> {del2eff/label L2 L2'} ->
+    {eff/label/apart L1' L2'}.
+intros. case H1. case H2. case H3. apply del2eff/apart to H4 H5 H6. search.
+
+Theorem del2eff/get-case : forall Ms L M Ms' L',
+    {del/get-case Ms L M} -> {del2eff/cases Ms Ms'} -> {del2eff/label L L'} ->
+    exists M', {eff/get-case Ms' L' M'}.
+induction on 1. intros. case H1.
+    case H2. apply del2eff/label-unique to _ H3 H5. search.
+    case H2.
+        apply IH to H5 H6 H3. exists M'1.
+        apply del2eff/label/apart to H4 H3 H7. search.
+
+Theorem del2eff/get-case/unique : forall Ms L M Ms' L' M',
+    {del/get-case Ms L M} -> {del2eff/cases Ms Ms'} -> {del2eff/label L L'} ->
+    {eff/get-case Ms' L' M'} -> {pi x\ pi x'\ del2eff/value x x' => del2eff/comp (M x) (M' x')}.
+induction on 1. intros.
+assert forall N, {eff/apart N N} -> false.
+    induction on 1. intros. case H5. apply IH1 to H6.
+case H2.
+    case H1.
+    case H1.
+        apply del2eff/label-unique to _ H3 H7.
+        case H4.
+            search.
+            case H9. apply H5 to H11.
+        case H4.
+            apply del2eff/label/apart to H9 H3 H7. case H11. apply H5 to H12.
+            apply IH to H10 H6 H3 H12. search.
+
 Theorem del2eff/reduce : forall M1 M2 M1' M2',
     {del2eff/comp M1 M1'} -> {del2eff/comp M2 M2'} -> 
     {del/reduce M1 M2} -> eff/cong M1' M2'.
@@ -150,14 +224,12 @@ induction on 3. intros. case H3.
     case H1. case H4. inst H5 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
     assert {del2eff/comp (M V1 V2) (M' V1' V2')}. cut H8. search.
     apply del2eff/comp-unique to _ H2 H9. search.
-% case (inl V) M M2 ~> M1 V
-    case H1. case H4. inst H5 with n1 = V, n2 = V'1.
-    assert {del2eff/comp (M3 V) (M1'1 V'1)}. cut H8. search.
-    apply del2eff/comp-unique to _ H2 H9. search.
-% case (inr V) M1 M2 ~> M2 V
-    case H1. case H4. inst H6 with n1 = V, n2 = V'1.
-    assert {del2eff/comp (M3 V) (M2'1 V'1)}. cut H8. search.
-    apply del2eff/comp-unique to _ H2 H9. search.
+% case (inj V) Ms ~> M V
+    case H1. case H5.
+    apply del2eff/get-case to H4 H6 H7.
+    apply del2eff/get-case/unique to H4 H6 H7 H9.
+    inst H10 with n1 = V, n2 = V'1.
+    cut H11. apply del2eff/comp-unique to _ H2 H12. search.
 % force (thunk M) ~> M
     case H1. case H4.
     apply del2eff/comp-unique to _ H2 H5. search.
