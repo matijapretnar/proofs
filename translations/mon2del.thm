@@ -13,14 +13,14 @@ Define ctx : olist -> prop by
     ctx nil;
     nabla x x', ctx (mon2del/value x x' :: L) := ctx L.
 
-Define fresh/mon : mon/value -> prop,
-       fresh/del : del/value -> prop by
-    nabla x, fresh/mon x;
-    nabla x, fresh/del x.
+Define mon/fresh : mon/value -> prop,
+       del/fresh : del/value -> prop by
+    nabla x, mon/fresh x;
+    nabla x, del/fresh x.
 
 Theorem ctx-member : forall L F,
     ctx L -> member F L ->
-    exists X X', (F = mon2del/value X X') /\ fresh/mon X /\ fresh/del X'.
+    exists X X', (F = mon2del/value X X') /\ mon/fresh X /\ del/fresh X'.
 induction on 2. intros. case H2.
     case H1. exists n1, n2. search.
     case H1. apply IH to H4 H3. exists (X n2 n1), (X' n2 n1). search.
@@ -107,8 +107,8 @@ Theorem mon2del/evctx-unique : forall E E' E'',
     {mon2del/evctx E E'} -> {mon2del/evctx E E''} -> E' = E''.
 induction on 1. intros. case H1.
     case H2. search.
-    case H2. apply IH to H3 H5. apply mon2del/value-unique to _ H4 H6. search.
     case H2. apply IH to H3 H5. apply mon2del/comp-unique to _ H4 H6. search.
+    case H2. apply IH to H3 H5. apply mon2del/value-unique to _ H4 H6. search.
     case H2. apply IH to H3 H6. apply mon2del/comp-unique to _ H4 H7. apply mon2del/comp-unique to _ H5 H8. search.
 
 Theorem mon2del/hoisting : forall E E',
@@ -309,9 +309,9 @@ induction on 1. intros. case H1.
     exists m\ m. intros. search.
     apply IH to H2. exists m\ del/bind (E' m) N. intros.
     assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
-    apply IH to H2. exists m\ del/reset (E' m) T. intros.
-    assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
     apply IH to H2. exists m\ del/app (E' m) V. intros.
+    assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ del/reset (E' m) T. intros.
     assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
 
 Theorem plug/unique : forall E M EM EM',

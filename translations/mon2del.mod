@@ -57,14 +57,14 @@ mon2del/comp (mon/reflect M _)
     mon2del/comp M M'.
 
 mon2del/evctx mon/hole del/hole.
-mon2del/evctx (mon/evctx/app E V) (del/evctx/app E' V') :-
-    mon2del/evctx E E',
-    mon2del/value V V'.
 mon2del/evctx (mon/evctx/bind E N) (del/evctx/bind E' N') :-
     mon2del/evctx E E',
     pi x\ pi x'\
         mon2del/value x x' =>
         mon2del/comp (N x) (N' x').
+mon2del/evctx (mon/evctx/app E V) (del/evctx/app E' V') :-
+    mon2del/evctx E E',
+    mon2del/value V V'.
 mon2del/evctx (mon/evctx/reify E (mon/mon Nu Nb)) (del/evctx/app (del/evctx/reset E' (x\ del/fun nb\ Nu' x)) (del/thunk (del/fun x\ del/fun k\ Nb' x k))) :-
     mon2del/evctx E E',
     pi x\ pi x'\
@@ -77,5 +77,5 @@ mon2del/evctx (mon/evctx/reify E (mon/mon Nu Nb)) (del/evctx/app (del/evctx/rese
 
 del/is-evctx del/hole.
 del/is-evctx (del/evctx/bind E N) :- del/is-evctx E.
-del/is-evctx (del/evctx/reset E T) :- del/is-evctx E.
 del/is-evctx (del/evctx/app E V) :- del/is-evctx E.
+del/is-evctx (del/evctx/reset E T) :- del/is-evctx E.
