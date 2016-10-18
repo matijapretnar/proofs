@@ -52,7 +52,7 @@ mon2del/comp (mon/reify M (mon/mon Nu Nb)) (del/app (del/reset M' (x\ del/fun nb
         mon2del/value x x' =>
         mon2del/value k k' =>
         mon2del/comp (Nb x k) (Nb' x' k').
-mon2del/comp (mon/reflect M _)
+mon2del/comp (mon/reflect M)
     (del/shift k\ (del/fun nb\ (del/app (del/app (del/force nb) (del/thunk M')) (del/thunk (del/fun y\ del/app (del/app (del/force k) y) nb))))) :-
     mon2del/comp M M'.
 

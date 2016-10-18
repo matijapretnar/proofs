@@ -76,7 +76,7 @@ type    mon/case            mon/value -> (mon/value -> mon/comp) -> (mon/value -
 type    mon/force           mon/value -> mon/comp.
 type    mon/bind            mon/comp -> (mon/value -> mon/comp) -> mon/comp.
 type    mon/app             mon/comp -> mon/value -> mon/comp.
-type    mon/reflect         mon/comp -> mon/monad -> mon/comp.
+type    mon/reflect         mon/comp -> mon/comp.
 type    mon/reify           mon/comp -> mon/monad -> mon/comp.
 
 type    mon/hole            mon/evctx.
