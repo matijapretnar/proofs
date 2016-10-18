@@ -10,4 +10,3 @@ type    del2eff/evctx       del/evctx -> eff/evctx -> o.
 type    del2eff/cases       del/cases -> eff/cases -> o.
 
 type    eff/is-evctx        eff/evctx -> o.
-

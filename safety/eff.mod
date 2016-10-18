@@ -2,10 +2,8 @@ module eff.
 
 accumulate cbpv.
 
-op/apart op/z (op/s _).
-op/apart (op/s _) op/z.
-op/apart (op/s Op) (op/s Op') :-
-    op/apart Op Op'.
+op/apart (op N) (op N') :-
+    apart N N'.
 
 op-sig (cons _ Op A B) Op A B.
 op-sig (cons Eff Op' _ _) Op A B :-

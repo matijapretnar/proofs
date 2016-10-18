@@ -301,28 +301,26 @@ type    eff/step            eff/comp -> eff/comp -> o.
 type    eff/progresses      eff/comp -> eff/compty -> o.
 
 
-kind    eff/op              type.
+kind    eff/operation       type.
 
-type    eff/op/z            eff/op.
-type    eff/op/s            eff/op -> eff/op.
+type    eff/op/apart        eff/operation -> eff/operation -> o.
 
-type    eff/op/apart           eff/op -> eff/op -> o.
+type    eff/op              eff/nat -> eff/operation.
 
+type    eff/cons            eff/eff -> eff/operation -> eff/valty -> eff/valty -> eff/eff.
 
-type    eff/cons            eff/eff -> eff/op -> eff/valty -> eff/valty -> eff/eff.
-
-type    eff/op-sig          eff/eff -> eff/op -> eff/valty -> eff/valty -> o.
+type    eff/op-sig          eff/eff -> eff/operation -> eff/valty -> eff/valty -> o.
 
 
 kind    eff/handler         type.
 
 type    eff/valcase         (eff/value -> eff/comp) -> eff/handler.
-type    eff/opcase          eff/handler -> eff/op -> (eff/value -> eff/value -> eff/comp) -> eff/handler.
+type    eff/opcase          eff/handler -> eff/operation -> (eff/value -> eff/value -> eff/comp) -> eff/handler.
 
 type    eff/get-valcase     eff/handler -> (eff/value -> eff/comp) -> o.
-type    eff/get-opcase      eff/handler -> eff/op -> (eff/value -> eff/value -> eff/comp) -> o.
+type    eff/get-opcase      eff/handler -> eff/operation -> (eff/value -> eff/value -> eff/comp) -> o.
 
-type    eff/call            eff/op -> eff/value -> eff/comp.
+type    eff/call            eff/operation -> eff/value -> eff/comp.
 type    eff/handle          eff/comp -> eff/handler -> eff/comp.
 
 

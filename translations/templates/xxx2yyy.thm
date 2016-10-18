@@ -43,7 +43,6 @@ induction on 1. intros. case H1.
             apply member-prune to H5.
             apply IH to H4 H5 H6. search.
 
-
 Theorem xxx2yyy/nat-unique : forall L N N' N'',
     ctx L -> {L |- xxx2yyy/nat N N'} -> {L |- xxx2yyy/nat N N''} -> N' = N''.
 induction on 2. intros. case H2.

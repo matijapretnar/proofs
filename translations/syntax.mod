@@ -413,10 +413,8 @@ eff/progresses M _ :-
     eff/step M _.
 
 
-eff/op/apart eff/op/z (eff/op/s _).
-eff/op/apart (eff/op/s _) eff/op/z.
-eff/op/apart (eff/op/s Op) (eff/op/s Op') :-
-    eff/op/apart Op Op'.
+eff/op/apart (eff/op N) (eff/op N') :-
+    eff/apart N N'.
 
 eff/op-sig (eff/cons _ Op A B) Op A B.
 eff/op-sig (eff/cons Eff Op' _ _) Op A B :-

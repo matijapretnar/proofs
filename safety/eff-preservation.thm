@@ -14,8 +14,10 @@ induction on 1. intros. case H1.
     case H2. apply IH to H5 H6 H3 _. search.
 
 Theorem equal-not-apart : forall Op, {op/apart Op Op} -> false.
-induction on 1. intros. case H1.
-    apply IH to H2.
+intros.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H2. apply IH to H3.
+case H1. apply H2 to H3.
 
 Theorem op-sig-det : forall Eff Op A1 A2 B1 B2,
     {op-sig Eff Op A1 A2} -> {op-sig Eff Op B1 B2} -> A1 = B1 /\ A2 = B2.
