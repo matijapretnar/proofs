@@ -183,7 +183,7 @@ induction on 3. intros. case H3.
     apply del/pluggable to H14. inst H15 with n1 = n2.
     apply mon2del/plug to H6 H10 _ H16 with L = mon2del/value n1 n2 :: nil.
     inst H9 with
-        n1 = (mon/thunk M),
+        n1 = (mon/thunk N),
         n2 = (mon/thunk (mon/fun (x\mon/reify (ER x) (mon/mon Nu Nb)))),
         n3 = (del/thunk M'2),
         n4 = (del/thunk (del/fun (x\del/app (del/reset (ER1 x x) (x\ del/fun nb\ Nu' x)) (del/thunk (del/fun x\ del/fun k\ Nb' x k))))).
