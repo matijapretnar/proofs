@@ -1,13 +1,8 @@
 Specification "eff2mon".
 
-Define mon/cong : mon/comp -> mon/comp -> prop by
-    mon/cong M M' := {mon/step M M'};
-    mon/cong CM CM' := exists C (M : mon/value -> mon/comp) M', CM = C M /\ (forall y, mon/cong (M y) (M' y)) /\ C M' = CM';
-    mon/cong M1 M3 := exists M2, mon/cong M1 M2 /\ mon/cong M2 M3.
-
-Theorem mon/cong/plain : forall CM CM',
-  (exists C M M', CM = C M /\ mon/cong M M' /\ C M' = CM') -> mon/cong CM CM'.
-intros. case H1. unfold 2. exists m\ C (m mon/unit), x\ M, x\ M'. search.
+Define mon/sim : mon/comp -> mon/comp -> prop by
+    mon/sim M M' := {mon/step M M'};
+    mon/sim M1 M3 := exists M2, mon/sim M1 M2 /\ mon/sim M2 M3.
 
 Define ctx : olist -> prop by
     ctx nil;
@@ -259,7 +254,7 @@ case H1.
 
 Theorem eff2mon/reduce : forall M1 M2 M1' M2',
     {eff2mon/comp M1 M1'} -> {eff2mon/comp M2 M2'} -> 
-    {eff/reduce M1 M2} -> mon/cong M1' M2'.
+    {eff/reduce M1 M2} -> mon/sim M1' M2'.
 induction on 3. intros. case H3.
 % split (pair V1 V2) M ~> M V1 V2
     case H1. case H4. inst H5 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
@@ -300,7 +295,7 @@ induction on 3. intros. case H3.
         n4 = mon/thunk (mon/fun (x\mon/reify (ER1 x x) (mon/mon Nu' (x\ k\ mon/bind (mon/app (mon/force x) k) (y\ mon/case y Ms'))))).
     cut H21.
     apply eff2mon/comp-unique to _ H2 H22.
-    unfold 3.
+    unfold 2.
     exists (x\k\mon/bind (mon/app (mon/force x) k) (y\ mon/case y Ms'))
         (mon/thunk (mon/fun (k\mon/ret (mon/inj (mon/lbl X') (mon/pair V' k)))))
         (mon/thunk
@@ -308,7 +303,7 @@ induction on 3. intros. case H3.
               (x\mon/reify (ER1 x x)
                    (mon/mon Nu' (x\ k\ mon/bind (mon/app (mon/force x) k) (y\ mon/case y Ms')))))).
     split. search.
-    unfold 3.
+    unfold 2.
     exists (mon/bind
                  (mon/app
                           (mon/fun
@@ -322,7 +317,7 @@ induction on 3. intros. case H3.
                                           (y\mon/case y Ms')))))))
                  (y\mon/case y Ms')).
     split. search.
-    unfold 3.
+    unfold 2.
     exists (mon/bind
                  ((k\mon/ret (mon/inj (mon/lbl X') (mon/pair V' k)))
                                      (mon/thunk
@@ -333,7 +328,7 @@ induction on 3. intros. case H3.
                                                            (y\mon/case y Ms')))))))
                  (y\mon/case y Ms')).
     split. search.
-    unfold 3.
+    unfold 2.
     exists 
          (y\mon/case y Ms')
          (mon/inj (mon/lbl X')
@@ -379,20 +374,26 @@ induction on 1. intros. case H1.
     apply IH to H2. search.
     apply IH to H2. search.
 
+Theorem all/pluggable : forall E M, {mon/is-evctx E} -> exists EM, {mon/plug E M EM}.
+induction on 1. intros. case H1.
+    search.
+    apply IH to H2 with M = M. search.
+    apply IH to H2 with M = M. search.
+    apply IH to H2 with M = M. search.
+
 Theorem plug/cong : forall E M1 EM1 M2 EM2,
-    {mon/plug E M1 EM1} -> {mon/plug E M2 EM2} -> mon/cong M1 M2 -> mon/cong EM1 EM2.
-intros.
-    apply plug/context to _ with E = E.
-        apply plug/is-evctx to H1. search.
-    apply H4 with M = M1.
-    apply H4 with M = M2.
-    apply plug/unique to H1 H5. apply plug/unique to H2 H6.
-    backchain mon/cong/plain.
-    exists E', M1, M2. search.
+    {mon/plug E M1 EM1} -> {mon/plug E M2 EM2} -> mon/sim M1 M2 -> mon/sim EM1 EM2.
+induction on 3. intros. case H3.
+    apply plug/step to H1 H2 H4. search.
+    apply plug/is-evctx to H1.
+    apply all/pluggable to H6 with M = M3.
+    apply IH to H1 H7 H4.
+    apply IH to H7 H2 H5.
+    search.
 
 Theorem eff2mon/simulation : forall M1 M2 M1' M2',
     {eff2mon/comp M1 M1'} -> {eff2mon/comp M2 M2'} -> 
-    {eff/step M1 M2} -> mon/cong M1' M2'.
+    {eff/step M1 M2} -> mon/sim M1' M2'.
 intros. case H3.
     apply eff2mon/unplug to H4 H1.
     apply eff2mon/unplug to H6 H2.
