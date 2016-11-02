@@ -3,17 +3,6 @@
 % The main result here is "get-op-case-total", which says that for well-typed
 % operation cases OCs, "get-op-case O OCs OC" always delivers an answer "OC"
 
-decide-op-case : comparable O O' -> {OC} get-op-case O OCs OC'
-                  -> get-op-case O (op-cases/cons O' OC OCs) OC'' -> type.
-%mode decide-op-case +Dec +OC +OC' -OC''.
-
-- : decide-op-case comparable/equal _ _ get-op-case/here.
-- : decide-op-case (comparable/apart A) _ OC (get-op-case/there OC A).
-
-%worlds (topen) (decide-op-case _ _ _ _).
-%total {} (decide-op-case _ _ _ _).
-
-
 get-op-case-total : sig D O _ _ -> opcof OCs B D -> get-op-case O OCs OC -> type.
 %mode get-op-case-total +O +OCs -OC.
 
