@@ -19,13 +19,17 @@ preservation-scof : scof C S D -> step C C' -> scof C' S D -> type.
 - : preservation (cof/seq C1 C2) (step/seq-step S) (cof/seq C1' C2)
      <- preservation-scof C1 S C1'.
 
-- : preservation (cof/with (eof/hnd Cv _) (cof/ret E)) step/with-ret C'
+- : preservation (cof/with (eof/hnd Cv _ _) (cof/ret E)) step/with-ret C'
      <- subst Cv E C'.
 
-- : preservation (cof/with (eof/hnd Cv OCs) (cof/op O E K)) (step/with-op OC) C'
-     <- preservation-with-op O E
-         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs) (K x e))
+- : preservation (cof/with (eof/hnd Cv OCs Cov) (cof/op O E K)) (step/with-hand OC) C'
+     <- preservation-with-hand O E
+         (eof/fun [x] [e] cof/with (eof/hnd Cv OCs Cov) (K x e))
          OC OCs C'.
+
+- : preservation (cof/with (eof/hnd Cv OCs Cov) (cof/op O E K)) (step/with-noth No)
+        (cof/op O' E ([x] [e] cof/with (eof/hnd Cv OCs Cov) (K x e)))
+     <- covered-sig O Cov No OCs O'.
 
 - : preservation (cof/with E C) (step/with-step S) (cof/with E C')
      <- preservation C S C'.

@@ -6,14 +6,14 @@
 % - "seof E A" means that expression "E" has a scheme "S"
 %   (this is not used in the paper, but is technically useful in the formalization)
 % - "scof C S B" states the same for computation "C" a scheme "S" and dirt "D"
-% - "opcof OCs B D" states that operation cases "OCs" all have a return type "B"
-%   and cover operations from dirt "D"
+% - "opcof D OCs B Os" states that under signature "D", operation cases "OCs"
+%   all have a return type "B" and cover operations from the set "Os"
 
 eof : expr -> ty -> type.
 cof : comp -> dirty -> type.
 seof : expr -> scheme -> type.
 scof : comp -> scheme -> dirt -> type.
-opcof : op-cases -> dirty -> dirt -> type.
+opcof : dirt -> op-cases -> dirty -> dirt -> type.
 
 % We have an additional judgment "var E A" to represent variables of type "A"
 % in a context. Similarly, we use "pvar E S" to represent polymorphic variables.
@@ -45,7 +45,8 @@ eof/fls : eof fls bool.
 eof/fun : eof (fun E) (A --> B)
            <- ({x} var x A -> cof (E x) B).
 eof/hnd : eof (hnd Cv OCs) (A ! D ==> A' ! D')
-           <- opcof OCs (A' ! D') D
+           <- covered D Dh D'
+           <- opcof D OCs (A' ! D') Dh
            <- ({x} var x A -> cof (Cv x) (A' ! D')).
 
 scof/plain : scof C (plain A) D
@@ -56,10 +57,11 @@ scof/forall: scof C (forall S) D
 
 %%% Operation cases %%%
 
-opcof/nil  : opcof (op-cases/nil B) B dirt/empty.
-opcof/cons : opcof (op-cases/cons O OC OCs) B (dirt/cons O A1 A2 D)
-              <- opcof OCs B D
-              <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof (OC x k) B).
+opcof/nil  : opcof D (op-cases/nil B) B dirt/empty.
+opcof/cons : opcof D (op-cases/cons O OC OCs) B (dirt/cons O A1 A2 Dh)
+              <- opcof D OCs B Dh
+              <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof (OC x k) B)
+              <- sig D O A1 A2.
 
 
 %%% Computations %%%

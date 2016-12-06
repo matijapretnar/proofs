@@ -29,7 +29,7 @@ concrete-seof : seof E S -> concrete S A -> eof E A -> type.
 subst-eof   : eof E' A -> ({x} var x A -> eof (E x) A') -> eof (E E') A' -> type.
 subst-cof   : eof E' A -> ({x} var x A -> cof (C x) B) -> cof (C E') B -> type.
 subst-scof   : eof E' A -> ({x} var x A -> scof (C x) S D) -> scof (C E') S D -> type.
-subst-opcof : eof E' A -> ({x} var x A -> opcof (OCs x) B Dcov) -> opcof (OCs E') B Dcov -> type.
+subst-opcof : eof E' A -> ({x} var x A -> opcof D (OCs x) B Dcov) -> opcof D (OCs E') B Dcov -> type.
 %mode subst-eof +X +E -E'.
 %mode subst-cof +X +C -C'.
 %mode subst-scof +X +C -C'.
@@ -48,7 +48,7 @@ subst-opcof : eof E' A -> ({x} var x A -> opcof (OCs x) B Dcov) -> opcof (OCs E'
 - : subst-eof X ([x] [dx] eof/fun (F x dx)) (eof/fun F')
      <- {y} {dy} subst-cof X ([x] [dx] F x dx y dy) (F' y dy).
 
-- : subst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx)) (eof/hnd Cv' OCs')
+- : subst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx) Cov) (eof/hnd Cv' OCs' Cov)
      <- ({y} {dy} subst-cof X ([x] [dx] Cv x dx y dy) (Cv' y dy))
      <- subst-opcof X OCs OCs'.
 
@@ -86,8 +86,8 @@ subst-opcof : eof E' A -> ({x} var x A -> opcof (OCs x) B Dcov) -> opcof (OCs E'
 
 - : subst-opcof _ ([x] [dx] opcof/nil) opcof/nil.
 
-- : subst-opcof X ([x] [dx] opcof/cons ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
-     (opcof/cons K' OCs')
+- : subst-opcof X ([x] [dx] opcof/cons O ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
+     (opcof/cons O K' OCs')
      <- ({y} {dy} {k} {dk} subst-cof X ([x] [dx] K x dx y dy k dk) (K' y dy k dk))
      <- subst-opcof X OCs OCs'.
 
@@ -99,8 +99,8 @@ subst-opcof : eof E' A -> ({x} var x A -> opcof (OCs x) B Dcov) -> opcof (OCs E'
 psubst-eof   : seof E' S -> ({x} pvar x S -> eof (E x) A) -> eof (E E') A -> type.
 psubst-cof   : seof E S -> ({x} pvar x S -> cof (C x) B) -> cof (C E) B -> type.
 psubst-scof   : seof E S -> ({x} pvar x S -> scof (C x) S' D) -> scof (C E) S' D -> type.
-psubst-opcof : seof E S -> ({x} pvar x S -> opcof (OCs x) B Dcov)
-               -> opcof (OCs E) B Dcov -> type.
+psubst-opcof : seof E S -> ({x} pvar x S -> opcof D (OCs x) B Dcov)
+               -> opcof D (OCs E) B Dcov -> type.
 %mode psubst-eof +X +E -E'.
 %mode psubst-cof +X +C -C'.
 %mode psubst-scof +X +C -C'.
@@ -120,7 +120,7 @@ psubst-opcof : seof E S -> ({x} pvar x S -> opcof (OCs x) B Dcov)
 - : psubst-eof X ([x] [dx] eof/fun (F x dx)) (eof/fun F')
      <- {y} {dy} psubst-cof X ([x] [dx] F x dx y dy) (F' y dy).
 
-- : psubst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx)) (eof/hnd Cv' OCs')
+- : psubst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx) Cov) (eof/hnd Cv' OCs' Cov)
      <- ({y} {dy} psubst-cof X ([x] [dx] Cv x dx y dy) (Cv' y dy))
      <- psubst-opcof X OCs OCs'.
 
@@ -158,8 +158,8 @@ psubst-opcof : seof E S -> ({x} pvar x S -> opcof (OCs x) B Dcov)
 
 - : psubst-opcof _ ([x] [dx] opcof/nil) opcof/nil.
 
-- : psubst-opcof X ([x] [dx] opcof/cons ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
-     (opcof/cons K' OCs')
+- : psubst-opcof X ([x] [dx] opcof/cons O ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
+     (opcof/cons O K' OCs')
      <- ({y} {dy} {k} {dk} psubst-cof X ([x] [dx] K x dx y dy k dk) (K' y dy k dk))
      <- psubst-opcof X OCs OCs'.
 
@@ -188,4 +188,56 @@ subst2 : ({x1} var x1 A1 -> {x2} var x2 A2 -> cof (C x1 x2) B)
 
 %worlds (topen) (subst2 _ _ _ _).
 %total {} (subst2 _ _ _ _).
+
+not-found-outside : not-get-op-case O OCs -> opcof _ OCs _ Os -> outside O Os -> type.
+%mode not-found-outside +Not +OCs -Out.
+
+- : not-found-outside not-get-op-case/nil opcof/nil outside/empty.
+
+- : not-found-outside (not-get-op-case/there Not Ap) (opcof/cons _ _ OCs) (outside/cons Ap Out)
+     <- not-found-outside Not OCs Out.
+
+%worlds (topen) (not-found-outside _ _ _).
+%total {OCs} (not-found-outside _ OCs _).
+
+apart-sig : apart O' O' -> {D} {O} {A1} {A2} sig D O A1 A2 -> type.
+%mode apart-sig +O!O +D +O +A1 +A2 -O'.
+
+- : apart-sig (apart/ss O!O) D O A1 A2 O'
+     <- apart-sig O!O D O A1 A2 O'.
+
+%worlds (topen) (apart-sig _ _ _ _ _ _).
+%total {O!O} (apart-sig O!O _ _ _ _ _).
+
+inside-outside : sig D O _ _ -> outside O D -> {D} {A1} {A2} sig D O A1 A2 -> type.
+%mode inside-outside +In +Out +D +A1 +A2 -O'.
+
+- : inside-outside sig/here (outside/cons Ap _) D A1 A2 O'
+     <- apart-sig Ap D _ A1 A2 O'.
+
+- : inside-outside (sig/there In _) (outside/cons _ Out) D A1 A2 O'
+     <- inside-outside In Out D A1 A2 O'.
+
+%worlds (topen) (inside-outside _ _ _ _ _ _).
+%total {In} (inside-outside In _ _ _ _ _).
+
+covered-sig : sig D O A1 A2
+    -> covered D Os D'
+    -> not-get-op-case O OCs
+    -> opcof _ OCs _ Os
+    -> sig D' O A1 A2
+    -> type.
+%mode covered-sig +O +Cov +Not +OCs -O'.
+
+- : covered-sig sig/here (covered/second _ O') _ _ O'.
+- : covered-sig (sig/there O _) (covered/second Cov _) Not OCs O'
+     <- covered-sig O Cov Not OCs O'.
+- : covered-sig (sig/there O _) (covered/first Cov _) Not OCs O'
+     <- covered-sig O Cov Not OCs O'.
+- : covered-sig sig/here (covered/first _ In) Not OCs O'
+     <- not-found-outside Not OCs Out
+     <- inside-outside In Out _ _ _ O'.
+
+%worlds (topen) (covered-sig _ _ _ _ _).
+%total {O} (covered-sig O _ _ _ _).
 

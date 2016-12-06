@@ -19,26 +19,6 @@ apart-not-refl-eof : apart O O -> {C} {B} eof C B -> type.
 %worlds (topen) (apart-not-refl-eof _ _ _ _).
 %total {O!O} (apart-not-refl-eof O!O _ _ _).
 
-preservation-with-op : sig D O A1 A2
-                        -> eof Ep A1 -> eof K (A2 --> A' ! D')
-                        -> get-op-case O OCs OC -> opcof OCs (A' ! D') D
-                        -> cof (OC Ep K) (A' ! D') -> type.
-%mode preservation-with-op +O +Ep +K +OC +OCs -OC.
-
-- : preservation-with-op sig/here Ep K get-op-case/here (opcof/cons OC _) OC'
-    <- subst2 OC Ep K OC'.
-
-- : preservation-with-op (sig/there O _) Ep K (get-op-case/there OC _) (opcof/cons _ OCs) OC'
-    <- preservation-with-op O Ep K OC OCs OC'.
-
-- : preservation-with-op sig/here _ _ (get-op-case/there _ O!O) _ OC
-     <- apart-not-refl O!O _ _ OC.
-
-- : preservation-with-op (sig/there _ O!O) _ _ get-op-case/here _ OC
-     <- apart-not-refl O!O _ _ OC.
-
-%worlds (topen) (preservation-with-op _ _ _ _ _ _).
-%total {O} (preservation-with-op O _ _ _ _ _).
 
 ty-eq : ty -> ty -> type.
 ty-eq/refl : ty-eq A A.
@@ -111,6 +91,24 @@ sig-unique2 : sig D O A1 A2 -> sig D O A1' A2' -> ({x} var x A2 -> cof (K x) B) 
 
 %worlds (topen) (sig-unique2 _ _ _ _).
 %total O (sig-unique2 O _ _ _).
+
+preservation-with-hand : sig D O A1 A2
+                        -> eof Ep A1 -> eof K (A2 --> A' ! D')
+                        -> get-op-case O OCs OC -> opcof D OCs (A' ! D') Os
+                        -> cof (OC Ep K) (A' ! D') -> type.
+%mode preservation-with-hand +O +Ep +K +OC +OCs -OC.
+
+- : preservation-with-hand O Ep (eof/fun K) get-op-case/here (opcof/cons O' OC _) OC'
+    <- sig-unique O O' Ep Ep'
+    <- sig-unique2 O O' K K'
+    <- subst2 OC Ep' (eof/fun K') OC'.
+
+- : preservation-with-hand O Ep K (get-op-case/there OC _) (opcof/cons _ _ OCs) OC'
+    <- preservation-with-hand O Ep K OC OCs OC'.
+
+%worlds (topen) (preservation-with-hand _ _ _ _ _ _).
+%total {OC} (preservation-with-hand _ _ _ OC _ _).
+
 
 operation-scheme-inversion : scof (op O E K) S D ->
               sig D O A1 A2 ->

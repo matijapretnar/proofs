@@ -72,6 +72,23 @@ sig/there : sig (dirt/cons O _ _ D) O' A1 A2
             <- apart O' O
             <- sig D O' A1 A2.
 
+outside : operation -> dirt -> type.
+
+outside/empty : outside O dirt/empty.
+outside/cons  : outside O (dirt/cons O' _ _ D)
+                 <- outside O D
+                 <- apart O O'.
+
+covered : dirt -> dirt -> dirt -> type.
+
+covered/empty : covered dirt/empty _ _.
+covered/first : covered (dirt/cons O A1 A2 D) D1 D2
+                 <- sig D1 O A1 A2
+                 <- covered D D1 D2.
+covered/second : covered (dirt/cons O A1 A2 D) D1 D2
+                 <- sig D2 O A1 A2
+                 <- covered D D1 D2.
+
 %%% Schemes %%%
 
 scheme : type.
