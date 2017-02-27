@@ -44,10 +44,13 @@ eff2mon/comp (eff/bind M N) (mon/bind M' N') :-
 eff2mon/comp (eff/app M V) (mon/app M' V') :-
     eff2mon/comp M M',
     eff2mon/value V V'.
-eff2mon/comp (eff/call (eff/op X) V) (mon/reflect (mon/fun k\ mon/ret (mon/inj (mon/lbl X') (mon/pair V' k)))) :-
+eff2mon/comp (eff/call (eff/op X) V)
+    (mon/reflect (mon/fun k\ mon/fun h\ (mon/app (mon/force h) (mon/inj (mon/lbl X') (mon/pair V' (mon/thunk (mon/fun y\ (mon/app (mon/app (mon/force k) y) h)))))))) :-
     eff2mon/nat X X',
     eff2mon/value V V'.
-eff2mon/comp (eff/handle M H) (mon/reify M' (mon/mon Nu' (x\ k\ mon/bind (mon/app (mon/force x) k) (y\ mon/case y Ms')))) :-
+eff2mon/comp (eff/handle M H) (mon/app (mon/app (
+    (mon/reify M' (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ (mon/app (mon/force m) (mon/thunk (mon/fun y\ (mon/app (mon/app (mon/force f) y) c)))))) )
+    ) (mon/thunk (mon/fun x\ (mon/fun h\ (Nu' x))))) (mon/thunk (mon/fun y\ mon/case y Ms'))) :-
     eff2mon/comp M M',
     eff2mon/handler H Nu' Ms'.
 
@@ -82,7 +85,10 @@ eff2mon/evctx (eff/evctx/bind E N) (mon/evctx/bind E' N') :-
 eff2mon/evctx (eff/evctx/app E V) (mon/evctx/app E' V') :-
     eff2mon/evctx E E',
     eff2mon/value V V'.
-eff2mon/evctx (eff/evctx/handle E H) (mon/evctx/reify E' (mon/mon Nu' (x\ k\ mon/bind (mon/app (mon/force x) k) (y\ mon/case y Ms')))) :-
+eff2mon/evctx (eff/evctx/handle E H) (
+    mon/evctx/app (mon/evctx/app (
+    (mon/evctx/reify E' (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ (mon/app (mon/force m) (mon/thunk (mon/fun y\ (mon/app (mon/app (mon/force f) y) c)))))) )
+    ) (mon/thunk (mon/fun x\ (mon/fun h\ (Nu' x))))) (mon/thunk (mon/fun y\ mon/case y Ms'))) :-
     eff2mon/evctx E E',
     eff2mon/handler H Nu' Ms'.
 
