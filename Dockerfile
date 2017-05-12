@@ -14,8 +14,9 @@ RUN apt-get update \
         opam \
         python3
 RUN opam init -y --auto-setup \
+    && opam switch 4.02.3 \
     && opam install -y \
-        abella
+        abella.2.0.4
 
 # Pull the source into the working directory
 RUN git clone -b ${GIT_BRANCH} ${GIT_REPOSITORY} ${WORKING_DIRECTORY}
