@@ -59,19 +59,28 @@ def flatten_mod(mod_file):
         contents = re.sub('accumulate +(?P<accum_mod>.+)\.', accum_contents, contents)
     return contents
 
-
-with open('syntax.sig', 'w') as sig_file, open('syntax.mod', 'w') as mod_file:
+os.makedirs('../translations_scaffold', exist_ok=True)
+with open('../translations_scaffold/syntax.sig', 'w') as sig_file, open('../translations_scaffold/syntax.mod', 'w') as mod_file:
     sig_file.write('sig syntax.\n')
     mod_file.write('module syntax.\n')
-    cbpv_identifiers = extract_identifiers(flatten_sig('safety/cbpv.sig'))
-    sig_file.write(prepend_identifiers(cbpv_identifiers, 'cbpv', remove_sig_declaration(flatten_sig('safety/cbpv.sig'))))
-    mod_file.write(prepend_identifiers(cbpv_identifiers, 'cbpv', remove_mod_declaration(flatten_mod('safety/cbpv.mod'))))
-    mod_identifiers = extract_identifiers(flatten_sig('safety/mon.sig'))
-    sig_file.write(prepend_identifiers(mod_identifiers, 'mon', remove_sig_declaration(flatten_sig('safety/mon.sig'))))
-    mod_file.write(prepend_identifiers(mod_identifiers, 'mon', remove_mod_declaration(flatten_mod('safety/mon.mod'))))
-    del_identifiers = extract_identifiers(flatten_sig('safety/del.sig'))
-    sig_file.write(prepend_identifiers(del_identifiers, 'del', remove_sig_declaration(flatten_sig('safety/del.sig'))))
-    mod_file.write(prepend_identifiers(del_identifiers, 'del', remove_mod_declaration(flatten_mod('safety/del.mod'))))
-    eff_identifiers = extract_identifiers(flatten_sig('safety/eff.sig'))
-    sig_file.write(prepend_identifiers(eff_identifiers, 'eff', remove_sig_declaration(flatten_sig('safety/eff.sig'))))
-    mod_file.write(prepend_identifiers(eff_identifiers, 'eff', remove_mod_declaration(flatten_mod('safety/eff.mod'))))
+    cbpv_identifiers = extract_identifiers(flatten_sig('../safety/cbpv.sig'))
+    sig_file.write(prepend_identifiers(cbpv_identifiers, 'cbpv', remove_sig_declaration(flatten_sig('../safety/cbpv.sig'))))
+    mod_file.write(prepend_identifiers(cbpv_identifiers, 'cbpv', remove_mod_declaration(flatten_mod('../safety/cbpv.mod'))))
+    mod_identifiers = extract_identifiers(flatten_sig('../safety/mon.sig'))
+    sig_file.write(prepend_identifiers(mod_identifiers, 'mon', remove_sig_declaration(flatten_sig('../safety/mon.sig'))))
+    mod_file.write(prepend_identifiers(mod_identifiers, 'mon', remove_mod_declaration(flatten_mod('../safety/mon.mod'))))
+    del_identifiers = extract_identifiers(flatten_sig('../safety/del.sig'))
+    sig_file.write(prepend_identifiers(del_identifiers, 'del', remove_sig_declaration(flatten_sig('../safety/del.sig'))))
+    mod_file.write(prepend_identifiers(del_identifiers, 'del', remove_mod_declaration(flatten_mod('../safety/del.mod'))))
+    eff_identifiers = extract_identifiers(flatten_sig('../safety/eff.sig'))
+    sig_file.write(prepend_identifiers(eff_identifiers, 'eff', remove_sig_declaration(flatten_sig('../safety/eff.sig'))))
+    mod_file.write(prepend_identifiers(eff_identifiers, 'eff', remove_mod_declaration(flatten_mod('../safety/eff.mod'))))
+
+extensions = {'mon', 'del', 'eff'}
+for xxx in extensions:
+    for yyy in extensions - {xxx}:
+        for template in ['xxx2yyy.mod', 'xxx2yyy.sig', 'xxx2yyy.thm']:
+            with open(template) as in_file:
+                source = in_file.read()
+            with open(os.path.join('../translations_scaffold', template.replace('xxx', xxx).replace('yyy', yyy)), 'w') as out_file:
+                out_file.write(source.replace('xxx', xxx).replace('yyy', yyy))
