@@ -2,13 +2,20 @@ FROM debian:jessie-slim
 MAINTAINER Matija Pretnar <matija.pretnar@fmf.uni-lj.si>
 
 # Set up environment variables
-ENV GIT_REPOSITORY=https://github.com/matijapretnar/user-defined-effects-formalization.git
+ENV GIT_REPOSITORY=https://github.com/matijapretnar/proofs.git
 ENV GIT_BRANCH=master
-ENV WORKING_DIRECTORY=/paper39
+ENV WORKING_DIRECTORY=/proofs
 
-# Install required packages
-RUN apt-get update && apt-get install -y git m4 opam python3
-RUN opam init -y --auto-setup && opam install -y abella.2.0.3
+# Install necessary packages
+RUN apt-get update \
+    && apt-get install -y \
+        git \
+        m4 \
+        opam \
+        python3
+RUN opam init -y --auto-setup \
+    && opam install -y \
+        abella
 
 # Pull the source into the working directory
 RUN git clone -b ${GIT_BRANCH} ${GIT_REPOSITORY} ${WORKING_DIRECTORY}
