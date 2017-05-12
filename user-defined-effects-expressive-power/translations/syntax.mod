@@ -1,92 +1,92 @@
 module syntax.
 
-cbpv/apart cbpv/z (cbpv/s _).
-cbpv/apart (cbpv/s _) cbpv/z.
-cbpv/apart (cbpv/s N) (cbpv/s N') :-
-    cbpv/apart N N'.
+mam/apart mam/z (mam/s _).
+mam/apart (mam/s _) mam/z.
+mam/apart (mam/s N) (mam/s N') :-
+    mam/apart N N'.
 
-cbpv/label/apart (cbpv/lbl N) (cbpv/lbl N') :-
-    cbpv/apart N N'.
+mam/label/apart (mam/lbl N) (mam/lbl N') :-
+    mam/apart N N'.
 
-cbpv/eff-kind (cbpv/f Eff A) Eff.
-cbpv/eff-kind (cbpv/arrow _ C) Eff :- cbpv/eff-kind C Eff.
+mam/eff-kind (mam/f Eff A) Eff.
+mam/eff-kind (mam/arrow _ C) Eff :- mam/eff-kind C Eff.
 
-cbpv/of/value cbpv/unit cbpv/unitty.
-cbpv/of/value (cbpv/pair V1 V2) (cbpv/prod A1 A2) :- cbpv/of/value V1 A1, cbpv/of/value V2 A2.
-cbpv/of/value (cbpv/inj L V) (cbpv/sum As) :-
-    cbpv/of/value V A,
-    cbpv/valtys/get As L A.
-cbpv/of/value (cbpv/thunk M) (cbpv/u C) :- cbpv/of/comp M C.
+mam/of/value mam/unit mam/unitty.
+mam/of/value (mam/pair V1 V2) (mam/prod A1 A2) :- mam/of/value V1 A1, mam/of/value V2 A2.
+mam/of/value (mam/inj L V) (mam/sum As) :-
+    mam/of/value V A,
+    mam/valtys/get As L A.
+mam/of/value (mam/thunk M) (mam/u C) :- mam/of/comp M C.
 
-cbpv/of/comp (cbpv/ret V) (cbpv/f _ A) :- cbpv/of/value V A.
-cbpv/of/comp (cbpv/fun M) (cbpv/arrow A C) :- pi x\ (cbpv/of/value x A => cbpv/of/comp (M x) C).
-cbpv/of/comp (cbpv/split V M) C :-
-    cbpv/of/value V (cbpv/prod A1 A2),
-    pi x1\ pi x2\ (cbpv/of/value x1 A1 => cbpv/of/value x2 A2 => cbpv/of/comp (M x1 x2) C).
-cbpv/of/comp (cbpv/case V Ms) C :-
-    cbpv/of/value V (cbpv/sum As),
-    cbpv/of/cases Ms As C.
-cbpv/of/comp (cbpv/force V) C :- cbpv/of/value V (cbpv/u C).
-cbpv/of/comp (cbpv/bind M N) C :-
-    cbpv/eff-kind C Eff,
-    cbpv/of/comp M (cbpv/f Eff A),
-    pi x\ (cbpv/of/value x A => cbpv/of/comp (N x) C).
-cbpv/of/comp (cbpv/app M V) C :-
-    cbpv/of/comp M (cbpv/arrow A C),
-    cbpv/of/value V A.
+mam/of/comp (mam/ret V) (mam/f _ A) :- mam/of/value V A.
+mam/of/comp (mam/fun M) (mam/arrow A C) :- pi x\ (mam/of/value x A => mam/of/comp (M x) C).
+mam/of/comp (mam/split V M) C :-
+    mam/of/value V (mam/prod A1 A2),
+    pi x1\ pi x2\ (mam/of/value x1 A1 => mam/of/value x2 A2 => mam/of/comp (M x1 x2) C).
+mam/of/comp (mam/case V Ms) C :-
+    mam/of/value V (mam/sum As),
+    mam/of/cases Ms As C.
+mam/of/comp (mam/force V) C :- mam/of/value V (mam/u C).
+mam/of/comp (mam/bind M N) C :-
+    mam/eff-kind C Eff,
+    mam/of/comp M (mam/f Eff A),
+    pi x\ (mam/of/value x A => mam/of/comp (N x) C).
+mam/of/comp (mam/app M V) C :-
+    mam/of/comp M (mam/arrow A C),
+    mam/of/value V A.
 
-cbpv/of/cases cbpv/cases/nil cbpv/valtys/nil C.
-cbpv/of/cases (cbpv/cases/cons Ms L M) (cbpv/valtys/cons As L A) C :-
-    cbpv/of/cases Ms As C,
-    pi x\ (cbpv/of/value x A => cbpv/of/comp (M x) C).
+mam/of/cases mam/cases/nil mam/valtys/nil C.
+mam/of/cases (mam/cases/cons Ms L M) (mam/valtys/cons As L A) C :-
+    mam/of/cases Ms As C,
+    pi x\ (mam/of/value x A => mam/of/comp (M x) C).
 
-cbpv/of/evctx cbpv/hole C C.
-cbpv/of/evctx (cbpv/evctx/bind E N) C1 C2 :-
-    cbpv/eff-kind C2 Eff,
-    cbpv/of/evctx E C1 (cbpv/f Eff A),
-    pi x\ (cbpv/of/value x A => cbpv/of/comp (N x) C2).
-cbpv/of/evctx (cbpv/evctx/app E V) C1 C2 :-
-    cbpv/of/evctx E C1 (cbpv/arrow A C2),
-    cbpv/of/value V A.
+mam/of/evctx mam/hole C C.
+mam/of/evctx (mam/evctx/bind E N) C1 C2 :-
+    mam/eff-kind C2 Eff,
+    mam/of/evctx E C1 (mam/f Eff A),
+    pi x\ (mam/of/value x A => mam/of/comp (N x) C2).
+mam/of/evctx (mam/evctx/app E V) C1 C2 :-
+    mam/of/evctx E C1 (mam/arrow A C2),
+    mam/of/value V A.
 
-cbpv/valtys/get (cbpv/valtys/cons As L A) L A.
-cbpv/valtys/get (cbpv/valtys/cons As L' _) L A :-
-    cbpv/label/apart L L',
-    cbpv/valtys/get As L A.
+mam/valtys/get (mam/valtys/cons As L A) L A.
+mam/valtys/get (mam/valtys/cons As L' _) L A :-
+    mam/label/apart L L',
+    mam/valtys/get As L A.
 
-cbpv/get-case (cbpv/cases/cons Ms L M) L M.
-cbpv/get-case (cbpv/cases/cons Ms L' _) L M :-
-    cbpv/label/apart L L',
-    cbpv/get-case Ms L M.
+mam/get-case (mam/cases/cons Ms L M) L M.
+mam/get-case (mam/cases/cons Ms L' _) L M :-
+    mam/label/apart L L',
+    mam/get-case Ms L M.
 
-cbpv/reduce (cbpv/split (cbpv/pair V1 V2) M) (M V1 V2).
-cbpv/reduce (cbpv/case (cbpv/inj L V) Ms) (M V) :-
-    cbpv/get-case Ms L M.
-cbpv/reduce (cbpv/force (cbpv/thunk M)) M.
-cbpv/reduce (cbpv/bind (cbpv/ret V) M) (M V).
-cbpv/reduce (cbpv/app (cbpv/fun M) V) (M V).
+mam/reduce (mam/split (mam/pair V1 V2) M) (M V1 V2).
+mam/reduce (mam/case (mam/inj L V) Ms) (M V) :-
+    mam/get-case Ms L M.
+mam/reduce (mam/force (mam/thunk M)) M.
+mam/reduce (mam/bind (mam/ret V) M) (M V).
+mam/reduce (mam/app (mam/fun M) V) (M V).
 
-cbpv/plug cbpv/hole M M.
-cbpv/plug (cbpv/evctx/bind E N) M (cbpv/bind EM N) :-
-    cbpv/plug E M EM.
-cbpv/plug (cbpv/evctx/app E V) M (cbpv/app EM V) :-
-    cbpv/plug E M EM.
+mam/plug mam/hole M M.
+mam/plug (mam/evctx/bind E N) M (mam/bind EM N) :-
+    mam/plug E M EM.
+mam/plug (mam/evctx/app E V) M (mam/app EM V) :-
+    mam/plug E M EM.
 
-cbpv/hoisting cbpv/hole.
-cbpv/hoisting (cbpv/evctx/bind E _) :-
-    cbpv/hoisting E.
-cbpv/hoisting (cbpv/evctx/app E _) :-
-    cbpv/hoisting E.
+mam/hoisting mam/hole.
+mam/hoisting (mam/evctx/bind E _) :-
+    mam/hoisting E.
+mam/hoisting (mam/evctx/app E _) :-
+    mam/hoisting E.
 
-cbpv/step M M' :-
-    cbpv/plug E R M,
-    cbpv/reduce R R',
-    cbpv/plug E R' M'.
+mam/step M M' :-
+    mam/plug E R M,
+    mam/reduce R R',
+    mam/plug E R' M'.
 
-cbpv/progresses (cbpv/ret _) _.
-cbpv/progresses (cbpv/fun _) _.
-cbpv/progresses M _ :-
-    cbpv/step M _.
+mam/progresses (mam/ret _) _.
+mam/progresses (mam/fun _) _.
+mam/progresses M _ :-
+    mam/step M _.
 
 
 mon/apart mon/z (mon/s _).

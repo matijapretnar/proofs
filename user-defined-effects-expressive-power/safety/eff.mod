@@ -1,6 +1,6 @@
 module eff.
 
-accumulate cbpv.
+accumulate mam.
 
 op/apart (op N) (op N') :-
     apart N N'.

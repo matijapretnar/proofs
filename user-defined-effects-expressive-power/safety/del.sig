@@ -1,6 +1,6 @@
 sig del.
 
-accum_sig cbpv.
+accum_sig mam.
 
 type    cons            eff -> compty -> eff.
 

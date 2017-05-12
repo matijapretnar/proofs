@@ -1,6 +1,6 @@
 sig mon.
 
-accum_sig cbpv.
+accum_sig mam.
 
 type    cons            eff -> (valty -> compty) -> (value -> comp) -> (value -> value -> comp) -> eff.
 

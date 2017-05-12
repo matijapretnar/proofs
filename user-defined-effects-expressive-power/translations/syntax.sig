@@ -1,73 +1,73 @@
 sig syntax.
 
-kind    cbpv/nat   type.
+kind    mam/nat   type.
 
-type    cbpv/z            cbpv/nat.
-type    cbpv/s            cbpv/nat -> cbpv/nat.
-type    cbpv/apart        cbpv/nat -> cbpv/nat -> o.
+type    mam/z            mam/nat.
+type    mam/s            mam/nat -> mam/nat.
+type    mam/apart        mam/nat -> mam/nat -> o.
 
-kind    cbpv/label   type.
+kind    mam/label   type.
 
-type    cbpv/label/apart     cbpv/label -> cbpv/label -> o.
+type    mam/label/apart     mam/label -> mam/label -> o.
 
-type    cbpv/lbl             cbpv/nat -> cbpv/label.
+type    mam/lbl             mam/nat -> mam/label.
 
-kind    cbpv/eff, cbpv/valty, cbpv/compty, cbpv/valtys   type.
+kind    mam/eff, mam/valty, mam/compty, mam/valtys   type.
 
-type    cbpv/empty           cbpv/eff.
+type    mam/empty           mam/eff.
 
-type    cbpv/unitty          cbpv/valty.
-type    cbpv/prod            cbpv/valty -> cbpv/valty -> cbpv/valty.
-type    cbpv/sum             cbpv/valtys -> cbpv/valty.
-type    cbpv/u               cbpv/compty -> cbpv/valty.
+type    mam/unitty          mam/valty.
+type    mam/prod            mam/valty -> mam/valty -> mam/valty.
+type    mam/sum             mam/valtys -> mam/valty.
+type    mam/u               mam/compty -> mam/valty.
 
-type    cbpv/f               cbpv/eff -> cbpv/valty -> cbpv/compty.
-type    cbpv/arrow           cbpv/valty -> cbpv/compty -> cbpv/compty.
+type    mam/f               mam/eff -> mam/valty -> mam/compty.
+type    mam/arrow           mam/valty -> mam/compty -> mam/compty.
 
-type    cbpv/valtys/nil      cbpv/valtys.
-type    cbpv/valtys/cons     cbpv/valtys -> cbpv/label -> cbpv/valty -> cbpv/valtys.
+type    mam/valtys/nil      mam/valtys.
+type    mam/valtys/cons     mam/valtys -> mam/label -> mam/valty -> mam/valtys.
 
-type    cbpv/eff-kind        cbpv/compty -> cbpv/eff -> o.
-type    cbpv/valtys/get      cbpv/valtys -> cbpv/label -> cbpv/valty -> o.
-
-
-kind    cbpv/value, cbpv/comp, cbpv/cases     type.
-
-type    cbpv/unit            cbpv/value.
-type    cbpv/pair            cbpv/value -> cbpv/value -> cbpv/value.
-type    cbpv/inj             cbpv/label -> cbpv/value -> cbpv/value.
-type    cbpv/thunk           cbpv/comp -> cbpv/value.
-
-type    cbpv/ret             cbpv/value -> cbpv/comp.
-type    cbpv/fun             (cbpv/value -> cbpv/comp) -> cbpv/comp.
-type    cbpv/split           cbpv/value -> (cbpv/value -> cbpv/value -> cbpv/comp) -> cbpv/comp.
-type    cbpv/case            cbpv/value -> cbpv/cases -> cbpv/comp.
-type    cbpv/force           cbpv/value -> cbpv/comp.
-type    cbpv/bind            cbpv/comp -> (cbpv/value -> cbpv/comp) -> cbpv/comp.
-type    cbpv/app             cbpv/comp -> cbpv/value -> cbpv/comp.
-
-type    cbpv/cases/nil       cbpv/cases.
-type    cbpv/cases/cons      cbpv/cases -> cbpv/label -> (cbpv/value -> cbpv/comp) -> cbpv/cases.
+type    mam/eff-kind        mam/compty -> mam/eff -> o.
+type    mam/valtys/get      mam/valtys -> mam/label -> mam/valty -> o.
 
 
-kind    cbpv/evctx     type.
+kind    mam/value, mam/comp, mam/cases     type.
 
-type    cbpv/hole            cbpv/evctx.
-type    cbpv/evctx/bind      cbpv/evctx -> (cbpv/value -> cbpv/comp) -> cbpv/evctx.
-type    cbpv/evctx/app       cbpv/evctx -> cbpv/value -> cbpv/evctx.
+type    mam/unit            mam/value.
+type    mam/pair            mam/value -> mam/value -> mam/value.
+type    mam/inj             mam/label -> mam/value -> mam/value.
+type    mam/thunk           mam/comp -> mam/value.
 
-type    cbpv/hoisting        cbpv/evctx -> o.
+type    mam/ret             mam/value -> mam/comp.
+type    mam/fun             (mam/value -> mam/comp) -> mam/comp.
+type    mam/split           mam/value -> (mam/value -> mam/value -> mam/comp) -> mam/comp.
+type    mam/case            mam/value -> mam/cases -> mam/comp.
+type    mam/force           mam/value -> mam/comp.
+type    mam/bind            mam/comp -> (mam/value -> mam/comp) -> mam/comp.
+type    mam/app             mam/comp -> mam/value -> mam/comp.
 
-type    cbpv/of/value        cbpv/value -> cbpv/valty -> o.
-type    cbpv/of/comp         cbpv/comp -> cbpv/compty -> o.
-type    cbpv/of/evctx        cbpv/evctx -> cbpv/compty -> cbpv/compty -> o.
-type    cbpv/of/cases        cbpv/cases -> cbpv/valtys -> cbpv/compty -> o.
+type    mam/cases/nil       mam/cases.
+type    mam/cases/cons      mam/cases -> mam/label -> (mam/value -> mam/comp) -> mam/cases.
 
-type    cbpv/get-case        cbpv/cases -> cbpv/label -> (cbpv/value -> cbpv/comp) -> o.     
-type    cbpv/plug            cbpv/evctx -> cbpv/comp -> cbpv/comp -> o.
-type    cbpv/reduce          cbpv/comp -> cbpv/comp -> o.
-type    cbpv/step            cbpv/comp -> cbpv/comp -> o.
-type    cbpv/progresses      cbpv/comp -> cbpv/compty -> o.
+
+kind    mam/evctx     type.
+
+type    mam/hole            mam/evctx.
+type    mam/evctx/bind      mam/evctx -> (mam/value -> mam/comp) -> mam/evctx.
+type    mam/evctx/app       mam/evctx -> mam/value -> mam/evctx.
+
+type    mam/hoisting        mam/evctx -> o.
+
+type    mam/of/value        mam/value -> mam/valty -> o.
+type    mam/of/comp         mam/comp -> mam/compty -> o.
+type    mam/of/evctx        mam/evctx -> mam/compty -> mam/compty -> o.
+type    mam/of/cases        mam/cases -> mam/valtys -> mam/compty -> o.
+
+type    mam/get-case        mam/cases -> mam/label -> (mam/value -> mam/comp) -> o.     
+type    mam/plug            mam/evctx -> mam/comp -> mam/comp -> o.
+type    mam/reduce          mam/comp -> mam/comp -> o.
+type    mam/step            mam/comp -> mam/comp -> o.
+type    mam/progresses      mam/comp -> mam/compty -> o.
 
 
 kind    mon/nat   type.

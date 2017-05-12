@@ -1,6 +1,6 @@
 module mon.
 
-accumulate cbpv.
+accumulate mam.
 
 plug (evctx/reify E T) M (reify EM T) :-
     plug E M EM.

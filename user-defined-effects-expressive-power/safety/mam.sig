@@ -1,4 +1,4 @@
-sig cbpv.
+sig mam.
 
 kind    nat   type.
 

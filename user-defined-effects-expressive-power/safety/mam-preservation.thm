@@ -1,4 +1,4 @@
-Specification "cbpv".
+Specification "mam".
 
 Theorem of/plug : forall E M EM C1 C2,
     {of/evctx E C1 C2} -> {of/comp M C1} -> {plug E M EM} -> {of/comp EM C2}.

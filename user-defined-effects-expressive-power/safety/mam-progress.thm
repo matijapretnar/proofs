@@ -1,4 +1,4 @@
-Specification "cbpv".
+Specification "mam".
 
 Theorem can-get-case : forall Ms As C L A,
     {of/cases Ms As C} -> {valtys/get As L A} ->

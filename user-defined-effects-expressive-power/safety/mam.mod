@@ -1,4 +1,4 @@
-module cbpv.
+module mam.
 
 apart z (s _).
 apart (s _) z.

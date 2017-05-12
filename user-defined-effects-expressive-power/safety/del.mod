@@ -1,6 +1,6 @@
 module del.
 
-accumulate cbpv.
+accumulate mam.
 
 plug (evctx/reset E N) M (reset EM N) :-
     plug E M EM.

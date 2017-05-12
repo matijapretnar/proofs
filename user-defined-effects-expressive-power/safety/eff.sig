@@ -1,6 +1,6 @@
 sig eff.
 
-accum_sig cbpv.
+accum_sig mam.
 
 kind    operation       type.
 
