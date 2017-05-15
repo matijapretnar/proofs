@@ -6,17 +6,7 @@ Abella formalisation of proofs that appear in the paper
 > *Effect Handlers, Monadic Reflection, Delimited Control*,
 > ICFP 2017
 
-## Proofs
-
-Proofs are contained in `.thm` files, which can be run by
-
-    abella filename.thm
-
-If all proofs in a given file are correct, the command ends with outputting
-
-    Proof completed.
-    Abella < 
-    </pre> [sic]
+## Evaluating proofs
 
 Proofs in the paper correspond to the following Abella proofs:
 
@@ -24,12 +14,22 @@ Proofs in the paper correspond to the following Abella proofs:
 * Theorem 3.1 (EFF safety): `safety` in `eff-safety.thm`
 * Theorem 4.1 (MON safety): `safety` in `mon-safety.thm`
 * Theorem 5.1 (DEL safety): `safety` in `del-safety.thm`
-* Theorem 6.2 (DEL -> MON correctness):  `correctness` in `del2mon.thm`
-* Theorem 6.5 (MON -> DEL correctness):  `correctness` in `mon2del.thm`
-* Theorem 6.6 (DEL -> EFF correctness):  `correctness` in `del2eff.thm`
-* Theorem 6.7 (EFF -> DEL correctness):  `correctness` in `eff2del.thm`
-* Theorem 6.8 (MON -> EFF correctness):  `correctness` in `mon2eff.thm`
-* Theorem 6.9 (EFF -> MON correctness):  `correctness` in `eff2mon.thm`
+* Theorem 6.2 (DEL → MON correctness):  `correctness` in `del2mon.thm`
+* Theorem 6.5 (MON → DEL correctness):  `correctness` in `mon2del.thm`
+* Theorem 6.6 (DEL → EFF correctness):  `correctness` in `del2eff.thm`
+* Theorem 6.7 (EFF → DEL correctness):  `correctness` in `eff2del.thm`
+* Theorem 6.8 (MON → EFF correctness):  `correctness` in `mon2eff.thm`
+* Theorem 6.9 (EFF → MON correctness):  `correctness` in `eff2mon.thm`
+
+To evaluate all the proofs in a given `.thm` file, run:
+
+    abella filename.thm
+
+If all the proofs are correct, the command ends with outputting
+
+    Proof completed.
+    Abella < 
+    </pre> [sic]
 
 
 ## Comments
@@ -59,10 +59,10 @@ The directory `translations` contains proofs of translations between the three
 extensions of MAM. First, we have the files:
 
 * `syntax.sig`, which gives the syntax of all the extensions and
-* `syntax.mod`, which defines typing and operational semantics,
+* `syntax.mod`, which defines typing and operational semantics.
 
-which are an amalgamation of the corresponding files in the `safety` directory.
-Next, for any two extensions XXX and YYY, we have three files:
+Both files are an amalgamation of the corresponding files in the `safety`
+directory. Next, for any two extensions XXX and YYY, we have three files:
 
 * `xxx2yyy.sig`, which gives signatures of the translation relations, one for each syntactic family,
 * `xxx2yyy.mod`, which defines the translations and
