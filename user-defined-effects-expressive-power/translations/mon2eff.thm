@@ -304,7 +304,7 @@ induction on 3. intros. case H3.
     apply IH to H7 H2 H5.
     search.
 
-Theorem mon2eff/simulation : forall M1 M2 M1' M2',
+Theorem correctness : forall M1 M2 M1' M2',
     {mon2eff/comp M1 M1'} -> {mon2eff/comp M2 M2'} -> 
     {mon/step M1 M2} -> eff/sim M1' M2'.
 intros. case H3.

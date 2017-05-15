@@ -456,7 +456,7 @@ intros.
     backchain del/cong/plain.
     exists E', M1, M2. search.
 
-Theorem eff2del/congulation : forall M1 M2 M1' M2',
+Theorem correctness : forall M1 M2 M1' M2',
     {eff2del/comp M1 M1'} -> {eff2del/comp M2 M2'} -> 
     {eff/step M1 M2} -> del/cong M1' M2'.
 intros. case H3.

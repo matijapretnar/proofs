@@ -11,8 +11,9 @@ This repository collects proofs I have formalised in various proof assistants:
 
 More details about the proofs can be found in the respective subdirectories.
 Note that proofs may change over time if I find a better way of writing them.
-You can see the exact version that was used for a given publication by checking
-out the suitably tagged Git commit.
+If you want the exact version that was used for a given publication, check
+out the suitably tagged Git commit. You can get a list of all available tags
+by running `git tag -n`.
 
 
 ## Set up
@@ -28,13 +29,18 @@ With Docker in place, download the Docker image with:
 
     docker pull matijapretnar/proofs
 
-and start an interactive Bash session inside the main directory with
+and start an interactive Bash session inside the main directory with:
 
     docker run --interactive --tty matijapretnar/proofs
 
 In order to keep the image size small, only the necessary packages have been
 installed. Since the Bash session is run with root privileges, you are free to
 install your preferred text editor or any other package you desire.
+
+If you want to check out an older version that has been tagged with `tag`, use:
+
+    docker pull matijapretnar/proofs:tag
+    docker run --interactive --tty matijapretnar/proofs:tag
 
 
 ### Building your own Docker image
@@ -54,7 +60,8 @@ container using the same command as above:
     docker run --interactive --tty proofs
 
 You can replace the tag `proofs` in both commands with one of your choosing.
-
+If you want to access the Docker image for an older version, check out the
+appropriate commit before building the image.
 
 ### Setting up your own environment
 

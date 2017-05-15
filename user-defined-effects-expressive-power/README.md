@@ -12,23 +12,39 @@ Proofs are contained in `.thm` files, which can be run by
 
     abella filename.thm
 
-If the proof is correct, the command ends with outputting
+If all proofs in a given file are correct, the command ends with outputting
 
     Proof completed.
     Abella < 
-    </pre> 
+    </pre> [sic]
 
+Proofs in the paper correspond to the following Abella proofs:
+
+* Theorem 2.1 (MAM safety): `safety` in `mam-safety.thm`
+* Theorem 3.1 (EFF safety): `safety` in `eff-safety.thm`
+* Theorem 4.1 (MON safety): `safety` in `mon-safety.thm`
+* Theorem 5.1 (DEL safety): `safety` in `del-safety.thm`
+* Theorem 6.2 (DEL -> MON correctness):  `correctness` in `del2mon.thm`
+* Theorem 6.5 (MON -> DEL correctness):  `correctness` in `mon2del.thm`
+* Theorem 6.6 (DEL -> EFF correctness):  `correctness` in `del2eff.thm`
+* Theorem 6.7 (EFF -> DEL correctness):  `correctness` in `eff2del.thm`
+* Theorem 6.8 (MON -> EFF correctness):  `correctness` in `mon2eff.thm`
+* Theorem 6.9 (EFF -> MON correctness):  `correctness` in `eff2mon.thm`
+
+
+## Comments
 
 ### Safety of MAM and its extensions
 
 The directory `safety` contains proofs of safety, i.e. progress and
 preservation, for the language MAM defined in the paper and its extensions EFF,
-MON and DEL. For each language XXX, we have four files:
+MON and DEL. For each language XXX, we have five files:
 
 * `xxx.sig`, which gives syntax of the language and the signature of relations
 * `xxx.mod`, which defines typing and operational semantics
 * `xxx-progress.thm`, which proves the progress theorem
 * `xxx-preservation.thm`, which proves the preservation theorem
+* `xxx-safety.thm`, which shows safety as a corollary of progress & preservation
 
 Note that `.sig` and `.mod` files for language extensions make use of Abella's
 mechanism for accumulating signatures only specify constructs that need to be
