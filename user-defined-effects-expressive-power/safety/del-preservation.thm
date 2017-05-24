@@ -4,6 +4,7 @@ Theorem eff-kind-deterministic : forall C Eff Eff', {eff-kind C Eff} -> {eff-kin
 induction on 1. intros. case H1.
     case H2. search.
     case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H5. apply IH to H4 H6. search.
 
 Theorem hoisting-equal-eff : forall E C1 C2 Eff1 Eff2,
     {hoisting E} -> {of/evctx E C1 C2} ->
@@ -12,6 +13,9 @@ induction on 1. intros. case H1.
     case H2. apply eff-kind-deterministic to H3 H4. search.
     case H2. apply IH to H5 H7 H3 _. apply eff-kind-deterministic to H4 H6. search.
     case H2. apply IH to H5 H6 H3 _. search.
+    case H2. apply IH to H5 H8 H3 _. apply eff-kind-deterministic to H4 H6. search.
+    case H2. apply IH to H5 H8 H3 _. apply eff-kind-deterministic to H4 H7. search.
+
 
 Theorem of/plug : forall L E M EM C1 C2,
     {of/evctx E C1 C2} -> {L |- of/comp M C1} -> {plug E M EM} -> {L |- of/comp EM C2}.
@@ -20,6 +24,8 @@ induction on 1. intros. case H1.
     case H3. apply IH to H5 H2 H7. search.
     case H3. apply IH to H4 H2 H6. search.
     case H3. apply IH to H6 H2 H7. search.
+    case H3. apply IH to H6 H2 H7. search.
+    case H3. apply IH to H6 H2 H7. search.
 
 Theorem of/unplug : forall E M EM C2,
     {plug E M EM} -> {of/comp EM C2} -> exists C1, {of/comp M C1} /\ {of/evctx E C1 C2}.
@@ -27,6 +33,8 @@ induction on 1. intros. case H1.
     search.
     case H2. apply IH to H3 H5. search.
     case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H6. search.
+    case H2. apply IH to H3 H6. search.
     case H2. apply IH to H3 H6. search.
 
 
@@ -53,6 +61,8 @@ intros. case H2.
     case H1. case H3. search.
     case H1. case H4. inst H5 with n1 = V. cut H7. search.
     case H1. case H3. inst H5 with n1 = V. cut H6. search.
+    case H1. case H5. search.
+    case H1. case H5. search.
     case H1. case H5. inst H4 with n1 = V. cut H7. search.
     case H1.
         apply of/unplug to H3 H8. case H9.

@@ -10,6 +10,7 @@ Theorem safety : forall M A,
 intros. apply progress to H1. case H2.
     case H1. right. search.
     case H1.
+    case H1.
     apply preservation to H1 H3. left. search.
     case H3.
 

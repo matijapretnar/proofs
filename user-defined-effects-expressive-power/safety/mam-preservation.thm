@@ -6,6 +6,8 @@ induction on 1. intros. case H1.
     case H3. search.
     case H3. apply IH to H5 H2 H7. search.
     case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H6 H2 H7. search.
+    case H3. apply IH to H6 H2 H7. search.
 
 Theorem of/unplug : forall E M EM C2,
     {plug E M EM} -> {of/comp EM C2} -> exists C1, {of/comp M C1} /\ {of/evctx E C1 C2}.
@@ -13,6 +15,8 @@ induction on 1. intros. case H1.
     search.
     case H2. apply IH to H3 H5. search.
     case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H6. search.
+    case H2. apply IH to H3 H6. search.
 
 Theorem of/get-case : forall Ms L M As C A,
     {get-case Ms L M} -> {of/cases Ms As C} -> {valtys/get As L A} ->
@@ -37,6 +41,8 @@ intros. case H2.
     case H1. case H3. search.
     case H1. case H4. inst H5 with n1 = V. cut H7. search.
     case H1. case H3. inst H5 with n1 = V. cut H6. search.
+    case H1. case H5. search.
+    case H1. case H5. search.
 
 Theorem preservation : forall M M' C, {of/comp M C} -> {step M M'} -> {of/comp M' C}.
 intros. case H2.
