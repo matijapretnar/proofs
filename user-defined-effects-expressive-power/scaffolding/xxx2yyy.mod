@@ -44,6 +44,13 @@ xxx2yyy/comp (xxx/bind M N) (yyy/bind M' N') :-
 xxx2yyy/comp (xxx/app M V) (yyy/app M' V') :-
     xxx2yyy/comp M M',
     xxx2yyy/value V V'.
+xxx2yyy/comp (xxx/comppair M1 M2) (yyy/comppair M1' M2') :-
+    xxx2yyy/comp M1 M1',
+    xxx2yyy/comp M2 M2'.
+xxx2yyy/comp (xxx/prj1 M) (yyy/prj1 M') :-
+    xxx2yyy/comp M M'.
+xxx2yyy/comp (xxx/prj2 M) (yyy/prj2 M') :-
+    xxx2yyy/comp M M'.
 
 xxx2yyy/cases xxx/cases/nil yyy/cases/nil.
 xxx2yyy/cases (xxx/cases/cons Ms L M) (yyy/cases/cons Ms' L' M') :-
@@ -62,7 +69,13 @@ xxx2yyy/evctx (xxx/evctx/bind E N) (yyy/evctx/bind E' N') :-
 xxx2yyy/evctx (xxx/evctx/app E V) (yyy/evctx/app E' V') :-
     xxx2yyy/evctx E E',
     xxx2yyy/value V V'.
+xxx2yyy/evctx (xxx/evctx/prj1 E) (yyy/evctx/prj1 E') :-
+    xxx2yyy/evctx E E'.
+xxx2yyy/evctx (xxx/evctx/prj2 E) (yyy/evctx/prj2 E') :-
+    xxx2yyy/evctx E E'.
 
 yyy/is-evctx yyy/hole.
 yyy/is-evctx (yyy/evctx/bind E N) :- yyy/is-evctx E.
 yyy/is-evctx (yyy/evctx/app E V) :- yyy/is-evctx E.
+yyy/is-evctx (yyy/evctx/prj1 E) :- yyy/is-evctx E.
+yyy/is-evctx (yyy/evctx/prj2 E) :- yyy/is-evctx E.

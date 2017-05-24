@@ -117,6 +117,15 @@ intros. case H2.
     % app
     case H3. apply IH1 to H1 H4 H6. apply IH to H1 H5 H7. search.
     apply ctx-member to H1 H7. case H6.
+    % comppair
+    case H3. apply IH1 to H1 H4 H6. apply IH1 to H1 H5 H7. search.
+    apply ctx-member to H1 H7. case H6.
+    % prj1
+    case H3. apply IH1 to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    % prj2
+    case H3. apply IH1 to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
     % backchain
     apply ctx-member to H1 H5. case H4.
 
@@ -139,11 +148,15 @@ induction on 1. intros. case H1.
     case H2. search.
     case H2. apply IH to H3 H5. apply xxx2yyy/comp-unique to _ H4 H6. search.
     case H2. apply IH to H3 H5. apply xxx2yyy/value-unique to _ H4 H6. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
 
 Theorem xxx2yyy/hoisting : forall E E',
     {xxx/hoisting E} -> {xxx2yyy/evctx E E'} -> {yyy/hoisting E'}.
 induction on 1. intros. case H1.
     case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H4. search.
 
@@ -154,12 +167,16 @@ induction on 1. intros. case H1.
     exists yyy/hole, EM'. search.
     case H2. apply IH to H3 H4. exists (yyy/evctx/bind E' N'), M'1. search.
     case H2. apply IH to H3 H4. exists (yyy/evctx/app E' V'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (yyy/evctx/prj1 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (yyy/evctx/prj2 E'), M'1.  search.
 
 Theorem yyy/pluggable : forall E, {yyy/hoisting E} -> exists ER, {pi x\ yyy/plug E (yyy/ret x) (ER x)}.
 induction on 1. intros. case H1.
     exists x\ yyy/ret x. search.
     apply IH to H2. exists x\ (yyy/bind (ER x x) X). search.
     apply IH to H2. exists x\ (yyy/app (ER x x) X). search.
+    apply IH to H2. exists x\ (yyy/prj1 (ER x x)). search.
+    apply IH to H2. exists x\ (yyy/prj2 (ER x x)). search.
 
 Theorem xxx2yyy/plug : forall L E M EM E' M' EM',
     {xxx/plug E M EM} -> {xxx2yyy/evctx E E'} -> {L |- xxx2yyy/comp M M'} ->
@@ -168,6 +185,8 @@ induction on 2. intros. case H2.
     case H1. case H4. search.
     case H1. case H4. apply IH to H7 H5 H3 H8. search.
     case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
 
 Theorem xxx2yyy/apart : forall N1 N2 N1' N2',
     {xxx/apart N1 N2} -> {xxx2yyy/nat N1 N1'} -> {xxx2yyy/nat N2 N2'} -> {yyy/apart N1' N2'}.
@@ -232,11 +251,19 @@ induction on 3. intros. case H3.
     case H1. case H4. inst H6 with n1 = V, n2 = V'.
     assert {xxx2yyy/comp (M V) (M'1 V')}. cut H7. search.
     apply xxx2yyy/comp-unique to _ H2 H8. search.
+% prj1 (comppair M1 M2) ~> M1
+    case H1. case H4.
+    apply xxx2yyy/comp-unique to _ H2 H5. search.
+% prj2 (comppair M1 M2) ~> M2
+    case H1. case H4.
+    apply xxx2yyy/comp-unique to _ H2 H6. search.
 
 Theorem plug/step : forall E M1 EM1 M2 EM2,
     {yyy/plug E M1 EM1} -> {yyy/plug E M2 EM2} -> {yyy/step M1 M2} -> {yyy/step EM1 EM2}.
 induction on 1. intros. case H1.
     case H2. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
     case H2. apply IH to H4 H5 H3. case H6. search.
     case H2. apply IH to H4 H5 H3. case H6. search.
 
@@ -247,6 +274,10 @@ induction on 1. intros. case H1.
     assert {yyy/plug E1 M (E' M)}. apply H3 with M = M. search. search.
     apply IH to H2. exists m\ yyy/app (E' m) V. intros.
     assert {yyy/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ yyy/prj1 (E' m). intros.
+    assert {yyy/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ yyy/prj2 (E' m). intros.
+    assert {yyy/plug E1 M (E' M)}. apply H3 with M = M. search. search.
 
 Theorem plug/unique : forall E M EM EM',
     {yyy/plug E M EM} -> {yyy/plug E M EM'} -> EM = EM'.
@@ -254,10 +285,14 @@ induction on 1. intros. case H1.
     case H2. search.
     case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
 
 Theorem plug/is-evctx : forall E M EM, {yyy/plug E M EM} -> {yyy/is-evctx E}.
 induction on 1. intros. case H1.
     search.
+    apply IH to H2. search.
+    apply IH to H2. search.
     apply IH to H2. search.
     apply IH to H2. search.
 
