@@ -10,6 +10,9 @@ label/apart (lbl N) (lbl N') :-
 
 eff-kind (f Eff A) Eff.
 eff-kind (arrow _ C) Eff :- eff-kind C Eff.
+eff-kind (compprod C1 C2) Eff :-
+    eff-kind C1 Eff,
+    eff-kind C2 Eff.
 
 of/value unit unitty.
 of/value (pair V1 V2) (prod A1 A2) :- of/value V1 A1, of/value V2 A2.
@@ -34,6 +37,17 @@ of/comp (bind M N) C :-
 of/comp (app M V) C :-
     of/comp M (arrow A C),
     of/value V A.
+of/comp (comppair M1 M2) (compprod C1 C2) :-
+    of/comp M1 C1,
+    of/comp M2 C2.
+of/comp (prj1 M) C1 :-
+    eff-kind C1 Eff,
+    eff-kind C2 Eff,
+    of/comp M (compprod C1 C2).
+of/comp (prj2 M) C2 :-
+    eff-kind C1 Eff,
+    eff-kind C2 Eff,
+    of/comp M (compprod C1 C2).
 
 of/cases cases/nil valtys/nil C.
 of/cases (cases/cons Ms L M) (valtys/cons As L A) C :-
@@ -48,6 +62,14 @@ of/evctx (evctx/bind E N) C1 C2 :-
 of/evctx (evctx/app E V) C1 C2 :-
     of/evctx E C1 (arrow A C2),
     of/value V A.
+of/evctx (evctx/prj1 E) C C1 :-
+    eff-kind C1 Eff,
+    eff-kind C2 Eff,
+    of/evctx E C (compprod C1 C2).
+of/evctx (evctx/prj2 E) C C2 :-
+    eff-kind C1 Eff,
+    eff-kind C2 Eff,
+    of/evctx E C (compprod C1 C2).
 
 valtys/get (valtys/cons As L A) L A.
 valtys/get (valtys/cons As L' _) L A :-
@@ -65,17 +87,27 @@ reduce (case (inj L V) Ms) (M V) :-
 reduce (force (thunk M)) M.
 reduce (bind (ret V) M) (M V).
 reduce (app (fun M) V) (M V).
+reduce (prj1 (comppair M1 _)) M1.
+reduce (prj2 (comppair _ M2)) M2.
 
 plug hole M M.
 plug (evctx/bind E N) M (bind EM N) :-
     plug E M EM.
 plug (evctx/app E V) M (app EM V) :-
     plug E M EM.
+plug (evctx/prj1 E) M (prj1 EM) :-
+    plug E M EM.
+plug (evctx/prj2 E) M (prj2 EM) :-
+    plug E M EM.
 
 hoisting hole.
 hoisting (evctx/bind E _) :-
     hoisting E.
 hoisting (evctx/app E _) :-
+    hoisting E.
+hoisting (evctx/prj1 E) :-
+    hoisting E.
+hoisting (evctx/prj2 E) :-
     hoisting E.
 
 step M M' :-
@@ -85,5 +117,8 @@ step M M' :-
 
 progresses (ret _) _.
 progresses (fun _) _.
+progresses (comppair M1 M2) _ :-
+    progresses M1 _,
+    progresses M2 _.
 progresses M _ :-
     step M _.

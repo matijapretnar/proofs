@@ -23,6 +23,7 @@ type    u               compty -> valty.
 
 type    f               eff -> valty -> compty.
 type    arrow           valty -> compty -> compty.
+type    compprod        compty -> compty -> compty.
 
 type    valtys/nil      valtys.
 type    valtys/cons     valtys -> label -> valty -> valtys.
@@ -45,6 +46,9 @@ type    case            value -> cases -> comp.
 type    force           value -> comp.
 type    bind            comp -> (value -> comp) -> comp.
 type    app             comp -> value -> comp.
+type    comppair        comp -> comp -> comp.
+type    prj1            comp -> comp.
+type    prj2            comp -> comp.
 
 type    cases/nil       cases.
 type    cases/cons      cases -> label -> (value -> comp) -> cases.
@@ -55,6 +59,8 @@ kind    evctx     type.
 type    hole            evctx.
 type    evctx/bind      evctx -> (value -> comp) -> evctx.
 type    evctx/app       evctx -> value -> evctx.
+type    evctx/prj1      evctx -> evctx.
+type    evctx/prj2      evctx -> evctx.
 
 type    hoisting        evctx -> o.
 
