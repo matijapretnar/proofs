@@ -118,6 +118,15 @@ intros. case H2.
     % app
     case H3. apply IH1 to H1 H4 H6. apply IH to H1 H5 H7. search.
     apply ctx-member to H1 H7. case H6.
+    % comppair
+    case H3. apply IH1 to H1 H4 H6. apply IH1 to H1 H5 H7. search.
+    apply ctx-member to H1 H7. case H6.
+    % prj1
+    case H3. apply IH1 to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    % prj2
+    case H3. apply IH1 to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
     % call
     case H3. apply eff2del/nat-unique to H1 H4 H6. apply IH to H1 H5 H7. search.
     apply ctx-member to H1 H7. case H6.
@@ -157,12 +166,16 @@ induction on 1. intros. case H1.
     case H2. search.
     case H2. apply IH to H3 H5. apply eff2del/comp-unique to _ H4 H6. search.
     case H2. apply IH to H3 H5. apply eff2del/value-unique to _ H4 H6. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H5. apply eff2del/handler-unique to _ H4 H6. search.
 
 Theorem eff2del/hoisting : forall E E',
     {eff/hoisting E} -> {eff2del/evctx E E'} -> {del/hoisting E'}.
 induction on 1. intros. case H1.
     case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H4. search.
 
@@ -173,6 +186,8 @@ induction on 1. intros. case H1.
     exists del/hole, EM'. search.
     case H2. apply IH to H3 H4. exists (del/evctx/bind E' N'), M'1. search.
     case H2. apply IH to H3 H4. exists (del/evctx/app E' V'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (del/evctx/prj1 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (del/evctx/prj2 E'), M'1.  search.
     case H2. apply IH to H3 H4. exists (del/evctx/app (del/evctx/reset E' (x\ del/fun b\ (Nu' x))) (del/thunk (del/fun y\ del/case y Ms'))), M'1.  search.
 
 Theorem del/pluggable : forall E, {del/hoisting E} -> exists ER, {pi x\ del/plug E (del/ret x) (ER x)}.
@@ -180,6 +195,8 @@ induction on 1. intros. case H1.
     exists x\ del/ret x. search.
     apply IH to H2. exists x\ (del/bind (ER x x) X). search.
     apply IH to H2. exists x\ (del/app (ER x x) X). search.
+    apply IH to H2. exists x\ (del/prj1 (ER x x)). search.
+    apply IH to H2. exists x\ (del/prj2 (ER x x)). search.
 
 Theorem eff2del/plug : forall L E M EM E' M' EM',
     {eff/plug E M EM} -> {eff2del/evctx E E'} -> {L |- eff2del/comp M M'} ->
@@ -188,6 +205,8 @@ induction on 2. intros. case H2.
     case H1. case H4. search.
     case H1. case H4. apply IH to H7 H5 H3 H8. search.
     case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
     case H1. case H4. case H8. apply IH to H7 H5 H3 H9. search.
 
 Theorem eff2del/apart : forall N1 N2 N1' N2',
@@ -282,6 +301,12 @@ induction on 3. intros. case H3.
     case H1. case H4. inst H6 with n1 = V, n2 = V'.
     assert {eff2del/comp (M V) (M'1 V')}. cut H7. search.
     apply eff2del/comp-unique to _ H2 H8. search.
+% prj1 (comppair M1 M2) ~> M1
+    case H1. case H4.
+    apply eff2del/comp-unique to _ H2 H5. search.
+% prj2 (comppair M1 M2) ~> M2
+    case H1. case H4.
+    apply eff2del/comp-unique to _ H2 H6. search.
 % handle (ret V) H ~> Hret V
     case H1. case H5.
     apply eff2del/get-valcase to H4 H6. inst H8 with n1 = V, n2 = V'.
@@ -412,6 +437,8 @@ induction on 1. intros. case H1.
     case H2. apply IH to H4 H5 H3. case H6. search.
     case H2. apply IH to H4 H5 H3. case H6. search.
     case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
 
 Theorem plug/context : forall E, {del/is-evctx E} -> exists E', forall M, {del/plug E M (E' M)}.
 induction on 1. intros. case H1.
@@ -419,6 +446,10 @@ induction on 1. intros. case H1.
     apply IH to H2. exists m\ del/bind (E' m) N. intros.
     assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
     apply IH to H2. exists m\ del/app (E' m) V. intros.
+    assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ del/prj1 (E' m). intros.
+    assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ del/prj2 (E' m). intros.
     assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
     apply IH to H2. exists m\ del/reset (E' m) N. intros.
     assert {del/plug E1 M (E' M)}. apply H3 with M = M. search. search.
@@ -430,6 +461,8 @@ induction on 1. intros. case H1.
     case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
 
 Theorem plug/is-evctx : forall E M EM, {del/plug E M EM} -> {del/is-evctx E}.
 induction on 1. intros. case H1.
@@ -437,10 +470,14 @@ induction on 1. intros. case H1.
     apply IH to H2. search.
     apply IH to H2. search.
     apply IH to H2. search.
+    apply IH to H2. search.
+    apply IH to H2. search.
 
 Theorem all/pluggable : forall E M, {del/is-evctx E} -> exists EM, {del/plug E M EM}.
 induction on 1. intros. case H1.
     search.
+    apply IH to H2 with M = M. search.
+    apply IH to H2 with M = M. search.
     apply IH to H2 with M = M. search.
     apply IH to H2 with M = M. search.
     apply IH to H2 with M = M. search.

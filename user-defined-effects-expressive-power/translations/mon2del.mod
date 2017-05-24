@@ -44,6 +44,13 @@ mon2del/comp (mon/bind M N) (del/bind M' N') :-
 mon2del/comp (mon/app M V) (del/app M' V') :-
     mon2del/comp M M',
     mon2del/value V V'.
+mon2del/comp (mon/comppair M1 M2) (del/comppair M1' M2') :-
+    mon2del/comp M1 M1',
+    mon2del/comp M2 M2'.
+mon2del/comp (mon/prj1 M) (del/prj1 M') :-
+    mon2del/comp M M'.
+mon2del/comp (mon/prj2 M) (del/prj2 M') :-
+    mon2del/comp M M'.
 mon2del/comp (mon/reify M (mon/mon Nu Nb)) (del/app (del/reset M' (x\ del/fun nb\ Nu' x)) (del/thunk (del/fun x\ del/fun k\ Nb' x k))) :-
     mon2del/comp M M',
     pi x\ pi x'\
@@ -74,6 +81,10 @@ mon2del/evctx (mon/evctx/bind E N) (del/evctx/bind E' N') :-
 mon2del/evctx (mon/evctx/app E V) (del/evctx/app E' V') :-
     mon2del/evctx E E',
     mon2del/value V V'.
+mon2del/evctx (mon/evctx/prj1 E) (del/evctx/prj1 E') :-
+    mon2del/evctx E E'.
+mon2del/evctx (mon/evctx/prj2 E) (del/evctx/prj2 E') :-
+    mon2del/evctx E E'.
 mon2del/evctx (mon/evctx/reify E (mon/mon Nu Nb)) (del/evctx/app (del/evctx/reset E' (x\ del/fun nb\ Nu' x)) (del/thunk (del/fun x\ del/fun k\ Nb' x k))) :-
     mon2del/evctx E E',
     pi x\ pi x'\
@@ -87,4 +98,6 @@ mon2del/evctx (mon/evctx/reify E (mon/mon Nu Nb)) (del/evctx/app (del/evctx/rese
 del/is-evctx del/hole.
 del/is-evctx (del/evctx/bind E N) :- del/is-evctx E.
 del/is-evctx (del/evctx/app E V) :- del/is-evctx E.
+del/is-evctx (del/evctx/prj1 E) :- del/is-evctx E.
+del/is-evctx (del/evctx/prj2 E) :- del/is-evctx E.
 del/is-evctx (del/evctx/reset E T) :- del/is-evctx E.

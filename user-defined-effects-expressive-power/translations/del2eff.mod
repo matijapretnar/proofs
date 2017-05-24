@@ -44,6 +44,13 @@ del2eff/comp (del/bind M N) (eff/bind M' N') :-
 del2eff/comp (del/app M V) (eff/app M' V') :-
     del2eff/comp M M',
     del2eff/value V V'.
+del2eff/comp (del/comppair M1 M2) (eff/comppair M1' M2') :-
+    del2eff/comp M1 M1',
+    del2eff/comp M2 M2'.
+del2eff/comp (del/prj1 M) (eff/prj1 M') :-
+    del2eff/comp M M'.
+del2eff/comp (del/prj2 M) (eff/prj2 M') :-
+    del2eff/comp M M'.
 del2eff/comp (del/reset M N) (eff/handle M' (
         eff/opcase (eff/valcase N') (eff/op eff/z) (f\ k\ eff/app (eff/force f) k)
     )) :-
@@ -73,6 +80,10 @@ del2eff/evctx (del/evctx/bind E N) (eff/evctx/bind E' N') :-
 del2eff/evctx (del/evctx/app E V) (eff/evctx/app E' V') :-
     del2eff/evctx E E',
     del2eff/value V V'.
+del2eff/evctx (del/evctx/prj1 E) (eff/evctx/prj1 E') :-
+    del2eff/evctx E E'.
+del2eff/evctx (del/evctx/prj2 E) (eff/evctx/prj2 E') :-
+    del2eff/evctx E E'.
 del2eff/evctx (del/evctx/reset E N) (eff/evctx/handle E' (
         eff/opcase (eff/valcase N') (eff/op eff/z) (f\ k\ eff/app (eff/force f) k)
     )) :-
@@ -84,4 +95,6 @@ del2eff/evctx (del/evctx/reset E N) (eff/evctx/handle E' (
 eff/is-evctx eff/hole.
 eff/is-evctx (eff/evctx/bind E N) :- eff/is-evctx E.
 eff/is-evctx (eff/evctx/app E V) :- eff/is-evctx E.
+eff/is-evctx (eff/evctx/prj1 E) :- eff/is-evctx E.
+eff/is-evctx (eff/evctx/prj2 E) :- eff/is-evctx E.
 eff/is-evctx (eff/evctx/handle E H) :- eff/is-evctx E.

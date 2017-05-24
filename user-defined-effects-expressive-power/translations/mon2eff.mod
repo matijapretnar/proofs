@@ -44,6 +44,13 @@ mon2eff/comp (mon/bind M N) (eff/bind M' N') :-
 mon2eff/comp (mon/app M V) (eff/app M' V') :-
     mon2eff/comp M M',
     mon2eff/value V V'.
+mon2eff/comp (mon/comppair M1 M2) (eff/comppair M1' M2') :-
+    mon2eff/comp M1 M1',
+    mon2eff/comp M2 M2'.
+mon2eff/comp (mon/prj1 M) (eff/prj1 M') :-
+    mon2eff/comp M M'.
+mon2eff/comp (mon/prj2 M) (eff/prj2 M') :-
+    mon2eff/comp M M'.
 mon2eff/comp (mon/reify M (mon/mon Nu Nb)) (eff/handle M' (eff/opcase (eff/valcase Nu') (eff/op eff/z) (Nb'))) :-
     mon2eff/comp M M',
     pi x\ pi x'\
@@ -73,6 +80,10 @@ mon2eff/evctx (mon/evctx/bind E N) (eff/evctx/bind E' N') :-
 mon2eff/evctx (mon/evctx/app E V) (eff/evctx/app E' V') :-
     mon2eff/evctx E E',
     mon2eff/value V V'.
+mon2eff/evctx (mon/evctx/prj1 E) (eff/evctx/prj1 E') :-
+    mon2eff/evctx E E'.
+mon2eff/evctx (mon/evctx/prj2 E) (eff/evctx/prj2 E') :-
+    mon2eff/evctx E E'.
 mon2eff/evctx (mon/evctx/reify E (mon/mon Nu Nb)) (eff/evctx/handle E' (
         eff/opcase (eff/valcase Nu') (eff/op eff/z) (Nb')
     )) :-
@@ -88,4 +99,6 @@ mon2eff/evctx (mon/evctx/reify E (mon/mon Nu Nb)) (eff/evctx/handle E' (
 eff/is-evctx eff/hole.
 eff/is-evctx (eff/evctx/bind E N) :- eff/is-evctx E.
 eff/is-evctx (eff/evctx/app E V) :- eff/is-evctx E.
+eff/is-evctx (eff/evctx/prj1 E) :- eff/is-evctx E.
+eff/is-evctx (eff/evctx/prj2 E) :- eff/is-evctx E.
 eff/is-evctx (eff/evctx/handle E H) :- eff/is-evctx E.

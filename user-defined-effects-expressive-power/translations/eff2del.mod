@@ -44,6 +44,13 @@ eff2del/comp (eff/bind M N) (del/bind M' N') :-
 eff2del/comp (eff/app M V) (del/app M' V') :-
     eff2del/comp M M',
     eff2del/value V V'.
+eff2del/comp (eff/comppair M1 M2) (del/comppair M1' M2') :-
+    eff2del/comp M1 M1',
+    eff2del/comp M2 M2'.
+eff2del/comp (eff/prj1 M) (del/prj1 M') :-
+    eff2del/comp M M'.
+eff2del/comp (eff/prj2 M) (del/prj2 M') :-
+    eff2del/comp M M'.
 eff2del/comp (eff/call (eff/op X) V)
     (del/shift k\ (del/fun h\ del/app (del/force h) (del/inj (del/lbl X') (del/pair V' (del/thunk (del/fun y\ del/app (del/app (del/force k) y) h)))))) :-
     eff2del/nat X X',
@@ -84,6 +91,10 @@ eff2del/evctx (eff/evctx/bind E N) (del/evctx/bind E' N') :-
 eff2del/evctx (eff/evctx/app E V) (del/evctx/app E' V') :-
     eff2del/evctx E E',
     eff2del/value V V'.
+eff2del/evctx (eff/evctx/prj1 E) (del/evctx/prj1 E') :-
+    eff2del/evctx E E'.
+eff2del/evctx (eff/evctx/prj2 E) (del/evctx/prj2 E') :-
+    eff2del/evctx E E'.
 eff2del/evctx (eff/evctx/handle E H)
     (del/evctx/app (del/evctx/reset E' (x\ del/fun b\ (Nu' x))) (del/thunk (del/fun y\ del/case y Ms'))) :-
     eff2del/evctx E E',
@@ -92,4 +103,6 @@ eff2del/evctx (eff/evctx/handle E H)
 del/is-evctx del/hole.
 del/is-evctx (del/evctx/bind E N) :- del/is-evctx E.
 del/is-evctx (del/evctx/app E V) :- del/is-evctx E.
+del/is-evctx (del/evctx/prj1 E) :- del/is-evctx E.
+del/is-evctx (del/evctx/prj2 E) :- del/is-evctx E.
 del/is-evctx (del/evctx/reset E N) :- del/is-evctx E.

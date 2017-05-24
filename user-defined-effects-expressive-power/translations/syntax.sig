@@ -23,6 +23,7 @@ type    mam/u               mam/compty -> mam/valty.
 
 type    mam/f               mam/eff -> mam/valty -> mam/compty.
 type    mam/arrow           mam/valty -> mam/compty -> mam/compty.
+type    mam/compprod        mam/compty -> mam/compty -> mam/compty.
 
 type    mam/valtys/nil      mam/valtys.
 type    mam/valtys/cons     mam/valtys -> mam/label -> mam/valty -> mam/valtys.
@@ -45,6 +46,9 @@ type    mam/case            mam/value -> mam/cases -> mam/comp.
 type    mam/force           mam/value -> mam/comp.
 type    mam/bind            mam/comp -> (mam/value -> mam/comp) -> mam/comp.
 type    mam/app             mam/comp -> mam/value -> mam/comp.
+type    mam/comppair        mam/comp -> mam/comp -> mam/comp.
+type    mam/prj1            mam/comp -> mam/comp.
+type    mam/prj2            mam/comp -> mam/comp.
 
 type    mam/cases/nil       mam/cases.
 type    mam/cases/cons      mam/cases -> mam/label -> (mam/value -> mam/comp) -> mam/cases.
@@ -55,6 +59,8 @@ kind    mam/evctx     type.
 type    mam/hole            mam/evctx.
 type    mam/evctx/bind      mam/evctx -> (mam/value -> mam/comp) -> mam/evctx.
 type    mam/evctx/app       mam/evctx -> mam/value -> mam/evctx.
+type    mam/evctx/prj1      mam/evctx -> mam/evctx.
+type    mam/evctx/prj2      mam/evctx -> mam/evctx.
 
 type    mam/hoisting        mam/evctx -> o.
 
@@ -93,6 +99,7 @@ type    mon/u               mon/compty -> mon/valty.
 
 type    mon/f               mon/eff -> mon/valty -> mon/compty.
 type    mon/arrow           mon/valty -> mon/compty -> mon/compty.
+type    mon/compprod        mon/compty -> mon/compty -> mon/compty.
 
 type    mon/valtys/nil      mon/valtys.
 type    mon/valtys/cons     mon/valtys -> mon/label -> mon/valty -> mon/valtys.
@@ -115,6 +122,9 @@ type    mon/case            mon/value -> mon/cases -> mon/comp.
 type    mon/force           mon/value -> mon/comp.
 type    mon/bind            mon/comp -> (mon/value -> mon/comp) -> mon/comp.
 type    mon/app             mon/comp -> mon/value -> mon/comp.
+type    mon/comppair        mon/comp -> mon/comp -> mon/comp.
+type    mon/prj1            mon/comp -> mon/comp.
+type    mon/prj2            mon/comp -> mon/comp.
 
 type    mon/cases/nil       mon/cases.
 type    mon/cases/cons      mon/cases -> mon/label -> (mon/value -> mon/comp) -> mon/cases.
@@ -125,6 +135,8 @@ kind    mon/evctx     type.
 type    mon/hole            mon/evctx.
 type    mon/evctx/bind      mon/evctx -> (mon/value -> mon/comp) -> mon/evctx.
 type    mon/evctx/app       mon/evctx -> mon/value -> mon/evctx.
+type    mon/evctx/prj1      mon/evctx -> mon/evctx.
+type    mon/evctx/prj2      mon/evctx -> mon/evctx.
 
 type    mon/hoisting        mon/evctx -> o.
 
@@ -176,6 +188,7 @@ type    del/u               del/compty -> del/valty.
 
 type    del/f               del/eff -> del/valty -> del/compty.
 type    del/arrow           del/valty -> del/compty -> del/compty.
+type    del/compprod        del/compty -> del/compty -> del/compty.
 
 type    del/valtys/nil      del/valtys.
 type    del/valtys/cons     del/valtys -> del/label -> del/valty -> del/valtys.
@@ -198,6 +211,9 @@ type    del/case            del/value -> del/cases -> del/comp.
 type    del/force           del/value -> del/comp.
 type    del/bind            del/comp -> (del/value -> del/comp) -> del/comp.
 type    del/app             del/comp -> del/value -> del/comp.
+type    del/comppair        del/comp -> del/comp -> del/comp.
+type    del/prj1            del/comp -> del/comp.
+type    del/prj2            del/comp -> del/comp.
 
 type    del/cases/nil       del/cases.
 type    del/cases/cons      del/cases -> del/label -> (del/value -> del/comp) -> del/cases.
@@ -208,6 +224,8 @@ kind    del/evctx     type.
 type    del/hole            del/evctx.
 type    del/evctx/bind      del/evctx -> (del/value -> del/comp) -> del/evctx.
 type    del/evctx/app       del/evctx -> del/value -> del/evctx.
+type    del/evctx/prj1      del/evctx -> del/evctx.
+type    del/evctx/prj2      del/evctx -> del/evctx.
 
 type    del/hoisting        del/evctx -> o.
 
@@ -254,6 +272,7 @@ type    eff/u               eff/compty -> eff/valty.
 
 type    eff/f               eff/eff -> eff/valty -> eff/compty.
 type    eff/arrow           eff/valty -> eff/compty -> eff/compty.
+type    eff/compprod        eff/compty -> eff/compty -> eff/compty.
 
 type    eff/valtys/nil      eff/valtys.
 type    eff/valtys/cons     eff/valtys -> eff/label -> eff/valty -> eff/valtys.
@@ -276,6 +295,9 @@ type    eff/case            eff/value -> eff/cases -> eff/comp.
 type    eff/force           eff/value -> eff/comp.
 type    eff/bind            eff/comp -> (eff/value -> eff/comp) -> eff/comp.
 type    eff/app             eff/comp -> eff/value -> eff/comp.
+type    eff/comppair        eff/comp -> eff/comp -> eff/comp.
+type    eff/prj1            eff/comp -> eff/comp.
+type    eff/prj2            eff/comp -> eff/comp.
 
 type    eff/cases/nil       eff/cases.
 type    eff/cases/cons      eff/cases -> eff/label -> (eff/value -> eff/comp) -> eff/cases.
@@ -286,6 +308,8 @@ kind    eff/evctx     type.
 type    eff/hole            eff/evctx.
 type    eff/evctx/bind      eff/evctx -> (eff/value -> eff/comp) -> eff/evctx.
 type    eff/evctx/app       eff/evctx -> eff/value -> eff/evctx.
+type    eff/evctx/prj1      eff/evctx -> eff/evctx.
+type    eff/evctx/prj2      eff/evctx -> eff/evctx.
 
 type    eff/hoisting        eff/evctx -> o.
 

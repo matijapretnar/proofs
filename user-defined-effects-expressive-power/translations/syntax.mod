@@ -10,6 +10,9 @@ mam/label/apart (mam/lbl N) (mam/lbl N') :-
 
 mam/eff-kind (mam/f Eff A) Eff.
 mam/eff-kind (mam/arrow _ C) Eff :- mam/eff-kind C Eff.
+mam/eff-kind (mam/compprod C1 C2) Eff :-
+    mam/eff-kind C1 Eff,
+    mam/eff-kind C2 Eff.
 
 mam/of/value mam/unit mam/unitty.
 mam/of/value (mam/pair V1 V2) (mam/prod A1 A2) :- mam/of/value V1 A1, mam/of/value V2 A2.
@@ -34,6 +37,17 @@ mam/of/comp (mam/bind M N) C :-
 mam/of/comp (mam/app M V) C :-
     mam/of/comp M (mam/arrow A C),
     mam/of/value V A.
+mam/of/comp (mam/comppair M1 M2) (mam/compprod C1 C2) :-
+    mam/of/comp M1 C1,
+    mam/of/comp M2 C2.
+mam/of/comp (mam/prj1 M) C1 :-
+    mam/eff-kind C1 Eff,
+    mam/eff-kind C2 Eff,
+    mam/of/comp M (mam/compprod C1 C2).
+mam/of/comp (mam/prj2 M) C2 :-
+    mam/eff-kind C1 Eff,
+    mam/eff-kind C2 Eff,
+    mam/of/comp M (mam/compprod C1 C2).
 
 mam/of/cases mam/cases/nil mam/valtys/nil C.
 mam/of/cases (mam/cases/cons Ms L M) (mam/valtys/cons As L A) C :-
@@ -48,6 +62,14 @@ mam/of/evctx (mam/evctx/bind E N) C1 C2 :-
 mam/of/evctx (mam/evctx/app E V) C1 C2 :-
     mam/of/evctx E C1 (mam/arrow A C2),
     mam/of/value V A.
+mam/of/evctx (mam/evctx/prj1 E) C C1 :-
+    mam/eff-kind C1 Eff,
+    mam/eff-kind C2 Eff,
+    mam/of/evctx E C (mam/compprod C1 C2).
+mam/of/evctx (mam/evctx/prj2 E) C C2 :-
+    mam/eff-kind C1 Eff,
+    mam/eff-kind C2 Eff,
+    mam/of/evctx E C (mam/compprod C1 C2).
 
 mam/valtys/get (mam/valtys/cons As L A) L A.
 mam/valtys/get (mam/valtys/cons As L' _) L A :-
@@ -65,17 +87,27 @@ mam/reduce (mam/case (mam/inj L V) Ms) (M V) :-
 mam/reduce (mam/force (mam/thunk M)) M.
 mam/reduce (mam/bind (mam/ret V) M) (M V).
 mam/reduce (mam/app (mam/fun M) V) (M V).
+mam/reduce (mam/prj1 (mam/comppair M1 _)) M1.
+mam/reduce (mam/prj2 (mam/comppair _ M2)) M2.
 
 mam/plug mam/hole M M.
 mam/plug (mam/evctx/bind E N) M (mam/bind EM N) :-
     mam/plug E M EM.
 mam/plug (mam/evctx/app E V) M (mam/app EM V) :-
     mam/plug E M EM.
+mam/plug (mam/evctx/prj1 E) M (mam/prj1 EM) :-
+    mam/plug E M EM.
+mam/plug (mam/evctx/prj2 E) M (mam/prj2 EM) :-
+    mam/plug E M EM.
 
 mam/hoisting mam/hole.
 mam/hoisting (mam/evctx/bind E _) :-
     mam/hoisting E.
 mam/hoisting (mam/evctx/app E _) :-
+    mam/hoisting E.
+mam/hoisting (mam/evctx/prj1 E) :-
+    mam/hoisting E.
+mam/hoisting (mam/evctx/prj2 E) :-
     mam/hoisting E.
 
 mam/step M M' :-
@@ -85,6 +117,9 @@ mam/step M M' :-
 
 mam/progresses (mam/ret _) _.
 mam/progresses (mam/fun _) _.
+mam/progresses (mam/comppair M1 M2) _ :-
+    mam/progresses M1 _,
+    mam/progresses M2 _.
 mam/progresses M _ :-
     mam/step M _.
 
@@ -99,6 +134,9 @@ mon/label/apart (mon/lbl N) (mon/lbl N') :-
 
 mon/eff-kind (mon/f Eff A) Eff.
 mon/eff-kind (mon/arrow _ C) Eff :- mon/eff-kind C Eff.
+mon/eff-kind (mon/compprod C1 C2) Eff :-
+    mon/eff-kind C1 Eff,
+    mon/eff-kind C2 Eff.
 
 mon/of/value mon/unit mon/unitty.
 mon/of/value (mon/pair V1 V2) (mon/prod A1 A2) :- mon/of/value V1 A1, mon/of/value V2 A2.
@@ -123,6 +161,17 @@ mon/of/comp (mon/bind M N) C :-
 mon/of/comp (mon/app M V) C :-
     mon/of/comp M (mon/arrow A C),
     mon/of/value V A.
+mon/of/comp (mon/comppair M1 M2) (mon/compprod C1 C2) :-
+    mon/of/comp M1 C1,
+    mon/of/comp M2 C2.
+mon/of/comp (mon/prj1 M) C1 :-
+    mon/eff-kind C1 Eff,
+    mon/eff-kind C2 Eff,
+    mon/of/comp M (mon/compprod C1 C2).
+mon/of/comp (mon/prj2 M) C2 :-
+    mon/eff-kind C1 Eff,
+    mon/eff-kind C2 Eff,
+    mon/of/comp M (mon/compprod C1 C2).
 
 mon/of/cases mon/cases/nil mon/valtys/nil C.
 mon/of/cases (mon/cases/cons Ms L M) (mon/valtys/cons As L A) C :-
@@ -137,6 +186,14 @@ mon/of/evctx (mon/evctx/bind E N) C1 C2 :-
 mon/of/evctx (mon/evctx/app E V) C1 C2 :-
     mon/of/evctx E C1 (mon/arrow A C2),
     mon/of/value V A.
+mon/of/evctx (mon/evctx/prj1 E) C C1 :-
+    mon/eff-kind C1 Eff,
+    mon/eff-kind C2 Eff,
+    mon/of/evctx E C (mon/compprod C1 C2).
+mon/of/evctx (mon/evctx/prj2 E) C C2 :-
+    mon/eff-kind C1 Eff,
+    mon/eff-kind C2 Eff,
+    mon/of/evctx E C (mon/compprod C1 C2).
 
 mon/valtys/get (mon/valtys/cons As L A) L A.
 mon/valtys/get (mon/valtys/cons As L' _) L A :-
@@ -154,17 +211,27 @@ mon/reduce (mon/case (mon/inj L V) Ms) (M V) :-
 mon/reduce (mon/force (mon/thunk M)) M.
 mon/reduce (mon/bind (mon/ret V) M) (M V).
 mon/reduce (mon/app (mon/fun M) V) (M V).
+mon/reduce (mon/prj1 (mon/comppair M1 _)) M1.
+mon/reduce (mon/prj2 (mon/comppair _ M2)) M2.
 
 mon/plug mon/hole M M.
 mon/plug (mon/evctx/bind E N) M (mon/bind EM N) :-
     mon/plug E M EM.
 mon/plug (mon/evctx/app E V) M (mon/app EM V) :-
     mon/plug E M EM.
+mon/plug (mon/evctx/prj1 E) M (mon/prj1 EM) :-
+    mon/plug E M EM.
+mon/plug (mon/evctx/prj2 E) M (mon/prj2 EM) :-
+    mon/plug E M EM.
 
 mon/hoisting mon/hole.
 mon/hoisting (mon/evctx/bind E _) :-
     mon/hoisting E.
 mon/hoisting (mon/evctx/app E _) :-
+    mon/hoisting E.
+mon/hoisting (mon/evctx/prj1 E) :-
+    mon/hoisting E.
+mon/hoisting (mon/evctx/prj2 E) :-
     mon/hoisting E.
 
 mon/step M M' :-
@@ -174,6 +241,9 @@ mon/step M M' :-
 
 mon/progresses (mon/ret _) _.
 mon/progresses (mon/fun _) _.
+mon/progresses (mon/comppair M1 M2) _ :-
+    mon/progresses M1 _,
+    mon/progresses M2 _.
 mon/progresses M _ :-
     mon/step M _.
 
@@ -217,6 +287,9 @@ del/label/apart (del/lbl N) (del/lbl N') :-
 
 del/eff-kind (del/f Eff A) Eff.
 del/eff-kind (del/arrow _ C) Eff :- del/eff-kind C Eff.
+del/eff-kind (del/compprod C1 C2) Eff :-
+    del/eff-kind C1 Eff,
+    del/eff-kind C2 Eff.
 
 del/of/value del/unit del/unitty.
 del/of/value (del/pair V1 V2) (del/prod A1 A2) :- del/of/value V1 A1, del/of/value V2 A2.
@@ -241,6 +314,17 @@ del/of/comp (del/bind M N) C :-
 del/of/comp (del/app M V) C :-
     del/of/comp M (del/arrow A C),
     del/of/value V A.
+del/of/comp (del/comppair M1 M2) (del/compprod C1 C2) :-
+    del/of/comp M1 C1,
+    del/of/comp M2 C2.
+del/of/comp (del/prj1 M) C1 :-
+    del/eff-kind C1 Eff,
+    del/eff-kind C2 Eff,
+    del/of/comp M (del/compprod C1 C2).
+del/of/comp (del/prj2 M) C2 :-
+    del/eff-kind C1 Eff,
+    del/eff-kind C2 Eff,
+    del/of/comp M (del/compprod C1 C2).
 
 del/of/cases del/cases/nil del/valtys/nil C.
 del/of/cases (del/cases/cons Ms L M) (del/valtys/cons As L A) C :-
@@ -255,6 +339,14 @@ del/of/evctx (del/evctx/bind E N) C1 C2 :-
 del/of/evctx (del/evctx/app E V) C1 C2 :-
     del/of/evctx E C1 (del/arrow A C2),
     del/of/value V A.
+del/of/evctx (del/evctx/prj1 E) C C1 :-
+    del/eff-kind C1 Eff,
+    del/eff-kind C2 Eff,
+    del/of/evctx E C (del/compprod C1 C2).
+del/of/evctx (del/evctx/prj2 E) C C2 :-
+    del/eff-kind C1 Eff,
+    del/eff-kind C2 Eff,
+    del/of/evctx E C (del/compprod C1 C2).
 
 del/valtys/get (del/valtys/cons As L A) L A.
 del/valtys/get (del/valtys/cons As L' _) L A :-
@@ -272,17 +364,27 @@ del/reduce (del/case (del/inj L V) Ms) (M V) :-
 del/reduce (del/force (del/thunk M)) M.
 del/reduce (del/bind (del/ret V) M) (M V).
 del/reduce (del/app (del/fun M) V) (M V).
+del/reduce (del/prj1 (del/comppair M1 _)) M1.
+del/reduce (del/prj2 (del/comppair _ M2)) M2.
 
 del/plug del/hole M M.
 del/plug (del/evctx/bind E N) M (del/bind EM N) :-
     del/plug E M EM.
 del/plug (del/evctx/app E V) M (del/app EM V) :-
     del/plug E M EM.
+del/plug (del/evctx/prj1 E) M (del/prj1 EM) :-
+    del/plug E M EM.
+del/plug (del/evctx/prj2 E) M (del/prj2 EM) :-
+    del/plug E M EM.
 
 del/hoisting del/hole.
 del/hoisting (del/evctx/bind E _) :-
     del/hoisting E.
 del/hoisting (del/evctx/app E _) :-
+    del/hoisting E.
+del/hoisting (del/evctx/prj1 E) :-
+    del/hoisting E.
+del/hoisting (del/evctx/prj2 E) :-
     del/hoisting E.
 
 del/step M M' :-
@@ -292,6 +394,9 @@ del/step M M' :-
 
 del/progresses (del/ret _) _.
 del/progresses (del/fun _) _.
+del/progresses (del/comppair M1 M2) _ :-
+    del/progresses M1 _,
+    del/progresses M2 _.
 del/progresses M _ :-
     del/step M _.
 
@@ -334,6 +439,9 @@ eff/label/apart (eff/lbl N) (eff/lbl N') :-
 
 eff/eff-kind (eff/f Eff A) Eff.
 eff/eff-kind (eff/arrow _ C) Eff :- eff/eff-kind C Eff.
+eff/eff-kind (eff/compprod C1 C2) Eff :-
+    eff/eff-kind C1 Eff,
+    eff/eff-kind C2 Eff.
 
 eff/of/value eff/unit eff/unitty.
 eff/of/value (eff/pair V1 V2) (eff/prod A1 A2) :- eff/of/value V1 A1, eff/of/value V2 A2.
@@ -358,6 +466,17 @@ eff/of/comp (eff/bind M N) C :-
 eff/of/comp (eff/app M V) C :-
     eff/of/comp M (eff/arrow A C),
     eff/of/value V A.
+eff/of/comp (eff/comppair M1 M2) (eff/compprod C1 C2) :-
+    eff/of/comp M1 C1,
+    eff/of/comp M2 C2.
+eff/of/comp (eff/prj1 M) C1 :-
+    eff/eff-kind C1 Eff,
+    eff/eff-kind C2 Eff,
+    eff/of/comp M (eff/compprod C1 C2).
+eff/of/comp (eff/prj2 M) C2 :-
+    eff/eff-kind C1 Eff,
+    eff/eff-kind C2 Eff,
+    eff/of/comp M (eff/compprod C1 C2).
 
 eff/of/cases eff/cases/nil eff/valtys/nil C.
 eff/of/cases (eff/cases/cons Ms L M) (eff/valtys/cons As L A) C :-
@@ -372,6 +491,14 @@ eff/of/evctx (eff/evctx/bind E N) C1 C2 :-
 eff/of/evctx (eff/evctx/app E V) C1 C2 :-
     eff/of/evctx E C1 (eff/arrow A C2),
     eff/of/value V A.
+eff/of/evctx (eff/evctx/prj1 E) C C1 :-
+    eff/eff-kind C1 Eff,
+    eff/eff-kind C2 Eff,
+    eff/of/evctx E C (eff/compprod C1 C2).
+eff/of/evctx (eff/evctx/prj2 E) C C2 :-
+    eff/eff-kind C1 Eff,
+    eff/eff-kind C2 Eff,
+    eff/of/evctx E C (eff/compprod C1 C2).
 
 eff/valtys/get (eff/valtys/cons As L A) L A.
 eff/valtys/get (eff/valtys/cons As L' _) L A :-
@@ -389,17 +516,27 @@ eff/reduce (eff/case (eff/inj L V) Ms) (M V) :-
 eff/reduce (eff/force (eff/thunk M)) M.
 eff/reduce (eff/bind (eff/ret V) M) (M V).
 eff/reduce (eff/app (eff/fun M) V) (M V).
+eff/reduce (eff/prj1 (eff/comppair M1 _)) M1.
+eff/reduce (eff/prj2 (eff/comppair _ M2)) M2.
 
 eff/plug eff/hole M M.
 eff/plug (eff/evctx/bind E N) M (eff/bind EM N) :-
     eff/plug E M EM.
 eff/plug (eff/evctx/app E V) M (eff/app EM V) :-
     eff/plug E M EM.
+eff/plug (eff/evctx/prj1 E) M (eff/prj1 EM) :-
+    eff/plug E M EM.
+eff/plug (eff/evctx/prj2 E) M (eff/prj2 EM) :-
+    eff/plug E M EM.
 
 eff/hoisting eff/hole.
 eff/hoisting (eff/evctx/bind E _) :-
     eff/hoisting E.
 eff/hoisting (eff/evctx/app E _) :-
+    eff/hoisting E.
+eff/hoisting (eff/evctx/prj1 E) :-
+    eff/hoisting E.
+eff/hoisting (eff/evctx/prj2 E) :-
     eff/hoisting E.
 
 eff/step M M' :-
@@ -409,6 +546,9 @@ eff/step M M' :-
 
 eff/progresses (eff/ret _) _.
 eff/progresses (eff/fun _) _.
+eff/progresses (eff/comppair M1 M2) _ :-
+    eff/progresses M1 _,
+    eff/progresses M2 _.
 eff/progresses M _ :-
     eff/step M _.
 
