@@ -10,10 +10,10 @@ Abella formalisation of proofs that appear in the paper
 
 Proofs in the paper correspond to the following Abella proofs:
 
-* Theorem 2.1 (MAM safety): `safety` in `mam-safety.thm`
-* Theorem 3.1 (EFF safety): `safety` in `eff-safety.thm`
-* Theorem 4.1 (MON safety): `safety` in `mon-safety.thm`
-* Theorem 5.1 (DEL safety): `safety` in `del-safety.thm`
+* Theorem 2.6 (MAM safety): `safety` in `mam-safety.thm`
+* Theorem 3.4 (EFF safety): `safety` in `eff-safety.thm`
+* Theorem 4.4 (MON safety): `safety` in `mon-safety.thm`
+* Theorem 5.4 (DEL safety): `safety` in `del-safety.thm`
 * Theorem 6.2 (DEL → MON correctness):  `correctness` in `del2mon.thm`
 * Theorem 6.5 (MON → DEL correctness):  `correctness` in `mon2del.thm`
 * Theorem 6.6 (DEL → EFF correctness):  `correctness` in `del2eff.thm`
