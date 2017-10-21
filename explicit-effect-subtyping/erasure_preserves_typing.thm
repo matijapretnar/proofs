@@ -11,7 +11,7 @@ Theorem ers_of_op :
   forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e O A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
   {Ctx_t |- t/of_op Sig_t O A1 A2} ->
   exists T1 T2, {e/of_op Sig_e O T1 T2} /\ {Ctx_t2e |- t/skel_val_ty A1 T1} /\ {Ctx_t2e |- t/skel_val_ty A2 T2}.
-skip.
+skip. % contexts do not influence typing of operations
 
 Theorem ers_of_coer :
   (
@@ -45,7 +45,7 @@ Theorem ers_of_coer :
 %   apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
 %   apply ctx_ers_member to H1 H8. case H9. case H7. case H7. case H10.
 skip.
-
+Split ers_of_coer as ers_of_val_coer, ers_of_comp_coer.
 
 Theorem ers_of :
   (forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Vt A Ve, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
@@ -89,13 +89,15 @@ apply IH to H1 H4 H5. case H6.
   apply ctx_t_member to H1 H6. case H7. case H5.
 % VALUE LAMBDA
 case H3.
-apply IH to _ H4 H5 with Ctx_e = Ctx_e, Sig_e = Sig_e.
-exists T. split.
-.
+  apply IH to _ H4 H5. search.
+  apply ctx_t_member to H1 H6. case H5. case H7.
 % VALUE APPLY
 case H3.
-apply IH to H1 H4 H5. case H7. inst H9 with n1 = X. search.
-apply ctx_ers_member to H1 H10. case H11. case H9. case H9. case H12.
+apply IH to H1 H4 H5. case H7. inst H9 with n1 = X.
+assert {Ctx_t2e |- t/skel_val_ty X S}.
+skip. % if ctx_t proves t/skel_val_ty, so does ctx_t2e
+cut H10. search.
+  apply ctx_ers_member to H1 H10. case H11. case H9. case H9. case H12.
 apply ctx_t_member to H1 H6. case H7. case H5.
 % DIRT LAMBDA
 case H3.
@@ -109,7 +111,7 @@ apply ctx_t_member to H1 H6. case H7. case H5.
 % COERCION LAMBDA
 case H3.
 apply IH to _ H4 H5 with Ctx_e = Ctx_e, Ctx_t2e = Ctx_t2e, Sig_t = Sig_t, Sig_e = Sig_e.
-skip.
+skip. % contexts can also contain t/of_coer
 search.
 apply ctx_t_member to H1 H6. case H7. case H5.
 % COERCION APPLY
@@ -119,8 +121,9 @@ apply ctx_ers_member to H1 H10. case H11. case H9. case H9. case H12.
 apply ctx_t_member to H1 H6. case H7. case H5.
 % VALUE COERCION
 case H3. apply IH to H1 H4 H5.
-assert {Ctx_t2e |- t/skel_val_ty A T}. skip.
-search.
+apply ers_of_val_coer to H1 H6.
+assert A = A1. skip. % unique_skel_val_ty is unique
+case H11. search.
 apply ctx_t_member to H1 H6. case H7. case H5.
 
 % BACKCHAIN
@@ -151,11 +154,12 @@ case H3.
   apply ers_of_op to H1 H7.
   case H14.
   apply IH2 to _ H5 H13 with Ctx_e = (e/of_val Sig_e n4 (fun_skel T4 T2) :: e/of_val Sig_e n2 T3 :: Ctx_e), Sig_e = Sig_e.
-  assert {Ctx_t2e |- is_op O}. skip.
-  assert T = T2. skip.
-  case H20.
+  assert {Ctx_t2e |- is_op O}. skip. % you can strengthen is_op skip.
+  apply t/skel_comp_ty_strengthen to _ H17.
+  assert T = T2. skip. % uniqueness of t/skel_comp_ty
+  case H21.
     search.
-    skip. % apart
+    apply apart_not_reflexive to H18.
   apply ctx_t_member to H1 H7. case H6.
 % BACKCHAIN
 apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
@@ -167,7 +171,8 @@ case H3.
   apply IH to H1 H4 H6.
   apply IH to H1 H5 H7.
   case H8.
-    assert T1 = S1. skip. case H14.
+    assert T1 = S1. skip. % t/skel_val_ty is unique
+    case H14.
     search.
   apply ctx_ers_member to H1 H13. case H14. case H12. case H12. case H15.
 apply ctx_t_member to H1 H7. case H8. case H6.
@@ -188,8 +193,10 @@ case H3.
   apply IH to H1 H4 H8.
   apply IH2 to _ H6 H9.
   apply ers_of_op to H1 H7.
-  assert T = T2. skip. case H19.
-  assert Ae = T3. skip. case H20.
+  assert T = T2. skip. % t/skel_val_ty is unique
+  case H19.
+  assert Ae = T3. skip. % t/skel_val_ty is unique
+  case H20.
   apply t/skel_comp_ty_strengthen to H1 H14.
   search.
 apply ctx_t_member to H1 H8. case H9. case H7.
@@ -207,14 +214,17 @@ case H3.
   apply IH2 to H1 H4 H6.
   apply IH to H1 H5 H7.
   case H10.
-  assert T = S1. skip. case H14.
+  assert T = S1. skip. % t/skel_comp_ty is unique
+  case H14.
   search.
 apply ctx_ers_member to H1 H13. case H14. case H12. case H12. case H15.
 apply ctx_t_member to H1 H7. case H8. case H6.
 % COMPUTATION CAST
 case H3.
   apply IH2 to H1 H4 H5.
-  assert {Ctx_t2e |- t/skel_comp_ty B T}. skip.
+  apply ers_of_comp_coer to H1 H6.
+  assert T = T1. skip. % t/skel_comp_ty is unique
+  case H11.
   search.
 apply ctx_t_member to H1 H6. case H7. case H5.
 % IN CONTEXT

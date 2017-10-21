@@ -27,6 +27,10 @@ Define elb_ctxs : s/sig -> t/sig -> olist -> olist -> prop by
   nabla w, elb_ctxs Sig_s Sig_t
     (t/of_coer w Pi :: Ctx_s2t)
     (t/of_coer w Pi :: Ctx_t)
+    := elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t;
+  nabla t, elb_ctxs Sig_s Sig_t
+    (t/skel_val_ty t S :: Ctx_s2t)
+    (t/skel_val_ty t S :: Ctx_t)
     := elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t.
 
 Theorem elb_ctx_member :
@@ -47,6 +51,8 @@ Theorem elb_ctx_member :
     exists X, fresh X /\ F = ground_skel X
   ) \/ (
     exists X Pi, fresh X /\ F = t/of_coer X Pi /\ member (t/of_coer X Pi) Ctx_t
+  ) \/ (
+    exists X S, fresh X /\ F = t/skel_val_ty X S /\ member (t/skel_val_ty X S) Ctx_t
   ).
 induction on 1. intros Hctx Hmem. Hctx: case Hctx.
 % empty context
@@ -56,133 +62,139 @@ Hmem: case Hmem.
   % here
   search.
   % there
-  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search.
+  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search. search.
 % elb_var
 Hmem: case Hmem.
   % here
   search.
-  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search.
+  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search. search.
 % elb_val_ty
 Hmem: case Hmem.
   % here
   search.
-  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search.
+  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search. search.
 % ground_skel
 Hmem: case Hmem.
   % here
   search.
-  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search.
+  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search. search.
 % of_coer
 Hmem: case Hmem.
   % here
   search.
   % there
-  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search.
+  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search. search.
+% skel_val_ty
+Hmem: case Hmem.
+  % here
+  search.
+  % there
+  Hthere: apply IH to Hctx Hmem. case Hthere. search. search. search. search. search. search.
 
 Theorem elb_comp_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2 X3 X4, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_comp X1 X2 X3 X4} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_skel_val_ty_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- t/skel_val_ty X1 X2} -> member F Ctx_s2t ->
-  false.
+  F = t/skel_val_ty X1 X2 /\ fresh X1 /\ {Ctx_t |- t/skel_val_ty X1 X2}.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H. search.
 
 Theorem elb_skel_comp_ty_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- t/skel_comp_ty X1 X2} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_comp_ty_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_comp_ty X1 X2} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_hand_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2 X3 X4 X5 X6, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_hand X1 X2 X3 X4 X5 X6} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_poly_ty_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_poly_ty X1 X2} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_poly_val_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F Vs Ps Vt, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_poly_val Sig_s Vs Ps Vt} -> member F Ctx_s2t ->
   exists At, {Ctx_s2t |- elb_poly_ty Ps At} /\ {Ctx_t |- t/of_val Sig_t Vt At}.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_poly_var_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F Vs Ps Vt, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_poly_var Sig_s Vs Ps Vt} -> member F Ctx_s2t ->
   exists At, {Ctx_s2t |- elb_poly_ty Ps At} /\ {Ctx_t |- t/of_val Sig_t Vt At}.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. search. case H. case H. case H. case H.
+  case Hform. case H. search. case H. case H. case H. case H. case H.
 
 Theorem elb_qual_ty_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_qual_ty X1 X2} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_qual_val_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2 X3 X4, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_qual_val X1 X2 X3 X4} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_qual_var_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2 X3 X4, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_qual_var X1 X2 X3 X4} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_val_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2 X3 X4, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_val X1 X2 X3 X4} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 Theorem elb_val_ty_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_val_ty X1 X2} -> member F Ctx_s2t ->
   F = elb_val_ty X1 X2 /\ fresh X1.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. search. case H. case H.
+  case Hform. case H. case H. case H. search. case H. case H. case H.
 
 Theorem elb_var_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F Vs As Vt, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_var Sig_s Vs As Vt} -> member F Ctx_s2t ->
   exists At, {Ctx_s2t |- elb_val_ty As At} /\ {Ctx_t |- t/of_val Sig_t Vt At}.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. search. case H. case H. case H.
+  case Hform. case H. case H. search. case H. case H. case H. case H.
 
 Theorem elb_cnstr_member :
   forall Sig_s Sig_t Ctx_s2t Ctx_t F X1 X2, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t, [F] |- elb_cnstr X1 X2} -> member F Ctx_s2t ->
   false.
 intros Hctx H Hmem. Hform : apply elb_ctx_member to *Hctx *Hmem.
-  case Hform. case H. case H. case H. case H. case H.
+  case Hform. case H. case H. case H. case H. case H. case H.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Uniqueness
@@ -202,6 +214,7 @@ induction on 2. intros. case H2.
   case H3.
     case H1. apply member_nominal_absurd to H4.
     case H1.
+      apply IH to H6 H4 H5. search.
       apply IH to H6 H4 H5. search.
       apply IH to H6 H4 H5. search.
       apply IH to H6 H4 H5. search.
@@ -277,10 +290,10 @@ intros. case H2.
   apply IH to H1 H3. apply IH1 to H1 H4. search.
   apply IH1 to H1 H3. apply IH1 to H1 H4. search.
   apply IH to H1 H3. search.
+  apply IH to _ H3 with Ctx_t = t/skel_val_ty n1 S1 :: Ctx_t. search.
   apply IH to H1 H3. search.
   apply IH to H1 H3. search.
-  apply IH to H1 H3. search.
-  apply elb_skel_val_ty_member to H1 H3 H4.
+  apply elb_skel_val_ty_member to H1 H3 H4. case H3. search.
 intros. case H2.
   apply IH to H1 H3. search.
   apply elb_skel_comp_ty_member to H1 H3 H4.
@@ -293,7 +306,7 @@ Theorem strengthen_is_dirt :
 induction on 2. intros. case H2.
   search.
   apply IH to H1 H3. search.
-  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3.
+  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3. case H3.
 
 Theorem strengthen_in_dirt :
   forall Sig_s Sig_t Ctx_s2t Ctx_t O D, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
@@ -301,7 +314,7 @@ Theorem strengthen_in_dirt :
 induction on 2. intros. case H2.
   search.
   apply IH to H1 H3. search.
-  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3.
+  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3. case H3.
 
 Theorem strengthen_is_op :
   forall Sig_s Sig_t Ctx_s2t Ctx_t O, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
@@ -309,7 +322,7 @@ Theorem strengthen_is_op :
 induction on 2. intros. case H2.
   search.
   apply IH to H1 H3. search.
-  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3.
+  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3. case H3.
 
 Theorem strengthen_of_coer :
   forall Sig_s Sig_t Ctx_s2t Ctx_t Y Pi, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
@@ -334,13 +347,14 @@ induction on 2. intros. case H2.
   apply strengthen_is_dirt to H1 H3. search.
   search.
   apply IH to H1 H3. search.
-  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3. search.
+  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3. search. case H3.
 
 Theorem elb_ctxs_sig :
   forall Sig_s Sig_t Ctx_s2t Ctx_t, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {elb_sig Sig_s Sig_t}.
 induction on 1. intros. case H1.
   search.
+  apply IH to H2. search.
   apply IH to H2. search.
   apply IH to H2. search.
   apply IH to H2. search.
@@ -366,12 +380,12 @@ intros. case H2.
   apply IH1 to H1 H3. apply IH1 to H1 H4. search.
   case H4.
     case H3.
-    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. search. case H3. case H3.
+    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. search. case H3. case H3. case H3.
 intros. case H2.
   apply IH to H1 H3. search.
   case H4.
     case H3.
-    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3.
+    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3. case H3.
 Split strengthen_poly_var_elb_ty as strengthen_poly_var_elb_val_ty, strengthen_poly_var_elb_comp_ty.
 
 Theorem strengthen_elb_var_elb_ty :
@@ -393,12 +407,12 @@ intros. case H2.
   apply IH1 to H1 H3. apply IH1 to H1 H4. search.
   case H4.
     case H3.
-    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. search. case H3. case H3.
+    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. search. case H3. case H3. case H3.
 intros. case H2.
   apply IH to H1 H3. search.
   case H4.
     case H3.
-    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3.
+    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3. case H3.
 Split strengthen_elb_var_elb_ty as strengthen_elb_var_elb_val_ty, strengthen_elb_var_elb_comp_ty.
 
 Theorem strengthen_of_coer_elb_ty :
@@ -420,12 +434,12 @@ intros. case H2.
   apply IH1 to H1 H3. apply IH1 to H1 H4. search.
   case H4.
     case H3.
-    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. search. case H3. case H3.
+    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. search. case H3. case H3. case H3.
 intros. case H2.
   apply IH to H1 H3. search.
   case H4.
     case H3.
-    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3.
+    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3. case H3.
 Split strengthen_of_coer_elb_ty as strengthen_of_coer_elb_val_ty, strengthen_of_coer_elb_comp_ty.
 
 Theorem strengthen_elb_cnstr :
@@ -438,7 +452,7 @@ induction on 2. intros. case H2.
   apply strengthen_of_coer_elb_comp_ty to H1 H3. apply strengthen_of_coer_elb_comp_ty to H1 H4. search.
   case H4.
     case H3.
-    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3.
+    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3. case H3.
 
 Theorem strengthen_elb_qual_ty :
   forall Sig_s Sig_t Ctx_s2t Ctx_t X1 X2 Q A, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
@@ -449,7 +463,7 @@ induction on 2. intros. case H2.
   apply IH to H1 H4. apply strengthen_elb_cnstr to H1 H3. search.
   case H4.
     case H3.
-    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3.
+    apply elb_ctx_member to H1 H5. case H6. case H3. case H3. case H3. case H3. case H3. case H3.
 
 Theorem strengthen_apart :
   forall Sig_s Sig_t Ctx_s2t Ctx_t O1 O2, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
@@ -458,18 +472,4 @@ induction on 2. intros. case H2.
   search.
   search.
   apply IH to H1 H3. search.
-  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3.
-
-Theorem weaken_of_op :
-  forall Sig_s Sig_t Ctx_s2t Ctx_t O1 O2 A1 A2 A3 A4, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
-  {apart O1 O2} -> {Ctx_s2t |- s/of_op Sig_s O2 A3 A4} ->
-  {Ctx_s2t |- s/of_op (s/cons_sig O1 A1 A2 Sig_s) O2 A3 A4}.
-intros. search.
-%
-Theorem strengthen_elb_of_op :
-  forall Sig_s Sig_t Ctx_s2t Ctx_t O A1s A2s, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
-  {Ctx_s2t |- s/of_op Sig_s O A1s A2s} -> {s/of_op Sig_s O A1s A2s}.
-induction on 2. intros. case H2.
-  search.
-  skip.
-  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3.
+  apply elb_ctx_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3. case H3.

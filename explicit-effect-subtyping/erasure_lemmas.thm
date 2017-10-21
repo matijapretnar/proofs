@@ -21,7 +21,7 @@ Define ctx3 : t/sig -> e/sig -> olist -> olist -> olist -> prop by
 Theorem ctx_t_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
   ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t -> exists X A X' T,
     fresh X /\ fresh X' /\ (F = t/of_val Sig_t X A) /\ {Ctx_t2e |- t/skel_val_ty A T} /\ member (ers_val X X') Ctx_t2e /\ member (e/of_val Sig_e X' T) Ctx_e.
-skip.
+skip. % by definition of what a ctx_t can be
 
 Theorem ctx_ers_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
   ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t2e ->
@@ -52,44 +52,38 @@ case H2.
     search.
     search.
 
-Theorem t/skel_comp_ty_strengthen :
-  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e B T, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t2e, ers_val n1 n2 |- t/skel_comp_ty B T} -> {Ctx_t2e |- t/skel_comp_ty B T}.
-skip.
-
-%
-% Theorem unique_ers_ty :
-%   (forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e A T1 T2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> {Ctx_t2e |- t/skel_val_ty A T1} -> {Ctx_t2e |- t/skel_val_ty A T2} -> T1 = T2)
-%   /\
-%   (forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Bs T1 T2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> {Ctx_t2e |- t/skel_comp_ty Bs T1} -> {Ctx_t2e |- t/skel_comp_ty Bs T2} -> T1 = T2).
-% induction on 2 2. split.
-% intros. case H2.
-%   case H3.
-%     search.
-%     apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
-%   case H3.
-%     apply IH to H1 H4 H6. apply IH1 to H1 H5 H7. search.
-%     apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
-%   case H3.
-%     apply IH1 to H1 H4 H6. apply IH1 to H1 H5 H7. search.
-%     apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
-%   case H3.
-%     apply IH to _ H4 H5. search.
-%     apply ctx_ers_member to H1 H6. case H7. case H5. case H5.
-%   apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
-% intros. case H2.
-%   case H3.
-%     apply IH to H1 H4 H5. search.
-%     apply ctx_ers_member to H1 H6. case H7. case H5. case H5.
-% apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
-%
-% Split unique_ers_ty as unique_t/skel_val_ty, unique_t/skel_comp_ty.
+Theorem t/skel_ty_strengthen :
+  (
+    forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e A T, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t2e, ers_val n1 n2 |- t/skel_val_ty A T} -> {Ctx_t2e |- t/skel_val_ty A T}
+  ) /\ (
+    forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e B T, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t2e, ers_val n1 n2 |- t/skel_comp_ty B T} -> {Ctx_t2e |- t/skel_comp_ty B T}
+  ).
+induction on 2 2. split.
+intros. case H2.
+  search.
+  apply IH to H1 H3. apply IH1 to H1 H4. search.
+  apply IH1 to H1 H3. apply IH1 to H1 H4. search.
+  apply IH to _ H3. search.
+  apply IH to _ H3. search.
+  apply IH to _ H3. search.
+  apply IH to _ H3. search.
+  case H4.
+    case H3.
+    apply ctx_ers_member to H1 H5. case H6. case H3. case H3. search.
+intros. case H2.
+  apply IH to H1 H3. search.
+  case H4.
+    case H3.
+    apply ctx_ers_member to H1 H5. case H6. case H3. case H3.
+Split t/skel_ty_strengthen as t/skel_val_ty_strengthen, t/skel_comp_ty_strengthen.
 
 Theorem ers_unique :
   (forall L Vt Ve1 Ve2, {L |- ers_val Vt Ve1} -> {L |- ers_val Vt Ve2} -> Ve1 = Ve2)
   /\
   (forall L Ct Ce1 Ce2, {L |- ers_comp Ct Ce1} -> {L |- ers_comp Ct Ce2} -> Ce1 = Ce2).
-skip.
+skip. % ers_val and ers_comp are unique by definition
 Split ers_unique as unique_ers_val, unique_ers_comp.
 
 Theorem ers_term_val :
@@ -108,7 +102,15 @@ Theorem unique_skel_ty :
   (forall Vt S1 S2, {t/skel_val_ty Vt S1} -> {t/skel_val_ty Vt S2} -> S1 = S2)
   /\
   (forall Ct S1 S2, {t/skel_comp_ty Ct S1} -> {t/skel_comp_ty Ct S2} -> S1 = S2).
-skip.
+induction on 1 1. split.
+intros. case H1.
+  case H2. search.
+  case H2. apply IH to H3 H5. apply IH1 to H4 H6. search.
+  case H2. apply IH1 to H3 H5. apply IH1 to H4 H6. search.
+  case H2. apply IH to H3 H4. search.
+  case H2. skip. % assumption t/skel_val_ty n1 S does not influence uniqueness of t/skel_val_ty
+  case H2. apply IH to H3 H4. search.
+  case H2. apply IH to H3 H4. search.
+intros. case H1.
+  case H2. apply IH to H3 H4. search.
 Split unique_skel_ty as unique_skel_val_ty, unique_skel_comp_ty.
-
-

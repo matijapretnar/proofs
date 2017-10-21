@@ -102,7 +102,7 @@ case H2. case H3. case H5.
 apply unique_ers_val to H6 H9.
 apply unique_skel_val_ty to H7 H10.
 case H8. apply unique_ers_comp to H11 H12. search.
-skip. % member
+case H13. case H12. case H14.
 % DO C1-step
 case H2. case H3. apply IH to H4 H5 H7. apply unique_ers_comp to H6 H8.
 case H9. search. search.
@@ -133,14 +133,20 @@ search.
 case H14. case H13.
 case H15.
 % HANDLE V-step
-skip.
+case H2. case H3. apply unique_ers_comp to H5 H7.
+apply val_preservation to H4 H6 H8. case H9.
+  search.
+  search.
 % HANDLE V-cast
-skip.
+case H2. case H3. case H6. case H7. case H9.
+apply unique_ers_comp to H5 H11. apply unique_ers_val to H8 H10. search.
 % HANDLE C-step
-skip.
+case H2. case H3. apply unique_ers_val to H7 H9. apply IH to H5 H6 H8.
+case H10. search. apply ers_term_val to H4 H7. search.
 % HANDLE t/ret
-skip.
+case H2. case H6. case H7. skip. % apply ers_get_ret_case to H9 H5.
 % HANDLE t/ret-t/coer
-skip.
+case H2. case H6. case H8. case H7. skip. % apply ers_get_ret_case to H10 H5.
 % HANDLE op
-skip.
+case H2. case H6. case H7. skip. % apply ers_get_op_case to H11 H5 H3.
+

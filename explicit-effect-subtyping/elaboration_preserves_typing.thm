@@ -10,7 +10,7 @@ Theorem elb_of_op :
   forall Sig_s Sig_t Ctx_s2t Ctx_t O A1s A2s, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t |- s/of_op Sig_s O A1s A2s} ->
   exists A1t A2t, {t/of_op Sig_t O A1t A2t} /\ {elb_val_ty A1s A1t} /\ {elb_val_ty A2s A2t}.
-
+skip. % contexts do not influence typing of operations
 
 Theorem elb_of_var :
   (forall Sig_s Sig_t Ctx_s2t Ctx_t Vs As Vt, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
