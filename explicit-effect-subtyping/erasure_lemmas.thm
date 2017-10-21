@@ -98,19 +98,86 @@ intros. case H1.
   backchain ers_term_val.
   case H2. backchain ers_term_val.
 
+Theorem of_val_nominal_absurd : forall L Sig A, nabla x,
+  member (t/of_val Sig x A) L -> false.
+induction on 1. intros. case H1. apply IH to H2.
+
+Theorem skel_val_ty_nominal_absurd : forall L S, nabla x,
+  member (t/skel_val_ty x S) L -> false.
+induction on 1. intros. case H1. apply IH to H2.
+
+Close t/comp_ty, t/coer_ty, t/val_ty.
+
+Theorem unique_ctx_of_val :
+  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e V A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+  member (t/of_val Sig_t V A1) Ctx_t -> member (t/of_val Sig_t V A2) Ctx_t -> A1 = A2.
+induction on 2. intros. case H2.
+  case H3.
+    search.
+    case H1. apply of_val_nominal_absurd to H4.
+  case H3.
+    case H1. apply of_val_nominal_absurd to H4.
+    case H1.
+      apply IH to H6 H4 H5. search.
+      apply IH to H6 H4 H5. search.
+
+Theorem unique_ctx_skel_ty :
+  forall Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e A S1 S2, ctx3 Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e ->
+  member (t/skel_val_ty A S1) Ctx_t2e -> member (t/skel_val_ty A S2) Ctx_t2e -> S1 = S2.
+induction on 2. intros. case H2.
+  case H3.
+    search.
+    case H1. apply skel_val_ty_nominal_absurd to H4.
+  case H3.
+    case H1. apply skel_val_ty_nominal_absurd to H4.
+    case H1.
+      apply IH to H6 H4 H5. search.
+      apply IH to H6 H4 H5. search.
+
 Theorem unique_skel_ty :
-  (forall Vt S1 S2, {t/skel_val_ty Vt S1} -> {t/skel_val_ty Vt S2} -> S1 = S2)
-  /\
-  (forall Ct S1 S2, {t/skel_comp_ty Ct S1} -> {t/skel_comp_ty Ct S2} -> S1 = S2).
-induction on 1 1. split.
-intros. case H1.
-  case H2. search.
-  case H2. apply IH to H3 H5. apply IH1 to H4 H6. search.
-  case H2. apply IH1 to H3 H5. apply IH1 to H4 H6. search.
-  case H2. apply IH to H3 H4. search.
-  case H2. skip. % assumption t/skel_val_ty n1 S does not influence uniqueness of t/skel_val_ty
-  case H2. apply IH to H3 H4. search.
-  case H2. apply IH to H3 H4. search.
-intros. case H1.
-  case H2. apply IH to H3 H4. search.
+  (
+    forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Vt S1 S2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t2e |- t/skel_val_ty Vt S1} -> {Ctx_t2e |- t/skel_val_ty Vt S2} -> S1 = S2
+  ) /\ (
+    forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Ct S1 S2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t2e |- t/skel_comp_ty Ct S1} -> {Ctx_t2e |- t/skel_comp_ty Ct S2} -> S1 = S2
+  ).
+induction on 2 2. split.
+intros. case H2.
+  case H3.
+    search.
+    apply ctx_ers_member to H1 H5. case H6. case H4. case H4. case H7.
+  case H3.
+    apply IH to H1 H4 H6. apply IH1 to H1 H5 H7. search.
+    apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+  case H3.
+    apply IH1 to H1 H4 H6. apply IH1 to H1 H5 H7. search.
+    apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+  case H3.
+    apply IH to H1 H4 H5. search.
+    apply ctx_ers_member to H1 H6. case H7. case H5. case H5. case H8.
+  case H3.
+    apply IH to _ H4 H5. search.
+    apply ctx_ers_member to H1 H6. case H7. case H5. case H5. case H8.
+  case H3.
+    apply IH to H1 H4 H5. search.
+    apply ctx_ers_member to H1 H6. case H7. case H5. case H5. case H8.
+  case H3.
+    apply IH to H1 H4 H5. search.
+    apply ctx_ers_member to H1 H6. case H7. case H5. case H5. case H8.
+  apply ctx_ers_member to H1 H5. case H6. case H4. case H4. case H7. case H3.
+  apply ctx_ers_member to H1 H9. case H10. case H8. case H8. apply unique_ctx_skel_ty to H1 H5 H9. search.
+intros. case H2.
+  case H3.
+    apply IH to H1 H4 H5. search.
+    apply ctx_ers_member to H1 H6. case H7. case H5. case H5.
+  apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
 Split unique_skel_ty as unique_skel_val_ty, unique_skel_comp_ty.
+
+Theorem strengthen_is_op :
+  forall Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e O, ctx3 Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e ->
+  {Ctx_t |- is_op O} -> {Ctx_t2e |- is_op O}.
+induction on 2. intros. case H2.
+  search.
+  apply IH to H1 H3. search.
+  apply ctx_t_member to H1 H4. case H5. case H3.
