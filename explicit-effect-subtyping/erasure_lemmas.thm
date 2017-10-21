@@ -1,0 +1,114 @@
+Specification "erasure".
+Import "common".
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Contexts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Define ctx3 : t/sig -> e/sig -> olist -> olist -> olist -> prop by
+  ctx3 Sig_t Sig_e nil nil nil := {ers_sig Sig_t Sig_e};
+  nabla x x', ctx3 Sig_t Sig_e
+    (t/of_val Sig_t x A :: Ctx_t)
+    (ers_val x x' :: Ctx_t2e)
+    (e/of_val Sig_e x' T :: Ctx_e)
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ {Ctx_t2e |- t/skel_val_ty A T};
+  nabla t, ctx3 Sig_t Sig_e
+    (t/skel_val_ty t Te :: Ctx_t)
+    (t/skel_val_ty t Te :: Ctx_t2e)
+    Ctx_e
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e.
+
+Theorem ctx_t_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
+  ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t -> exists X A X' T,
+    fresh X /\ fresh X' /\ (F = t/of_val Sig_t X A) /\ {Ctx_t2e |- t/skel_val_ty A T} /\ member (ers_val X X') Ctx_t2e /\ member (e/of_val Sig_e X' T) Ctx_e.
+skip.
+
+Theorem ctx_ers_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
+  ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t2e ->
+    (exists X A X' T,
+      fresh X /\ fresh X' /\
+      (F = ers_val X X') /\
+      {Ctx_t2e |- t/skel_val_ty A T} /\ member (t/of_val Sig_t X A) Ctx_t /\ member (e/of_val Sig_e X' T) Ctx_e)
+    \/
+    (exists A T,
+      fresh A /\ (F = t/skel_val_ty A T)).
+induction on 1. intros. case H1.
+% empty
+case H2.
+% ers_val
+case H2.
+  % here
+  search.
+  % there
+  apply IH to H3 H5. case H6.
+    left. exists (X n2 n1), (A1 n2 n1). search.
+    right. search.
+% t/skel_val_ty
+case H2.
+  % here
+  search.
+  % there
+  apply IH to H3 H4. case H5.
+    search.
+    search.
+
+Theorem t/skel_comp_ty_strengthen :
+  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e B T, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t2e, ers_val n1 n2 |- t/skel_comp_ty B T} -> {Ctx_t2e |- t/skel_comp_ty B T}.
+skip.
+
+%
+% Theorem unique_ers_ty :
+%   (forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e A T1 T2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> {Ctx_t2e |- t/skel_val_ty A T1} -> {Ctx_t2e |- t/skel_val_ty A T2} -> T1 = T2)
+%   /\
+%   (forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Bs T1 T2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> {Ctx_t2e |- t/skel_comp_ty Bs T1} -> {Ctx_t2e |- t/skel_comp_ty Bs T2} -> T1 = T2).
+% induction on 2 2. split.
+% intros. case H2.
+%   case H3.
+%     search.
+%     apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
+%   case H3.
+%     apply IH to H1 H4 H6. apply IH1 to H1 H5 H7. search.
+%     apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
+%   case H3.
+%     apply IH1 to H1 H4 H6. apply IH1 to H1 H5 H7. search.
+%     apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
+%   case H3.
+%     apply IH to _ H4 H5. search.
+%     apply ctx_ers_member to H1 H6. case H7. case H5. case H5.
+%   apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
+% intros. case H2.
+%   case H3.
+%     apply IH to H1 H4 H5. search.
+%     apply ctx_ers_member to H1 H6. case H7. case H5. case H5.
+% apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
+%
+% Split unique_ers_ty as unique_t/skel_val_ty, unique_t/skel_comp_ty.
+
+Theorem ers_unique :
+  (forall L Vt Ve1 Ve2, {L |- ers_val Vt Ve1} -> {L |- ers_val Vt Ve2} -> Ve1 = Ve2)
+  /\
+  (forall L Ct Ce1 Ce2, {L |- ers_comp Ct Ce1} -> {L |- ers_comp Ct Ce2} -> Ce1 = Ce2).
+skip.
+Split ers_unique as unique_ers_val, unique_ers_comp.
+
+Theorem ers_term_val :
+  forall Vt Ve,
+    {t/term_val Vt} -> {ers_val Vt Ve} -> {e/result_val Ve}.
+skip.
+
+Theorem ers_result_val :
+  forall Vt Ve,
+    {t/result_val Vt} -> {ers_val Vt Ve} -> {e/result_val Ve}.
+intros. case H1.
+  backchain ers_term_val.
+  case H2. backchain ers_term_val.
+
+Theorem unique_skel_ty :
+  (forall Vt S1 S2, {t/skel_val_ty Vt S1} -> {t/skel_val_ty Vt S2} -> S1 = S2)
+  /\
+  (forall Ct S1 S2, {t/skel_comp_ty Ct S1} -> {t/skel_comp_ty Ct S2} -> S1 = S2).
+skip.
+Split unique_skel_ty as unique_skel_val_ty, unique_skel_comp_ty.
+
+

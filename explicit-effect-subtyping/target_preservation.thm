@@ -1,0 +1,104 @@
+Specification "target".
+Import "target_lemmas".
+
+Theorem of/valcase : forall Sig H A D C M,
+    {t/of_hand Sig H A D C} -> {t/get_ret_case H M} -> nabla x, {t/of_val Sig x A |- t/of_comp Sig (M x) C}.
+induction on 2. intros. case H2.
+    case H1. search.
+    case H1. apply IH to H4 H3. search.
+
+Theorem of/t/op_case : forall Sig O A1 A2 H A D C M,
+     {t/of_hand Sig H A D C} ->
+     {t/get_op_case H O A2 M} ->
+     {t/of_op Sig O A1 A2} ->
+     {in_dirt O D} ->
+     {is_op O} ->
+     nabla x, nabla k, {t/of_val Sig x A1, t/of_val Sig k (t/fun_ty A2 C) |- t/of_comp Sig (M x k) C}.
+induction on 2. intros. case H2.
+  case H1. search.
+  case H1. apply t/of_op_unique to H3 H8. search.
+  case H1. case H4. apply apart_not_reflexive to H6. apply IH to H8 H7 H3 H12 H5. search.
+
+Theorem val_preservation : forall Sig V V' A, {t/step_val V V'} -> {t/of_val Sig V A} -> {t/of_val Sig V' A}.
+induction on 1. intros. case H1.
+% COERCE
+case H2. apply IH to H3 H4. search.
+% COMPOSE
+case H2. case H4. search.
+% APP_SKEL
+case H2. apply IH to H3 H4. search.
+% APP_TY
+case H2. apply IH to H3 H4. search.
+% APP_DIRT
+case H2. apply IH to H3 H4. search.
+% APP_COER
+case H2. apply IH to H3 H4. search.
+% coerced APP_SKEL
+case H2. case H4. apply t/coer_less_val_ty to H6. case H7. search.
+% coerced APP_TY
+case H2. case H4. apply t/coer_less_val_ty to H7. case H8. search.
+% coerced APP_DIRT
+case H2. case H4. apply t/coer_less_val_ty to H6. case H7. search.
+% coerced APP_COER
+case H2. case H4. apply t/coer_less_val_ty to H7. case H8. search.
+% APP_SKEL reduce
+case H2. case H3. inst H4 with n1 = S. search.
+% APP_TY reduce
+case H2. case H3. inst H5 with n1 = A1. cut H6. search.
+% APP_DIRT reduce
+case H2. case H3. inst H4 with n1 = A1. search.
+% APP_COER reduce
+case H2. case H3. inst H5 with n1 = A1. cut H6. search.
+
+Theorem comp_preservation : forall Sig C C' A, {t/step_comp C C'} -> {t/of_comp Sig C A} -> {t/of_comp Sig C' A}.
+induction on 1. intros. case H1.
+% COERCE
+case H2. apply IH to H3 H4. search.
+% COMPOSE
+case H2. case H4. search.
+% APP V1-step
+case H2. apply val_preservation to H3 H4. search.
+% APP V1-t/coer
+case H2. case H4. apply t/coer_less_val_ty to H7. case H8. search.
+% APP V2-step
+case H2. apply val_preservation to H4 H6. search.
+% APP beta
+case H2. case H4. inst H6 with n1 = V. cut H7. search.
+% LET V-step
+case H2. apply val_preservation to H3 H4. search.
+% LET beta
+case H2. inst H5 with n1 = V. cut H6. search.
+% RETURN V-step
+case H2. apply val_preservation to H3 H4. search.
+% RETURN coerce
+case H2. case H3. search.
+% OP V-step
+case H2. apply val_preservation to H3 H5. search.
+% OP-coerce
+case H2. case H4. apply t/coer_less_comp_ty to H5. case H11.
+apply in_less_dirt to H9 H13.
+search.
+% DO C1-step
+case H2. apply IH to H3 H4. search.
+% DO cast_ret
+case H2. case H4. apply t/coer_less_comp_ty to H7. case H8.
+  case H6. inst H5 with n1 = (t/val_cast V (t/pure_coer Y)). cut H12. search.
+% DO t/ret
+case H2. case H4. inst H5 with n1 = V. cut H7. search.
+% DO op
+case H2. case H4. search.
+% HANDLE V-step
+case H2. apply val_preservation to H3 H5. search.
+% HANDLE V-cast
+case H2. case H5. apply t/coer_less_val_ty to H7. case H8. search.
+% HANDLE C-step
+case H2. apply IH to H4 H5. search.
+% HANDLE t/ret
+case H2. case H6. apply of/valcase to H7 H4. inst H8 with n1 = V. case H5. cut H9. search.
+% HANDLE t/ret-t/coer
+case H2. case H6. apply of/valcase to H7 H4. inst H8 with n1 = (t/val_cast V (t/pure_coer Y)). case H5. case H10. cut H9. search.
+% HANDLE op
+case H2. case H6. case H5. apply of/t/op_case to H7 H4 H8 H11 H12.
+assert {t/of_val Sig (t/fun B (y\t/with (C1 y) (t/hand H))) (t/fun_ty B A)}.
+inst H13 with n1 = V, n2 = (t/fun B (y\t/with (C1 y) (t/hand H))).
+cut H15. search.
