@@ -129,8 +129,7 @@ case H3.
 % VALUE APPLY
 case H3.
 apply IH to H1 H4 H5. case H7. inst H9 with n1 = X.
-assert {Ctx_t2e |- t/skel_val_ty X S}.
-skip. % if ctx_t proves t/skel_val_ty, so does ctx_t2e
+apply strengthen_skel_val_ty to H1 H6.
 cut H10. search.
   apply ctx_ers_member to H1 H10. case H11. case H9. case H9. case H12.
 apply ctx_t_member to H1 H6. case H7. case H5.

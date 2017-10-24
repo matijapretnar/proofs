@@ -1,6 +1,6 @@
 Specification "erasure".
 Import "common".
-
+Set subgoals off.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Contexts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -351,3 +351,26 @@ Theorem simple_ctx_comp_member :
 intros Hctx H Hmem. Hform : apply simple_ctx_member to *Hctx *Hmem.
   case Hform. case H. case H.
 
+Theorem strengthen_skel_ty :
+  (
+    forall Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e A S, ctx3 Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t |- t/skel_val_ty A S} -> {Ctx_t2e |- t/skel_val_ty A S}
+  ) /\ (
+    forall Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e A S, ctx3 Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t |- t/skel_comp_ty A S} -> {Ctx_t2e |- t/skel_comp_ty A S}
+  ).
+induction on 2 2. split.
+intros. case H2.
+  search.
+  apply IH to H1 H3. apply IH1 to H1 H4. search.
+  apply IH1 to H1 H3. apply IH1 to H1 H4. search.
+  apply IH to H1 H3. search.
+  apply IH to _ H3. search.
+  apply IH to H1 H3. search.
+  apply IH to H1 H3. search.
+  apply ctx_t_member to H1 H4. case H3.
+intros. case H2.
+  apply IH to H1 H3. search.
+  apply ctx_t_member to H1 H4. case H3.
+
+Split strengthen_skel_ty as strengthen_skel_val_ty, strengthen_skel_comp_ty.
