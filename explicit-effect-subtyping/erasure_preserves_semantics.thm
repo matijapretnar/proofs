@@ -70,9 +70,8 @@ apply ers_term_val to H4 H6.
 case H10. search. search.
 % APP beta
 case H2. case H5.
-inst H7 with n1 = V.
-monotone H3 with (ers_val V n2 :: nil).
-apply unique_ers_comp to _ H9 H10. skip.
+inst H7 with n1 = V, n2 = V2e. cut H9 with H6.
+apply unique_ers_comp to _ H3 H10.
 apply ers_result_val to H4 H6.
 search.
 % LET V-step
@@ -83,9 +82,8 @@ case H9. search. search.
 % LET beta
 case H2.
 apply ers_result_val to H4 H5.
-monotone H3 with (ers_val n1 n2 :: nil).
-inst H6 with n1 = V.
-apply unique_ers_comp to _ H8 H9. skip. search.
+inst H6 with n1 = V, n2 = Ve. cut H8 with H5.
+apply unique_ers_comp to _ H3 H9. search.
 % RETURN V-step
 case H2. case H3. apply val_preservation to H4 H5 H6.
 case H7. search. search.
@@ -116,9 +114,9 @@ search.
 % DO t/ret
 case H2. case H5.
 apply ers_term_val to H4 H7.
-monotone H3 with (ers_val n1 n2 :: nil).
-inst H6 with n1 = V.
-apply unique_ers_comp to _ H9 H10. skip.
+inst H6 with n1 = V, n2 = Ve.
+cut H9 with H7.
+apply unique_ers_comp to _ H3 H10.
 search.
 % DO op
 case H2. case H3. case H5. case H9.
