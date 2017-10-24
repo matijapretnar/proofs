@@ -57,7 +57,7 @@ intros. case H2.
   apply ctx_ers_member to H1 H8. case H9. case H7. case H7.
   apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
   % backchain
-  apply ctx_t_member to H1 H4. case H3.
+  apply ctx_t_member to H1 H4. case H5. case H3. case H3.
 intros. case H2.
   % bang
   apply IH1 to H1 H3. apply IH1 to H1 H4. apply unique_skel_comp_ty to H1 H6 H7. search.
@@ -76,7 +76,7 @@ intros. case H2.
   % impure
   apply IH to H1 H3. search.
   % backchain
-  apply ctx_t_member to H1 H4. case H3.
+  apply ctx_t_member to H1 H4. case H5. case H3. case H3.
 
 
 
@@ -100,77 +100,75 @@ intros. case H2.
 % UNIT
 case H3.
   search.
-  apply ctx_t_member to H1 H5. case H4. case H6.
+  apply ctx_t_member to H1 H5. case H6. case H4. case H7. case H4.
 % FUN
 case H3.
   apply IH2 to _ H4 H6.
   apply t/skel_comp_ty_strengthen to H1 H7.
   search.
-  apply ctx_t_member to H1 H7. case H6. case H8.
+  apply ctx_t_member to H1 H7. case H8. case H6. case H9. case H6.
 % HANDLER
 case H3.
   apply IH1 to _ H4 H5.
   search.
-  apply ctx_t_member to H1 H6. case H5. case H7.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 % SKELETON LAMBDA
 case H3.
   apply IH to _ H4 H5. search.
-  apply ctx_t_member to H1 H6. case H5. case H7.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 % SKELETON APPLY
 case H3.
 apply IH to H1 H4 H5. case H6.
   inst H8 with n1 = S. cut H9. search.
   apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
-  apply ctx_t_member to H1 H6. case H7. case H5.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 % VALUE LAMBDA
 case H3.
   apply IH to _ H4 H5. search.
-  apply ctx_t_member to H1 H6. case H5. case H7.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 % VALUE APPLY
 case H3.
 apply IH to H1 H4 H5. case H7. inst H9 with n1 = X.
 apply strengthen_skel_val_ty to H1 H6.
 cut H10. search.
   apply ctx_ers_member to H1 H10. case H11. case H9. case H9. case H12.
-apply ctx_t_member to H1 H6. case H7. case H5.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 % DIRT LAMBDA
 case H3.
 apply IH to H1 H4 H5. search.
-apply ctx_t_member to H1 H6. case H7. case H5.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 % DIRT APPLY
 case H3.
 apply IH to H1 H4 H5. case H6. inst H8 with n1 = X. search.
 apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
-apply ctx_t_member to H1 H6. case H7. case H5.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 % COERCION LAMBDA
 case H3.
 apply IH to _ H4 H5 with Ctx_e = Ctx_e, Ctx_t2e = Ctx_t2e, Sig_t = Sig_t, Sig_e = Sig_e.
 skip. % contexts can also contain t/of_coer
 search.
-apply ctx_t_member to H1 H6. case H7. case H5.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 % COERCION APPLY
 case H3.
 apply IH to H1 H4 H5. case H7. search.
 apply ctx_ers_member to H1 H10. case H11. case H9. case H9. case H12.
-apply ctx_t_member to H1 H6. case H7. case H5.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 % VALUE COERCION
 case H3. apply IH to H1 H4 H5.
 apply ers_of_val_coer to H1 H6.
 apply unique_skel_val_ty to H1 H7 H9.
 search.
-apply ctx_t_member to H1 H6. case H7. case H5.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
 
 % BACKCHAIN
 apply ctx_ers_member to H1 H5. case H6.
   % we had translated variable in the context
   case H4. case H7. case H3.
-  apply ctx_t_member to H1 H13. case H12.
-  apply unique_ctx_of_val to H1 H10 H13.
-  apply unique_skel_val_ty to H1 H9 H16.
-  search.
+  apply ctx_t_member to H1 H13. case H14. case H12.
+    apply unique_ctx_of_val to H1 H10 H13. search.
+    case H12.
   % we had translated skeleton in the context
   case H4.
-
 % HANDLERS
 intros. case H2.
 % RETURN CASE
@@ -180,7 +178,7 @@ case H3.
   case H9.
     search.
     apply ctx_ers_member to H1 H11. case H12. case H10. case H10.
-  apply ctx_t_member to H1 H7. case H6.
+  apply ctx_t_member to H1 H7. case H8. case H6. case H6.
 % OP CASE
 case H3.
   apply IH1 to _ H4 H6.
@@ -195,7 +193,7 @@ case H3.
   apply unique_skel_comp_ty to H1 H11 H22.
     search.
     apply apart_not_reflexive to H18.
-  apply ctx_t_member to H1 H7. case H6.
+  apply ctx_t_member to H1 H7. case H8. case H6. case H6.
 % BACKCHAIN
 apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
 
@@ -208,19 +206,19 @@ case H3.
   case H8.
     apply unique_skel_val_ty to H1 H10 H12. search.
   apply ctx_ers_member to H1 H13. case H14. case H12. case H12. case H15.
-apply ctx_t_member to H1 H7. case H8. case H6.
+apply ctx_t_member to H1 H7. case H8. case H6. case H6.
 % LET
 case H3.
   apply IH to H1 H4 H6.
   apply IH2 to _ H5 H7.
   apply t/skel_comp_ty_strengthen to H1 H10.
   search.
-apply ctx_t_member to H1 H7. case H8. case H6.
+apply ctx_t_member to H1 H7. case H8. case H6. case H6.
 % RETURN
 case H3.
   apply IH to H1 H4 H5.
   search.
-apply ctx_t_member to H1 H6. case H7. case H5.
+apply ctx_t_member to H1 H6. case H7. case H5. case H5.
 % OP
 case H3.
   apply IH to H1 H4 H8.
@@ -230,7 +228,7 @@ case H3.
   apply unique_skel_val_ty to H1 H5 H18.
   apply t/skel_comp_ty_strengthen to H1 H14.
   search.
-apply ctx_t_member to H1 H8. case H9. case H7.
+apply ctx_t_member to H1 H8. case H9. case H7. case H7.
 % DO
 case H3.
   apply IH2 to H1 H4 H6.
@@ -239,7 +237,7 @@ case H3.
   apply t/skel_comp_ty_strengthen to H1 H11.
   search.
   apply ctx_ers_member to H1 H11. case H12. case H10. case H10.
-apply ctx_t_member to H1 H7. case H8. case H6.
+apply ctx_t_member to H1 H7. case H8. case H6. case H6.
 % WITH
 case H3.
   apply IH2 to H1 H4 H6.
@@ -248,13 +246,13 @@ case H3.
   apply unique_skel_comp_ty to H1 H8 H12.
   search.
 apply ctx_ers_member to H1 H13. case H14. case H12. case H12. case H15.
-apply ctx_t_member to H1 H7. case H8. case H6.
+apply ctx_t_member to H1 H7. case H8. case H6. case H6.
 % COMPUTATION CAST
 case H3.
   apply IH2 to H1 H4 H5.
   apply ers_of_comp_coer to H1 H6.
   apply unique_skel_comp_ty to H1 H7 H9.
   search.
-apply ctx_t_member to H1 H6. case H7. case H5.
+apply ctx_t_member to H1 H6. case H7. case H5. case H5.
 % IN CONTEXT
 apply ctx_ers_member to H1 H5. case H6. case H4. case H4.

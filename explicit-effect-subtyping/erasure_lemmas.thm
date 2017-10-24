@@ -26,9 +26,32 @@ Define simple_ctx : olist -> prop by
     := simple_ctx Ctx.
 
 Theorem ctx_t_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
-  ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t -> exists X A X' T,
-    fresh X /\ fresh X' /\ (F = t/of_val Sig_t X A) /\ {Ctx_t2e |- t/skel_val_ty A T} /\ member (ers_val X X') Ctx_t2e /\ member (e/of_val Sig_e X' T) Ctx_e.
-skip. % by definition of what a ctx_t can be
+  ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t ->
+    (exists X A,
+      fresh X /\ (F = t/of_val Sig_t X A)
+    ) \/
+    (exists A T,
+      fresh A /\ (F = t/skel_val_ty A T)).
+induction on 1. intros. case H1.
+case H2.
+case H2.
+  search.
+  apply IH to H3 H5. case H6. search. search.
+case H2.
+  search.
+  apply IH to H3 H4. case H5. search. search.
+
+Theorem ctx_skel_val_ty_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e A S,
+  ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+  member (t/skel_val_ty A S) Ctx_t ->
+  member (t/skel_val_ty A S) Ctx_t2e.
+induction on 1. intros. case H1.
+  case H2.
+  case H2.
+    apply IH to H3 H5. search.
+  case H2.
+    search.
+    apply IH to H3 H4. search.
 
 Theorem ctx_ers_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
   ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t2e ->
@@ -186,7 +209,7 @@ Theorem strengthen_is_op :
 induction on 2. intros. case H2.
   search.
   apply IH to H1 H3. search.
-  apply ctx_t_member to H1 H4. case H5. case H3.
+  apply ctx_t_member to H1 H4. case H5. case H3. case H3.
 
 Theorem simple_ctx_member : forall Ctx F,
   simple_ctx Ctx -> member F Ctx ->
@@ -368,9 +391,10 @@ intros. case H2.
   apply IH to _ H3. search.
   apply IH to H1 H3. search.
   apply IH to H1 H3. search.
-  apply ctx_t_member to H1 H4. case H3.
+  apply ctx_t_member to H1 H4. case H5. case H3. case H3.
+  apply ctx_skel_val_ty_member to H1 H4. search.
 intros. case H2.
   apply IH to H1 H3. search.
-  apply ctx_t_member to H1 H4. case H3.
+  apply ctx_t_member to H1 H4. case H5. case H3. case H3.
 
 Split strengthen_skel_ty as strengthen_skel_val_ty, strengthen_skel_comp_ty.
