@@ -41,7 +41,8 @@ intros. case H2.
   apply ctx_ers_member to H1 H8. case H9. case H7. case H7. case H10.
   apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
   % all val ty
-  apply IH to H1 H3. case H5. case H6. inst H7 with n1 = A. inst H8 with n1 = A. skip.
+  apply IH to H1 H3. case H5. case H6. inst H7 with n1 = A. inst H8 with n1 = A.
+  apply strengthen_skel_val_ty to H1 H4. cut H9 with H11. cut H10 with H11. search.
   apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
   apply ctx_ers_member to H1 H8. case H9. case H7. case H7. case H10.
   % all dirt
