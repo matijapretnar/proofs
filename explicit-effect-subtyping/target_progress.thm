@@ -50,7 +50,7 @@ search.
   apply IH to H2. case H4. case H5.
   % V is a terminal value
     case H6.
-    case H2. case H2. case H2.
+    case H2. case H2. case H2. case H2.
     search. % interesting case
     case H2. case H2. case H2.% boring cases
   % V is a cast value

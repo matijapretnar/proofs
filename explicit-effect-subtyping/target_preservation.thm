@@ -44,7 +44,7 @@ case H2. case H4. apply t/coer_less_val_ty to H7. case H8. search.
 % APP_SKEL reduce
 case H2. case H3. inst H4 with n1 = S. search.
 % APP_TY reduce
-case H2. case H3. inst H5 with n1 = A1. cut H6. search.
+case H2. case H4. inst H6 with n1 = A1. cut H7. search.
 % APP_DIRT reduce
 case H2. case H3. inst H4 with n1 = A1. search.
 % APP_COER reduce
