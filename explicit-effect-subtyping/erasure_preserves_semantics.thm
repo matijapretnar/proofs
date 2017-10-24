@@ -33,9 +33,9 @@ case H2. case H3. case H5. case H6. apply unique_ers_val to _ H7 H8. search.
 % APP_SKEL reduce
 case H2. case H4. inst H5 with n1 = S. apply unique_ers_val to _ H3 H6. search.
 % APP_TY reduce
-case H2. case H4. inst H5 with n1 = A.
-monotone H3 with (t/skel_val_ty A S :: nil).
-apply unique_ers_val to _ H6 H7. skip. search.
+case H2. case H5.
+inst H6 with n1 = A. cut H7 with H4.
+apply unique_ers_val to _ H3 H8. search.
 % APP_DIRT reduce
 case H2. case H4. inst H5 with n1 = A.
 apply unique_ers_val to _ H3 H6. search.

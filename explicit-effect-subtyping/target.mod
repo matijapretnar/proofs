@@ -235,7 +235,8 @@ t/step_val (t/app_dirt (t/val_cast V Y) A) (t/val_cast (t/app_dirt V A) (t/app_d
 t/step_val (t/app_coer (t/val_cast V Y) A) (t/val_cast (t/app_coer V A) (t/app_coer_coer Y A)) :-
     t/term_val V.
 t/step_val (t/app_skel (t/lam_skel M) S) (M S).
-t/step_val (t/app_ty (t/lam_ty S M) A) (M A).
+t/step_val (t/app_ty (t/lam_ty S M) A) (M A) :-
+    t/skel_val_ty A S.
 t/step_val (t/app_dirt (t/lam_dirt M) A) (M A).
 t/step_val (t/app_coer (t/lam_coer Pi M) A) (M A).
 
