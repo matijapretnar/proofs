@@ -18,6 +18,13 @@ Define ctx3 : t/sig -> e/sig -> olist -> olist -> olist -> prop by
     Ctx_e
     := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e.
 
+Define simple_ctx : olist -> prop by
+  simple_ctx nil;
+  nabla x x', simple_ctx (ers_val x x' :: Ctx)
+    := simple_ctx Ctx;
+  nabla t, simple_ctx (t/skel_val_ty t S :: Ctx)
+    := simple_ctx Ctx.
+
 Theorem ctx_t_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
   ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t -> exists X A X' T,
     fresh X /\ fresh X' /\ (F = t/of_val Sig_t X A) /\ {Ctx_t2e |- t/skel_val_ty A T} /\ member (ers_val X X') Ctx_t2e /\ member (e/of_val Sig_e X' T) Ctx_e.
@@ -115,8 +122,8 @@ induction on 2. intros. case H2.
       apply IH to H6 H4 H5. search.
 
 Theorem unique_ctx_ers_val :
-  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e V Ve1 Ve2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-  member (ers_val V Ve1) Ctx_t2e -> member (ers_val V Ve2) Ctx_t2e -> Ve1 = Ve2.
+  forall Ctx V Ve1 Ve2, simple_ctx Ctx ->
+  member (ers_val V Ve1) Ctx -> member (ers_val V Ve2) Ctx -> Ve1 = Ve2.
 skip.
 
 
@@ -181,115 +188,166 @@ induction on 2. intros. case H2.
   apply IH to H1 H3. search.
   apply ctx_t_member to H1 H4. case H5. case H3.
 
+Theorem simple_ctx_member : forall Ctx F,
+  simple_ctx Ctx -> member F Ctx ->
+    (exists X X', fresh X /\ fresh X' /\ (F = ers_val X X')) \/
+    (exists X S, fresh X /\ (F = t/skel_val_ty X S)).
+induction on 1. intros. case H1.
+% empty
+case H2.
+% ers_val
+case H2.
+  % here
+  search.
+  % there
+  apply IH to H3 H4. search.
+% skel_val_ty
+case H2.
+  % here
+  search.
+  % there
+  apply IH to H3 H4. search.
+
+Theorem extend_simple_ctx :
+  forall Ctx, simple_ctx Ctx ->
+  exists Sig_t Sig_e Ctx_t Ctx_e, ctx3 Sig_t Sig_e Ctx_t Ctx Ctx_e.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+  apply IH to H2. search.
+
+Theorem unique_skel_val_simple_ty :
+  (
+    forall Ctx Vt S1 S2, simple_ctx Ctx ->
+    {Ctx |- t/skel_val_ty Vt S1} -> {Ctx |- t/skel_val_ty Vt S2} -> S1 = S2
+  ).
+intros. apply extend_simple_ctx to H1. apply unique_skel_val_ty to H4 H2 H3. search.
 
 Theorem ers_unique :
   (
-    forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Vt Ve1 Ve2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t2e |- ers_val Vt Ve1} -> {Ctx_t2e |- ers_val Vt Ve2} -> Ve1 = Ve2
+    forall Ctx Vt Ve1 Ve2, simple_ctx Ctx ->
+    {Ctx |- ers_val Vt Ve1} -> {Ctx |- ers_val Vt Ve2} -> Ve1 = Ve2
   ) /\ (
-    forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Ht He1 He2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t2e |- ers_hand Ht He1} -> {Ctx_t2e |- ers_hand Ht He2} -> He1 = He2
+    forall Ctx Ht He1 He2, simple_ctx Ctx ->
+    {Ctx |- ers_hand Ht He1} -> {Ctx |- ers_hand Ht He2} -> He1 = He2
   )/\ (
-    forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Ct Ce1 Ce2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t2e |- ers_comp Ct Ce1} -> {Ctx_t2e |- ers_comp Ct Ce2} -> Ce1 = Ce2
+    forall Ctx Ct Ce1 Ce2, simple_ctx Ctx ->
+    {Ctx |- ers_comp Ct Ce1} -> {Ctx |- ers_comp Ct Ce2} -> Ce1 = Ce2
   ).
 induction on 2 2 2. split.
 intros. case H2.
   % unit
   case H3.
     search.
-    apply ctx_ers_member to H1 H5. case H6. case H4. case H7.
-    apply ctx_ers_member to H1 H5. case H8. case H4.
+    apply simple_ctx_member to H1 H5. case H6. case H4. case H7.
+    apply simple_ctx_member to H1 H5. case H8. case H4.
   % fun
   case H3.
-    apply unique_skel_val_ty to H1 H5 H7. apply IH2 to _ H4 H6. search.
-    apply ctx_ers_member to H1 H7. case H8. case H6. case H9. case H6.
+    apply unique_skel_val_simple_ty to H1 H5 H7. apply IH2 to _ H4 H6. search.
+    apply simple_ctx_member to H1 H7. case H8. case H6. case H9. case H6.
   % handler
   case H3.
     apply IH1 to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % lam skel
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % app skel
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % lam ty
   case H3.
     apply IH to _ H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % app ty
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % lam dirt
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % app dirt
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % lam coer
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % app coer
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % val cast
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H8. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H8. case H5.
   % backchain
-  apply ctx_ers_member to H1 H5. case H6. case H4. case H7. case H3.
-  apply ctx_ers_member to H1 H13. case H14. case H12.
-  apply unique_ctx_ers_val to H1 H5 H13. search.
-  case H12. case H4.
+  apply simple_ctx_member to H1 H5. case H6.
+    case H4. case H7. case H3.
+      apply simple_ctx_member to H1 H10. case H11.
+        skip.
+        case H9.
+    case H4.
 intros. case H2.
   % ret case
   case H3.
-    apply IH2 to _ H4 H6. apply unique_skel_val_ty to H1 H5 H7. search.
-    apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
+    apply IH2 to _ H4 H6. apply unique_skel_val_simple_ty to H1 H5 H7. search.
+    apply simple_ctx_member to H1 H7. case H8. case H6. case H6.
   % op case
   case H3.
     apply IH1 to H1 H4 H6. apply IH2 to _ H5 H7. search.
-    apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
+    apply simple_ctx_member to H1 H7. case H8. case H6. case H6.
   % backchain
-  apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
+  apply simple_ctx_member to H1 H5. case H6. case H4. case H4.
 intros. case H2.
   % app
   case H3.
     apply IH to H1 H4 H6. apply IH to H1 H5 H7. search.
-    apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
+    apply simple_ctx_member to H1 H7. case H8. case H6. case H6.
   % let
   case H3.
     apply IH to H1 H4 H6. apply IH2 to _ H5 H7. search.
-    apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
+    apply simple_ctx_member to H1 H7. case H8. case H6. case H6.
   % ret
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H5.
   % op
   case H3.
-    apply IH to H1 H4 H7. apply unique_skel_val_ty to H1 H5 H8. apply IH2 to _ H6 H9. search.
-    apply ctx_ers_member to H1 H8. case H9. case H7. case H7.
+    apply IH to H1 H4 H7. apply unique_skel_val_simple_ty to H1 H5 H8. apply IH2 to _ H6 H9. search.
+    apply simple_ctx_member to H1 H8. case H9. case H7. case H7.
   % do
   case H3.
     apply IH2 to H1 H4 H6. apply IH2 to _ H5 H7. search.
-    apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
+    apply simple_ctx_member to H1 H7. case H8. case H6. case H6.
   % with
   case H3.
     apply IH2 to H1 H4 H6. apply IH to H1 H5 H7. search.
-    apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
+    apply simple_ctx_member to H1 H7. case H8. case H6. case H6.
   % cast
   case H3.
     apply IH2 to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H5.
+    apply simple_ctx_member to H1 H6. case H7. case H5. case H5.
   % backchain
-  apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
+  apply simple_ctx_member to H1 H5. case H6. case H4. case H4.
 
 Split ers_unique as unique_ers_val, unique_ers_hand, unique_ers_comp.
+
+Theorem simple_ctx_val_member :
+  forall Ctx F X1 X2, simple_ctx Ctx ->
+  {Ctx, [F] |- ers_val X1 X2} -> member F Ctx ->
+  fresh X1.
+intros Hctx H Hmem. Hform : apply simple_ctx_member to *Hctx *Hmem.
+  case Hform. case H. search. case H.
+
+Theorem simple_ctx_comp_member :
+  forall Ctx F X1 X2, simple_ctx Ctx ->
+  {Ctx, [F] |- ers_comp X1 X2} -> member F Ctx ->
+  false.
+intros Hctx H Hmem. Hform : apply simple_ctx_member to *Hctx *Hmem.
+  case Hform. case H. case H.
+
