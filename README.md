@@ -2,17 +2,20 @@
 
 This repository collects proofs I have formalised in various proof assistants:
 
+* `explicit-effect-subtyping`:
+    Abella formalisation of proofs that appear in the paper
+    > Amr Hany Saleh, Georgios Karachalias, Matija Pretnar, Tom Schrijvers:
+    > *Explicit Effect Subtyping*,
+    > submitted to ESOP 2018
+* `polymorphic-fgcbv`:
+    Abella formalisation of safety for polymorphic fine-grain call-by-value
+    lambda calculus. Not particular interesting, but a good starting point.
 * `user-defined-effects-expressive-power`:
     Abella formalisation of proofs that appear in the paper
     > Yannick Forster, Ohad Kammar, Sam Lindley, Matija Pretnar:
     > *On the Expressive Power of User-Defined Effects:*
     > *Effect Handlers, Monadic Reflection, Delimited Control*,
     > ICFP 2017
-* `explicit-effect-subtyping`:
-    Abella formalisation of proofs that appear in the paper
-    > Amr Hany Saleh, Georgios Karachalias, Matija Pretnar, Tom Schrijvers:
-    > *Explicit Effect Subtyping*,
-    > submitted to ESOP 2018
 
 More details about the proofs can be found in the respective subdirectories.
 Note that proofs may change over time if I find a better way of writing them.
