@@ -1,0 +1,145 @@
+Specification "target".
+Import "target_lemmas".
+
+
+Theorem get_of_hand : forall Sig H A D C,
+  {t/of_hand Sig H A D C} -> exists M, {t/get_ret_case H M}.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+
+Theorem op_comparable : forall O O', {is_op O} -> {is_op O'} -> O = O' \/ {apart O O'}.
+induction on 1. intros.
+case H1.
+  case H2. search. search.
+  case H2. search. apply IH to H3 H4. case H5. search. search.
+
+Theorem get_t/of_op_hand : forall Sig H A D C B,
+  {t/of_hand Sig H A D C} -> forall O, {is_op O} -> exists M, {t/get_op_case H O B M}.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H3 with B = B.
+  apply op_comparable to H2 H6.
+  case H8. search.
+  apply H7 to H2. search.
+
+Theorem t/progress_val : forall Sig V A, {t/of_val Sig V A} -> {t/progress_val V}.
+induction on 1. intros. case H1.
+% UNIT
+ search.
+% FUN
+ search.
+% HAND
+ search.
+% LAM SKEL
+ search.
+% APP_SKEL
+  apply IH to H2. case H3. case H4.
+  % V is a terminal value
+  case H5.
+    case H2. case H2. case H2. case H2.
+    search. % interesting case
+    case H2. case H2. % boring case
+  % V is a cast value
+  search.
+  % V makes a step.
+  search.
+% LAM TY
+search.
+% APP TY
+  apply IH to H2. case H4. case H5.
+  % V is a terminal value
+    case H6.
+    case H2. case H2. case H2. case H2.
+    search. % interesting case
+    case H2. case H2. case H2.% boring cases
+  % V is a cast value
+  search.
+  % V makes a step.
+  search.
+% LAM DIRT
+ search.
+% APP DIRT
+  apply IH to H2. case H3. case H4.
+  % V is a terminal value
+    case H5.
+    case H2. case H2. case H2. case H2. case H2.
+    search. % interesting case
+    case H2. % boring cases
+  % V is a cast value
+  search.
+  % V makes a step.
+  search.
+% LAM COER
+ search.
+% APP COER
+  apply IH to H2. case H4. case H5.
+  % V is a terminal value
+    case H6.
+    case H2. case H2. case H2. case H2. case H2. case H2.
+    search. % interesting case
+  % V is a cast value
+  search.
+  % V makes a step.
+  search.
+% CAST
+ apply IH to H2. case H4. case H5. search. search. search.
+
+Theorem t/progress_comp : forall Sig M C, {t/of_comp Sig M C} -> {t/progress_comp M}.
+induction on 1. intros. case H1.
+% APP
+  apply t/progress_val to H2. case H4. % V1 progresses
+  % V1 is a result
+    apply t/progress_val to H3. case H6. % V2 progresses
+      % V2 is a result
+      case H5. case H8.
+        case H2. case H2. % Boring cases
+        case H2. search.  % interesting case
+        case H2. case H2. % Boring cases
+        case H2. % Boring cases
+        case H2. search. % coercion case
+      % V2 makes a step
+      case H5. search. search.
+  % V1 makes a step
+    search.
+% LET
+  apply t/progress_val to H2. case H4. search. search.
+% RET
+  apply t/progress_val to H2. case H3. case H4. search. search. search.
+% OP
+  apply t/progress_val to H3. case H7. search. search.
+% DO
+  apply IH to H2. case H4. case H5. search. search. search. search.
+% HANDLE
+  apply t/progress_val to H3. case H4. % V progresses
+  % V is a result
+  case H5.
+    % V is a terminal value
+    apply IH to H2. case H7. % C progress
+      % C is a result - what kind of value is V?
+      case H6.
+        % Boring case
+        case H3.
+        % It is a t/hand
+          case H3.
+          apply get_of_hand to H9.
+          % What kind of a result is C?
+          case H8.
+          % C is a terminal value
+            search.
+          % C is a coerced value
+            search.
+          % C is an operation t/op
+            apply get_t/of_op_hand to H9 with B = X.
+            case H2. apply H12 to H17.
+            search.
+        % More boring cases
+        case H3. case H3. case H3. case H3. case H3.
+      % C makes a step
+      search.
+    % V is a coerced value
+    search.
+  % V makes a step
+    search.
+% CAST
+  apply IH to H2. case H4. case H5. search. search. search. search.

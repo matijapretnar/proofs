@@ -1,0 +1,319 @@
+Specification "xxx2yyy".
+
+Define yyy/cong : yyy/comp -> yyy/comp -> prop by
+    yyy/cong M M' := {yyy/step M M'};
+    yyy/cong CM CM' := exists C (M : yyy/value -> yyy/comp) M', CM = C M /\ (forall y, yyy/cong (M y) (M' y)) /\ C M' = CM';
+    yyy/cong M1 M3 := exists M2, yyy/cong M1 M2 /\ yyy/cong M2 M3.
+
+Theorem yyy/cong/plain : forall CM CM',
+  (exists C M M', CM = C M /\ yyy/cong M M' /\ C M' = CM') -> yyy/cong CM CM'.
+intros. case H1. unfold 2. exists m\ C (m yyy/unit), x\ M, x\ M'. search.
+
+Define ctx : olist -> prop by
+    ctx nil;
+    nabla x x', ctx (xxx2yyy/value x x' :: L) := ctx L.
+
+Define xxx/fresh : xxx/value -> prop,
+       yyy/fresh : yyy/value -> prop by
+    nabla x, xxx/fresh x;
+    nabla x, yyy/fresh x.
+
+Theorem ctx-member : forall L F,
+    ctx L -> member F L ->
+    exists X X', (F = xxx2yyy/value X X') /\ xxx/fresh X /\ yyy/fresh X'.
+induction on 2. intros. case H2.
+    case H1. exists n1, n2. search.
+    case H1. apply IH to H4 H3. exists (X n2 n1), (X' n2 n1). search.
+
+Theorem member-prune : forall L E, nabla (x : xxx/value) (x' : yyy/value),
+    member (E x x') L -> exists F, E = x\ x'\ F.
+induction on 1. intros. case H1.
+    search.
+    apply IH to H2. search.
+
+Theorem ctx-unique : forall L X X' X'',
+    ctx L -> member (xxx2yyy/value X X') L -> member (xxx2yyy/value X X'') L -> X' = X''.
+induction on 1. intros. case H1.
+    case H2.
+    case H2.
+        case H3.
+            search.
+            apply member-prune to H5.
+        case H3.
+            apply member-prune to H5.
+            apply IH to H4 H5 H6. search.
+
+Theorem xxx2yyy/nat-unique : forall L N N' N'',
+    ctx L -> {L |- xxx2yyy/nat N N'} -> {L |- xxx2yyy/nat N N''} -> N' = N''.
+induction on 2. intros. case H2.
+    case H3. search.
+    apply ctx-member to H1 H5. case H4.
+    case H3. apply IH to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    apply ctx-member to H1 H5. case H4.
+
+Theorem xxx2yyy/label-unique : forall L N N' N'',
+    ctx L -> {L |- xxx2yyy/label N N'} -> {L |- xxx2yyy/label N N''} -> N' = N''.
+intros.
+    case H2.
+        case H3.
+            apply xxx2yyy/nat-unique to H1 H4 H5. search.
+            apply ctx-member to H1 H6. case H5.
+    apply ctx-member to H1 H5. case H4.
+
+Theorem xxx2yyy/cases-unique : forall L N N' N'',
+    ctx L -> {L |- xxx2yyy/label N N'} -> {L |- xxx2yyy/label N N''} -> N' = N''.
+intros.
+    case H2.
+        case H3.
+            apply xxx2yyy/nat-unique to H1 H4 H5. search.
+            apply ctx-member to H1 H6. case H5.
+    apply ctx-member to H1 H5. case H4.
+
+Theorem xxx2yyy-unique :
+    (forall L V V' V'', ctx L -> {L |- xxx2yyy/value V V'} -> {L |- xxx2yyy/value V V''} -> V' = V'') /\
+    (forall L M M' M'', ctx L -> {L |- xxx2yyy/comp M M'} -> {L |- xxx2yyy/comp M M''} -> M' = M'') /\
+    (forall L Ms Ms' Ms'', ctx L -> {L |- xxx2yyy/cases Ms Ms'} -> {L |- xxx2yyy/cases Ms Ms''} -> Ms' = Ms'').
+induction on 2 2 2. split.
+% value
+intros. case H2.
+    % unit
+    case H3. search.
+    apply ctx-member to H1 H5. case H4. case H6.
+    % pair
+    case H3. apply IH to H1 H4 H6. apply IH to H1 H5 H7. search.
+    apply ctx-member to H1 H7. case H6. case H8.
+    % inj
+    case H3. apply xxx2yyy/label-unique to H1 H4 H6. apply IH to H1 H5 H7. search.
+    apply ctx-member to H1 H7. case H6. case H8.
+    % thunk
+    case H3. apply IH1 to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5. case H7.
+    % backchain
+    apply ctx-member to H1 H5. case H4. case H3.
+        case H6. case H6. case H6. case H6.
+        apply ctx-member to H1 H9. case H8. apply ctx-unique to H1 H5 H9. search.
+
+% comp
+intros. case H2.
+    % ret
+    case H3. apply IH to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    % fun
+    case H3. apply IH1 to _ H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    % split
+    case H3. apply IH to H1 H4 H6. apply IH1 to _ H5 H7. search.
+    apply ctx-member to H1 H7. case H6.
+    % case
+    case H3. apply IH to H1 H4 H6. apply IH2 to _ H5 H7. search.
+    apply ctx-member to H1 H7. case H6.
+    % force
+    case H3. apply IH to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    % bind
+    case H3. apply IH1 to H1 H4 H6. apply IH1 to _ H5 H7. search.
+    apply ctx-member to H1 H7. case H6.
+    % app
+    case H3. apply IH1 to H1 H4 H6. apply IH to H1 H5 H7. search.
+    apply ctx-member to H1 H7. case H6.
+    % comppair
+    case H3. apply IH1 to H1 H4 H6. apply IH1 to H1 H5 H7. search.
+    apply ctx-member to H1 H7. case H6.
+    % prj1
+    case H3. apply IH1 to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    % prj2
+    case H3. apply IH1 to H1 H4 H5. search.
+    apply ctx-member to H1 H6. case H5.
+    % backchain
+    apply ctx-member to H1 H5. case H4.
+
+% cases
+intros. case H2.
+    % nil
+    case H3. search.
+    apply ctx-member to H1 H5. case H4.
+    % cons
+    case H3. apply IH2 to H1 H4 H7. apply xxx2yyy/label-unique to H1 H5 H8. apply IH1 to _ H6 H9. search.
+    apply ctx-member to H1 H8. case H7.
+    % backchain
+    apply ctx-member to H1 H5. case H4.
+
+Split xxx2yyy-unique as xxx2yyy/value-unique, xxx2yyy/comp-unique.
+
+Theorem xxx2yyy/evctx-unique : forall E E' E'',
+    {xxx2yyy/evctx E E'} -> {xxx2yyy/evctx E E''} -> E' = E''.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H5. apply xxx2yyy/comp-unique to _ H4 H6. search.
+    case H2. apply IH to H3 H5. apply xxx2yyy/value-unique to _ H4 H6. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem xxx2yyy/hoisting : forall E E',
+    {xxx/hoisting E} -> {xxx2yyy/evctx E E'} -> {yyy/hoisting E'}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem xxx2yyy/unplug : forall E M EM EM',
+    {xxx/plug E M EM} -> {xxx2yyy/comp EM EM'} ->
+    exists E' M', {xxx2yyy/evctx E E'} /\ {xxx2yyy/comp M M'} /\ {yyy/plug E' M' EM'}.
+induction on 1. intros. case H1.
+    exists yyy/hole, EM'. search.
+    case H2. apply IH to H3 H4. exists (yyy/evctx/bind E' N'), M'1. search.
+    case H2. apply IH to H3 H4. exists (yyy/evctx/app E' V'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (yyy/evctx/prj1 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (yyy/evctx/prj2 E'), M'1.  search.
+
+Theorem yyy/pluggable : forall E, {yyy/hoisting E} -> exists ER, {pi x\ yyy/plug E (yyy/ret x) (ER x)}.
+induction on 1. intros. case H1.
+    exists x\ yyy/ret x. search.
+    apply IH to H2. exists x\ (yyy/bind (ER x x) X). search.
+    apply IH to H2. exists x\ (yyy/app (ER x x) X). search.
+    apply IH to H2. exists x\ (yyy/prj1 (ER x x)). search.
+    apply IH to H2. exists x\ (yyy/prj2 (ER x x)). search.
+
+Theorem xxx2yyy/plug : forall L E M EM E' M' EM',
+    {xxx/plug E M EM} -> {xxx2yyy/evctx E E'} -> {L |- xxx2yyy/comp M M'} ->
+    {yyy/plug E' M' EM'} -> {L |- xxx2yyy/comp EM EM'}.
+induction on 2. intros. case H2.
+    case H1. case H4. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+
+Theorem xxx2yyy/apart : forall N1 N2 N1' N2',
+    {xxx/apart N1 N2} -> {xxx2yyy/nat N1 N1'} -> {xxx2yyy/nat N2 N2'} -> {yyy/apart N1' N2'}.
+induction on 1. intros. case H1.
+    case H2. case H3. search.
+    case H2. case H3. search.
+    case H2. case H3. apply IH to H4 H5 H6. search.
+
+Theorem xxx2yyy/label/apart : forall L1 L2 L1' L2',
+    {xxx/label/apart L1 L2} -> {xxx2yyy/label L1 L1'} -> {xxx2yyy/label L2 L2'} ->
+    {yyy/label/apart L1' L2'}.
+intros. case H1. case H2. case H3. apply xxx2yyy/apart to H4 H5 H6. search.
+
+Theorem xxx2yyy/get-case : forall Ms L M Ms' L',
+    {xxx/get-case Ms L M} -> {xxx2yyy/cases Ms Ms'} -> {xxx2yyy/label L L'} ->
+    exists M', {yyy/get-case Ms' L' M'}.
+induction on 1. intros. case H1.
+    case H2. apply xxx2yyy/label-unique to _ H3 H5. search.
+    case H2.
+        apply IH to H5 H6 H3. exists M'1.
+        apply xxx2yyy/label/apart to H4 H3 H7. search.
+
+Theorem xxx2yyy/get-case/unique : forall Ms L M Ms' L' M',
+    {xxx/get-case Ms L M} -> {xxx2yyy/cases Ms Ms'} -> {xxx2yyy/label L L'} ->
+    {yyy/get-case Ms' L' M'} -> {pi x\ pi x'\ xxx2yyy/value x x' => xxx2yyy/comp (M x) (M' x')}.
+induction on 1. intros.
+assert forall N, {yyy/apart N N} -> false.
+    induction on 1. intros. case H5. apply IH1 to H6.
+case H2.
+    case H1.
+    case H1.
+        apply xxx2yyy/label-unique to _ H3 H7.
+        case H4.
+            search.
+            case H9. apply H5 to H11.
+        case H4.
+            apply xxx2yyy/label/apart to H9 H3 H7. case H11. apply H5 to H12.
+            apply IH to H10 H6 H3 H12. search.
+
+Theorem xxx2yyy/reduce : forall M1 M2 M1' M2',
+    {xxx2yyy/comp M1 M1'} -> {xxx2yyy/comp M2 M2'} -> 
+    {xxx/reduce M1 M2} -> yyy/cong M1' M2'.
+induction on 3. intros. case H3.
+% split (pair V1 V2) M ~> M V1 V2
+    case H1. case H4. inst H5 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
+    assert {xxx2yyy/comp (M V1 V2) (M' V1' V2')}. cut H8. search.
+    apply xxx2yyy/comp-unique to _ H2 H9. search.
+% case (inj V) Ms ~> M V
+    case H1. case H5.
+    apply xxx2yyy/get-case to H4 H6 H7.
+    apply xxx2yyy/get-case/unique to H4 H6 H7 H9.
+    inst H10 with n1 = V, n2 = V'1.
+    cut H11. apply xxx2yyy/comp-unique to _ H2 H12. search.
+% force (thunk M) ~> M
+    case H1. case H4.
+    apply xxx2yyy/comp-unique to _ H2 H5. search.
+% bind (ret V) N ~> N V
+    case H1. case H4. inst H5 with n1 = V, n2 = V'.
+    assert {xxx2yyy/comp (M V) (N' V')}. cut H7. search.
+    apply xxx2yyy/comp-unique to _ H2 H8. search.
+% app (fun M) V ~> M V
+    case H1. case H4. inst H6 with n1 = V, n2 = V'.
+    assert {xxx2yyy/comp (M V) (M'1 V')}. cut H7. search.
+    apply xxx2yyy/comp-unique to _ H2 H8. search.
+% prj1 (comppair M1 M2) ~> M1
+    case H1. case H4.
+    apply xxx2yyy/comp-unique to _ H2 H5. search.
+% prj2 (comppair M1 M2) ~> M2
+    case H1. case H4.
+    apply xxx2yyy/comp-unique to _ H2 H6. search.
+
+Theorem plug/step : forall E M1 EM1 M2 EM2,
+    {yyy/plug E M1 EM1} -> {yyy/plug E M2 EM2} -> {yyy/step M1 M2} -> {yyy/step EM1 EM2}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+
+Theorem plug/context : forall E, {yyy/is-evctx E} -> exists E', forall M, {yyy/plug E M (E' M)}.
+induction on 1. intros. case H1.
+    exists m\ m. intros. search.
+    apply IH to H2. exists m\ yyy/bind (E' m) N. intros.
+    assert {yyy/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ yyy/app (E' m) V. intros.
+    assert {yyy/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ yyy/prj1 (E' m). intros.
+    assert {yyy/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+    apply IH to H2. exists m\ yyy/prj2 (E' m). intros.
+    assert {yyy/plug E1 M (E' M)}. apply H3 with M = M. search. search.
+
+Theorem plug/unique : forall E M EM EM',
+    {yyy/plug E M EM} -> {yyy/plug E M EM'} -> EM = EM'.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem plug/is-evctx : forall E M EM, {yyy/plug E M EM} -> {yyy/is-evctx E}.
+induction on 1. intros. case H1.
+    search.
+    apply IH to H2. search.
+    apply IH to H2. search.
+    apply IH to H2. search.
+    apply IH to H2. search.
+
+Theorem plug/cong : forall E M1 EM1 M2 EM2,
+    {yyy/plug E M1 EM1} -> {yyy/plug E M2 EM2} -> yyy/cong M1 M2 -> yyy/cong EM1 EM2.
+intros.
+    apply plug/context to _ with E = E.
+        apply plug/is-evctx to H1. search.
+    apply H4 with M = M1.
+    apply H4 with M = M2.
+    apply plug/unique to H1 H5. apply plug/unique to H2 H6.
+    backchain yyy/cong/plain.
+    exists E', M1, M2. search.
+
+Theorem xxx2yyy/simulation : forall M1 M2 M1' M2',
+    {xxx2yyy/comp M1 M1'} -> {xxx2yyy/comp M2 M2'} -> 
+    {xxx/step M1 M2} -> yyy/cong M1' M2'.
+intros. case H3.
+    apply xxx2yyy/unplug to H4 H1.
+    apply xxx2yyy/unplug to H6 H2.
+    apply xxx2yyy/reduce to H8 H11 H5.
+    apply xxx2yyy/evctx-unique to H7 H10.
+    apply plug/cong to H9 H12 H13.
+    search.

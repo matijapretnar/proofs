@@ -1,0 +1,243 @@
+Specification "fgcbv".
+
+Close   value, comp, scheme, valty, compty, eff.
+
+Define ctx : olist -> prop by
+  ctx nil;
+  nabla x, ctx (of/value x A :: Ctx) := ctx Ctx;
+  nabla x, ctx (pof/value x S :: Ctx) := ctx Ctx.
+
+Define fresh : value -> prop by nabla x, fresh x.
+
+Theorem ctx-member : forall Ctx F,
+  ctx Ctx -> member F Ctx ->
+  (exists X A, (F = of/value X A) /\ fresh X) \/
+  (exists X S, (F = pof/value X S) /\ fresh X).
+induction on 2. intros. case H2.
+  case H1. search. search.
+  apply IH to _ H3. case H1. search. search. search.
+
+Theorem ret-inversion : forall Ctx V A Eff,
+  ctx Ctx -> {Ctx |- of/comp (ret V) (f A Eff)} -> {Ctx |- of/value V A}.
+intros. case H2.
+  % ret
+  search.
+  % backchain
+  apply ctx-member to H1 H4.
+  case H5. case H3. case H3.
+
+Theorem concrete-closed : forall Ctx S A, ctx Ctx -> {Ctx |- concrete S A} -> {concrete S A}.
+induction on 2. intros. case H2.
+  search.
+  apply IH to H1 H3. search.
+  apply ctx-member to H1 H4. case H5. case H3. case H3.
+
+Theorem concrete-value : forall Ctx V S Eff A,
+  ctx Ctx -> {Ctx |- pof/comp (ret V) S Eff} -> {concrete S A} -> {Ctx |- of/value V A}.
+induction on 2. intros. case H2.
+  % plain
+  case H3.
+  apply ret-inversion to H1 H4. search.
+  % all
+  case H3.
+  inst H4 with n1 = A1.
+  apply IH to H1 H6 H5. search.
+  % backchain
+  apply ctx-member to H1 H5.
+  case H6. case H4. case H4.
+
+Theorem member-prune : forall L E, nabla (x : value),
+  member (E x) L -> exists F, E = x\ F.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+
+Theorem member-pof : forall Ctx V S A,
+  ctx Ctx -> member (pof/value V S) Ctx -> {concrete S A} -> {Ctx |- of/value V A}.
+induction on 2. intros. case H2.
+  search.
+  apply IH to _ H4 H3. case H1. search. search. search.
+
+Theorem ret-subst :
+  (forall Ctx V S Eff M C, nabla x, ctx Ctx ->
+    {Ctx |- pof/comp (ret V) S Eff} -> {Ctx, pof/value x S |- of/comp (M x) C} -> {Ctx |- of/comp (M V) C}) /\
+  (forall Ctx V S Eff W A, nabla x, ctx Ctx ->
+    {Ctx |- pof/comp (ret V) S Eff} -> {Ctx, pof/value x S |- of/value (W x) A} -> {Ctx |- of/value (W V) A}) /\
+  (forall Ctx V S Eff M S' Eff', nabla x, ctx Ctx ->
+    {Ctx |- pof/comp (ret V) S Eff} -> {Ctx, pof/value x S |- pof/comp (M x) S' Eff'} -> {Ctx |- pof/comp (M V) S' Eff'}).
+induction on 3 3 3. split.
+% comp
+intros. case H3.
+  % cond
+  apply IH1 to H1 H2 H4 with x = n1.
+  apply IH to H1 H2 H5 with x = n1.
+  apply IH to H1 H2 H6 with x = n1.
+  search.
+  % app
+  apply IH1 to H1 H2 H4 with x = n1.
+  apply IH1 to H1 H2 H5 with x = n1.
+  search.
+  % ret
+  apply IH1 to H1 H2 H4 with x = n1.
+  search.
+  % bind
+  apply IH2 to H1 H2 H4 with x = n1.
+  monotone H2 with (pof/value n2 S1 :: Ctx).
+  monotone H5 with (pof/value n1 S :: pof/value n2 S1 :: Ctx).
+    intros. case H8. search. case H9. search. search.
+  apply IH to _ H7 H8 with x = n1.
+  search.
+  % backchain
+  apply ctx-member to _ H5. case H6. case H4. case H4.
+% value
+intros. case H3.
+  % tru
+  search.
+  % fls
+  search.
+  % fun
+  monotone H4 with (pof/value n1 S :: of/value n2 A1 :: Ctx).
+    intros. case H5. search. case H6. search. search.
+  monotone H2 with (of/value n2 A1 :: Ctx).
+  apply IH to _ H6 H5.
+  search.
+  % var
+  apply concrete-closed to _ H5.
+  case H4.
+  case H8.
+    % same var
+    case H7. apply concrete-value to _ H2 H6. search.
+    % different var
+    apply ctx-member to H1 H9. case H10.
+      % different mono var
+      case H7.
+      % different poly var
+      case H7.
+      apply member-pof to _ H9 H6.
+      inst H12 with n1 = V.
+      search.
+  % backchain
+  case H5.
+    % same  var
+    case H4.
+    % different var
+    apply member-prune to H6.
+    apply ctx-member to _ H6. case H7.
+      % different mono var
+      case H4. search.
+      % different poly var
+      case H4.
+% scheme
+intros. case H3.
+  % plain
+  apply IH to _ H2 H4. search.
+  % all
+  apply IH2 to _ H2 H4 with x = n1.
+  search.
+  % backchain
+  apply ctx-member to _ H5. case H6. case H4. case H4.
+
+Split ret-subst as ret-subst/comp, ret-subst/value, ret-subst/pof.
+
+
+Theorem progress :
+  (forall M C, {of/comp M C} -> {progresses M}) /\
+  (forall M S Eff, {pof/comp M S Eff} -> {progresses M}).
+induction on 1 1. split.
+% of
+intros. case H1.
+  % cond
+  case H2.
+    % cond tru
+    search.
+    % cond fls
+    search.
+    % concrete
+    case H5.
+  % app
+  case H2.
+    % app fun
+    search.
+    % concrete
+    case H4.
+  % ret
+  search.
+  % bind
+  apply IH1 to H2.
+  case H4.
+    % bind ret
+    search.
+    % bind steps
+    search.
+% pof
+intros. case H1.
+  % plain
+  apply IH to H2. search.
+  % all
+  apply IH1 to H2. search.
+
+
+Theorem preservation :
+  (forall M M' C, {of/comp M C} -> {step M M'} -> {of/comp M' C}) /\
+  (forall M M' S Eff, {pof/comp M S Eff} -> {step M M'} -> {pof/comp M' S Eff}).
+induction on 2 2. induction on 1 1. split.
+% of
+intros. case H2.
+  % cond tru
+  case H1.
+  search.
+  % cond fls
+  case H1.
+  search.
+  % app
+  case H1.
+    % app fun
+    case H3.
+    inst H5 with n1 = V.
+    cut H6.
+    search.
+    % concrete
+    case H5.
+  % bind
+  case H1.
+    % bind ret
+    apply ret-subst/comp to _ H3 H4 with x = n1.
+    search.
+    % bind steps
+    case H1.
+    apply IH1 to H4 H3.
+    search.
+% pof
+intros. case H1.
+  % plain
+  apply IH2 to H3 H2.
+  search.
+  % all
+  apply IH3 to H3 H2.
+  search.
+
+Theorem step/unique : forall M M' M'', {step M M'} -> {step M M''} -> M' = M''.
+induction on 1. intros. case H1.
+  % cond tru
+  case H2.
+  search.
+  % cond fls
+  case H2.
+  search.
+  % app fun
+  case H2.
+  search.
+  % bind ret
+  case H2.
+    % bind ret
+    search.
+    % ret steps
+    case H3.
+  case H2.
+    % ret steps
+    case H3.
+    % bind steps
+    apply IH to H3 H4.
+    search.
+
+

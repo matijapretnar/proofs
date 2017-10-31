@@ -1,0 +1,44 @@
+Specification "mam".
+
+Theorem can-get-case : forall Ms As C L A,
+    {of/cases Ms As C} -> {valtys/get As L A} ->
+    exists M, {get-case Ms L M}.
+induction on 1. intros. case H1.
+    case H2.
+    case H2.
+        search.
+        apply IH to H3 H6. search.
+
+
+Theorem progress : forall M C, {of/comp M C} -> {progresses M C}.
+induction on 1. intros. case H1.
+    search.
+    search.
+    case H2.
+        search.
+    case H2.
+        apply can-get-case to H3 H5.
+        search.
+    case H2.
+        search.
+    apply IH to H3. case H5.
+        search.
+        case H3.
+        case H3.
+        case H6. search.
+    apply IH to H2. case H4.
+        case H2.
+        search.
+        case H2.
+        case H5. search.
+    apply IH to H2. apply IH to H3. search.
+    apply IH to H4. case H5.
+        case H4.
+        case H4.
+        search.
+        case H6. search.
+    apply IH to H4. case H5.
+        case H4.
+        case H4.
+        search.
+        case H6. search.

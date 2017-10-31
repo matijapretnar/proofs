@@ -1,0 +1,259 @@
+Specification "erasure".
+Import "common".
+Import "erasure_lemmas".
+Set subgoals off.
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % Source-to-target elaboration produces typeable terms.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem ers_of_op :
+  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e O A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+  {Ctx_t |- t/of_op Sig_t O A1 A2} ->
+  exists T1 T2, {e/of_op Sig_e O T1 T2} /\ {Ctx_t2e |- t/skel_val_ty A1 T1} /\ {Ctx_t2e |- t/skel_val_ty A2 T2}.
+skip. % contexts do not influence typing of operations
+
+Theorem ers_of_coer :
+  (
+    forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Y A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t |- t/of_coer Y (t/val_ty_coer_ty A1 A2)} ->
+    exists T, {Ctx_t2e |- t/skel_val_ty A1 T} /\ {Ctx_t2e |- t/skel_val_ty A2 T}
+  ) /\
+  (
+    forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Y A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t |- t/of_coer Y (t/comp_ty_coer_ty A1 A2)} ->
+    exists T, {Ctx_t2e |- t/skel_comp_ty A1 T} /\ {Ctx_t2e |- t/skel_comp_ty A2 T}
+  ).
+induction on 2 2. intros. split.
+intros. case H2.
+  % trans
+  apply IH to H1 H3. apply IH to H1 H4. apply unique_skel_val_ty to H1 H6 H7. search.
+  % fun
+  apply IH to H1 H3. apply IH1 to H1 H4. search.
+  % handler
+  apply IH1 to H1 H3. apply IH1 to H1 H4. search.
+  % left fun
+  apply IH to H1 H3. case H4. case H5. search.
+  apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
+  apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+  % all skel
+  apply IH to H1 H3. case H4. case H5. inst H6 with n1 = S. inst H7 with n1 = S. search.
+  apply ctx_ers_member to H1 H8. case H9. case H7. case H7. case H10.
+  apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+  % all val ty
+  apply IH to H1 H3. case H5. case H6. inst H7 with n1 = A. inst H8 with n1 = A.
+  apply strengthen_skel_val_ty to H1 H4. cut H9 with H11. cut H10 with H11. search.
+  apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
+  apply ctx_ers_member to H1 H8. case H9. case H7. case H7. case H10.
+  % all dirt
+  apply IH to H1 H3. case H4. case H5. inst H6 with n1 = D. inst H7 with n1 = D. search.
+  apply ctx_ers_member to H1 H8. case H9. case H7. case H7. case H10.
+  apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+  % qual_ty
+  apply IH to H1 H3. case H5. case H6. search.
+  apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
+  apply ctx_ers_member to H1 H8. case H9. case H7. case H7. case H10.
+  % pure
+  apply IH1 to H1 H3. case H4. case H5. search.
+  apply ctx_ers_member to H1 H8. case H9. case H7. case H7.
+  apply ctx_ers_member to H1 H7. case H8. case H6. case H6.
+  % backchain
+  apply ctx_t_member to H1 H4. case H5. case H3. case H3.
+intros. case H2.
+  % bang
+  apply IH1 to H1 H3. apply IH1 to H1 H4. apply unique_skel_comp_ty to H1 H6 H7. search.
+  % left hand
+  apply IH to H1 H3. case H4. case H5. search.
+  apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
+  apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+  % right fun
+  apply IH to H1 H3. case H4. case H5. search.
+  apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
+  apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+  % right hand
+  apply IH to H1 H3. case H4. case H5. search.
+  apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
+  apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+  % impure
+  apply IH to H1 H3. search.
+  % backchain
+  apply ctx_t_member to H1 H4. case H5. case H3. case H3.
+
+
+
+Split ers_of_coer as ers_of_val_coer, ers_of_comp_coer.
+
+Theorem ers_of :
+  (forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Vt A Ve, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t2e |- ers_val Vt Ve} -> {Ctx_t |- t/of_val Sig_t Vt A} ->
+    exists T, {Ctx_t2e |- t/skel_val_ty A T} /\ {Ctx_e |- e/of_val Sig_e Ve T})
+  /\
+  (forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Ht A D B He, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t2e |- ers_hand Ht He} -> {Ctx_t |- t/of_hand Sig_t Ht A D B} ->
+    exists T1 T2, {Ctx_t2e |- t/skel_val_ty A T1} /\ {Ctx_t2e |- t/skel_comp_ty B T2} /\ {Ctx_e |- e/of_hand Sig_e He T1 T2})
+  /\
+  (forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Ct B Ce, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+    {Ctx_t2e |- ers_comp Ct Ce} -> {Ctx_t |- t/of_comp Sig_t Ct B} ->
+    exists T, {Ctx_t2e |- t/skel_comp_ty B T} /\ {Ctx_e |- e/of_comp Sig_e Ce T}).
+induction on 2 2 2. split.
+% VALUES
+intros. case H2.
+% UNIT
+case H3.
+  search.
+  apply ctx_t_member to H1 H5. case H6. case H4. case H7. case H4.
+% FUN
+case H3.
+  apply IH2 to _ H4 H6.
+  apply t/skel_comp_ty_strengthen to H1 H7.
+  search.
+  apply ctx_t_member to H1 H7. case H8. case H6. case H9. case H6.
+% HANDLER
+case H3.
+  apply IH1 to _ H4 H5.
+  search.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+% SKELETON LAMBDA
+case H3.
+  apply IH to _ H4 H5. search.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+% SKELETON APPLY
+case H3.
+apply IH to H1 H4 H5. case H6.
+  inst H8 with n1 = S. cut H9. search.
+  apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+% VALUE LAMBDA
+case H3.
+  apply IH to _ H4 H5. search.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+% VALUE APPLY
+case H3.
+apply IH to H1 H4 H5. case H7. inst H9 with n1 = X.
+apply strengthen_skel_val_ty to H1 H6.
+cut H10. search.
+  apply ctx_ers_member to H1 H10. case H11. case H9. case H9. case H12.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+% DIRT LAMBDA
+case H3.
+apply IH to H1 H4 H5. search.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+% DIRT APPLY
+case H3.
+apply IH to H1 H4 H5. case H6. inst H8 with n1 = X. search.
+apply ctx_ers_member to H1 H9. case H10. case H8. case H8. case H11.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+% COERCION LAMBDA
+case H3.
+apply IH to _ H4 H5 with Ctx_e = Ctx_e, Ctx_t2e = Ctx_t2e, Sig_t = Sig_t, Sig_e = Sig_e.
+skip. % contexts can also contain t/of_coer
+search.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+% COERCION APPLY
+case H3.
+apply IH to H1 H4 H5. case H7. search.
+apply ctx_ers_member to H1 H10. case H11. case H9. case H9. case H12.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+% VALUE COERCION
+case H3. apply IH to H1 H4 H5.
+apply ers_of_val_coer to H1 H6.
+apply unique_skel_val_ty to H1 H7 H9.
+search.
+  apply ctx_t_member to H1 H6. case H7. case H5. case H8. case H5.
+
+% BACKCHAIN
+apply ctx_ers_member to H1 H5. case H6.
+  % we had translated variable in the context
+  case H4. case H7. case H3.
+  apply ctx_t_member to H1 H13. case H14. case H12.
+    apply unique_ctx_of_val to H1 H10 H13. search.
+    case H12.
+  % we had translated skeleton in the context
+  case H4.
+% HANDLERS
+intros. case H2.
+% RETURN CASE
+case H3.
+  apply IH2 to _ H4 H6.
+  apply t/skel_comp_ty_strengthen to H1 H7.
+  case H9.
+    search.
+    apply ctx_ers_member to H1 H11. case H12. case H10. case H10.
+  apply ctx_t_member to H1 H7. case H8. case H6. case H6.
+% OP CASE
+case H3.
+  apply IH1 to _ H4 H6.
+  inst H8 with n2 = n3.
+  apply ers_of_op to H1 H7.
+  case H14.
+  apply IH2 to _ H5 H13 with Ctx_e = (e/of_val Sig_e n4 (fun_skel T4 T2) :: e/of_val Sig_e n2 T3 :: Ctx_e), Sig_e = Sig_e.
+  apply strengthen_is_op to H1 H9.
+  apply t/skel_comp_ty_strengthen to _ H17.
+  inst H20 with n3 = n1, n4 = n2.
+  apply t/skel_comp_ty_strengthen to _ H21.
+  apply unique_skel_comp_ty to H1 H11 H22.
+    search.
+    apply apart_not_reflexive to H18.
+  apply ctx_t_member to H1 H7. case H8. case H6. case H6.
+% BACKCHAIN
+apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
+
+% COMPUTATIONS
+intros. case H2.
+% APP
+case H3.
+  apply IH to H1 H4 H6.
+  apply IH to H1 H5 H7.
+  case H8.
+    apply unique_skel_val_ty to H1 H10 H12. search.
+  apply ctx_ers_member to H1 H13. case H14. case H12. case H12. case H15.
+apply ctx_t_member to H1 H7. case H8. case H6. case H6.
+% LET
+case H3.
+  apply IH to H1 H4 H6.
+  apply IH2 to _ H5 H7.
+  apply t/skel_comp_ty_strengthen to H1 H10.
+  search.
+apply ctx_t_member to H1 H7. case H8. case H6. case H6.
+% RETURN
+case H3.
+  apply IH to H1 H4 H5.
+  search.
+apply ctx_t_member to H1 H6. case H7. case H5. case H5.
+% OP
+case H3.
+  apply IH to H1 H4 H8.
+  apply IH2 to _ H6 H9.
+  apply ers_of_op to H1 H7.
+  apply unique_skel_val_ty to H1 H12 H17.
+  apply unique_skel_val_ty to H1 H5 H18.
+  apply t/skel_comp_ty_strengthen to H1 H14.
+  search.
+apply ctx_t_member to H1 H8. case H9. case H7. case H7.
+% DO
+case H3.
+  apply IH2 to H1 H4 H6.
+  case H8.
+  apply IH2 to _ H5 H7 with Ctx_e = (e/of_val Sig_e n2 T :: Ctx_e), Sig_e = Sig_e.
+  apply t/skel_comp_ty_strengthen to H1 H11.
+  search.
+  apply ctx_ers_member to H1 H11. case H12. case H10. case H10.
+apply ctx_t_member to H1 H7. case H8. case H6. case H6.
+% WITH
+case H3.
+  apply IH2 to H1 H4 H6.
+  apply IH to H1 H5 H7.
+  case H10.
+  apply unique_skel_comp_ty to H1 H8 H12.
+  search.
+apply ctx_ers_member to H1 H13. case H14. case H12. case H12. case H15.
+apply ctx_t_member to H1 H7. case H8. case H6. case H6.
+% COMPUTATION CAST
+case H3.
+  apply IH2 to H1 H4 H5.
+  apply ers_of_comp_coer to H1 H6.
+  apply unique_skel_comp_ty to H1 H7 H9.
+  search.
+apply ctx_t_member to H1 H6. case H7. case H5. case H5.
+% IN CONTEXT
+apply ctx_ers_member to H1 H5. case H6. case H4. case H4.

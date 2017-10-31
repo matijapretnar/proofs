@@ -1,0 +1,149 @@
+Specification "erasure".
+Import "common".
+Import "erasure_lemmas".
+Set subgoals off.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem val_preservation :
+  forall Vt1 Vt2 Ve1 Ve2,
+    {t/step_val Vt1 Vt2} -> {ers_val Vt1 Ve1} -> {ers_val Vt2 Ve2} ->
+    Ve1 = Ve2 \/ {e/step_val Ve1 Ve2}.
+induction on 1. intros. case H1.
+% COERCE
+case H2. case H3. apply IH to H4 H5 H6. search.
+% COMPOSE
+case H2. case H3. case H5. apply unique_ers_val to _ H6 H7. search.
+% APP_SKEL
+case H2. case H3. apply IH to H4 H5 H6. case H7. search. search.
+% APP_TY
+case H2. case H3. apply IH to H4 H5 H6. search.
+% APP_DIRT
+case H2. case H3. apply IH to H4 H5 H6. search.
+% APP_COER
+case H2. case H3. apply IH to H4 H5 H6. search.
+% coerced APP_SKEL
+case H2. case H3. case H5. case H6. apply unique_ers_val to _ H7 H8. search.
+% coerced APP_TY
+case H2. case H3. case H5. case H6. apply unique_ers_val to _ H7 H8. search.
+% coerced APP_DIRT
+case H2. case H3. case H5. case H6. apply unique_ers_val to _ H7 H8. search.
+% coerced APP_COER
+case H2. case H3. case H5. case H6. apply unique_ers_val to _ H7 H8. search.
+% APP_SKEL reduce
+case H2. case H4. inst H5 with n1 = S. apply unique_ers_val to _ H3 H6. search.
+% APP_TY reduce
+case H2. case H5.
+inst H6 with n1 = A. cut H7 with H4.
+apply unique_ers_val to _ H3 H8. search.
+% APP_DIRT reduce
+case H2. case H4. inst H5 with n1 = A.
+apply unique_ers_val to _ H3 H6. search.
+% APP_COER reduce
+case H2. case H4. inst H5 with n1 = A.
+apply unique_ers_val to _ H3 H6. search.
+
+
+Theorem comp_preservation :
+  forall Ct1 Ct2 Ce1 Ce2,
+    {t/step_comp Ct1 Ct2} -> {ers_comp Ct1 Ce1} -> {ers_comp Ct2 Ce2} ->
+    Ce1 = Ce2 \/ {e/step_comp Ce1 Ce2}.
+induction on 1. intros. case H1.
+% COERCE
+case H2. case H3. apply IH to H4 H5 H6. search.
+% COMPOSE
+case H2. case H5. case H3. apply unique_ers_comp to _ H6 H7. search.
+% APP V1-step
+case H2. case H3.
+apply val_preservation to H4 H5 H7.
+apply unique_ers_val to _ H6 H8.
+case H9. search. search.
+% APP V1-t/coer
+case H2. case H3. case H5. case H7. case H10.
+apply unique_ers_val to _ H6 H11. apply unique_ers_val to _ H8 H9.
+search.
+% APP V2-step
+case H2. case H3.
+apply val_preservation to H5 H7 H9.
+apply unique_ers_val to _ H6 H8.
+apply ers_term_val to H4 H6.
+case H10. search. search.
+% APP beta
+case H2. case H5.
+inst H7 with n1 = V, n2 = V2e. cut H9 with H6.
+apply unique_ers_comp to _ H3 H10.
+apply ers_result_val to H4 H6.
+search.
+% LET V-step
+case H2. case H3.
+apply val_preservation to H4 H5 H7.
+apply unique_ers_comp to _ H6 H8.
+case H9. search. search.
+% LET beta
+case H2.
+apply ers_result_val to H4 H5.
+inst H6 with n1 = V, n2 = Ve. cut H8 with H5.
+apply unique_ers_comp to _ H3 H9. search.
+% RETURN V-step
+case H2. case H3. apply val_preservation to H4 H5 H6.
+case H7. search. search.
+% RETURN coerce
+case H2. case H4. case H3. case H6. apply unique_ers_val to _ H5 H7. search.
+% OP V-step
+case H2. case H3.
+apply val_preservation to H4 H5 H8.
+apply unique_ers_comp to _ H7 H10.
+apply unique_skel_val_ty to _ H6 H9.
+case H11. search. search.
+% OP-coerce
+case H2. case H3. case H5.
+apply unique_ers_val to _ H6 H9.
+apply unique_skel_val_ty to _ H7 H10.
+case H8. apply unique_ers_comp to _ H11 H12. search.
+case H13. case H12. case H14.
+% DO C1-step
+case H2. case H3. apply IH to H4 H5 H7. apply unique_ers_comp to _ H6 H8.
+case H9. search. search.
+% DO cast_ret
+case H2. case H5. case H7.
+apply ers_term_val to H4 H8.
+inst H6 with n1 = (t/val_cast V (t/pure_coer Y)), n2 = Ve.
+cut H10.
+apply unique_ers_comp to _ H3 H11.
+search.
+% DO t/ret
+case H2. case H5.
+apply ers_term_val to H4 H7.
+inst H6 with n1 = V, n2 = Ve.
+cut H9 with H7.
+apply unique_ers_comp to _ H3 H10.
+search.
+% DO op
+case H2. case H3. case H5. case H9.
+apply ers_result_val to *H4 H7.
+apply unique_ers_val to _ H7 *H10.
+apply unique_skel_val_ty to _ *H8 *H11.
+apply unique_ers_comp to _ *H12 *H13.
+inst *H6 with n1 = n3, n2 = n4.
+monotone *H16 with (ers_val n3 n4 :: ers_val n1 n2 :: nil).
+apply unique_ers_comp to _ *H14 *H17.
+search.
+case H14. case H13.
+case H15.
+% HANDLE V-step
+case H2. case H3. apply unique_ers_comp to _ H5 H7.
+apply val_preservation to H4 H6 H8. case H9.
+  search.
+  search.
+% HANDLE V-cast
+case H2. case H3. case H6. case H7. case H9.
+apply unique_ers_comp to _ H5 H11. apply unique_ers_val to _ H8 H10. search.
+% HANDLE C-step
+case H2. case H3. apply unique_ers_val to _ H7 H9. apply IH to H5 H6 H8.
+case H10. search. apply ers_term_val to H4 H7. search.
+% HANDLE t/ret
+case H2. case H6. case H7. skip. % apply ers_get_ret_case to H9 H5.
+% HANDLE t/ret-t/coer
+case H2. case H6. case H8. case H7. skip. % apply ers_get_ret_case to H10 H5.
+% HANDLE op
+case H2. case H6. case H7. skip. % apply ers_get_op_case to H11 H5 H3.
