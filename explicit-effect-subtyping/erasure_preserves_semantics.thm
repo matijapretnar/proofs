@@ -43,6 +43,42 @@ intros. case H1.
   apply ers_term_val to H3 H2. search.
   case H2. apply ers_term_val to H3 H4. search.
 
+Theorem ers_get_ret_case :
+  forall Ht Ct Vt He Ce Ve,
+    {t/get_ret_case Ht Ct} -> {ers_hand Ht He} -> {ers_comp (Ct Vt) Ce} -> {ers_val Vt Ve} ->
+    exists Ce', {e/get_ret_case He Ce'} /\ Ce = Ce' Ve.
+induction on 1. intros. case H1.
+  case H2.
+    exists Ce1. inst H5 with n1 = Vt, n2 = Ve. cut H7 with H4.
+    apply unique_ers_comp to _ H3 H8. search.
+  case H2.
+    apply IH to H5 H6 H3 H4.
+    search.
+
+Theorem ers_get_op_case :
+  forall Ht O At Ct Vt Kt He Ae Ce Ve Ke,
+    {t/get_op_case Ht O At Ct} -> {ers_hand Ht He} -> {ers_comp (Ct Vt Kt) Ce} -> {ers_val Vt Ve} ->
+    {t/skel_val_ty At Ae} -> {ers_val Kt Ke} ->
+    exists Ce', {e/get_op_case He O Ae Ce'} /\ Ce = Ce' Ve Ke.
+induction on 1. intros. case H1.
+  case H2.
+    case H3.
+    exists (x\ k\ e/op O x Ae (y\ e/app k y)).
+    apply unique_ers_val to _ H4 H9.
+    apply unique_skel_val_ty to _ H5 H10.
+    case H11.
+    monotone H6 with ers_val n1 n2 :: nil.
+    apply unique_ers_val to _ H12 H14.
+    assert {ers_val n1 n2 |- ers_val n1 n2}.
+    apply unique_ers_val to _ H13 H15. search.
+    case H13. case H12. case H14.
+  case H2.
+    inst H9 with n1 = Vt, n2 = Ve, n3 = Kt, n4 = Ke.
+    cut H10 with H4. cut H11 with H6.
+    apply unique_ers_comp to _ H3 H12. search.
+  case H2.
+    apply IH to H8 H9 H3 H4 H5 H6. search.
+
 Theorem val_preservation :
   forall Vt1 Vt2 Ve1 Ve2,
     {t/step_val Vt1 Vt2} -> {ers_val Vt1 Ve1} -> {ers_val Vt2 Ve2} ->
@@ -203,8 +239,30 @@ case H2. case H3. apply unique_ers_val to _ H7 H9.
 apply IH to H5 H6 H8.
 unfold 12. exists (c\ e/with c Ve1). search.
 % HANDLE t/ret
-case H2. case H6. case H7. skip. % apply ers_get_ret_case to H9 H5.
+case H2. case H6. case H7.
+apply ers_get_ret_case to H5 H9 H3 H8.
+apply ers_term_val to H4 H8.
+unfold 10. exists (e/with (e/ret Ve') (e/hand He)). split.
+unfold 11. exists (v\ e/with (e/ret v) (e/hand He)). search.
+unfold 10. exists (Ce' Ve'). split.
+unfold 7. search.
+unfold 11. exists Ce'. search.
 % HANDLE t/ret-t/coer
-case H2. case H6. case H8. case H7. skip. % apply ers_get_ret_case to H10 H5.
+case H2. case H6. case H8. case H7.
+assert {ers_val (t/val_cast V (t/pure_coer Y)) Ve1}.
+apply ers_term_val to H4 H9.
+apply ers_get_ret_case to H5 H10 H3 H11.
+unfold 10. exists (e/with (e/ret Ve') (e/hand He)). split.
+unfold 11. exists (v\ e/with (e/ret v) (e/hand He)). search.
+unfold 10. exists (Ce' Ve'). split.
+unfold 7. search.
+unfold 11. exists Ce'. search.
 % HANDLE op
-case H2. case H6. case H7. skip. % apply ers_get_op_case to H11 H5 H3.
+case H2. case H6. case H7.
+apply ers_result_val to H4 H8.
+apply ers_get_op_case to H5 H11 H3 H8 H9 _.
+unfold 10. exists (e/with (e/op O Ve' Ae Ce3) (e/hand He)). split.
+unfold 11. exists (v\ e/with (e/op O v Ae Ce3) (e/hand He)). search.
+unfold 10. exists (Ce' Ve' (e/fun Ae (z1\e/with (Ce3 z1) (e/hand He)))). split.
+unfold 7. search.
+unfold 11. exists (v\ Ce' v (e/fun Ae (z1\e/with (Ce3 z1) (e/hand He)))). search.
