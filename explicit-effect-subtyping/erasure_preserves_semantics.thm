@@ -5,17 +5,55 @@ Set subgoals off.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Define e/cong_val : e/val -> e/val -> prop, e/cong_comp : e/comp -> e/comp -> prop by
+    % 1
+    e/cong_val V1 V2 := {e/step_val V1 V2};
+    % 2
+    e/cong_val V V;
+    % 3
+    e/cong_val V1 V2 := e/cong_val V2 V1;
+    % 4
+    e/cong_val V1 V3 := exists V2, e/cong_val V1 V2 /\ e/cong_val V2 V3;
+    % 5
+    e/cong_val V1 V2 := exists V V1' V2', V1 = V V1' /\ V2 = V V2' /\ e/cong_val V1' V2';
+    % 6
+    e/cong_val V1 V2 := exists V C1' C2', V1 = V C1' /\ V2 = V C2' /\ e/cong_comp C1' C2';
+    % 7
+    e/cong_comp C1 C2 := {e/step_comp C1 C2};
+    % 8
+    e/cong_comp C C;
+    % 9
+    e/cong_comp C1 C2 := e/cong_comp C2 C1;
+    % 10
+    e/cong_comp C1 C3 := exists C2, e/cong_comp C1 C2 /\ e/cong_comp C2 C3;
+    % 11
+    e/cong_comp C1 C2 := exists C V1' V2', C1 = C V1' /\ C2 = C V2' /\ e/cong_val V1' V2';
+    % 12
+    e/cong_comp C1 C2 := exists C C1' C2', C1 = C C1' /\ C2 = C C2' /\ e/cong_comp C1' C2'.
+
+Theorem ers_term_val :
+  forall Vt Ve,
+    {t/term_val Vt} -> {ers_val Vt Ve} -> exists Ve', {e/result_val Ve'} /\ e/cong_val Ve Ve'.
+skip.
+
+Theorem ers_result_val :
+  forall Vt Ve,
+    {t/result_val Vt} -> {ers_val Vt Ve} -> exists Ve', {e/result_val Ve'} /\ e/cong_val Ve Ve'.
+intros. case H1.
+  apply ers_term_val to H3 H2. search.
+  case H2. apply ers_term_val to H3 H4. search.
+
 Theorem val_preservation :
   forall Vt1 Vt2 Ve1 Ve2,
     {t/step_val Vt1 Vt2} -> {ers_val Vt1 Ve1} -> {ers_val Vt2 Ve2} ->
-    Ve1 = Ve2 \/ {e/step_val Ve1 Ve2}.
+    e/cong_val Ve1 Ve2.
 induction on 1. intros. case H1.
 % COERCE
 case H2. case H3. apply IH to H4 H5 H6. search.
 % COMPOSE
 case H2. case H3. case H5. apply unique_ers_val to _ H6 H7. search.
 % APP_SKEL
-case H2. case H3. apply IH to H4 H5 H6. case H7. search. search.
+case H2. case H3. apply IH to H4 H5 H6. unfold 5. exists (v\ e/app_ty v A). search.
 % APP_TY
 case H2. case H3. apply IH to H4 H5 H6. search.
 % APP_DIRT
@@ -47,7 +85,7 @@ apply unique_ers_val to _ H3 H6. search.
 Theorem comp_preservation :
   forall Ct1 Ct2 Ce1 Ce2,
     {t/step_comp Ct1 Ct2} -> {ers_comp Ct1 Ce1} -> {ers_comp Ct2 Ce2} ->
-    Ce1 = Ce2 \/ {e/step_comp Ce1 Ce2}.
+    e/cong_comp Ce1 Ce2.
 induction on 1. intros. case H1.
 % COERCE
 case H2. case H3. apply IH to H4 H5 H6. search.
@@ -57,7 +95,7 @@ case H2. case H5. case H3. apply unique_ers_comp to _ H6 H7. search.
 case H2. case H3.
 apply val_preservation to H4 H5 H7.
 apply unique_ers_val to _ H6 H8.
-case H9. search. search.
+unfold 11. exists (v\ e/app v V2e1). search.
 % APP V1-t/coer
 case H2. case H3. case H5. case H7. case H10.
 apply unique_ers_val to _ H6 H11. apply unique_ers_val to _ H8 H9.
@@ -67,26 +105,35 @@ case H2. case H3.
 apply val_preservation to H5 H7 H9.
 apply unique_ers_val to _ H6 H8.
 apply ers_term_val to H4 H6.
-case H10. search. search.
+unfold 11. exists (v\ e/app V1e1 v). search.
 % APP beta
 case H2. case H5.
 inst H7 with n1 = V, n2 = V2e. cut H9 with H6.
 apply unique_ers_comp to _ H3 H10.
 apply ers_result_val to H4 H6.
-search.
+unfold 10. exists (e/app (e/fun T Ce) Ve'). split.
+unfold 11. exists (v\ e/app (e/fun T Ce) v). search.
+unfold 10. exists (Ce Ve'). split.
+unfold 7. search.
+unfold 11. exists Ce. search.
 % LET V-step
 case H2. case H3.
 apply val_preservation to H4 H5 H7.
 apply unique_ers_comp to _ H6 H8.
-case H9. search. search.
+unfold 11. exists (v\ e/let v Ce3). search.
 % LET beta
 case H2.
 apply ers_result_val to H4 H5.
-inst H6 with n1 = V, n2 = Ve. cut H8 with H5.
-apply unique_ers_comp to _ H3 H9. search.
+inst H6 with n1 = V, n2 = Ve. cut H9 with H5.
+apply unique_ers_comp to _ H3 H10.
+unfold 10. exists (e/let Ve' Ce). split.
+unfold 11. exists (v\ e/let v Ce). search.
+unfold 10. exists (Ce Ve'). split.
+unfold 7. search.
+unfold 11. exists Ce. search.
 % RETURN V-step
 case H2. case H3. apply val_preservation to H4 H5 H6.
-case H7. search. search.
+unfold 11. exists (v\ e/ret v). search.
 % RETURN coerce
 case H2. case H4. case H3. case H6. apply unique_ers_val to _ H5 H7. search.
 % OP V-step
@@ -94,7 +141,7 @@ case H2. case H3.
 apply val_preservation to H4 H5 H8.
 apply unique_ers_comp to _ H7 H10.
 apply unique_skel_val_ty to _ H6 H9.
-case H11. search. search.
+unfold 11. exists (v\ e/op O v Ae1 Ce3). search.
 % OP-coerce
 case H2. case H3. case H5.
 apply unique_ers_val to _ H6 H9.
@@ -102,22 +149,31 @@ apply unique_skel_val_ty to _ H7 H10.
 case H8. apply unique_ers_comp to _ H11 H12. search.
 case H13. case H12. case H14.
 % DO C1-step
-case H2. case H3. apply IH to H4 H5 H7. apply unique_ers_comp to _ H6 H8.
-case H9. search. search.
+case H2. case H3. apply IH to H4 H5 H7.
+apply unique_ers_comp to _ H6 H8.
+unfold 12. exists (c\ e/do c Ce5). search.
 % DO cast_ret
 case H2. case H5. case H7.
 apply ers_term_val to H4 H8.
 inst H6 with n1 = (t/val_cast V (t/pure_coer Y)), n2 = Ve.
-cut H10.
-apply unique_ers_comp to _ H3 H11.
-search.
+cut H11.
+apply unique_ers_comp to _ H3 H12.
+unfold 10. exists (e/do (e/ret Ve') Ce3). split.
+unfold 11. exists (v\ e/do (e/ret v) Ce3). search.
+unfold 10. exists (Ce3 Ve'). split.
+unfold 7. search.
+unfold 11. exists Ce3. search.
 % DO t/ret
 case H2. case H5.
 apply ers_term_val to H4 H7.
 inst H6 with n1 = V, n2 = Ve.
-cut H9 with H7.
-apply unique_ers_comp to _ H3 H10.
-search.
+cut H10 with H7.
+apply unique_ers_comp to _ H3 H11.
+unfold 10. exists (e/do (e/ret Ve') Ce3). split.
+unfold 11. exists (v\ e/do (e/ret v) Ce3). search.
+unfold 10. exists (Ce3 Ve'). split.
+unfold 7. search.
+unfold 11. exists Ce3. search.
 % DO op
 case H2. case H3. case H5. case H9.
 apply ers_result_val to *H4 H7.
@@ -125,22 +181,27 @@ apply unique_ers_val to _ H7 *H10.
 apply unique_skel_val_ty to _ *H8 *H11.
 apply unique_ers_comp to _ *H12 *H13.
 inst *H6 with n1 = n3, n2 = n4.
-monotone *H16 with (ers_val n3 n4 :: ers_val n1 n2 :: nil).
-apply unique_ers_comp to _ *H14 *H17.
-search.
-case H14. case H13.
-case H15.
+monotone *H17 with (ers_val n3 n4 :: ers_val n1 n2 :: nil).
+apply unique_ers_comp to _ *H14 *H18.
+unfold 10. exists (e/do (e/op O Ve' Ae1 Ce8) Ce3). split.
+unfold 11. exists (v\ e/do (e/op O v Ae1 Ce8) Ce3). search.
+unfold 10. exists (e/op O Ve' Ae1 (z\ e/do (Ce8 z) Ce3)). split.
+unfold 7. search.
+unfold 11. exists (v\ e/op O v Ae1 (z\ e/do (Ce8 z) Ce3)). search.
+case H14. case H13. case H15.
 % HANDLE V-step
 case H2. case H3. apply unique_ers_comp to _ H5 H7.
-apply val_preservation to H4 H6 H8. case H9.
-  search.
-  search.
+apply val_preservation to H4 H6 H8.
+unfold 11. exists (v\ e/with Ce3 v). search.
 % HANDLE V-cast
 case H2. case H3. case H6. case H7. case H9.
-apply unique_ers_comp to _ H5 H11. apply unique_ers_val to _ H8 H10. search.
+apply unique_ers_comp to _ H5 H11.
+apply unique_ers_val to _ H8 H10.
+search.
 % HANDLE C-step
-case H2. case H3. apply unique_ers_val to _ H7 H9. apply IH to H5 H6 H8.
-case H10. search. apply ers_term_val to H4 H7. search.
+case H2. case H3. apply unique_ers_val to _ H7 H9.
+apply IH to H5 H6 H8.
+unfold 12. exists (c\ e/with c Ve1). search.
 % HANDLE t/ret
 case H2. case H6. case H7. skip. % apply ers_get_ret_case to H9 H5.
 % HANDLE t/ret-t/coer

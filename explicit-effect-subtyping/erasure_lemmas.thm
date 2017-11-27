@@ -109,18 +109,6 @@ intros. case H2.
     apply ctx_ers_member to H1 H5. case H6. case H3. case H3.
 Split t/skel_ty_strengthen as t/skel_val_ty_strengthen, t/skel_comp_ty_strengthen.
 
-Theorem ers_term_val :
-  forall Vt Ve,
-    {t/term_val Vt} -> {ers_val Vt Ve} -> {e/result_val Ve}.
-skip.
-
-Theorem ers_result_val :
-  forall Vt Ve,
-    {t/result_val Vt} -> {ers_val Vt Ve} -> {e/result_val Ve}.
-intros. case H1.
-  backchain ers_term_val.
-  case H2. backchain ers_term_val.
-
 Theorem of_val_nominal_absurd : forall L Sig A, nabla x,
   member (t/of_val Sig x A) L -> false.
 induction on 1. intros. case H1. apply IH to H2.
