@@ -7,12 +7,6 @@ Set subgoals off.
 % % Source-to-target elaboration produces typeable terms.
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Theorem ers_of_op :
-  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e O A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-  {Ctx_t |- t/of_op Sig_t O A1 A2} ->
-  exists T1 T2, {e/of_op Sig_e O T1 T2} /\ {Ctx_t2e |- t/skel_val_ty A1 T1} /\ {Ctx_t2e |- t/skel_val_ty A2 T2}.
-skip. % contexts do not influence typing of operations
-
 Theorem ers_of_coer :
   (
     forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Y A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->

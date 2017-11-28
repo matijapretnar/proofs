@@ -396,3 +396,55 @@ intros. case H2.
   apply ctx_t_member to H1 H4. case H5. case H3. case H3.
 
 Split strengthen_skel_ty as strengthen_skel_val_ty, strengthen_skel_comp_ty.
+
+Theorem strengthen_apart : 
+  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e O1 O2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+  {Ctx_t |- apart O1 O2} -> {apart O1 O2}.
+induction on 2. intros. case H2.
+  search.
+  search.
+  apply IH to H1 H3. search.
+  apply ctx_t_member to H1 H4. case H5.
+    case H3.
+    case H3.
+
+Theorem strengthen_of_op :
+  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Sig O A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+  {Ctx_t |- t/of_op Sig O A1 A2} -> {t/of_op Sig O A1 A2}.
+induction on 2. intros. case H2.
+  search.
+  apply IH to H1 H3.
+  apply strengthen_apart to H1 H4. search.
+  apply ctx_t_member to H1 H4. case H5.
+    case H3.
+    case H3.
+
+Theorem ers_sig_ctxs :
+  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+  {ers_sig Sig_t Sig_e}.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+  apply IH to H2. search.
+
+Theorem ers_of_closed_op :
+  forall Sig_t Sig_e O A1 A2,
+  {ers_sig Sig_t Sig_e} -> {t/of_op Sig_t O A1 A2} ->
+  exists T1 T2, {e/of_op Sig_e O T1 T2} /\ {t/skel_val_ty A1 T1} /\ {t/skel_val_ty A2 T2}.
+induction on 1. intros. case H1.
+  case H2.
+  case H2.
+    search.
+    apply IH to H5 H6.
+    search.
+
+Theorem ers_of_op :
+  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e O A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+  {Ctx_t |- t/of_op Sig_t O A1 A2} ->
+  exists T1 T2, {e/of_op Sig_e O T1 T2} /\ {t/skel_val_ty A1 T1} /\ {t/skel_val_ty A2 T2}.
+intros.
+apply strengthen_of_op to H1 H2.
+apply ers_sig_ctxs to H1.
+apply ers_of_closed_op to H4 H3.
+search.
+
