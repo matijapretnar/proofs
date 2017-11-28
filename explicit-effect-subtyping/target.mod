@@ -32,7 +32,7 @@ t/less_comp_ty (t/bang A1 D1) (t/bang A2 D2) :-
 t/of_op (t/cons_sig O A B Sig) O A B.
 t/of_op (t/cons_sig O1 A1 B1 Sig) O2 A2 B2 :-
     t/of_op Sig O2 A2 B2,
-    apart O1 O1.
+    apart O1 O2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % t/skel_val_ty, t/skel_comp_ty

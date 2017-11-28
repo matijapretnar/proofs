@@ -8,7 +8,7 @@ accumulate target.
 e/of_op (e/cons_sig O A B Sig) O A B.
 e/of_op (e/cons_sig O1 A1 B1 Sig) O2 A2 B2 :-
     e/of_op Sig O2 A2 B2,
-    apart O1 O1.
+    apart O1 O2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % e/of_val, e/of_hand, e/of_comp

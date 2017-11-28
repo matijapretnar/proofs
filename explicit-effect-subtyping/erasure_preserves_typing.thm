@@ -182,18 +182,16 @@ case H3.
   apply ctx_t_member to H1 H7. case H8. case H6. case H6.
 % OP CASE
 case H3.
-  apply IH1 to _ H4 H6.
-  inst H8 with n2 = n3.
+  apply IH1 to H1 H4 H6.
   apply ers_of_op to H1 H7.
-  case H14.
-  apply IH2 to _ H5 H13 with Ctx_e = (e/of_val Sig_e n4 (fun_skel T4 T2) :: e/of_val Sig_e n2 T3 :: Ctx_e), Sig_e = Sig_e.
+  inst H8 with n2 = n3.
+  apply IH2 to _ H5 H16.
   apply strengthen_is_op to H1 H9.
   apply t/skel_comp_ty_strengthen to _ H17.
   inst H20 with n3 = n1, n4 = n2.
   apply t/skel_comp_ty_strengthen to _ H21.
   apply unique_skel_comp_ty to H1 H11 H22.
-    search.
-    apply apart_not_reflexive to H18.
+  search.
   apply ctx_t_member to H1 H7. case H8. case H6. case H6.
 % BACKCHAIN
 apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
