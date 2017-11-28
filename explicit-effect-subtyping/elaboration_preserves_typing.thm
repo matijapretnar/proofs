@@ -6,12 +6,6 @@ Set subgoals off.
 % Source-to-target elaboration produces typeable terms.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Theorem elb_of_op :
-  forall Sig_s Sig_t Ctx_s2t Ctx_t O A1s A2s, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
-  {Ctx_s2t |- s/of_op Sig_s O A1s A2s} ->
-  exists A1t A2t, {t/of_op Sig_t O A1t A2t} /\ {elb_val_ty A1s A1t} /\ {elb_val_ty A2s A2t}.
-skip. % contexts do not influence typing of operations
-
 Theorem elb_of_var :
   (forall Sig_s Sig_t Ctx_s2t Ctx_t Vs As Vt, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
     {Ctx_s2t |- elb_var Sig_s Vs As Vt} -> exists At, {Ctx_s2t |- elb_val_ty As At} /\ {Ctx_t |- t/of_val Sig_t Vt At}
