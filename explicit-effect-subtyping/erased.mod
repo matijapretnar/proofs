@@ -149,3 +149,19 @@ e/progress_comp C :-
     e/result_comp C.
 e/progress_comp C :-
     e/step_comp C C'.
+
+e/converges V :-
+  e/result_val V.
+e/converges V :-
+  e/step_val V V',
+  e/converges V'.
+
+e/normal V unit_skel :-
+    e/converges V.
+e/normal V (fun_skel _ _) :-
+    e/converges V.
+e/normal V (hand_skel _ _) :-
+    e/converges V.
+e/normal V (all_skel A) :-
+    e/converges V,
+    pi t\ e/normal (e/app_ty V t) (A t).

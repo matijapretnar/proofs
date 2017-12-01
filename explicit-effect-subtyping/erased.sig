@@ -57,3 +57,5 @@ type  e/get_op_case           e/hand -> op -> skel -> (e/val -> e/val -> e/comp)
 type  e/step_comp             e/comp -> e/comp -> o.
 type  e/progress_val          e/val -> o.
 type  e/progress_comp         e/comp -> o.
+type  e/converges             e/val -> o.
+type  e/normal                e/val -> skel -> o.
