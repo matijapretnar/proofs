@@ -517,12 +517,12 @@ apply elb_sig_ctxs to H1.
 apply elb_of_closed_op to H4 H3.
 search.
 
-Theorem elb_cnstr_good :
-  forall Sig_s Sig_t Ctx_s2t Ctx_t Pi_s Pi_t, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
-  {Ctx_s2t |- elb_cnstr Pi_s Pi_t} -> {Ctx_t |- t/good_coer_ty Pi_t}.
-induction on 2. intros. case H2.
-  search.
-  search.
+Theorem elb_good_coer_ty :
+  forall Sig_s Sig_t Ctx_s2t Ctx_t Pi_t, elb_ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
+  {Ctx_s2t |- t/good_coer_ty Pi_t} -> {Ctx_t |- t/good_coer_ty Pi_t}.
+intros. case H2.
+  apply strengthen_skel_val_ty to H1 H3. apply strengthen_skel_val_ty to H1 H4. search.
+  apply strengthen_skel_comp_ty to H1 H3. apply strengthen_skel_comp_ty to H1 H4. search.
   search.
   apply elb_ctx_member to H1 H4. case H5.
     case H3.

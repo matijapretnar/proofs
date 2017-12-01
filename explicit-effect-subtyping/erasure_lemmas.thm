@@ -21,12 +21,12 @@ Define ctx3 : t/sig -> e/sig -> olist -> olist -> olist -> prop by
     (t/of_coer w (t/val_ty_coer_ty At1 At2) :: Ctx_t)
     Ctx_t2e
     Ctx_e
-    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t2e |- t/skel_val_ty At1 S} /\ {Ctx_t2e |- t/skel_val_ty At2 S};
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- t/skel_val_ty At1 S} /\ {Ctx_t |- t/skel_val_ty At2 S};
   nabla w, ctx3 Sig_t Sig_e
     (t/of_coer w (t/comp_ty_coer_ty At1 At2) :: Ctx_t)
     Ctx_t2e
     Ctx_e
-    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t2e |- t/skel_comp_ty At1 S} /\ {Ctx_t2e |- t/skel_comp_ty At2 S};
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- t/skel_comp_ty At1 S} /\ {Ctx_t |- t/skel_comp_ty At2 S};
   nabla w, ctx3 Sig_t Sig_e
     (t/of_coer w (t/dirt_coer_ty D1 D2) :: Ctx_t)
     Ctx_t2e
@@ -49,10 +49,10 @@ Theorem ctx_t_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
       fresh A /\ (F = t/skel_val_ty A T)
     ) \/
     (exists W A1 A2 T,
-      fresh W /\ (F = t/of_coer W (t/val_ty_coer_ty A1 A2)) /\ {Ctx_t2e |- t/skel_val_ty A1 T} /\ {Ctx_t2e |- t/skel_val_ty A2 T}
+      fresh W /\ (F = t/of_coer W (t/val_ty_coer_ty A1 A2)) /\ {Ctx_t |- t/skel_val_ty A1 T} /\ {Ctx_t |- t/skel_val_ty A2 T}
     ) \/
     (exists W B1 B2 T,
-      fresh W /\ (F = t/of_coer W (t/comp_ty_coer_ty B1 B2)) /\ {Ctx_t2e |- t/skel_comp_ty B1 T} /\ {Ctx_t2e |- t/skel_comp_ty B2 T}
+      fresh W /\ (F = t/of_coer W (t/comp_ty_coer_ty B1 B2)) /\ {Ctx_t |- t/skel_comp_ty B1 T} /\ {Ctx_t |- t/skel_comp_ty B2 T}
     ) \/
     (exists W D1 D2,
       fresh W /\ (F = t/of_coer W (t/dirt_coer_ty D1 D2))).
@@ -517,3 +517,16 @@ apply ers_sig_ctxs to H1.
 apply ers_of_closed_op to H4 H3.
 search.
 
+Theorem good_ctx :
+  forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Pi, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
+  {Ctx_t |- t/good_coer_ty Pi} -> nabla x, ctx3 Sig_t Sig_e (t/of_coer x Pi :: Ctx_t) Ctx_t2e Ctx_e.
+intros. case H2.
+  search.
+  search.
+  search.
+  apply ctx_t_member to H1 H4. case H5.
+    case H3.
+    case H3.
+    case H3.
+    case H3.
+    case H3.

@@ -57,8 +57,12 @@ t/skel_val_ty (t/qual_ty _ A) S :-
 t/skel_comp_ty (t/bang A _) S :-
   t/skel_val_ty A S.
 
-t/good_coer_ty (t/val_ty_coer_ty A1 A2).
-t/good_coer_ty (t/comp_ty_coer_ty A1 A2).
+t/good_coer_ty (t/val_ty_coer_ty A1 A2) :-
+  t/skel_val_ty A1 S,
+  t/skel_val_ty A2 S.
+t/good_coer_ty (t/comp_ty_coer_ty A1 A2) :-
+  t/skel_comp_ty A1 S,
+  t/skel_comp_ty A2 S.
 t/good_coer_ty (t/dirt_coer_ty D1 D2).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

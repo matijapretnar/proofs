@@ -198,7 +198,7 @@ apply IH to Hctx Hof. search.
 % CONSTRAINED VALUE TYPE
 apply IH3 to _ Hof1.
 apply strengthen_elb_qual_ty to Hctx H1.
-apply elb_cnstr_good to Hctx Hof.
+apply elb_good_coer_ty to Hctx Hof2.
 search.
 % BACKCHAIN
 apply elb_qual_val_member to Hctx Hof Hof1.

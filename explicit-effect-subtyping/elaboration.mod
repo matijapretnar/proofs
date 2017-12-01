@@ -152,7 +152,8 @@ elb_qual_val Sig_s Vs (s/plain_qual_ty As) Vt :-
   elb_val Sig_s Vs As Vt.
 elb_qual_val Sig_s Vs (s/cnstr_qual_ty Pi_s As) (t/lam_coer Pi_t Vt) :-
   elb_cnstr Pi_s Pi_t,
-  pi w\ (t/of_coer w Pi_t => elb_qual_val Sig_s Vs As (Vt w)).
+  pi w\ (t/of_coer w Pi_t => elb_qual_val Sig_s Vs As (Vt w)),
+  t/good_coer_ty Pi_t.
 
 % ASSIGNING POLYTYPES
 elb_poly_val Sig_s Vs (s/plain_poly_ty As) Vt :-

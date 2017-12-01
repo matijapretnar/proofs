@@ -26,7 +26,3 @@ If all the proofs are correct, the command ends with outputting
     Proof completed.
     Abella < 
     </pre> [sic]
-
-Note that due to time limitations, there are currently still a few `skip.`
-commands in the code for obvious statements. My plan is to remove them as soon
-as possible.
