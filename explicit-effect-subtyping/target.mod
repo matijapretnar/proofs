@@ -57,6 +57,10 @@ t/skel_val_ty (t/qual_ty _ A) S :-
 t/skel_comp_ty (t/bang A _) S :-
   t/skel_val_ty A S.
 
+t/good_coer_ty (t/val_ty_coer_ty A1 A2).
+t/good_coer_ty (t/comp_ty_coer_ty A1 A2).
+t/good_coer_ty (t/dirt_coer_ty D1 D2).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % t/of_coer
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -137,7 +141,8 @@ t/of_val Sig (t/lam_dirt V) (t/all_dirt A) :-
 t/of_val Sig (t/app_dirt V D) (A D) :-
   t/of_val Sig V (t/all_dirt A).
 t/of_val Sig (t/lam_coer Pi V) (t/qual_ty Pi A) :-
-  pi w\ (t/of_coer w Pi => t/of_val Sig (V w) A).
+  pi w\ (t/of_coer w Pi => t/of_val Sig (V w) A),
+  t/good_coer_ty Pi.
 t/of_val Sig (t/app_coer V Y) A :-
   t/of_val Sig V (t/qual_ty Pi A),
   t/of_coer Y Pi.

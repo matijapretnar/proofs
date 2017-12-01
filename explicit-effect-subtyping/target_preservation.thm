@@ -48,7 +48,7 @@ case H2. case H4. inst H6 with n1 = A1. cut H7. search.
 % APP_DIRT reduce
 case H2. case H3. inst H4 with n1 = A1. search.
 % APP_COER reduce
-case H2. case H3. inst H5 with n1 = A1. cut H6. search.
+case H2. case H3. inst H5 with n1 = A1. cut H7. search.
 
 Theorem comp_preservation : forall Sig C C' A, {t/step_comp C C'} -> {t/of_comp Sig C A} -> {t/of_comp Sig C' A}.
 induction on 1. intros. case H1.

@@ -23,6 +23,7 @@ type  t/comp_ty_coer_ty       t/comp_ty -> t/comp_ty -> t/coer_ty.
 
 type  t/bang                  t/val_ty -> dirt -> t/comp_ty.
 
+type  t/good_coer_ty          t/coer_ty -> o.
 type  t/less_val_ty           t/val_ty -> t/val_ty -> o.
 type  t/less_comp_ty          t/comp_ty -> t/comp_ty -> o.
 

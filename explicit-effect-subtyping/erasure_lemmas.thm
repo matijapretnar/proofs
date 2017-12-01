@@ -16,6 +16,21 @@ Define ctx3 : t/sig -> e/sig -> olist -> olist -> olist -> prop by
     (t/skel_val_ty t Te :: Ctx_t)
     (t/skel_val_ty t Te :: Ctx_t2e)
     Ctx_e
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e;
+  nabla w, ctx3 Sig_t Sig_e
+    (t/of_coer w (t/val_ty_coer_ty At1 At2) :: Ctx_t)
+    Ctx_t2e
+    Ctx_e
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t2e |- t/skel_val_ty At1 S} /\ {Ctx_t2e |- t/skel_val_ty At2 S};
+  nabla w, ctx3 Sig_t Sig_e
+    (t/of_coer w (t/comp_ty_coer_ty At1 At2) :: Ctx_t)
+    Ctx_t2e
+    Ctx_e
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t2e |- t/skel_comp_ty At1 S} /\ {Ctx_t2e |- t/skel_comp_ty At2 S};
+  nabla w, ctx3 Sig_t Sig_e
+    (t/of_coer w (t/dirt_coer_ty D1 D2) :: Ctx_t)
+    Ctx_t2e
+    Ctx_e
     := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e.
 
 Define simple_ctx : olist -> prop by
@@ -31,15 +46,33 @@ Theorem ctx_t_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
       fresh X /\ (F = t/of_val Sig_t X A)
     ) \/
     (exists A T,
-      fresh A /\ (F = t/skel_val_ty A T)).
+      fresh A /\ (F = t/skel_val_ty A T)
+    ) \/
+    (exists W A1 A2 T,
+      fresh W /\ (F = t/of_coer W (t/val_ty_coer_ty A1 A2)) /\ {Ctx_t2e |- t/skel_val_ty A1 T} /\ {Ctx_t2e |- t/skel_val_ty A2 T}
+    ) \/
+    (exists W B1 B2 T,
+      fresh W /\ (F = t/of_coer W (t/comp_ty_coer_ty B1 B2)) /\ {Ctx_t2e |- t/skel_comp_ty B1 T} /\ {Ctx_t2e |- t/skel_comp_ty B2 T}
+    ) \/
+    (exists W D1 D2,
+      fresh W /\ (F = t/of_coer W (t/dirt_coer_ty D1 D2))).
 induction on 1. intros. case H1.
 case H2.
 case H2.
   search.
-  apply IH to H3 H5. case H6. search. search.
+  apply IH to H3 H5. case H6. search. search. search. search. search.
 case H2.
   search.
-  apply IH to H3 H4. case H5. search. search.
+  apply IH to H3 H4. case H5. search. search. search. search. search.
+case H2.
+  search.
+  apply IH to H3 H6. case H7. search. search. search. search. search.
+case H2.
+  search.
+  apply IH to H3 H6. case H7. search. search. search. search. search.
+case H2.
+  search.
+  apply IH to H3 H4. case H5. search. search. search. search. search.
 
 Theorem ctx_skel_val_ty_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e A S,
   ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
@@ -51,6 +84,12 @@ induction on 1. intros. case H1.
     apply IH to H3 H5. search.
   case H2.
     search.
+    apply IH to H3 H4. search.
+  case H2.
+    apply IH to H3 H6. search.
+  case H2.
+    apply IH to H3 H6. search.
+  case H2.
     apply IH to H3 H4. search.
 
 Theorem ctx_ers_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
@@ -81,6 +120,18 @@ case H2.
   apply IH to H3 H4. case H5.
     search.
     search.
+% t/of_coer
+apply IH to H3 H2. case H6.
+  search.
+  search.
+% t/of_coer
+apply IH to H3 H2. case H6.
+  search.
+  search.
+% t/of_coer
+apply IH to H3 H2. case H4.
+  search.
+  search.
 
 Theorem t/skel_ty_strengthen :
   (
@@ -131,19 +182,27 @@ induction on 2. intros. case H2.
     case H1.
       apply IH to H6 H4 H5. search.
       apply IH to H6 H4 H5. search.
+      apply IH to H6 H4 H5. search.
+      apply IH to H6 H4 H5. search.
+      apply IH to H6 H4 H5. search.
 
 Theorem unique_ctx_skel_ty :
   forall Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e A S1 S2, ctx3 Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e ->
   member (t/skel_val_ty A S1) Ctx_t2e -> member (t/skel_val_ty A S2) Ctx_t2e -> S1 = S2.
-induction on 2. intros. case H2.
-  case H3.
-    search.
-    case H1. apply skel_val_ty_nominal_absurd to H4.
-  case H3.
-    case H1. apply skel_val_ty_nominal_absurd to H4.
-    case H1.
-      apply IH to H6 H4 H5. search.
-      apply IH to H6 H4 H5. search.
+induction on 1. intros. case H1.
+  case H2.
+  case H2.
+    case H3. apply IH to H4 H6 H7. search.
+  case H2.
+    case H3.
+      search.
+      apply skel_val_ty_nominal_absurd to H5.
+    case H3.
+      apply skel_val_ty_nominal_absurd to H5.
+      apply IH to H4 H5 H6. search.
+    apply IH to H4 H2 H3. search.
+  apply IH to H4 H2 H3. search.
+  apply IH to H4 H2 H3. search.
 
 Theorem unique_skel_ty :
   (
@@ -191,7 +250,7 @@ Theorem strengthen_is_op :
 induction on 2. intros. case H2.
   search.
   apply IH to H1 H3. search.
-  apply ctx_t_member to H1 H4. case H5. case H3. case H3.
+  apply ctx_t_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3.
 
 Theorem simple_ctx_member : forall Ctx F,
   simple_ctx Ctx -> member F Ctx ->
@@ -390,10 +449,11 @@ intros. case H2.
   apply IH to H1 H3. search.
   apply IH to H1 H3. search.
   apply ctx_t_member to H1 H4. case H5. case H3. case H3.
-  apply ctx_skel_val_ty_member to H1 H4. search.
+    apply ctx_skel_val_ty_member to H1 H4. search. case H3.
+  case H3. case H3.
 intros. case H2.
   apply IH to H1 H3. search.
-  apply ctx_t_member to H1 H4. case H5. case H3. case H3.
+  apply ctx_t_member to H1 H4. case H5. case H3. case H3. case H3. case H3. case H3.
 
 Split strengthen_skel_ty as strengthen_skel_val_ty, strengthen_skel_comp_ty.
 
@@ -407,6 +467,9 @@ induction on 2. intros. case H2.
   apply ctx_t_member to H1 H4. case H5.
     case H3.
     case H3.
+    case H3.
+    case H3.
+    case H3.
 
 Theorem strengthen_of_op :
   forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Sig O A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
@@ -418,12 +481,18 @@ induction on 2. intros. case H2.
   apply ctx_t_member to H1 H4. case H5.
     case H3.
     case H3.
+    case H3.
+    case H3.
+    case H3.
 
 Theorem ers_sig_ctxs :
   forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
   {ers_sig Sig_t Sig_e}.
 induction on 1. intros. case H1.
   search.
+  apply IH to H2. search.
+  apply IH to H2. search.
+  apply IH to H2. search.
   apply IH to H2. search.
   apply IH to H2. search.
 
