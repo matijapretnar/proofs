@@ -30,6 +30,10 @@ type    valtys/cons     valtys -> label -> valty -> valtys.
 
 type    eff-kind        compty -> eff -> o.
 type    valtys/get      valtys -> label -> valty -> o.
+type    is-eff          eff -> o.
+type    is-valty        valty -> o.
+type    is-compty       compty -> o.
+type    is-valtys       valtys -> o.
 
 
 kind    value, comp, cases     type.

@@ -30,6 +30,10 @@ type    mam/valtys/cons     mam/valtys -> mam/label -> mam/valty -> mam/valtys.
 
 type    mam/eff-kind        mam/compty -> mam/eff -> o.
 type    mam/valtys/get      mam/valtys -> mam/label -> mam/valty -> o.
+type    mam/is-eff          mam/eff -> o.
+type    mam/is-valty        mam/valty -> o.
+type    mam/is-compty       mam/compty -> o.
+type    mam/is-valtys       mam/valtys -> o.
 
 
 kind    mam/value, mam/comp, mam/cases     type.
@@ -106,6 +110,10 @@ type    mon/valtys/cons     mon/valtys -> mon/label -> mon/valty -> mon/valtys.
 
 type    mon/eff-kind        mon/compty -> mon/eff -> o.
 type    mon/valtys/get      mon/valtys -> mon/label -> mon/valty -> o.
+type    mon/is-eff          mon/eff -> o.
+type    mon/is-valty        mon/valty -> o.
+type    mon/is-compty       mon/compty -> o.
+type    mon/is-valtys       mon/valtys -> o.
 
 
 kind    mon/value, mon/comp, mon/cases     type.
@@ -195,6 +203,10 @@ type    del/valtys/cons     del/valtys -> del/label -> del/valty -> del/valtys.
 
 type    del/eff-kind        del/compty -> del/eff -> o.
 type    del/valtys/get      del/valtys -> del/label -> del/valty -> o.
+type    del/is-eff          del/eff -> o.
+type    del/is-valty        del/valty -> o.
+type    del/is-compty       del/compty -> o.
+type    del/is-valtys       del/valtys -> o.
 
 
 kind    del/value, del/comp, del/cases     type.
@@ -279,6 +291,10 @@ type    eff/valtys/cons     eff/valtys -> eff/label -> eff/valty -> eff/valtys.
 
 type    eff/eff-kind        eff/compty -> eff/eff -> o.
 type    eff/valtys/get      eff/valtys -> eff/label -> eff/valty -> o.
+type    eff/is-eff          eff/eff -> o.
+type    eff/is-valty        eff/valty -> o.
+type    eff/is-compty       eff/compty -> o.
+type    eff/is-valtys       eff/valtys -> o.
 
 
 kind    eff/value, eff/comp, eff/cases     type.

@@ -8,21 +8,54 @@ apart (s N) (s N') :-
 label/apart (lbl N) (lbl N') :-
     apart N N'.
 
-eff-kind (f Eff A) Eff.
+eff-kind (f Eff A) Eff :-
+    is-eff Eff.
 eff-kind (arrow _ C) Eff :- eff-kind C Eff.
 eff-kind (compprod C1 C2) Eff :-
     eff-kind C1 Eff,
     eff-kind C2 Eff.
 
+is-eff empty.
+
+is-valty unitty.
+is-valty (prod A1 A2) :-
+    is-valty A1,
+    is-valty A2.
+is-valty (sum As) :-
+    is-valtys As.
+is-valty (u C) :-
+    is-compty C.
+
+is-valtys valtys/nil.
+is-valtys (valtys/cons As L A) :-
+    is-valtys As,
+    is-valty A.
+
+is-compty (f Eff A) :-
+    is-eff Eff,
+    is-valty A.
+is-compty (arrow A C) :-
+    is-valty A,
+    is-compty C.
+is-compty (compprod C1 C2) :-
+    is-compty C1,
+    is-compty C2.
+
 of/value unit unitty.
-of/value (pair V1 V2) (prod A1 A2) :- of/value V1 A1, of/value V2 A2.
+of/value (pair V1 V2) (prod A1 A2) :-
+    of/value V1 A1,
+    of/value V2 A2.
 of/value (inj L V) (sum As) :-
     of/value V A,
     valtys/get As L A.
 of/value (thunk M) (u C) :- of/comp M C.
 
-of/comp (ret V) (f _ A) :- of/value V A.
-of/comp (fun M) (arrow A C) :- pi x\ (of/value x A => of/comp (M x) C).
+of/comp (ret V) (f Eff A) :-
+    is-eff Eff,
+    of/value V A.
+of/comp (fun M) (arrow A C) :-
+    is-valty A,
+    pi x\ (of/value x A => of/comp (M x) C).
 of/comp (split V M) C :-
     of/value V (prod A1 A2),
     pi x1\ pi x2\ (of/value x1 A1 => of/value x2 A2 => of/comp (M x1 x2) C).
