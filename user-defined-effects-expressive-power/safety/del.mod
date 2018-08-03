@@ -16,15 +16,15 @@ progresses ES C :-
     hoisting E,
     plug E (shift _) ES.
 
-of/comp (reset M N) C :-
-    eff-kind C Eff,
-    pi x\ (of/value x A => of/comp (N x) C),
+of/comp (reset M N) (C A) :-
+    pi a\ eff-kind (C a) Eff,
+    pi x\ (of/value x A => of/comp (N x) (C A)),
     of/comp M (f (cons Eff C) A).
 of/comp (shift M) (f (cons Eff C) A) :-
-    eff-kind C Eff,
-    pi k\ (of/value k (u (arrow A C)) => of/comp (M k) C).
+    pi a\ eff-kind (C a) Eff,
+    pi a\ pi k\ (of/value k (u (arrow A (C a))) => of/comp (M k) (C a)).
 
-of/evctx (evctx/reset E N) C D :-
-    eff-kind D Eff,
-    pi x\ (of/value x A => of/comp (N x) D),
+of/evctx (evctx/reset E N) C (D A) :-
+    pi a\ eff-kind (D a) Eff,
+    pi x\ (of/value x A => of/comp (N x) (D A)),
     of/evctx E C (f (cons Eff D) A).
