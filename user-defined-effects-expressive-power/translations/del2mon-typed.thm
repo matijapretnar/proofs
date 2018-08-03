@@ -1,0 +1,550 @@
+Specification "del2mon".
+Close del/nat, del/label, del/eff, del/valty, del/compty, del/valtys, del/value, del/cases, del/comp, mon/nat, mon/label, mon/monad, mon/value, mon/cases, mon/comp, mon/eff, mon/valty, mon/compty, mon/valtys.
+Set subgoals off.
+
+Define fresh : X -> prop by nabla x, fresh x.
+
+% -------------------------------------------------------------------
+% TYPE TRANSLATION
+% -------------------------------------------------------------------
+
+
+Define tyctxs : olist -> olist -> olist -> prop by
+    tyctxs nil nil nil;
+    nabla a a', tyctxs
+        (del/is-valty a :: CtxD)
+        (del2mon/valty a a' :: CtxD2M)
+        (mon/is-valty a' :: CtxM)
+        := tyctxs CtxD CtxD2M CtxM.
+
+Theorem ty-translation-exists :
+    (
+        forall CtxD CtxD2M CtxM Eff,
+        tyctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-eff Eff} ->
+        exists Eff',
+            {CtxD2M |- del2mon/eff Eff Eff'}
+            /\ {CtxM |- mon/is-eff Eff'}
+    ) /\ (
+        forall CtxD CtxD2M CtxM A,
+        tyctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-valty A} ->
+        exists A',
+            {CtxD2M |- del2mon/valty A A'}
+            /\ {CtxM |- mon/is-valty A'}
+    ) /\ (
+        forall CtxD CtxD2M CtxM As,
+        tyctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-valtys As} ->
+        exists As',
+            {CtxD2M |- del2mon/valtys As As'}
+            /\ {CtxM |- mon/is-valtys As'}
+    ) /\ (
+        forall CtxD CtxD2M CtxM C,
+        tyctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-compty C} ->
+        exists C',
+            {CtxD2M |- del2mon/compty C C'}
+            /\ {CtxM |- mon/is-compty C'}
+    ).
+    % PROOF
+    skip.
+
+Split ty-translation-exists as eff-translation-exists, valty-translation-exists, valtys-translation-exists, compty-translation-exists.
+
+% -------------------------------------------------------------------
+% TERM TRANSLATION
+% -------------------------------------------------------------------
+
+Theorem continuation-monad :
+    forall Eff C C' Nu Nb,
+        C' = (a\mon/arrow (mon/u (mon/arrow a (C a))) (C a)) ->
+        Nu = (x\mon/fun (c\mon/app (mon/force c) x)) ->
+        Nb = (m\f\mon/fun
+                (c\mon/app (mon/force m) (mon/thunk
+                    (mon/fun (y\mon/app (mon/app (mon/force f) y) c)))
+                )
+            ) ->
+        {pi a\ mon/is-valty a => mon/is-compty (C a)} ->
+        {mon/of/monad (mon/mon Nu Nb) (mon/cons Eff C' Nu Nb)}.
+    % PROOF
+        intros.
+        inst H4 with n1 = n2.
+        case H1. case H2. case H3.
+        assert {pi a\ pi b\ pi x\ pi k\ (mon/is-valty a => mon/is-valty b => mon/of/value x (mon/u (C' a)) => mon/of/value k (mon/u (mon/arrow a (C' b))) => mon/of/comp (Nb x k) (C' b))}..
+        % need to break down the function
+            assert {
+                mon/is-valty n1,
+                mon/is-valty n2,
+                mon/of/value n3
+                    (mon/u (mon/arrow (mon/u (mon/arrow n1 (C n1))) (C n1))),
+                mon/of/value n4
+                    (mon/u (mon/arrow n1 (mon/arrow (mon/u (mon/arrow n2 (C n2))) (C n2)))),
+                mon/of/value n5
+                    (mon/u (mon/arrow n2 (C n2)))
+                |-
+                mon/of/comp
+                    (mon/app
+                        (mon/force n3)
+                        (mon/thunk (mon/fun (y\mon/app (mon/app (mon/force n4) y) n5)))
+                    )
+                    (C n2)
+            }.
+            % need to split the app
+                assert {
+                    mon/is-valty n1,
+                    mon/is-valty n2,
+                    mon/of/value n3
+                        (mon/u (mon/arrow (mon/u (mon/arrow n1 (C n1))) (C n1))),
+                    mon/of/value n4
+                        (mon/u (mon/arrow n1 (mon/arrow (mon/u (mon/arrow n2 (C n2))) (C n2)))),
+                    mon/of/value n5
+                        (mon/u (mon/arrow n2 (C n2)))
+                    |-
+                    mon/of/comp
+                        (mon/force n3)
+                        (mon/arrow (mon/u (mon/arrow n1 (C n1))) (C n1))
+                }.
+                % finds the proof automatically
+                assert {
+                    mon/is-valty n1,
+                    mon/is-valty n2,
+                    mon/of/value n3
+                        (mon/u (mon/arrow (mon/u (mon/arrow n1 (C n1))) (C n1))),
+                    mon/of/value n4
+                        (mon/u (mon/arrow n1 (mon/arrow (mon/u (mon/arrow n2 (C n2))) (C n2)))),
+                    mon/of/value n5
+                        (mon/u (mon/arrow n2 (C n2)))
+                    |-
+                    mon/of/value
+                        (mon/thunk (mon/fun (y\mon/app (mon/app (mon/force n4) y) n5)))
+                        (mon/u (mon/arrow n1 (C n1)))
+                }.
+                % go into thunk
+                skip.
+            search.
+
+Define ctxs : olist -> olist -> olist -> prop by
+    ctxs nil nil nil;
+    nabla x x', ctxs
+        (del/of/value x A :: CtxD)
+        (del2mon/value x x' :: CtxD2M)
+        (mon/of/value x' A' :: CtxM)
+        := ctxs CtxD CtxD2M CtxM
+        /\ {del2mon/valty A A'}.
+
+Theorem ctxd2m-member :
+    forall CtxD CtxD2M CtxM F,
+        ctxs CtxD CtxD2M CtxM ->
+        member F CtxD2M ->
+        exists X X',
+            F = del2mon/value X X'
+            /\ fresh X
+            /\ fresh X'.
+    % PROOF
+    induction on 1. intros. case H1.
+        % nil
+        case H2.
+        % cons
+        case H2.
+            % here
+            search.
+            % there
+            apply IH to H3 H5. search.
+
+Theorem ctxd-member :
+    forall CtxD CtxD2M CtxM F,
+        ctxs CtxD CtxD2M CtxM ->
+        member F CtxD ->
+        exists X X' A A',
+            F = del/of/value X A
+            /\ member (del2mon/value X X') CtxD2M
+            /\ member (mon/of/value X' A') CtxM
+            /\ {del2mon/valty A A'}.
+    % PROOF
+    induction on 1. intros. case H1.
+        % nil
+        case H2.
+        % cons
+        case H2.
+            % here
+            search.
+            % there
+            apply IH to H3 H5. search.
+
+Define ctx : olist -> prop by
+    ctx nil;
+    nabla x, ctx
+        (del/of/value x A :: CtxD)
+        := ctx CtxD.
+
+Theorem ctx-member :
+    forall CtxD F,
+        ctx CtxD ->
+        member F CtxD ->
+        exists X A,
+            F = del/of/value X A.
+    % PROOF
+    induction on 1. intros. case H1.
+        % nil
+        case H2.
+        % cons
+        case H2.
+            % here
+            search.
+            % there
+            apply IH to H3 H4. search.
+
+Theorem del2mon/compty-unique :
+    forall C C1' C2', {del2mon/compty C C1'} -> {del2mon/compty C C2'} -> C1' = C2'.
+skip.
+
+Theorem prune-delctx-is-ty : (
+        forall CtxD A, ctx CtxD -> {CtxD |- del/is-valty A} -> {del/is-valty A}
+    ) /\ (
+        forall CtxD As, ctx CtxD -> {CtxD |- del/is-valtys As} -> {del/is-valtys As}
+    ) /\ (
+        forall CtxD C, ctx CtxD -> {CtxD |- del/is-compty C} -> {del/is-compty C}
+    ) /\ (
+        forall CtxD Eff, ctx CtxD -> {CtxD |- del/is-eff Eff} -> {del/is-eff Eff}
+    ).
+    % PROOF
+    skip.
+Split prune-delctx-is-ty as prune-delctx-is-valty, prune-delctx-is-valtys, prune-delctx-is-compty, prune-delctx-is-eff.
+
+Theorem prune-delctx-eff-kind :
+    forall CtxD C Eff, ctx CtxD -> {CtxD |- del/eff-kind C Eff} -> {del/eff-kind C Eff}.
+    % PROOF
+    induction on 2. intros. case H2.
+        apply prune-delctx-is-eff to H1 H3. search.
+        apply IH to H1 H3. search.
+        apply IH to H1 H3. apply IH to H1 H4. search.
+        apply ctx-member to H1 H4. case H3.
+
+Theorem eff-kind-is-eff :
+    forall C Eff, {del/eff-kind C Eff} -> {del/is-eff Eff}.
+    % PROOF
+    induction on 1. intros. case H1.
+        search.
+        apply IH to H2. search.
+        apply IH to H2. search.
+
+Theorem del2mon/eff-unique :
+    forall Eff Eff1 Eff2, {del2mon/eff Eff Eff1} -> {del2mon/eff Eff Eff2} -> Eff1 = Eff2.
+    skip.
+
+Theorem del2mon/eff-kind :
+    forall Eff Eff' C C', {del/eff-kind C Eff} -> {del2mon/compty C C'} -> {del2mon/eff Eff Eff'} -> {mon/eff-kind C' Eff'}.
+    % PROOF
+    induction on 1. intros. case H1.
+        case H2. apply eff-translation-exists to _ H4. apply del2mon/eff-unique to H3 H5. apply del2mon/eff-unique to H3 H7. search.
+        case H2. apply IH to H4 H6 H3. search.
+        case H2. apply IH to H4 H6 H3. apply IH to H5 H7 H3. search.
+
+
+
+Theorem ctxs-is-ctx : forall CtxD CtxD2M CtxM, ctxs CtxD CtxD2M CtxM -> ctx CtxD.
+    % PROOF
+    induction on 1. intros. case H1.
+        % nil
+        search.
+        % cons
+        apply IH to H2. search.
+
+Theorem del/of-is :
+    (
+        forall CtxD V A, ctx CtxD -> {CtxD |- del/of/value V A} -> {del/is-valty A}
+    ) /\ (
+        forall CtxD Ms As C, ctx CtxD -> {CtxD |- del/of/cases Ms As C} -> {del/is-valtys As} /\ {del/is-compty C}
+    ) /\ (
+        forall CtxD M C, ctx CtxD -> {CtxD |- del/of/comp M C} -> {del/is-compty C}
+    ).
+    % PROOF
+    induction on 2 2 2. split.
+    % values
+    intros Hctx. case H1.
+        % unit
+        search.
+        % pair
+        apply IH to _ H2. apply IH to _ H3. search.
+        % inj
+        skip.
+        % thunk
+        apply IH2 to _ H2. search.
+        % variable
+        skip.
+    % cases
+    skip.
+    % computations
+    intros Hctx. case H1.
+        % return
+        apply prune-delctx-is-eff to _ H2. apply IH to _ H3. search.
+        % fun
+        apply prune-delctx-is-valty to _ H2.
+        apply valty-translation-exists to _ H4.
+        apply IH2 to _ H3.
+        search.
+        % match
+        apply IH to _ H2.
+        apply valty-translation-exists to _ H4.
+        case H5.
+        apply IH2 to _ H3.
+        search.
+        % cases
+        skip.
+        % force
+        apply IH to _ H2. case H3. search.
+        % bind
+        assert {del/eff-kind C Eff}. skip.
+        apply IH2 to _ H3.
+        case H6.
+        apply valty-translation-exists to _ H8.
+        apply IH2 to _ H4.
+        search.
+        % app
+        apply IH2 to _ H2. case H4. search.
+        % comppair
+        apply IH2 to _ H2. apply IH2 to _ H3. search.
+        % prj1
+        apply IH2 to _ H4. case H5. search.
+        % prj2
+        apply IH2 to _ H4. case H5. search.
+        % reset
+        apply IH2 to _ H4. case H5. case H6.
+        inst H9 with n1 = A.
+        cut H10 with H7.
+        search.
+        % shift
+        apply prune-delctx-is-valty to _ H2.
+        apply valty-translation-exists to _ H5.
+        apply IH2 to _ H4.
+        assert {del/is-eff Eff}. skip.
+        search.
+        % variable
+        apply ctx-member to Hctx H3. case H2.
+
+Split del/of-is as del/of-is/value, del/of-is/cases, del/of-is/comp.
+
+Theorem ty-preservation :
+    (
+        forall CtxD CtxD2M CtxM V A V' A',
+            ctxs CtxD CtxD2M CtxM ->
+            {CtxD |- del/of/value V A} ->
+            {CtxD2M |- del2mon/value V V'} ->
+            {del2mon/valty A A'} ->
+            {CtxM |- mon/of/value V' A'}
+    ) /\ (
+        forall CtxD CtxD2M CtxM Ms As C Ms' As' C',
+            ctxs CtxD CtxD2M CtxM ->
+            {CtxD |- del/of/cases Ms As C} -> 
+            {CtxD2M |- del2mon/cases Ms Ms'} ->
+            {del2mon/valtys As As'} ->
+            {del2mon/compty C C'} ->
+            {CtxM |- mon/of/cases Ms' As' C'}
+    ) /\ (
+        forall CtxD CtxD2M CtxM M C M' C',
+            ctxs CtxD CtxD2M CtxM ->
+            {CtxD |- del/of/comp M C} -> 
+            {CtxD2M |- del2mon/comp M M'} ->
+            {del2mon/compty C C'} ->
+            {CtxM |- mon/of/comp M' C'}
+    ).
+    % PROOF
+    induction on 2 2 2. split.
+    % values
+    intros Hctx. case H1.
+        % unit
+        case H2.
+            % closed
+            case H3. search.
+            % assumed
+            apply ctxd2m-member to Hctx H5. case H4. case H6.
+        % pair
+        case H2.
+            % closed
+            case H3. apply IH to _ H4 H6 H8. apply IH to _ H5 H7 H9. search.
+            % assumed
+            apply ctxd2m-member to Hctx H7. case H8. case H6.
+        % inj
+        skip. % labels & sums
+        % thunk
+        case H2.
+            % closed
+            case H3. apply IH2 to _ H4 H5 H6. search.
+            % assumed
+            apply ctxd2m-member to Hctx H6. case H5. case H7.
+        % variable
+        skip. % fresh variable in the context has the appropriate type
+
+    % cases
+    intros Hctx. case H1.
+        % nil
+        case H2.
+            % closed
+            case H3. search.
+            % assumed
+            apply ctxd2m-member to Hctx H6. case H5.
+        % cons
+        case H2.
+            % closed
+            case H3.
+            apply IH1 to _ H5 H7 H10 H4.
+            Hremove: assert L' = L'1. skip. case Hremove.
+            apply IH2 to _ H6 H9 H4 with CtxM = mon/of/value n2 A' :: CtxM.
+            search.
+            % assumed
+            apply ctxd2m-member to Hctx H8. case H7.
+        % variable
+        apply ctxd-member to Hctx H6. case H5.
+
+    % computations
+    intros Hctx. case H1.
+        % ret
+        case H2.
+            % closed
+            case H3. apply IH to _ H5 H6 H8.
+            Hremove: assert {mon/is-eff Eff'}. skip.
+            search.
+            % assumed
+            apply ctxd2m-member to Hctx H7. case H6.
+        % fun
+        case H2.
+            % closed
+            case H3. apply IH2 to _ H5 H6 _.
+            Hremove: assert {mon/is-valty A'}. skip.
+            search.
+            % assumed
+            apply ctxd2m-member to Hctx H7. case H6.
+        % split
+        case H2.
+            % closed
+            skip.
+            % assumed
+            apply ctxd2m-member to Hctx H7. case H6.
+        % sum
+        skip. % sums
+        % force
+        case H2.
+            % closed
+            apply IH to _ H4 H5 _. search.
+            % assumed
+            apply ctxd2m-member to Hctx H6. case H5.
+        % bind
+        case H2.
+            % closed
+            skip.
+            % assumed
+            apply ctxd2m-member to Hctx H8. case H7.
+        % app
+        case H2.
+            % closed
+            HctxD: apply ctxs-is-ctx to Hctx.
+            apply del/of-is/value to HctxD H5.
+            apply valty-translation-exists to _ H8.
+            apply IH to _ H5 H7 H9.
+            apply IH2 to _ H4 H6 _.
+            search.
+            % assumed
+            apply ctxd2m-member to Hctx H7. case H6.
+        % pair
+        case H2.
+            % closed
+            case H3. apply IH2 to _ H4 H6 H8. apply IH2 to _ H5 H7 H9. search.
+            % assumed
+            apply ctxd2m-member to Hctx H7. case H6.
+        % prj1
+        case H2.
+            % closed
+            HctxD: apply ctxs-is-ctx to Hctx.
+            apply del/of-is/comp to HctxD H6.
+            apply compty-translation-exists to _ H8.
+            case H9.
+            apply IH2 to _ H6 H7 _.
+            apply prune-delctx-eff-kind to _ H4.
+            apply prune-delctx-eff-kind to _ H5.
+            apply eff-kind-is-eff to H14.
+            apply eff-translation-exists to _ H16.
+            apply del2mon/eff-kind to H14 H3 H17.
+            apply del2mon/eff-kind to H15 H12 H17.
+            search.
+            % assumed
+            apply ctxd2m-member to Hctx H8. case H7.
+        % prj2
+        case H2.
+            % closed
+            HctxD: apply ctxs-is-ctx to Hctx.
+            apply del/of-is/comp to HctxD H6.
+            apply compty-translation-exists to _ H8.
+            case H9.
+            apply IH2 to _ H6 H7 _.
+            apply prune-delctx-eff-kind to _ H4.
+            apply prune-delctx-eff-kind to _ H5.
+            apply eff-kind-is-eff to H14.
+            apply eff-translation-exists to _ H16.
+            apply del2mon/eff-kind to H14 H11 H17.
+            apply del2mon/eff-kind to H15 H3 H17.
+            search.
+            % assumed
+            apply ctxd2m-member to Hctx H8. case H7.
+        % reset
+        case H2.
+            % closed
+                % extract the translation of the effect
+                HctxD: apply ctxs-is-ctx to Hctx.
+                apply del/of-is/comp to HctxD H6.
+                apply compty-translation-exists to _ H9.
+                case H10 (keep).
+                case H12.
+
+                % show that C' = C'2 A'
+                inst *H14 with n1 = A, n2 = A'.
+                cut *H16 with H13.
+                apply del2mon/compty-unique to H3 *H17.
+
+                % the argument has the correct type
+                assert {
+                    CtxM |- mon/of/value (mon/thunk (mon/fun N')) (mon/u (mon/arrow A' (C'2 A')))
+                }.
+                    apply IH2 to _ H5 H8 _.
+                    assert {mon/is-valty A'}. skip.
+                search.
+
+                % the function has the correct type
+                assert {
+                    CtxM |- mon/of/comp (
+                                (mon/reify M'1
+                                    (mon/mon (x\mon/fun (c\mon/app (mon/force c) x))
+                                       (m\f\mon/fun
+                                              (c\mon/app (mon/force m)
+                                                   (mon/thunk
+                                                      (mon/fun
+                                                         (y\mon/app (mon/app (mon/force f) y) c)))))))
+                            ) (mon/arrow ((mon/u (mon/arrow A' (C'2 A')))) (C'2 A'))
+                }.
+                    case H11.
+                    case H19.
+                    case H22.
+                        apply continuation-monad to _ _ _ _ with Eff = Eff'1, C = C'2.            
+                        % the computation has the correct type
+                        apply IH2 to _ H6 H7 H10.
+                search.
+                case H24. case H23. case H25.
+                search.
+
+            % assumed
+            apply ctxd2m-member to Hctx H8. case H7.
+        % shift
+        case H2.
+            % closed
+            case H3. case H8.
+            inst H6 with n1 = A, n2 = n1.
+            inst H10 with n1 = A, n2 = A'.
+            cut H13 with H9.
+            apply IH2 to _ H12 H7 H14.
+            assert {mon/is-compty (C'1 A')}. skip.
+            assert {mon/is-valty A'}. skip.
+            search.
+            % assumed
+            apply ctxd2m-member to Hctx H8. case H7.
+        % variable
+        apply ctxd-member to Hctx H5. case H4.

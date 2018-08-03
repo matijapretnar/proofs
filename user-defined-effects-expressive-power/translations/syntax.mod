@@ -8,21 +8,54 @@ mam/apart (mam/s N) (mam/s N') :-
 mam/label/apart (mam/lbl N) (mam/lbl N') :-
     mam/apart N N'.
 
-mam/eff-kind (mam/f Eff A) Eff.
+mam/eff-kind (mam/f Eff A) Eff :-
+    mam/is-eff Eff.
 mam/eff-kind (mam/arrow _ C) Eff :- mam/eff-kind C Eff.
 mam/eff-kind (mam/compprod C1 C2) Eff :-
     mam/eff-kind C1 Eff,
     mam/eff-kind C2 Eff.
 
+mam/is-eff mam/empty.
+
+mam/is-valty mam/unitty.
+mam/is-valty (mam/prod A1 A2) :-
+    mam/is-valty A1,
+    mam/is-valty A2.
+mam/is-valty (mam/sum As) :-
+    mam/is-valtys As.
+mam/is-valty (mam/u C) :-
+    mam/is-compty C.
+
+mam/is-valtys mam/valtys/nil.
+mam/is-valtys (mam/valtys/cons As L A) :-
+    mam/is-valtys As,
+    mam/is-valty A.
+
+mam/is-compty (mam/f Eff A) :-
+    mam/is-eff Eff,
+    mam/is-valty A.
+mam/is-compty (mam/arrow A C) :-
+    mam/is-valty A,
+    mam/is-compty C.
+mam/is-compty (mam/compprod C1 C2) :-
+    mam/is-compty C1,
+    mam/is-compty C2.
+
 mam/of/value mam/unit mam/unitty.
-mam/of/value (mam/pair V1 V2) (mam/prod A1 A2) :- mam/of/value V1 A1, mam/of/value V2 A2.
+mam/of/value (mam/pair V1 V2) (mam/prod A1 A2) :-
+    mam/of/value V1 A1,
+    mam/of/value V2 A2.
 mam/of/value (mam/inj L V) (mam/sum As) :-
     mam/of/value V A,
     mam/valtys/get As L A.
 mam/of/value (mam/thunk M) (mam/u C) :- mam/of/comp M C.
 
-mam/of/comp (mam/ret V) (mam/f _ A) :- mam/of/value V A.
-mam/of/comp (mam/fun M) (mam/arrow A C) :- pi x\ (mam/of/value x A => mam/of/comp (M x) C).
+mam/of/comp (mam/ret V) (mam/f Eff A) :-
+    mam/is-eff Eff,
+    mam/of/value V A.
+mam/of/comp (mam/fun M) (mam/arrow A C) :-
+    mam/is-valty A,
+    pi x\ (mam/of/value x A => mam/of/comp (M x) C).
 mam/of/comp (mam/split V M) C :-
     mam/of/value V (mam/prod A1 A2),
     pi x1\ pi x2\ (mam/of/value x1 A1 => mam/of/value x2 A2 => mam/of/comp (M x1 x2) C).
@@ -132,21 +165,54 @@ mon/apart (mon/s N) (mon/s N') :-
 mon/label/apart (mon/lbl N) (mon/lbl N') :-
     mon/apart N N'.
 
-mon/eff-kind (mon/f Eff A) Eff.
+mon/eff-kind (mon/f Eff A) Eff :-
+    mon/is-eff Eff.
 mon/eff-kind (mon/arrow _ C) Eff :- mon/eff-kind C Eff.
 mon/eff-kind (mon/compprod C1 C2) Eff :-
     mon/eff-kind C1 Eff,
     mon/eff-kind C2 Eff.
 
+mon/is-eff mon/empty.
+
+mon/is-valty mon/unitty.
+mon/is-valty (mon/prod A1 A2) :-
+    mon/is-valty A1,
+    mon/is-valty A2.
+mon/is-valty (mon/sum As) :-
+    mon/is-valtys As.
+mon/is-valty (mon/u C) :-
+    mon/is-compty C.
+
+mon/is-valtys mon/valtys/nil.
+mon/is-valtys (mon/valtys/cons As L A) :-
+    mon/is-valtys As,
+    mon/is-valty A.
+
+mon/is-compty (mon/f Eff A) :-
+    mon/is-eff Eff,
+    mon/is-valty A.
+mon/is-compty (mon/arrow A C) :-
+    mon/is-valty A,
+    mon/is-compty C.
+mon/is-compty (mon/compprod C1 C2) :-
+    mon/is-compty C1,
+    mon/is-compty C2.
+
 mon/of/value mon/unit mon/unitty.
-mon/of/value (mon/pair V1 V2) (mon/prod A1 A2) :- mon/of/value V1 A1, mon/of/value V2 A2.
+mon/of/value (mon/pair V1 V2) (mon/prod A1 A2) :-
+    mon/of/value V1 A1,
+    mon/of/value V2 A2.
 mon/of/value (mon/inj L V) (mon/sum As) :-
     mon/of/value V A,
     mon/valtys/get As L A.
 mon/of/value (mon/thunk M) (mon/u C) :- mon/of/comp M C.
 
-mon/of/comp (mon/ret V) (mon/f _ A) :- mon/of/value V A.
-mon/of/comp (mon/fun M) (mon/arrow A C) :- pi x\ (mon/of/value x A => mon/of/comp (M x) C).
+mon/of/comp (mon/ret V) (mon/f Eff A) :-
+    mon/is-eff Eff,
+    mon/of/value V A.
+mon/of/comp (mon/fun M) (mon/arrow A C) :-
+    mon/is-valty A,
+    pi x\ (mon/of/value x A => mon/of/comp (M x) C).
 mon/of/comp (mon/split V M) C :-
     mon/of/value V (mon/prod A1 A2),
     pi x1\ pi x2\ (mon/of/value x1 A1 => mon/of/value x2 A2 => mon/of/comp (M x1 x2) C).
@@ -248,6 +314,10 @@ mon/progresses M _ :-
     mon/step M _.
 
 
+mon/is-eff (mon/cons Eff C _ _) :-
+    mon/is-eff Eff,
+    pi a\ mon/is-valty a => mon/is-compty (C a).
+
 mon/plug (mon/evctx/reify E T) M (mon/reify EM T) :-
     mon/plug E M EM.
 
@@ -258,8 +328,8 @@ mon/reduce (mon/reify ERN (mon/mon Nu Nb)) (Nb (mon/thunk N) (mon/thunk (mon/fun
     pi x\ mon/plug E (mon/ret x) (ER x).
 
 mon/of/monad (mon/mon Nu Nb) (mon/cons Eff C Nu Nb) :-
-    pi a\ pi x\ (mon/of/value x a => mon/of/comp (Nu x) (C a)),
-    pi a\ pi b\ pi x\ pi k\ (mon/of/value x (mon/u (C a)) => mon/of/value k (mon/u (mon/arrow a (C b))) => mon/of/comp (Nb x k) (C b)).
+    pi a\ pi x\ (mon/is-valty a => mon/of/value x a => mon/of/comp (Nu x) (C a)),
+    pi a\ pi b\ pi x\ pi k\ (mon/is-valty a => mon/is-valty b => mon/of/value x (mon/u (C a)) => mon/of/value k (mon/u (mon/arrow a (C b))) => mon/of/comp (Nb x k) (C b)).
 
 mon/of/comp (mon/reify N T) (C A) :-
     mon/of/monad T (mon/cons Eff C Nu Nb),
@@ -285,21 +355,54 @@ del/apart (del/s N) (del/s N') :-
 del/label/apart (del/lbl N) (del/lbl N') :-
     del/apart N N'.
 
-del/eff-kind (del/f Eff A) Eff.
+del/eff-kind (del/f Eff A) Eff :-
+    del/is-eff Eff.
 del/eff-kind (del/arrow _ C) Eff :- del/eff-kind C Eff.
 del/eff-kind (del/compprod C1 C2) Eff :-
     del/eff-kind C1 Eff,
     del/eff-kind C2 Eff.
 
+del/is-eff del/empty.
+
+del/is-valty del/unitty.
+del/is-valty (del/prod A1 A2) :-
+    del/is-valty A1,
+    del/is-valty A2.
+del/is-valty (del/sum As) :-
+    del/is-valtys As.
+del/is-valty (del/u C) :-
+    del/is-compty C.
+
+del/is-valtys del/valtys/nil.
+del/is-valtys (del/valtys/cons As L A) :-
+    del/is-valtys As,
+    del/is-valty A.
+
+del/is-compty (del/f Eff A) :-
+    del/is-eff Eff,
+    del/is-valty A.
+del/is-compty (del/arrow A C) :-
+    del/is-valty A,
+    del/is-compty C.
+del/is-compty (del/compprod C1 C2) :-
+    del/is-compty C1,
+    del/is-compty C2.
+
 del/of/value del/unit del/unitty.
-del/of/value (del/pair V1 V2) (del/prod A1 A2) :- del/of/value V1 A1, del/of/value V2 A2.
+del/of/value (del/pair V1 V2) (del/prod A1 A2) :-
+    del/of/value V1 A1,
+    del/of/value V2 A2.
 del/of/value (del/inj L V) (del/sum As) :-
     del/of/value V A,
     del/valtys/get As L A.
 del/of/value (del/thunk M) (del/u C) :- del/of/comp M C.
 
-del/of/comp (del/ret V) (del/f _ A) :- del/of/value V A.
-del/of/comp (del/fun M) (del/arrow A C) :- pi x\ (del/of/value x A => del/of/comp (M x) C).
+del/of/comp (del/ret V) (del/f Eff A) :-
+    del/is-eff Eff,
+    del/of/value V A.
+del/of/comp (del/fun M) (del/arrow A C) :-
+    del/is-valty A,
+    pi x\ (del/of/value x A => del/of/comp (M x) C).
 del/of/comp (del/split V M) C :-
     del/of/value V (del/prod A1 A2),
     pi x1\ pi x2\ (del/of/value x1 A1 => del/of/value x2 A2 => del/of/comp (M x1 x2) C).
@@ -401,6 +504,10 @@ del/progresses M _ :-
     del/step M _.
 
 
+del/is-eff (del/cons Eff C) :-
+    del/is-eff Eff,
+    pi a\ del/is-valty a => del/is-compty (C a).
+
 del/plug (del/evctx/reset E N) M (del/reset EM N) :-
     del/plug E M EM.
 
@@ -420,6 +527,7 @@ del/of/comp (del/reset M N) (C A) :-
     pi x\ (del/of/value x A => del/of/comp (N x) (C A)),
     del/of/comp M (del/f (del/cons Eff C) A).
 del/of/comp (del/shift M) (del/f (del/cons Eff C) A) :-
+    del/is-valty A,
     pi a\ del/eff-kind (C a) Eff,
     pi a\ pi k\ (del/of/value k (del/u (del/arrow A (C a))) => del/of/comp (M k) (C a)).
 
@@ -437,21 +545,54 @@ eff/apart (eff/s N) (eff/s N') :-
 eff/label/apart (eff/lbl N) (eff/lbl N') :-
     eff/apart N N'.
 
-eff/eff-kind (eff/f Eff A) Eff.
+eff/eff-kind (eff/f Eff A) Eff :-
+    eff/is-eff Eff.
 eff/eff-kind (eff/arrow _ C) Eff :- eff/eff-kind C Eff.
 eff/eff-kind (eff/compprod C1 C2) Eff :-
     eff/eff-kind C1 Eff,
     eff/eff-kind C2 Eff.
 
+eff/is-eff eff/empty.
+
+eff/is-valty eff/unitty.
+eff/is-valty (eff/prod A1 A2) :-
+    eff/is-valty A1,
+    eff/is-valty A2.
+eff/is-valty (eff/sum As) :-
+    eff/is-valtys As.
+eff/is-valty (eff/u C) :-
+    eff/is-compty C.
+
+eff/is-valtys eff/valtys/nil.
+eff/is-valtys (eff/valtys/cons As L A) :-
+    eff/is-valtys As,
+    eff/is-valty A.
+
+eff/is-compty (eff/f Eff A) :-
+    eff/is-eff Eff,
+    eff/is-valty A.
+eff/is-compty (eff/arrow A C) :-
+    eff/is-valty A,
+    eff/is-compty C.
+eff/is-compty (eff/compprod C1 C2) :-
+    eff/is-compty C1,
+    eff/is-compty C2.
+
 eff/of/value eff/unit eff/unitty.
-eff/of/value (eff/pair V1 V2) (eff/prod A1 A2) :- eff/of/value V1 A1, eff/of/value V2 A2.
+eff/of/value (eff/pair V1 V2) (eff/prod A1 A2) :-
+    eff/of/value V1 A1,
+    eff/of/value V2 A2.
 eff/of/value (eff/inj L V) (eff/sum As) :-
     eff/of/value V A,
     eff/valtys/get As L A.
 eff/of/value (eff/thunk M) (eff/u C) :- eff/of/comp M C.
 
-eff/of/comp (eff/ret V) (eff/f _ A) :- eff/of/value V A.
-eff/of/comp (eff/fun M) (eff/arrow A C) :- pi x\ (eff/of/value x A => eff/of/comp (M x) C).
+eff/of/comp (eff/ret V) (eff/f Eff A) :-
+    eff/is-eff Eff,
+    eff/of/value V A.
+eff/of/comp (eff/fun M) (eff/arrow A C) :-
+    eff/is-valty A,
+    pi x\ (eff/of/value x A => eff/of/comp (M x) C).
 eff/of/comp (eff/split V M) C :-
     eff/of/value V (eff/prod A1 A2),
     pi x1\ pi x2\ (eff/of/value x1 A1 => eff/of/value x2 A2 => eff/of/comp (M x1 x2) C).

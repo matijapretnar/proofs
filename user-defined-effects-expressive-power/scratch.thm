@@ -1,0 +1,310 @@
+
+
+Theorem del/of-is :
+    (
+        forall CtxD CtxD2M CtxM V A, ctxs CtxD CtxD2M CtxM -> {CtxD |- del/of/value V A} -> {del/is-valty A}
+    ) /\ (
+        forall CtxD CtxD2M CtxM Ms As C, ctxs CtxD CtxD2M CtxM -> {CtxD |- del/of/cases Ms As C} -> {del/is-valtys As} /\ {del/is-compty C}
+    ) /\ (
+        forall CtxD CtxD2M CtxM M C, ctxs CtxD CtxD2M CtxM -> {CtxD |- del/of/comp M C} -> {del/is-compty C}
+    ).
+
+
+Theorem del2mon/nat-unique :
+    forall N N1' N2',
+    {del2mon/nat N N1'} ->
+    {del2mon/nat N N2'} ->
+    N1' = N2'.
+    % PROOF
+    induction on 1. intros. case H1.
+        % zero
+        case H2. search.
+        % succ
+        case H2. apply IH to H3 H4. search.
+
+Theorem del2mon/label-unique :
+    forall L L1' L2',
+    {del2mon/label L L1'} ->
+    {del2mon/label L L2'} ->
+    L1' = L2'.
+    % PROOF
+    intros.
+    case H1. case H2. apply del2mon/nat-unique to H3 H4. search.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Define fresh : A -> prop by nabla x, fresh x.
+
+
+
+Theorem ctxd-member :
+    forall CtxD CtxD2M CtxM F,
+    tyctxs CtxD CtxD2M CtxM ->
+    member F CtxD ->
+    exists A A',
+        fresh A
+        /\ fresh A'
+        /\ F = del/is-valty A
+        /\ member (del2mon/valty A A') CtxD2M
+        /\ member (mon/is-valty A') CtxM.
+induction on 1. intros. case H1.
+    % empty context
+    case H2.
+    % type translation
+    case H2.
+        % here
+        search.
+        % there
+        apply IH to H3 H4. search.
+
+Theorem del2mon/ty-translation-exists :
+    (
+        forall CtxD CtxD2M CtxM Eff,
+        tyctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-eff Eff} ->
+        exists Eff',
+            {CtxD2M |- del2mon/eff Eff Eff'}
+            /\ {CtxM |- mon/is-eff Eff'}
+    ) /\ (
+        forall CtxD CtxD2M CtxM A,
+        tyctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-valty A} ->
+        exists A',
+            {CtxD2M |- del2mon/valty A A'}
+            /\ {CtxM |- mon/is-valty A'}
+    ) /\ (
+        forall CtxD CtxD2M CtxM As,
+        tyctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-valtys As} ->
+        exists As',
+            {CtxD2M |- del2mon/valtys As As'}
+            /\ {CtxM |- mon/is-valtys As'}
+    ) /\ (
+        forall CtxD CtxD2M CtxM C,
+        tyctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-compty C} ->
+        exists C',
+            {CtxD2M |- del2mon/compty C C'}
+            /\ {CtxM |- mon/is-compty C'}
+    ).
+skip.
+
+Split del2mon/ty-translation-exists as
+    del2mon/eff-translation-exists,
+    del2mon/valty-translation-exists,
+    del2mon/valtys-translation-exists,
+    del2mon/compty-translation-exists.
+
+Theorem assigned-tys-are-translatable :
+    (
+        forall CtxD CtxD2M CtxM V A, ctxs CtxD CtxD2M CtxM -> {CtxD |- del/of/value V A} -> exists A', {del2mon/valty A A'}
+    ) /\
+    (
+        forall CtxD CtxD2M CtxM Ms As C, ctxs CtxD CtxD2M CtxM -> {CtxD |- del/of/cases Ms As C} -> exists As' C', {del2mon/valtys As As'} /\ {del2mon/compty C C'}
+    ) /\
+    (
+        forall CtxD CtxD2M CtxM M C, ctxs CtxD CtxD2M CtxM -> {CtxD |- del/of/comp M C} -> exists C', {del2mon/compty C C'}
+    ).
+skip.
+
+Split assigned-tys-are-translatable as
+    assigned-tys-are-translatable/value,
+    assigned-tys-are-translatable/cases,
+    assigned-tys-are-translatable/comp.
+
+Theorem ctxd-member : forall CtxD CtxD2M CtxM F,
+    ctx CtxD CtxD2M CtxM -> member F CtxD ->
+    exists X A,
+        (F = del/of/value X A) /\ del/fresh X.
+induction on 1. intros. case H1.
+    case H2.
+    case H2.
+        search.
+        apply IH to H3 H5. search.
+
+
+Theorem strengthen-ctxs/is-eff :
+        forall CtxD CtxD2M CtxM Eff,
+        ctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-eff Eff} ->
+        {del/is-eff Eff}
+    .
+skip.
+Theorem strengthen-ctxs/is-valty :
+        forall CtxD CtxD2M CtxM A,
+        ctxs CtxD CtxD2M CtxM ->
+        {CtxD |- del/is-valty A} ->
+        {del/is-valty A}
+    .
+skip.
+
+
+Theorem del2mon/preservation :
+    (
+        forall CtxD CtxD2M CtxM V A,
+            ctxs CtxD CtxD2M CtxM ->
+            {CtxD |- del/of/value V A} ->
+            exists V' A',
+            {CtxD2M |- del2mon/value V V'} /\
+            {del2mon/valty A A'} /\
+            {CtxM |- mon/of/value V' A'}
+    ) /\
+    (
+        forall CtxD CtxD2M CtxM Ms As C,
+            ctxs CtxD CtxD2M CtxM ->
+            {CtxD |- del/of/cases Ms As C} ->
+            {del/is-compty C} ->
+            exists Ms' As' C',
+            {CtxD2M |- del2mon/cases Ms Ms'} /\
+            {del2mon/valtys As As'} /\
+            {del2mon/compty C C'} /\
+            {CtxM |- mon/of/cases Ms' As' C'}
+    ) /\
+    (
+        forall CtxD CtxD2M CtxM M C,
+            ctxs CtxD CtxD2M CtxM ->
+            {CtxD |- del/of/comp M C} ->
+            exists M' C',
+            {CtxD2M |- del2mon/comp M M'} /\
+            {del2mon/compty C C'} /\
+            {CtxM |- mon/of/comp M' C'}
+    ).
+induction on 2 2 2. split.
+% values
+intros Hctx.
+Hty : apply assigned-tys-are-translatable/value to Hctx H1.
+case H1.
+    % unit
+    search.
+    % pair
+    apply IH to _ H2. apply IH to _ H3. search.
+    % inj
+    skip.
+    % thunk
+    apply IH2 to _ H2. search.
+    % variable
+    skip.
+% cases
+intros Hctx.
+Hty : apply assigned-tys-are-translatable/cases to Hctx H1.
+case H1.
+    % nil
+    search.
+    % cons
+    skip.
+    % variable
+    skip.
+% computations
+intros Hctx.
+Hty : apply assigned-tys-are-translatable/comp to Hctx H1.
+case H1.
+    % return
+    apply strengthen-ctxs/is-eff to _ H2.
+    apply del2mon/eff-translation-exists to _ H4.
+    apply IH to _ H3.
+    search.
+    % fun
+    apply strengthen-ctxs/is-valty to _ H2.
+    case Hty.
+    apply IH2 to _ H3 with CtxM = (mon/of/value n2 A' :: CtxM).
+    search.
+    assert C'1 
+
+
+Define delctx : olist -> prop by
+    delctx nil;
+    nabla x, delctx
+        (del/of/value x A :: CtxD)
+        := delctx CtxD /\ {del/is-valty A}.
+
+Define tyctx : olist -> olist -> prop by
+    tyctx nil nil;
+    nabla x x', tyctx
+        (del/is-valty x :: TyCtxD)
+        (del2mon/valty x x' :: TyCtxD2M)
+        := tyctx TyCtxD TyCtxD2M.
+
+Define del/fresh : del/value -> prop,
+       mon/fresh : mon/value -> prop by
+    nabla x, del/fresh x;
+    nabla x, mon/fresh x.
+
+
+
+% del2mon/value n1 n2
+% del/of/value n1 A 
+
+
+Theorem del/of-is :
+    (
+        forall CtxD V A, delctx CtxD -> {CtxD |- del/of/value V A} -> {del/is-valty A}
+    ) /\
+    (
+        forall CtxD Ms As C, delctx CtxD -> {CtxD |- del/of/cases Ms As C} -> {del/is-valtys As} /\ {del/is-compty C}
+    ) /\
+    (
+        forall CtxD M C, delctx CtxD -> {CtxD |- del/of/comp M C} -> {del/is-compty C}
+    ).
+induction on 2 2 2. split.
+% values
+intros Hctx. case H1.
+    % unit
+    search.
+    % pair
+    apply IH to _ H2. apply IH to _ H3. search.
+    % inj
+    skip.
+    % thunk
+    apply IH2 to _ H2. search.
+    % variable
+    skip.
+% cases
+skip.
+% computations
+intros Hctx. case H1.
+    % return
+    apply prune-delctx-is-eff to _ H2. apply IH to _ H3. search.
+    % fun
+    apply prune-delctx-is-valty to _ H2. apply IH2 to _ H3. search.
+    % match
+    skip.
+    % cases
+    skip.
+    % force
+    apply IH to _ H2. case H3. search.
+    % bind
+    ..
+    assert {del/eff-kind C Eff}. skip.
+    apply IH2 to _ H3. 
+    apply IH2 to _ H4. 
+
+Split del/of-is as del/of-is/value, del/of-is/cases, del/of-is/comp.
+
+

@@ -2,6 +2,10 @@ module mon.
 
 accumulate mam.
 
+is-eff (cons Eff C _ _) :-
+    is-eff Eff,
+    pi a\ is-valty a => is-compty (C a).
+
 plug (evctx/reify E T) M (reify EM T) :-
     plug E M EM.
 
@@ -12,8 +16,8 @@ reduce (reify ERN (mon Nu Nb)) (Nb (thunk N) (thunk (fun (x\ reify (ER x) (mon N
     pi x\ plug E (ret x) (ER x).
 
 of/monad (mon Nu Nb) (cons Eff C Nu Nb) :-
-    pi a\ pi x\ (of/value x a => of/comp (Nu x) (C a)),
-    pi a\ pi b\ pi x\ pi k\ (of/value x (u (C a)) => of/value k (u (arrow a (C b))) => of/comp (Nb x k) (C b)).
+    pi a\ pi x\ (is-valty a => of/value x a => of/comp (Nu x) (C a)),
+    pi a\ pi b\ pi x\ pi k\ (is-valty a => is-valty b => of/value x (u (C a)) => of/value k (u (arrow a (C b))) => of/comp (Nb x k) (C b)).
 
 of/comp (reify N T) (C A) :-
     of/monad T (cons Eff C Nu Nb),
