@@ -1,0 +1,49 @@
+%%%%% Operational semantics %%%%%
+
+% In defining both small and big step semantics, we use "get-op-case O OCs OC",
+% such that "OC" is the first operation case in "OCs" that matches the
+% operation "O".
+
+get-op-case : operation -> op-cases -> op-case -> type.
+
+get-op-case/here  : get-op-case O (op-cases/cons O OC _) OC.
+get-op-case/there : get-op-case O (op-cases/cons O' _ OCs) OC
+                     <- apart O O'
+                     <- get-op-case O OCs OC.
+
+not-get-op-case : operation -> op-cases -> type.
+
+not-get-op-case/nil   : not-get-op-case O (op-cases/nil _).
+not-get-op-case/there : not-get-op-case O (op-cases/cons O' _ OCs)
+                          <- apart O O'
+                          <- not-get-op-case O OCs.
+
+%%% Small step semantics %%%
+
+step : comp -> comp -> type.
+
+step/cond-tru  : step (cond tru C1 _) C1.
+step/cond-fls  : step (cond fls _ C2) C2.
+step/app       : step (app (fun E1) E2) (E1 E2).
+step/seq-ret   : step (seq (ret E) C2) (C2 E).
+step/seq-op    : step (seq (op O Ep K) C2) (op O Ep ([x] seq (K x) C2)).
+step/seq-step  : step (seq C1 C2) (seq C1' C2)
+                  <- step C1 C1'.
+step/with-ret  : step (with (hnd Cv _) (ret E)) (Cv E).
+step/with-hand : step (with (hnd Cv OCs) (op O Ep K)) (OC Ep (fun ([y] with (hnd Cv OCs) (K y))))
+                  <- get-op-case O OCs OC.
+step/with-noth : step (with (hnd Cv OCs) (op O Ep K)) (op O Ep ([y] with (hnd Cv OCs) (K y)))
+                  <- not-get-op-case O OCs.
+step/with-step : step (with E C) (with E C')
+                  <- step C C'.
+
+
+% To state the progress theorem, we need to define when a computation is not stuck
+
+non-stuck : comp -> dirt -> type.
+
+non-stuck/ret   : non-stuck (ret _) _.
+non-stuck/op    : non-stuck (op O _ _) D
+                   <- sig D O _ _.
+non-stuck/step  : non-stuck C _
+                   <- step C _.

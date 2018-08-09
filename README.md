@@ -26,8 +26,6 @@ Alternatively, you can run `twelf-server` in the main directory, and type `make`
 * `sources.cfg`: Twelf configuration file determining the order of files
 
 ### Core language
-* `operations.elf`: definitions involving operations, regions and dirt
-* `operations-lemmas.elf`: various lemmas about the above definitions
 * `syntax.elf`: abstract syntax
 
 ### Dynamic semantics

@@ -1,0 +1,23 @@
+%%%%% Subtyping relations %%%%%
+
+<t : ty -> ty -> type.
+<dt : dirty -> dirty -> type.
+%infix none 30 <t.
+%infix none 30 <dt.
+
+%block topen : block {t : ty}.
+
+
+<t/refl   : A <t A.
+<t/-->   : A --> B <t A' --> B'
+            <- B <dt B'
+            <- A' <t A.
+<t/inst  : inst R <t inst R'
+            <- R <r R'.
+<t/==>   : B1 ==> B2 <t B1' ==> B2'
+            <- B2 <dt B2'
+            <- B1' <dt B1.
+
+<dt/!    : A ! D <dt A' ! D'
+            <- D <d D'
+            <- A <t A'.

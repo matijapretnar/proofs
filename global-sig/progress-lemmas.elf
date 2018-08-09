@@ -1,0 +1,65 @@
+%%% Effectiveness of "get-op-case" %%%
+
+% The main result here is "get-op-case-total", which says that for well-typed
+% operation cases OCs, "get-op-case IO OCs OC" always delivers an answer "OC"
+
+decide-op-case : comparable O O' -> {OC} get-op-case O OCs OC'
+                  -> get-op-case O (op-cases/cons O' OC OCs) OC'' -> type.
+%mode decide-op-case +Dec +OC +OC' -OC''.
+
+- : decide-op-case comparable/equal _ _ get-op-case/here.
+- : decide-op-case (comparable/apart A) _ OC (get-op-case/there OC A).
+
+%worlds (topen) (decide-op-case _ _ _ _).
+%total {} (decide-op-case _ _ _ _).
+
+
+get-op-case-total : {O} opcof Sig OCs B D -> get-op-case O OCs OC -> type.
+%mode get-op-case-total +O +OCs -OC.
+
+- : get-op-case-total _ opcof/nil get-op-case/nil.
+
+- : get-op-case-total O (opcof/cons _ _ OCs) OC''
+     <- get-op-case-total O OCs OC'
+     <- compare _ _ Dec
+     <- decide-op-case Dec _ OC' OC''.
+
+%worlds (topen) (get-op-case-total _ _ _).
+%total {OCs} (get-op-case-total _ OCs _).
+
+
+
+%%% Subcases of the progress theorem %%%
+
+% When proving progress, we first do induction on the structure of the term
+% being reduced, and then in most cases, due to subtyping, we need to do
+% a second induction on the typing derivation. In Twelf, we can do nested
+% induction only by first proving a separate lemma for each case, and
+% these lemmas follow below.
+
+
+progress-seq : non-stuck Sig C1 D -> {C2} non-stuck Sig (seq C1 C2) D -> type.
+%mode progress-seq +NS1 +C2 -NS.
+
+- : progress-seq non-stuck/ret _ (non-stuck/step step/seq-ret).
+
+- : progress-seq (non-stuck/op _) _ (non-stuck/step step/seq-op).
+
+- : progress-seq (non-stuck/step S1) _ (non-stuck/step (step/seq-step S1)).
+
+%worlds (topen) (progress-seq _ _ _).
+%total {NS1} (progress-seq NS1 _ _).
+
+
+progress-with : eof Sig E (_ ! _ ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C _ -> non-stuck Sig (with E C) D2 -> type.
+%mode progress-with +E +C +NS1 -NS2.
+
+- : progress-with (eof/hnd _ _ _) _ non-stuck/ret (non-stuck/step step/with-ret).
+
+- : progress-with (eof/hnd _ OCs _) (cof/op O _ _ _) (non-stuck/op _) (non-stuck/step (step/with-op OC O))
+     <- get-op-case-total _ OCs OC.
+
+- : progress-with (eof/hnd _ _ _) _ (non-stuck/step S) (non-stuck/step (step/with-step S)).
+
+%worlds (topen) (progress-with _ _ _ _).
+%total {E} (progress-with E _ _ _).

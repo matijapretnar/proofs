@@ -1,0 +1,142 @@
+%%%%% Operational semantics %%%%%
+
+% In defining both small and big step semantics, we use "get-op-case IO OCs OC",
+% such that "OC" is the first operation casein "OCs" that matches the
+% operation "IO", or the default handler if there are none.
+
+get-op-case : operation Eff -> op-cases -> op-case -> type.
+
+get-op-case/nil   : get-op-case (I # O) (op-cases/nil _) ([x] [k] op (ins I) O x ([y] app k y)).
+get-op-case/here  : get-op-case (I # O) (op-cases/cons (ins I) O OC _) OC.
+get-op-case/there : get-op-case IO (op-cases/cons (ins I') O' _ OCs) OC
+                     <- apart IO (I' # O')
+                     <- get-op-case IO OCs OC.
+
+
+% The type of final results
+
+result : type.
+
+result/val : expr -> result.
+result/op  : operation Eff -> expr -> (expr -> comp) -> result.
+
+
+
+%%% Small step semantics %%%
+
+step : signature -> comp -> comp -> type.
+
+step/cond-tru  : step _ (cond tru C1 _) C1.
+step/cond-fls  : step _ (cond fls _ C2) C2.
+step/mtch-zro  : step _ (mtch zro C1 _) C1.
+step/mtch-suc  : step _ (mtch (suc E) _ C2) (C2 E).
+step/app       : step _ (app (fun _ E1) E2) (E1 E2).
+step/let-val   : step _ (let (val E) C2) (C2 E).
+step/let-op    : step _ (let (op (ins I) O Ep K) C2) (op (ins I) O Ep ([x] let (K x) C2)).
+step/let-step  : step Sig (let C1 C2) (let C1' C2)
+                  <- step Sig C1 C1'.
+step/letr      : step _ (letr A B C1 C2) (C2 (fun A ([x] letr A B C1 ([f] C1 f x)))).
+step/with-val  : step _ (with (hnd _ Cv _) (val E)) (Cv E).
+step/with-op   : step Sig (with (hnd Av Cv OCs) (op (ins I) O Ep K)) (OC Ep (fun Aop ([y] with (hnd Av Cv OCs) (K y))))
+                  <- sig Sig O _ Aop
+                  <- get-op-case (I # O) OCs OC.
+step/with-step : step Sig (with E C) (with E C')
+                  <- step Sig C C'.
+
+
+% To state the progress theorem, we need to define when a computation is not stuck
+
+non-stuck : signature -> comp -> dirt -> type.
+
+non-stuck/val   : non-stuck _ (val _) _.
+non-stuck/op    : non-stuck _ (op (ins I) O _ _) D
+                   <- in-dirt (I # O) D.
+non-stuck/step  : non-stuck Sig C _
+                   <- step Sig C _.
+
+
+% The "transitive closure" of the small step relation
+
+step* : signature -> comp -> result -> type.
+
+step*/val  : step* _ (val E) (result/val E).
+step*/op   : step* _ (op (ins I) O E K) (result/op (I # O) E K).
+step*/step : step* Sig C R
+              <- step* Sig C' R
+              <- step Sig C C'.
+
+
+
+%%% Big step semantics %%%
+
+eval : signature -> comp -> result -> type.
+
+eval/cond-tru : eval Sig (cond tru C1 _) R
+                 <- eval Sig C1 R.
+eval/cond-fls : eval Sig (cond fls _ C2) R
+                 <- eval Sig C2 R.
+eval/mtch-zro : eval Sig (mtch zro C1 _) R
+                 <- eval Sig C1 R.
+eval/mtch-suc : eval Sig (mtch (suc E) _ C2) R
+                 <- eval Sig (C2 E) R.
+eval/app      : eval Sig (app (fun _ E1) E2) R
+                 <- eval Sig (E1 E2) R.
+eval/val      : eval _ (val E) (result/val E).
+eval/op       : eval _ (op (ins I) O E K) (result/op (I # O) E K).
+eval/let-val  : eval Sig (let C1 C2) R
+                 <- eval Sig (C2 E) R
+                 <- eval Sig C1 (result/val E).
+eval/let-op   : eval Sig (let C1 C2) (result/op IO E ([x] let (K x) C2))
+                 <- eval Sig C1 (result/op IO E K).
+eval/letr     : eval Sig (letr A B C1 C2) R
+                 <- eval Sig (C2 (fun A ([x] letr A B C1 ([f] C1 f x)))) R.
+eval/with-val : eval Sig (with (hnd _ Cv _) C) R
+                 <- eval Sig (Cv E) R
+                 <- eval Sig C (result/val E).
+eval/with-op  : eval Sig (with (hnd Av Cv OCs) C) R
+                 <- eval Sig (OC E (fun Aop ([y] with (hnd Av Cv OCs) (K y)))) R
+                 <- sig Sig O _ Aop
+                 <- get-op-case (I # O) OCs OC
+                 <- eval Sig C (result/op (I # O) E K).
+
+
+
+%%% Handler-stack semantics %%%
+
+handler-stack : type.
+
+handler-stack/nil  : handler-stack.
+handler-stack/cons : val-case -> op-cases -> handler-stack -> handler-stack.
+
+
+nest : handler-stack -> comp -> comp -> type.
+
+nest/nil  : nest handler-stack/nil C C.
+nest/cons : nest (handler-stack/cons Cv OCs Hs) C C'
+             <- nest Hs (with (hnd _ Cv OCs) C) C'.
+
+
+stack-eval : handler-stack -> comp -> expr -> type.
+
+stack-eval/cond-tru : stack-eval Hs (cond tru C1 _) E
+                       <- stack-eval Hs C1 E.
+stack-eval/cond-fls : stack-eval Hs (cond fls _ C2) E
+                       <- stack-eval Hs C2 E.
+stack-eval/mtch-zro : stack-eval Hs (mtch zro C1 _) E
+                       <- stack-eval Hs C1 E.
+stack-eval/mtch-suc : stack-eval Hs (mtch (suc E) _ C2) E'
+                       <- stack-eval Hs (C2 E) E'.
+stack-eval/app      : stack-eval Hs (app (fun _ E1) E2) E
+                       <- stack-eval Hs (E1 E2) E.
+stack-eval/val-nil  : stack-eval handler-stack/nil (val E) E.
+stack-eval/val-cons : stack-eval (handler-stack/cons Cv _ Hs) (val E) E'
+                       <- stack-eval Hs (Cv E) E'.
+stack-eval/op-cons  : stack-eval (handler-stack/cons _ OCs Hs) (op (ins I) O E K) E'
+                       <- get-op-case (I # O) OCs OC
+                       <- stack-eval Hs (OC E (fun _ ([y] with (hnd Av Cv OCs) (K y)))) E'.
+stack-eval/let      : stack-eval Hs (let C1 C2) E
+                       <- stack-eval (handler-stack/cons C2 (op-cases/nil _) Hs) C1 E.
+stack-eval/letr     : stack-eval Hs (letr A B C1 C2) E
+                       <- stack-eval Hs (C2 (fun A ([x] letr A B C1 ([f] C1 f x)))) E.
+stack-eval/with     : stack-eval Hs (with (hnd _ Cv OCs) C) E
+                       <- stack-eval (handler-stack/cons Cv OCs Hs) C E.

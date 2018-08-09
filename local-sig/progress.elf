@@ -1,0 +1,33 @@
+%%%%% Progress theorem %%%%%
+
+progress : cof C (_ ! D) -> non-stuck C D -> type.
+progress-scof : scof C S D -> non-stuck C D -> type.
+%mode progress +C -NS.
+%mode progress-scof +C -NS.
+
+- : progress (cof/cond eof/tru _ _) (non-stuck/step step/cond-tru).
+
+- : progress (cof/cond eof/fls _ _) (non-stuck/step step/cond-fls).
+
+- : progress (cof/app (eof/fun _) _) (non-stuck/step step/app).
+
+- : progress (cof/ret _) non-stuck/ret.
+
+- : progress (cof/op O _ _) (non-stuck/op O).
+
+- : progress (cof/seq C1 _) NS
+     <- progress-scof C1 NS1
+     <- progress-seq NS1 _ NS.
+
+- : progress (cof/with E C) NS'
+     <- progress C NS
+     <- progress-with E NS NS'.
+
+- : progress-scof (scof/plain C) NS
+     <- progress C NS.
+
+- : progress-scof (scof/forall ([x] (C x))) (NS bool)
+     <- {x} progress-scof (C x) (NS x).
+
+%worlds (topen) (progress _ _) (progress-scof _ _).
+%total {(C C')} (progress C _) (progress-scof C' _).

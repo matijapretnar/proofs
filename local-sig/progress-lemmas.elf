@@ -1,0 +1,81 @@
+%%% Effectiveness of "get-op-case" %%%
+
+find-or-not : operation -> op-cases -> type.
+
+find-or-not/yes : get-op-case O OCs _ -> find-or-not O OCs.
+find-or-not/no  : not-get-op-case O OCs -> find-or-not O OCs.
+
+decide-op-case : comparable O O' -> find-or-not O OCs
+                  -> {OC} find-or-not O (op-cases/cons O' OC OCs) -> type.
+%mode decide-op-case +Comp +FN +OC -FN'.
+
+- : decide-op-case comparable/equal _ OC (find-or-not/yes get-op-case/here).
+- : decide-op-case (comparable/apart Ap) (find-or-not/yes Yes) OC (find-or-not/yes (get-op-case/there Yes Ap)).
+- : decide-op-case (comparable/apart Ap) (find-or-not/no No) OC (find-or-not/no (not-get-op-case/there No Ap)).
+
+%worlds (topen) (decide-op-case _ _ _ _).
+%total {} (decide-op-case _ _ _ _).
+
+
+% The main result here is "get-op-case-total", which says that for well-typed
+% operation cases OCs, "get-op-case O OCs OC" always delivers an answer "OC"
+
+get-op-case-total : {O} {OCs} find-or-not O OCs -> type.
+%mode get-op-case-total +O +OCs -FN.
+
+- : get-op-case-total _ (op-cases/nil _) (find-or-not/no not-get-op-case/nil).
+
+- : get-op-case-total O (op-cases/cons O' OC OCs) FN'
+     <- get-op-case-total O OCs FN
+     <- all-comparable _ _ Comp
+     <- decide-op-case Comp FN OC FN'.
+
+%worlds (topen) (get-op-case-total _ _ _).
+%total {OCs} (get-op-case-total _ OCs _).
+
+
+
+
+%%% Subcases of the progress theorem %%%
+
+% When proving progress, we first do induction on the structure of the term
+% being reduced, and then in some cases, due to subtyping, we need to do
+% a further induction. In Twelf, we can do this only by first proving a
+% separate lemma for each case, and these lemmas follow below.
+
+
+progress-seq : non-stuck C1 D -> {C2} non-stuck (seq C1 C2) D -> type.
+%mode progress-seq +NS1 +C2 -NS.
+
+- : progress-seq non-stuck/ret _ (non-stuck/step step/seq-ret).
+
+- : progress-seq (non-stuck/op _) _ (non-stuck/step step/seq-op).
+
+- : progress-seq (non-stuck/step S1) _ (non-stuck/step (step/seq-step S1)).
+
+%worlds (topen) (progress-seq _ _ _).
+%total {NS1} (progress-seq NS1 _ _).
+
+
+progress-found-case : find-or-not O OCs -> {Cv} {Ep} {K} {C} step (with (hnd Cv OCs) (op O Ep K)) C -> type.
+%mode progress-found-case +OC +Cv +Ep +K -C -S.
+
+- : progress-found-case (find-or-not/yes Yes) _ _ _ _ (step/with-hand Yes).
+- : progress-found-case (find-or-not/no No) _ _ _ _ (step/with-noth No).
+
+%worlds (topen) (progress-found-case _ _ _ _ _ _).
+%total {} (progress-found-case _ _ _ _ _ _).
+
+progress-with : eof E (_ ! D1 ==> _ ! D2) -> non-stuck C D1 -> non-stuck (with E C) D2 -> type.
+%mode progress-with +E +NS1 -NS2.
+
+- : progress-with (eof/hnd _ _ _) non-stuck/ret (non-stuck/step step/with-ret).
+
+- : progress-with (eof/hnd _ _ _) (non-stuck/op O) (non-stuck/step S)
+     <- get-op-case-total _ _ FN
+     <- progress-found-case FN _ _ _ _ S.
+
+- : progress-with (eof/hnd _ _ _) (non-stuck/step S) (non-stuck/step (step/with-step S)).
+
+%worlds (topen) (progress-with _ _ _).
+%total {E} (progress-with E _ _).

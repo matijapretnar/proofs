@@ -1,0 +1,186 @@
+% If a computation is not stuck for some dirt, it remains non-stuck
+% if we increase the dirt.
+
+non-stuck/<d : non-stuck Sig C D -> D <d D' -> non-stuck Sig C D' -> type.
+%mode non-stuck/<d +NS +D<D' -NS'.
+
+- : non-stuck/<d non-stuck/val _ non-stuck/val.
+
+- : non-stuck/<d (non-stuck/op IOinD) D<D' (non-stuck/op IOinD')
+     <- in-dirt/<d IOinD D<D' IOinD'.
+
+- : non-stuck/<d (non-stuck/step S) _ (non-stuck/step S).
+
+%worlds (topen) (non-stuck/<d _ _ _).
+%total {NS} (non-stuck/<d NS _ _).
+
+
+% If an operation call is well-typed, the operation appears in the signature.
+
+cof-op/sig : cof Sig (op _ O _ _) _ -> sig Sig O _ _ -> type.
+%mode cof-op/sig +C -O.
+
+- : cof-op/sig (cof/op _ O _ _ _) O.
+
+- : cof-op/sig (cof/sub C _) O
+     <- cof-op/sig C O.
+
+%worlds (topen) (cof-op/sig _ _).
+%total {C} (cof-op/sig C _).
+
+
+%%% Effectiveness of "get-op-case" %%%
+
+% The main result here is "get-op-case-total", which says that for well-typed
+% operation cases OCs, "get-op-case IO OCs OC" always delivers an answer "OC"
+
+decide-op-case : comparable IO (I' # O') -> {OC} get-op-case IO OCs OC'
+                  -> get-op-case IO (op-cases/cons (ins I') O' OC OCs) OC'' -> type.
+%mode decide-op-case +Dec +OC +OC' -OC''.
+
+- : decide-op-case comparable/equal _ _ get-op-case/here.
+- : decide-op-case (comparable/apart A) _ OC (get-op-case/there OC A).
+
+%worlds (topen) (decide-op-case _ _ _ _).
+%total {} (decide-op-case _ _ _ _).
+
+
+get-op-case-total : {IO} opcof Sig OCs B D -> get-op-case IO OCs OC -> type.
+get-op-case-total/cons : {IO} eof Sig E (inst (R : region Eff'))
+                          -> {O' : opsym Eff'} {OC} get-op-case IO OCs OC'
+                          -> get-op-case IO (op-cases/cons E O' OC OCs) OC'' -> type.
+%mode get-op-case-total +IO +OCs -OC.
+%mode get-op-case-total/cons +IO +E +O' +OC +OC' -OC''.
+
+- : get-op-case-total _ opcof/nil get-op-case/nil.
+
+- : get-op-case-total IO (opcof/cons E _ _ OCs _) OC''
+     <- get-op-case-total IO OCs OC'
+     <- get-op-case-total/cons IO E _ _ OC' OC''.
+
+
+- : get-op-case-total/cons _ (eof/ins _) _ _ OC' OC''
+     <- compare _ _ Dec
+     <- decide-op-case Dec _ OC' OC''.
+
+- : get-op-case-total/cons IO (eof/sub E _) _ _ OC' OC''
+     <- get-op-case-total/cons IO E _ _ OC' OC''.
+
+%worlds (topen) (get-op-case-total _ _ _) (get-op-case-total/cons _ _ _ _ _ _).
+%total {(OCs E)} (get-op-case-total _ OCs _) (get-op-case-total/cons _ E _ _ _ _).
+
+
+
+%%% Subcases of the progress theorem %%%
+
+% When proving progress, we first do induction on the structure of the term
+% being reduced, and then in most cases, due to subtyping, we need to do
+% a second induction on the typing derivation. In Twelf, we can do nested
+% induction only by first proving a separate lemma for each case, and
+% these lemmas follow below.
+
+progress-cond : {D} eof Sig E bool -> {C1} {C2} non-stuck Sig (cond E C1 C2) D -> type.
+%mode progress-cond +D +E +C1 +C2 -NS.
+
+- : progress-cond _ eof/tru _ _ (non-stuck/step step/cond-tru).
+
+- : progress-cond _ eof/fls _ _ (non-stuck/step step/cond-fls).
+
+- : progress-cond D (eof/sub E _) _ _ NS
+     <- progress-cond D E _ _ NS.
+
+%worlds (topen) (progress-cond _ _ _ _ _).
+%total {E} (progress-cond _ E _ _ _).
+
+
+progress-mtch : {D} eof Sig E nat -> {C1} {C2} non-stuck Sig (mtch E C1 C2) D -> type.
+%mode progress-mtch +D +E +C1 +C2 -NS.
+
+- : progress-mtch _ eof/zro _ _ (non-stuck/step step/mtch-zro).
+
+- : progress-mtch _ (eof/suc _) _ _ (non-stuck/step step/mtch-suc).
+
+- : progress-mtch D (eof/sub E _) _ _ NS
+     <- progress-mtch D E _ _ NS.
+
+%worlds (topen) (progress-mtch _ _ _ _ _).
+%total {E} (progress-mtch _ E _ _ _).
+
+
+progress-absd : {A} {D} eof Sig E empty -> non-stuck Sig (absd (A ! D) E) D -> type.
+%mode progress-absd +A +D +E -NS.
+
+- : progress-absd A D (eof/sub E _) NS
+     <- progress-absd A D E NS.
+
+%worlds (topen) (progress-absd _ _ _ _).
+%total {E} (progress-absd _ _ E _).
+
+
+progress-app : {D} eof Sig E1 (A --> B) -> {E2} non-stuck Sig (app E1 E2) D -> type.
+%mode progress-app +D +E1 +E2 -NS.
+
+- : progress-app _ (eof/fun _) _ (non-stuck/step step/app).
+
+- : progress-app D (eof/sub E1 _) E2 NS
+     <- progress-app D E1 E2 NS.
+
+- : progress-app D (eof/sub E1 <t/refl) E2 NS
+     <- progress-app D E1 E2 NS.
+
+%worlds (topen) (progress-app _ _ _ _).
+%total {E1} (progress-app _ E1 _ _).
+
+
+progress-op : eof Sig Ei (inst R) -> {Ep} {K} in-dirt-region R O D
+               -> non-stuck Sig (op Ei O Ep K) D -> type.
+%mode progress-op +Ei +Ep +K +ROinD -NS.
+
+- : progress-op (eof/ins IinR) _ _ ROinD (non-stuck/op IOinD)
+     <- in-region-in-dirt IinR ROinD IOinD.
+
+- : progress-op (eof/sub Ei (<t/inst R<R')) Ep K R'OinD NS
+     <- <r/in-dirt-region R<R' R'OinD ROinD
+     <- progress-op Ei Ep K ROinD NS.
+
+- : progress-op (eof/sub Ei <t/refl) Ep K ROinD NS
+     <- progress-op Ei Ep K ROinD NS.
+
+%worlds (topen) (progress-op _ _ _ _ _).
+%total {Ei} (progress-op Ei _ _ _ _).
+
+
+progress-let : non-stuck Sig C1 D -> {C2} non-stuck Sig (let C1 C2) D -> type.
+%mode progress-let +NS1 +C2 -NS.
+
+- : progress-let non-stuck/val _ (non-stuck/step step/let-val).
+
+- : progress-let (non-stuck/op _) _ (non-stuck/step step/let-op).
+
+- : progress-let (non-stuck/step S1) _ (non-stuck/step (step/let-step S1)).
+
+%worlds (topen) (progress-let _ _ _).
+%total {NS1} (progress-let NS1 _ _).
+
+
+progress-with : eof Sig E (_ ! D1 ==> _ ! D2) -> cof Sig C _ -> non-stuck Sig C D1 -> non-stuck Sig (with E C) D2 -> type.
+%mode progress-with +E +C +NS1 -NS2.
+
+- : progress-with (eof/hnd _ _ _) _ non-stuck/val (non-stuck/step step/with-val).
+
+- : progress-with (eof/hnd _ OCs _) C (non-stuck/op _) (non-stuck/step (step/with-op OC O))
+     <- cof-op/sig C O
+     <- get-op-case-total _ OCs OC.
+
+- : progress-with (eof/hnd _ _ _) _ (non-stuck/step S) (non-stuck/step (step/with-step S)).
+
+- : progress-with (eof/sub E (<t/==> (<dt/! _ D1<D1') (<dt/! _ D2'<D2))) C NS1 NS2
+     <- non-stuck/<d NS1 D1<D1' NS1'
+     <- progress-with E C NS1' NS2'
+     <- non-stuck/<d NS2' D2'<D2 NS2.
+
+- : progress-with (eof/sub E <t/refl) C NS1 NS2
+     <- progress-with E C NS1 NS2.
+
+%worlds (topen) (progress-with _ _ _ _).
+%total {E} (progress-with E _ _ _).

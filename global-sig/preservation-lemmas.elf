@@ -1,0 +1,94 @@
+%%% Subcases of the preservation theorem %%%
+
+
+%%% Preservation of handled operations %%%
+
+% The most technical part of the proof lies here. We know an operation is
+% handled by a handler either if one of the cases is guaranteed to match it,
+% or if it appears in the outgoing dirt. We analyze both cases and show that
+% types are preserved in both of them.
+
+% Preservation in case an operation is covered by some operation case
+
+preservation-handled-op : in-dirt O Dcov -> sig Sig O A1 A2
+                           -> eof Sig E A1 -> eof Sig K (A2 --> B)
+                           -> get-op-case O OCs OC -> opcof Sig OCs B Dcov
+                           -> cof Sig (OC E K) B -> type.
+%mode preservation-handled-op +OinDcov +O +E +K +OC +OCs -C'.
+
+% When the first case matches.
+- : preservation-handled-op _ _ E K
+     get-op-case/here
+     (opcof/cons _ OC _)
+     OC'
+     <- subst2 OC E K OC'.
+
+% When the first case does not match, the covered dirt changes.
+% However, since the case did not match, the handled operation
+% must be in the remainder of the covered dirt, so we continue as before.
+- : preservation-handled-op OinDcov O E K
+     (get-op-case/there OC A)
+     (opcof/cons _ _ OCs)
+     C'
+     <- unequal-instance-in-rest OinDcov A OinDcov'
+     <- preservation-handled-op OinDcov' O E K OC OCs C'.
+
+%worlds (topen) (preservation-handled-op _ _ _ _ _ _ _).
+%total {OC} (preservation-handled-op _ _ _ _ OC _ _).
+
+
+% Preservation in case an operation appears in the outgoing dirt
+
+preservation-unhandled-op : in-dirt O D' -> sig Sig O A1 A2
+                             -> eof Sig E A1 -> eof Sig K (A2 --> A' ! D')
+                             -> get-op-case O OCs OC -> opcof Sig OCs (A' ! D') _
+                             -> cof Sig (OC E K) (A' ! D') -> type.
+%mode preservation-unhandled-op +OinD' +O +E +K +OC +OCs -C'.
+
+% When the first case matches.
+- : preservation-unhandled-op _ _ Ep K
+     get-op-case/here
+     (opcof/cons _ OC _)
+     OC'
+     <- subst2 OC Ep K OC'.
+
+% When the first case does not match, but there are more cases,
+% we continue as before.
+- : preservation-unhandled-op OinD' O Ep K
+     (get-op-case/there OC _)
+     (opcof/cons _ _ OCs)
+     C'
+     <- preservation-unhandled-op OinD' O Ep K OC OCs C'.
+
+% When there are no more cases, we propagate the operation call.
+- : preservation-unhandled-op OinD' O Ep K
+     get-op-case/nil
+     opcof/nil
+     (cof/op O Ep ([_] [x] cof/app K (eof/var x)) OinD').
+
+
+%worlds (topen) (preservation-unhandled-op _ _ _ _ _ _ _).
+%total {OC} (preservation-unhandled-op _ _ _ _ OC _ _).
+
+
+% Preservation in any case
+
+preservation-with-op : in-dirt O D -> sig Sig O A1 A2
+                        -> eof Sig Ep A1 -> eof Sig K (A2 --> A' ! D')
+                        -> get-op-case O OCs OC -> opcof Sig OCs (A' ! D') Dcov
+                        -> covers D Dcov D'
+                        -> cof Sig (OC Ep K) (A' ! D') -> type.
+%mode preservation-with-op +OinD +O +Ep +K +OC +OCs +Cov -OC.
+
+- : preservation-with-op in-dirt/here O Ep K OC OCs (covers/cons-here OinDcov _) C'
+     <- preservation-handled-op OinDcov O Ep K OC OCs C'.
+
+- : preservation-with-op in-dirt/here O Ep K OC OCs (covers/cons-there OinD' _) C'
+     <- preservation-unhandled-op OinD' O Ep K OC OCs C'.
+
+- : preservation-with-op (in-dirt/there OinD) O Ep K OC OCs Cov C'
+     <- covers-rest Cov Cov' 
+     <- preservation-with-op OinD O Ep K OC OCs Cov' C'.
+
+%worlds (topen) (preservation-with-op _ _ _ _ _ _ _ _).
+%total {OinD} (preservation-with-op OinD _ _ _ _ _ _ _).

@@ -1,0 +1,34 @@
+%%%%% Signatures %%%%%
+
+% Since operations are all labeled with natural numbers,
+% a signature can be represented by a list of pairs of types, so that
+% the first pair of types corresponds to operation "operation/z",
+% the second to "operation/s name/z", etc.
+%
+% Note that this representation implies that in typed terms,
+% we can only consider a finite number of operations.
+
+signature : type.
+
+signature/empty : signature.
+signature/cons : ty -> ty -> signature -> signature.
+
+
+% "sig Sig O A1 A2" states that the signature "Sig" assigns
+% a parameter type "A1" and a result type "A2" to the operation "O".
+
+sig : signature -> operation -> ty -> ty -> type.
+
+sig/here : sig (signature/cons A1 A2 _) (operation/z) A1 A2.
+sig/there : sig (signature/cons _ _ Sig) (operation/s O) A1 A2
+            <- sig Sig O A1 A2.
+
+%worlds () (sig _ _ _ _).
+%unique sig +Sig +O -1A1 -1A2.
+
+% We need to state that "sig" assigns
+% a unique parameter and result type to each operation symbol.
+% This fact is used in the proof of preservation when handling operation calls.
+% There, one gets one signature for the operation symbol of the handled operation,
+% and another one for the one in the handler case.
+% Because of uniqueness, we may safely assume that the two are the same.

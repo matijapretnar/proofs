@@ -1,0 +1,69 @@
+%%%%% Equivalence between small and big step semantics %%%%%
+
+%%% First half of the equivalence %%%
+
+step*/eval : step* Sig C R -> eval Sig C R -> type.
+%mode step*/eval +C~>*R -C=>R.
+
+- : step*/eval step*/val eval/val.
+
+- : step*/eval step*/op eval/op.
+
+- : step*/eval (step*/step C~>C' C'~>*R) C=>R
+     <- step*/eval C'~>*R C'=>R
+     <- step/eval C~>C' C'=>R C=>R.
+
+%worlds () (step*/eval _ _).
+%total {C~>*R} (step*/eval C~>*R _).
+
+
+
+%%% Second half of the equivalence %%%
+
+eval/step* : eval Sig C R -> step* Sig C R -> type.
+%mode eval/step* +C=>R -C~>*R.
+
+- : eval/step* (eval/cond-tru C=>R) (step*/step step/cond-tru C~>*R)
+     <- eval/step* C=>R C~>*R.
+
+- : eval/step* (eval/cond-fls C=>R) (step*/step step/cond-fls C~>*R)
+     <- eval/step* C=>R C~>*R.
+
+- : eval/step* (eval/mtch-zro C=>R) (step*/step step/mtch-zro C~>*R)
+     <- eval/step* C=>R C~>*R.
+
+- : eval/step* (eval/mtch-suc C=>R) (step*/step step/mtch-suc C~>*R)
+     <- eval/step* C=>R C~>*R.
+
+- : eval/step* (eval/app C=>R) (step*/step step/app C~>*R)
+     <- eval/step* C=>R C~>*R.
+
+- : eval/step* eval/val step*/val.
+
+- : eval/step* eval/op step*/op.
+
+- : eval/step* (eval/let-val C1=>E C2E=>R) C1C2~>*R
+     <- eval/step* C1=>E C1~>*E
+     <- eval/step* C2E=>R C2E~>*R
+     <- ~>*-let-val C1~>*E C2E~>*R C1C2~>*R.
+
+- : eval/step* (eval/let-op C1=>Op) C1C2~>*Op
+     <- eval/step* C1=>Op C1~>*Op
+     <- ~>*-let-op C1~>*Op _ C1C2~>*Op.
+
+- : eval/step* (eval/letr C=>R) (step*/step step/letr C~>*R)
+     <- eval/step* C=>R C~>*R.
+
+- : eval/step* (eval/with-val C=>E CvE=>R) HC~>*R
+     <- eval/step* C=>E C~>*E
+     <- eval/step* CvE=>R CvE~>*R
+     <- ~>*-with-val C~>*E CvE~>*R _ _ HC~>*R.
+
+- : eval/step* (eval/with-op C=>Op OC O OC=>R) HC~>*R
+     <- eval/step* C=>Op C~>*Op
+     <- eval/step* OC=>R OC~>*R
+     <- ~>*-with-op C~>*Op OC O OC~>*R HC~>*R.
+
+%worlds () (eval/step* _ _).
+%total {C=>R} (eval/step* C=>R _).
+
