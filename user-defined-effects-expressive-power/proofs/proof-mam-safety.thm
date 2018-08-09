@@ -1,0 +1,14 @@
+Specification "mam".
+
+Import "proof-mam-progress".
+Import "proof-mam-preservation".
+
+Theorem safety : forall M A,
+    {mam/of-comp M (mam/f mam/empty A)} ->
+        (exists N, {mam/step M N} /\ {mam/of-comp N (mam/f mam/empty A)}) \/
+        (exists V, M = mam/ret V /\ {mam/of-value V A}).
+intros. apply progress to H1. case H2.
+    case H1. right. search.
+    case H1.
+    case H1.
+    apply preservation to H1 H3. left. search.

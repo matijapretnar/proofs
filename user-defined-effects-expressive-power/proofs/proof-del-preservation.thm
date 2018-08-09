@@ -1,0 +1,79 @@
+Specification "del".
+
+Theorem eff-kind-deterministic : forall C Eff Eff', {del/eff-kind C Eff} -> {del/eff-kind C Eff'} -> Eff = Eff'.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H5. apply IH to H4 H6. search.
+
+Theorem hoisting-equal-eff : forall E C1 C2 Eff1 Eff2,
+    {del/hoisting E} -> {del/of-evctx E C1 C2} ->
+    {del/eff-kind C1 Eff1} -> {del/eff-kind C2 Eff2} -> Eff1 = Eff2.
+induction on 1. intros. case H1.
+    case H2. apply eff-kind-deterministic to H3 H4. search.
+    case H2. apply IH to H5 H7 H3 _. apply eff-kind-deterministic to H4 H6. search.
+    case H2. apply IH to H5 H6 H3 _. search.
+    case H2. apply IH to H5 H8 H3 _. apply eff-kind-deterministic to H4 H6. search.
+    case H2. apply IH to H5 H8 H3 _. apply eff-kind-deterministic to H4 H7. search.
+
+
+Theorem of-plug : forall L E M EM C1 C2,
+    {del/of-evctx E C1 C2} -> {L |- of-comp M C1} -> {del/plug E M EM} -> {L |- of-comp EM C2}.
+induction on 1. intros. case H1.
+    case H3. search.
+    case H3. apply IH to H5 H2 H7. search.
+    case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H6 H2 H7. search.
+    case H3. apply IH to H6 H2 H7. search.
+    case H3. apply IH to H6 H2 H7. search.
+
+Theorem of-unplug : forall E M EM C2,
+    {del/plug E M EM} -> {del/of-comp EM C2} -> exists C1, {del/of-comp M C1} /\ {del/of-evctx E C1 C2}.
+induction on 1. intros. case H1.
+    search.
+    case H2. apply IH to H3 H5. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H6. search.
+    case H2. apply IH to H3 H6. search.
+    case H2. apply IH to H3 H6. search.
+
+
+Theorem of-get-case : forall Ms L M As C A,
+    {del/get-case Ms L M} -> {del/of-cases Ms As C} -> {del/valtys/get As L A} ->
+    {pi x\ of-value x A => of-comp (M x) C}.
+induction on 1. intros.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H4. apply IH1 to H5.
+case H1.
+    case H2.
+        case H3.
+            search.
+            case H7. apply H4 to H9.
+    case H2.
+        case H3.
+            case H5. apply H4 to H9.
+            apply IH to H6 H7 H10. search.
+
+Theorem reduce-preservation : forall M M' C, {of-comp M C} -> {reduce M M'} -> {of-comp M' C}.
+intros. case H2.
+    case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
+    case H1. case H4. apply of-get-case to H3 H5 H7. inst H8 with n1 = V. cut H9. search.
+    case H1. case H3. search.
+    case H1. case H4. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H6. search.
+    case H1. case H5. search.
+    case H1. case H5. search.
+    case H1. case H5. inst H4 with n1 = V. cut H7. search.
+    case H1.
+        apply of-unplug to H3 H8. case H9.
+        apply hoisting-equal-eff to H4 H10 _ _.
+        inst H12 with n1 = thunk (fun (x\reset (ER x) N)).
+        assert {of-value n1 A1 |- of-comp (ER n1) (f (cons Eff C) A)}.
+            apply of-plug to H10 _ H5 with L = of-value n1 A1 :: nil. search.
+        cut H13. search.
+
+Theorem preservation : forall M M' C, {of-comp M C} -> {step M M'} -> {of-comp M' C}.
+intros. case H2.
+    apply of-unplug to H3 H1.
+    apply reduce-preservation to H6 H4.
+    apply of-plug to H7 H8 H5 with L = nil. search.
