@@ -253,7 +253,7 @@ type    del/step            del/comp -> del/comp -> o.
 type    del/progresses      del/comp -> del/compty -> o.
 
 
-type    del/cons            del/eff -> (del/valty -> del/compty) -> del/eff.
+type    del/cons            del/eff -> del/compty -> del/eff.
 
 type    del/reset           del/comp -> (del/value -> del/comp) -> del/comp.
 type    del/shift           (del/value -> del/comp) -> del/comp.

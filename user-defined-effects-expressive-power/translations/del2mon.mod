@@ -97,11 +97,11 @@ mon/is-evctx (mon/evctx/reify E T) :- mon/is-evctx E.
 
 del2mon/eff del/empty mon/empty.
 del2mon/eff (del/cons Eff C) (mon/cons Eff'
-    (a\ mon/arrow (mon/u (mon/arrow a (C' a))) (C' a))
+    (a\ mon/arrow (mon/u (mon/arrow a C')) C')
     (x\ mon/fun c\ mon/app (mon/force c) x)
     (m\ f\ mon/fun c\ mon/app (mon/force m) (mon/thunk (mon/fun y\ mon/app (mon/app (mon/force f) y) c)))
 ) :- 
-    pi a\ pi a'\ del2mon/valty a a' => del2mon/compty (C a) (C' a'),
+    del2mon/compty C C',
     del2mon/eff Eff Eff'.
 
 del2mon/valty del/unitty mon/unitty.
