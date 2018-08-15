@@ -1,5 +1,5 @@
 Specification "del2mon".
-Close del/nat, del/label, del/eff, del/valty, del/compty, del/valtys, del/value, del/cases, del/comp, mon/nat, mon/label, mon/monad, mon/value, mon/cases, mon/comp, mon/eff, mon/valty, mon/compty, mon/valtys.
+Close nat, label, del/eff, del/valty, del/compty, del/valtys, del/value, del/cases, del/comp, mon/monad, mon/value, mon/cases, mon/comp, mon/eff, mon/valty, mon/compty, mon/valtys.
 Set subgoals off.
 
 Define fresh : X -> prop by nabla x, fresh x.
@@ -66,7 +66,7 @@ Theorem continuation-monad :
                 )
             ) ->
         {mon/is-compty C} ->
-        {mon/of/monad (mon/mon Nu Nb) (mon/cons Eff C' Nu Nb)}.
+        {mon/of-monad (mon/mon Nu Nb) (mon/cons Eff C' Nu Nb)}.
         % PROOF
         intros.
         case H1. case H2. case H3.
@@ -75,9 +75,9 @@ Theorem continuation-monad :
 Define ctxs : olist -> olist -> olist -> prop by
     ctxs nil nil nil;
     nabla x x', ctxs
-        (del/of/value x A :: CtxD)
+        (del/of-value x A :: CtxD)
         (del2mon/value x x' :: CtxD2M)
-        (mon/of/value x' A' :: CtxM)
+        (mon/of-value x' A' :: CtxM)
         := ctxs CtxD CtxD2M CtxM
         /\ {del2mon/valty A A'}.
 
@@ -105,9 +105,9 @@ Theorem ctxd-member :
         ctxs CtxD CtxD2M CtxM ->
         member F CtxD ->
         exists X X' A A',
-            F = del/of/value X A
+            F = del/of-value X A
             /\ member (del2mon/value X X') CtxD2M
-            /\ member (mon/of/value X' A') CtxM
+            /\ member (mon/of-value X' A') CtxM
             /\ {del2mon/valty A A'}.
     % PROOF
     induction on 1. intros. case H1.
@@ -123,7 +123,7 @@ Theorem ctxd-member :
 Define ctx : olist -> prop by
     ctx nil;
     nabla x, ctx
-        (del/of/value x A :: CtxD)
+        (del/of-value x A :: CtxD)
         := ctx CtxD.
 
 Theorem ctx-member :
@@ -131,7 +131,7 @@ Theorem ctx-member :
         ctx CtxD ->
         member F CtxD ->
         exists X A,
-            F = del/of/value X A.
+            F = del/of-value X A.
     % PROOF
     induction on 1. intros. case H1.
         % nil
@@ -201,11 +201,11 @@ Theorem ctxs-is-ctx : forall CtxD CtxD2M CtxM, ctxs CtxD CtxD2M CtxM -> ctx CtxD
 
 Theorem del/of-is :
     (
-        forall CtxD V A, ctx CtxD -> {CtxD |- del/of/value V A} -> {del/is-valty A}
+        forall CtxD V A, ctx CtxD -> {CtxD |- del/of-value V A} -> {del/is-valty A}
     ) /\ (
-        forall CtxD Ms As C, ctx CtxD -> {CtxD |- del/of/cases Ms As C} -> {del/is-valtys As} /\ {del/is-compty C}
+        forall CtxD Ms As C, ctx CtxD -> {CtxD |- del/of-cases Ms As C} -> {del/is-valtys As} /\ {del/is-compty C}
     ) /\ (
-        forall CtxD M C, ctx CtxD -> {CtxD |- del/of/comp M C} -> {del/is-compty C}
+        forall CtxD M C, ctx CtxD -> {CtxD |- del/of-comp M C} -> {del/is-compty C}
     ).
     % PROOF
     induction on 2 2 2. split.
@@ -274,25 +274,25 @@ Theorem ty-preservation :
     (
         forall CtxD CtxD2M CtxM V A V' A',
             ctxs CtxD CtxD2M CtxM ->
-            {CtxD |- del/of/value V A} ->
+            {CtxD |- del/of-value V A} ->
             {CtxD2M |- del2mon/value V V'} ->
             {del2mon/valty A A'} ->
-            {CtxM |- mon/of/value V' A'}
+            {CtxM |- mon/of-value V' A'}
     ) /\ (
         forall CtxD CtxD2M CtxM Ms As C Ms' As' C',
             ctxs CtxD CtxD2M CtxM ->
-            {CtxD |- del/of/cases Ms As C} -> 
+            {CtxD |- del/of-cases Ms As C} -> 
             {CtxD2M |- del2mon/cases Ms Ms'} ->
             {del2mon/valtys As As'} ->
             {del2mon/compty C C'} ->
-            {CtxM |- mon/of/cases Ms' As' C'}
+            {CtxM |- mon/of-cases Ms' As' C'}
     ) /\ (
         forall CtxD CtxD2M CtxM M C M' C',
             ctxs CtxD CtxD2M CtxM ->
-            {CtxD |- del/of/comp M C} -> 
+            {CtxD |- del/of-comp M C} -> 
             {CtxD2M |- del2mon/comp M M'} ->
             {del2mon/compty C C'} ->
-            {CtxM |- mon/of/comp M' C'}
+            {CtxM |- mon/of-comp M' C'}
     ).
     % PROOF
     induction on 2 2 2. split.
@@ -333,9 +333,8 @@ Theorem ty-preservation :
         case H2.
             % closed
             case H3.
-            apply IH1 to _ H5 H7 H10 H4.
-            Hremove: assert L' = L'1. skip. case Hremove.
-            apply IH2 to _ H6 H9 H4 with CtxM = mon/of/value n2 A' :: CtxM.
+            apply IH1 to _ H5 H7 H9 H4.
+            apply IH2 to _ H6 H8 H4 with CtxM = mon/of-value n2 A' :: CtxM.
             search.
             % assumed
             apply ctxd2m-member to Hctx H8. case H7.
