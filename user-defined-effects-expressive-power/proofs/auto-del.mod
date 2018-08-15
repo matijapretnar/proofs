@@ -75,9 +75,11 @@ del/of-comp (del/prj2 M) C2 :-
     del/eff-kind C2 Eff,
     del/of-comp M (del/compprod C1 C2).
 
-del/of-cases del/cases/nil del/valtys/nil C.
+del/of-cases del/cases/nil del/valtys/nil C :-
+    del/is-compty C.
 del/of-cases (del/cases/cons Ms L M) (del/valtys/cons As L A) C :-
     del/of-cases Ms As C,
+    del/is-valty A,
     pi x\ (del/of-value x A => del/of-comp (M x) C).
 
 del/of-evctx del/hole C C.

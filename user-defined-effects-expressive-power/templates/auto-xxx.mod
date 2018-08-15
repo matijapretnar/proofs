@@ -75,9 +75,11 @@ xxx/of-comp (xxx/prj2 M) C2 :-
     xxx/eff-kind C2 Eff,
     xxx/of-comp M (xxx/compprod C1 C2).
 
-xxx/of-cases xxx/cases/nil xxx/valtys/nil C.
+xxx/of-cases xxx/cases/nil xxx/valtys/nil C :-
+    xxx/is-compty C.
 xxx/of-cases (xxx/cases/cons Ms L M) (xxx/valtys/cons As L A) C :-
     xxx/of-cases Ms As C,
+    xxx/is-valty A,
     pi x\ (xxx/of-value x A => xxx/of-comp (M x) C).
 
 xxx/of-evctx xxx/hole C C.

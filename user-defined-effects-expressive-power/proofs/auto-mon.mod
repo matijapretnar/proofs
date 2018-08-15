@@ -75,9 +75,11 @@ mon/of-comp (mon/prj2 M) C2 :-
     mon/eff-kind C2 Eff,
     mon/of-comp M (mon/compprod C1 C2).
 
-mon/of-cases mon/cases/nil mon/valtys/nil C.
+mon/of-cases mon/cases/nil mon/valtys/nil C :-
+    mon/is-compty C.
 mon/of-cases (mon/cases/cons Ms L M) (mon/valtys/cons As L A) C :-
     mon/of-cases Ms As C,
+    mon/is-valty A,
     pi x\ (mon/of-value x A => mon/of-comp (M x) C).
 
 mon/of-evctx mon/hole C C.

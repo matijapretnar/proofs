@@ -75,9 +75,11 @@ mam/of-comp (mam/prj2 M) C2 :-
     mam/eff-kind C2 Eff,
     mam/of-comp M (mam/compprod C1 C2).
 
-mam/of-cases mam/cases/nil mam/valtys/nil C.
+mam/of-cases mam/cases/nil mam/valtys/nil C :-
+    mam/is-compty C.
 mam/of-cases (mam/cases/cons Ms L M) (mam/valtys/cons As L A) C :-
     mam/of-cases Ms As C,
+    mam/is-valty A,
     pi x\ (mam/of-value x A => mam/of-comp (M x) C).
 
 mam/of-evctx mam/hole C C.

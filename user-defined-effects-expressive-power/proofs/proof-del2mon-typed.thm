@@ -111,6 +111,7 @@ Theorem ctxd-member :
             /\ fresh X
             /\ fresh X'
             /\ {del2mon/valty A A'}.
+
     % PROOF
     induction on 1. intros. case H1.
         % nil
@@ -122,11 +123,71 @@ Theorem ctxd-member :
             % there
             apply IH to H3 H5. search.
 
+Theorem translation-is-ty :
+    (
+        forall A A', {del2mon/valty A A'} -> {mon/is-valty A'}
+    ) /\ (
+        forall As As', {del2mon/valtys As As'} -> {mon/is-valtys As'}
+    ) /\ (
+        forall C C', {del2mon/compty C C'} -> {mon/is-compty C'}
+    ) /\ (
+        forall Eff Eff', {del2mon/eff Eff Eff'} -> {mon/is-eff Eff'}
+    ).
+induction on 1 1 1 1. split.
+    intros. case H1.
+        search.
+        apply IH to H2. apply IH to H3. search.
+        apply IH1 to H2. search.
+        apply IH2 to H2. search.
+    intros. case H1.
+        search.
+        apply IH1 to H2. apply IH to H3. search.
+    intros. case H1.
+        apply IH3 to H2. apply IH to H3. search.
+        apply IH to H2. apply IH2 to H3. search.
+        apply IH2 to H2. apply IH2 to H3. search.
+    intros. case H1.
+        search.
+        apply IH2 to H2. apply IH3 to H3. search.
+
+Split translation-is-ty as del2mon-is-valty, del2mon-is-valtys, del2mon-is-compty, del2mon-is-eff.
+
+Theorem translation-source-is-ty :
+    (
+        forall A A', {del2mon/valty A A'} -> {del/is-valty A}
+    ) /\ (
+        forall As As', {del2mon/valtys As As'} -> {del/is-valtys As}
+    ) /\ (
+        forall C C', {del2mon/compty C C'} -> {del/is-compty C}
+    ) /\ (
+        forall Eff Eff', {del2mon/eff Eff Eff'} -> {del/is-eff Eff}
+    ).
+induction on 1 1 1 1. split.
+    intros. case H1.
+        search.
+        apply IH to H2. apply IH to H3. search.
+        apply IH1 to H2. search.
+        apply IH2 to H2. search.
+    intros. case H1.
+        search.
+        apply IH1 to H2. apply IH to H3. search.
+    intros. case H1.
+        apply IH3 to H2. apply IH to H3. search.
+        apply IH to H2. apply IH2 to H3. search.
+        apply IH2 to H2. apply IH2 to H3. search.
+    intros. case H1.
+        search.
+        apply IH2 to H2. apply IH3 to H3. search.
+
+Split translation-source-is-ty as del2mon-source-is-valty, del2mon-source-is-valtys, del2mon-source-is-compty, del2mon-source-is-eff.
+
+
 Define ctx : olist -> prop by
     ctx nil;
     nabla x, ctx
         (del/of-value x A :: CtxD)
-        := ctx CtxD.
+        := ctx CtxD
+        /\ {del/is-valty A}.
 
 Theorem ctx-member :
     forall CtxD F,
@@ -143,7 +204,8 @@ Theorem ctx-member :
             % here
             search.
             % there
-            apply IH to H3 H4. search.
+            apply IH to H3 H5.
+            exists (X n1), A1. search.
 
 Theorem del2mon/compty-unique :
     forall C C1' C2', {del2mon/compty C C1'} -> {del2mon/compty C C2'} -> C1' = C2'.
@@ -199,7 +261,7 @@ Theorem ctxs-is-ctx : forall CtxD CtxD2M CtxM, ctxs CtxD CtxD2M CtxM -> ctx CtxD
         % nil
         search.
         % cons
-        apply IH to H2. search.
+        apply IH to H2. apply del2mon-source-is-valty to H3. search.
 
 Theorem del/of-is :
     (
@@ -224,7 +286,16 @@ Theorem del/of-is :
         % variable
         skip.
     % cases
-    skip.
+    intros Hctx. case H1.
+        % nil
+        apply prune-delctx-is-compty to _ H2. search.
+        % cons
+        apply prune-delctx-is-valty to _ H3.
+        apply IH1 to _ H2.
+        apply IH2 to _ H4.
+        search.
+        % variable
+        apply ctx-member to Hctx H3. case H2.
     % computations
     intros Hctx. case H1.
         % return
@@ -238,11 +309,12 @@ Theorem del/of-is :
         apply IH to _ H2.
         apply valty-translation-exists to _ H4.
         case H5.
+        case H4.
         apply IH2 to _ H3.
         search.
         % cases
         apply IH to _ H2.
-        apply IH1 to _ H3..
+        apply IH1 to _ H3.
         search.
         % force
         apply IH to _ H2. case H3. search.
@@ -298,35 +370,6 @@ induction on 2. intros. case H2.
         case H4. apply prune/apart to _ H10. search.
         apply ctxd-member to H1 H11. case H10.
     apply ctxd-member to H1 H5. case H4.
-
-Theorem translation-is-ty :
-    (
-        forall A A', {del2mon/valty A A'} -> {mon/is-valty A'}
-    ) /\ (
-        forall As As', {del2mon/valtys As As'} -> {mon/is-valtys As'}
-    ) /\ (
-        forall C C', {del2mon/compty C C'} -> {mon/is-compty C'}
-    ) /\ (
-        forall Eff Eff', {del2mon/eff Eff Eff'} -> {mon/is-eff Eff'}
-    ).
-induction on 1 1 1 1. split.
-    intros. case H1.
-        search.
-        apply IH to H2. apply IH to H3. search.
-        apply IH1 to H2. search.
-        apply IH2 to H2. search.
-    intros. case H1.
-        search.
-        apply IH1 to H2. apply IH to H3. search.
-    intros. case H1.
-        apply IH3 to H2. apply IH to H3. search.
-        apply IH to H2. apply IH2 to H3. search.
-        apply IH2 to H2. apply IH2 to H3. search.
-    intros. case H1.
-        search.
-        apply IH2 to H2. apply IH3 to H3. search.
-
-Split translation-is-ty as del2mon-is-valty, del2mon-is-valtys, del2mon-is-compty, del2mon-is-eff.
 
 Theorem member_nominal_absurd : forall L T, nabla x,
   member (del2mon/value x T) L -> false.
@@ -415,18 +458,21 @@ Theorem ty-preservation :
         % nil
         case H2.
             % closed
-            case H3. search.
+            case H3.
+            apply del2mon-is-compty to H4.
+            search.
             % assumed
-            apply ctxd2m-member to Hctx H6. case H5.
+            apply ctxd2m-member to Hctx H7. case H6.
         % cons
         case H2.
             % closed
             case H3.
-            apply IH1 to _ H5 H7 H9 H4.
-            apply IH2 to _ H6 H8 H4 with CtxM = mon/of-value n2 A' :: CtxM.
+            apply IH1 to _ H5 H8 H10 H4.
+            apply IH2 to _ H7 H9 H4 with CtxM = mon/of-value n2 A' :: CtxM.
+            apply del2mon-is-valty to H11.
             search.
             % assumed
-            apply ctxd2m-member to Hctx H8. case H7.
+            apply ctxd2m-member to Hctx H9. case H8.
         % variable
         apply ctxd-member to Hctx H6. case H5.
 
