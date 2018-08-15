@@ -270,6 +270,60 @@ Theorem del/of-is :
 
 Split del/of-is as del/of-is/value, del/of-is/cases, del/of-is/comp.
 
+Theorem prune/apart :
+    forall CtxD CtxD2M CtxM L L',
+    ctxs CtxD CtxD2M CtxM ->
+    {CtxD |- apart L L'} ->
+    {apart L L'}.
+induction on 2. intros. case H2.
+    search.
+    search.
+    apply IH to H1 H3. search.
+    apply ctxd-member to H1 H4. case H3.
+
+Theorem del2mon/valtys/get :
+    forall CtxD CtxD2M CtxM As L A As',
+    ctxs CtxD CtxD2M CtxM ->
+    {CtxD |- del/valtys/get As L A} ->
+    {del2mon/valtys As As'} ->
+    exists A', {CtxM |- mon/valtys/get As' L A'} /\ {del2mon/valty A A'}.
+induction on 2. intros. case H2.
+    case H3.
+        search.
+    case H3. apply IH to H1 H5 H6.
+        case H4. apply prune/apart to _ H10. search.
+        apply ctxd-member to H1 H11. case H10.
+    apply ctxd-member to H1 H5. case H4.
+
+Theorem translation-is-ty :
+    (
+        forall A A', {del2mon/valty A A'} -> {mon/is-valty A'}
+    ) /\ (
+        forall As As', {del2mon/valtys As As'} -> {mon/is-valtys As'}
+    ) /\ (
+        forall C C', {del2mon/compty C C'} -> {mon/is-compty C'}
+    ) /\ (
+        forall Eff Eff', {del2mon/eff Eff Eff'} -> {mon/is-eff Eff'}
+    ).
+induction on 1 1 1 1. split.
+    intros. case H1.
+        search.
+        apply IH to H2. apply IH to H3. search.
+        apply IH1 to H2. search.
+        apply IH2 to H2. search.
+    intros. case H1.
+        search.
+        apply IH1 to H2. apply IH to H3. search.
+    intros. case H1.
+        apply IH3 to H2. apply IH to H3. search.
+        apply IH to H2. apply IH2 to H3. search.
+        apply IH2 to H2. apply IH2 to H3. search.
+    intros. case H1.
+        search.
+        apply IH2 to H2. apply IH3 to H3. search.
+
+Split translation-is-ty as del2mon-is-valty, del2mon-is-valtys, del2mon-is-compty, del2mon-is-eff.
+
 Theorem ty-preservation :
     (
         forall CtxD CtxD2M CtxM V A V' A',
@@ -311,7 +365,13 @@ Theorem ty-preservation :
             % assumed
             apply ctxd2m-member to Hctx H7. case H8. case H6.
         % inj
-        skip. % labels & sums
+        case H2.
+            % closed
+            case H3. apply del2mon/valtys/get to Hctx H5 H7.
+            apply IH to _ H4 H6 H9.
+            search.
+            % assumed
+            apply ctxd2m-member to Hctx H7. case H8. case H6.
         % thunk
         case H2.
             % closed
@@ -347,7 +407,7 @@ Theorem ty-preservation :
         case H2.
             % closed
             case H3. apply IH to _ H5 H6 H8.
-            Hremove: assert {mon/is-eff Eff'}. skip.
+            apply del2mon-is-eff to H7.
             search.
             % assumed
             apply ctxd2m-member to Hctx H7. case H6.
@@ -355,18 +415,34 @@ Theorem ty-preservation :
         case H2.
             % closed
             case H3. apply IH2 to _ H5 H6 _.
-            Hremove: assert {mon/is-valty A'}. skip.
+            apply del2mon-is-valty to H7.
             search.
             % assumed
             apply ctxd2m-member to Hctx H7. case H6.
         % split
         case H2.
             % closed
-            skip.
+            apply ctxs-is-ctx to Hctx.
+            apply del/of-is/value to _ H4.
+            apply valty-translation-exists to _ H9.
+            case H10.
+            apply IH to _ H4 H6 _.
+            apply IH2 to _ H5 H7 H3.
+            search.
             % assumed
             apply ctxd2m-member to Hctx H7. case H6.
         % sum
-        skip. % sums
+        case H2.
+            % closed
+            apply ctxs-is-ctx to Hctx.
+            apply del/of-is/value to _ H4.
+            apply valty-translation-exists to _ H9.
+            case H10.
+            apply IH to _ H4 H6 _.
+            apply IH1 to _ H5 H7 H12 H3.
+            search.
+            % assumed
+            apply ctxd2m-member to Hctx H7. case H6.
         % force
         case H2.
             % closed
@@ -376,7 +452,15 @@ Theorem ty-preservation :
         % bind
         case H2.
             % closed
-            skip.
+            apply ctxs-is-ctx to Hctx.
+            apply del/of-is/comp to _ H5.
+            apply compty-translation-exists to _ H10.
+            case H11.
+            apply IH2 to _ H5 H7 _.
+            apply IH2 to _ H6 H8 _.
+            apply prune-delctx-eff-kind to _ H4.
+            apply del2mon/eff-kind to H17 H3 H13.
+            search.
             % assumed
             apply ctxd2m-member to Hctx H8. case H7.
         % app
@@ -442,12 +526,13 @@ Theorem ty-preservation :
 
             % the argument has the correct type
             apply IH2 to _ H5 H8 _.
-            assert {mon/is-valty A'}. skip.
+            apply del2mon-is-valty to H13.
 
             % the function has the correct type
             apply del2mon/compty-unique to H3 H14.
             apply IH2 to _ H6 H7 H10.
-            apply continuation-monad to _ _ _ _ with C = C', Eff = Eff'1. skip.
+            apply del2mon-is-compty to H14.
+            apply continuation-monad to _ _ _ _ with C = C', Eff = Eff'1.
             search.
 
             % assumed
@@ -457,8 +542,8 @@ Theorem ty-preservation :
             % closed
             case H3. case H8.
             apply IH2 to _ H6 H7 H10.
-            assert {mon/is-compty C'1}. skip.
-            assert {mon/is-valty A'}. skip.
+            apply del2mon-is-compty to H10.
+            apply del2mon-is-valty to H9.
             search.
             % assumed
             apply ctxd2m-member to Hctx H8. case H7.
