@@ -108,6 +108,8 @@ Theorem ctxd-member :
             F = del/of-value X A
             /\ member (del2mon/value X X') CtxD2M
             /\ member (mon/of-value X' A') CtxM
+            /\ fresh X
+            /\ fresh X'
             /\ {del2mon/valty A A'}.
     % PROOF
     induction on 1. intros. case H1.
@@ -239,7 +241,9 @@ Theorem del/of-is :
         apply IH2 to _ H3.
         search.
         % cases
-        skip.
+        apply IH to _ H2.
+        apply IH1 to _ H3..
+        search.
         % force
         apply IH to _ H2. case H3. search.
         % bind
@@ -324,6 +328,24 @@ induction on 1 1 1 1. split.
 
 Split translation-is-ty as del2mon-is-valty, del2mon-is-valtys, del2mon-is-compty, del2mon-is-eff.
 
+Theorem member_nominal_absurd : forall L T, nabla x,
+  member (del2mon/value x T) L -> false.
+induction on 1. intros. case H1. apply IH to H2.
+
+Theorem ctx-d2m-unique : forall CtxD CtxD2M CtxM V V1 V2,
+    ctxs CtxD CtxD2M CtxM ->
+    member (del2mon/value V V1) CtxD2M ->
+    member (del2mon/value V V2) CtxD2M ->
+    V1 = V2.
+induction on 2. intros. case H2.
+    case H3.
+        search.
+        case H1. apply member_nominal_absurd to H4.
+    case H3.
+        case H1. apply member_nominal_absurd to H4.
+        case H1. apply IH to H6 H4 H5. search.
+
+
 Theorem ty-preservation :
     (
         forall CtxD CtxD2M CtxM V A V' A',
@@ -379,7 +401,14 @@ Theorem ty-preservation :
             % assumed
             apply ctxd2m-member to Hctx H6. case H5. case H7.
         % variable
-        skip. % fresh variable in the context has the appropriate type
+        apply ctxd-member to Hctx H5.
+        case H4.
+        case H8.
+        case H2.
+        apply ctxd2m-member to Hctx H12. case H11.
+        assert A' = A'1. skip. case H15.
+        apply ctx-d2m-unique to Hctx H6 H12.
+        search.
 
     % cases
     intros Hctx. case H1.
