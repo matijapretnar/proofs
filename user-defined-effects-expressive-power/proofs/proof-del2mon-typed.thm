@@ -191,6 +191,19 @@ Theorem ctx_member :
             % there
             apply IH to H1 H3. search.
 
+Theorem strengthen_apart :
+    forall Gs Gdel2mon Gt N N', ctx Gs Gdel2mon Gt -> {Gs |- apart N N'} -> {apart N N'}.
+% Proof
+    induction on 2. intros. case H2.
+        % z s
+        search.
+        % s z
+        search.
+        % s s
+        apply IH to _ H3. search.
+        % context
+        apply ctx_member to H1 H4. case H3.
+
 Theorem strengthen_wf : (
     forall Gs Gdel2mon Gt Eff, ctx Gs Gdel2mon Gt -> {Gs |- del/wf-eff Eff} -> {del/wf-eff Eff}
 ) /\ (
@@ -251,6 +264,10 @@ Split strengthen_wf as
     strengthen_valtys_wf,
     strengthen_compty_wf.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Small lemmas
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 Theorem typing_is_wf : (
     forall Gs Gdel2mon Gt V A, ctx Gs Gdel2mon Gt -> {Gs |- del/of-value V A} -> {del/wf-valty A}
 ) /\ (
@@ -288,6 +305,20 @@ Split typing_is_wf as
     cases_typing_is_wf,
     comp_typing_is_wf.
 
+Theorem translate_valtys/get :
+    forall Gs Gdel2mon Gt As L A As', ctx Gs Gdel2mon Gt ->
+    {Gs |- del/valtys/get As L A} -> {del2mon/valtys As As'} ->
+    exists A', {Gt |- mon/valtys/get As' L A'} /\ {del2mon/valty A A'}.
+induction on 2. intros. case H2.
+    % here
+    case H3.
+        % cons
+        search.
+    case H3. apply IH to H1 H5 H6.
+        case H4. apply strengthen_apart to _ H10. search.
+        apply ctx_member to H1 H11. case H10.
+    apply ctx_member to H1 H5. case H4.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The hard work
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -311,31 +342,129 @@ Theorem preservation_lemma : (
     forall Gs Gdel2mon Gt M C C', ctx Gs Gdel2mon Gt -> {Gs |- del/of-comp' M C} -> {del2mon/compty C C'} ->
     exists M', {Gdel2mon |- del2mon/comp M M'} /\ {Gt |- mon/of-comp' M' C'}
 ).
-skip.
 % Proof
-%    induction on 2 2. split.
-%
-%    % del/of
-%    intros. case H2.
-%        % constructor
-%        apply IH1 to H1 H4 H3.
-%        apply translation_tys_are_wf to H3.
-%        search.
-%        % context
-%        apply ctx_member to H1 H5. case H4.
-%        apply ty_translation_is_unique to H3 H9. search.
-%
-%    % del/of'
-%    intros. case H2.
-%        % unit
-%        case H3. search.
-%        % lambda
-%        case H3. apply IH to _ H4 H6 with Gdel2mon = (del2mon/tm n1 n2 :: Gdel2mon). search.
-%        % application
-%        apply typing_is_wf to _ H4. apply wf_ty_has_translation to H6. case H7. apply ty_translation_is_unique to H3 H9.
-%        apply IH to _ H4 _. apply IH to _ H5 _. search.
-%        % context
-%        apply ctx_member to H1 H5. case H4.
+    induction on 2 2 2 2 2 2. split.
+ 
+    % del/value-of
+    intros. case H2.
+        % constructor
+        apply IH1 to H1 H4 H3.
+        apply translation_valtys_are_wf to H3.
+        search.
+        % context
+        apply ctx_member to H1 H5. case H4.
+        apply valty_translation_is_unique to H3 H9. search.
+ 
+    % del/value-of'
+    intros. case H2.
+        % unit
+        case H3. search.
+        % prod
+        case H3. apply IH to _ H4 H6. apply IH to _ H5 H7. search.
+        % inj
+        case H3.
+        apply translate_valtys/get to H1 H5 H6.
+        apply IH to _ H4 _. search.
+        % thunk
+        case H3. apply IH4 to _ H4 H5. search.
+        % context
+        apply ctx_member to H1 H5. case H4.
+
+    % del/cases-of
+    intros. case H2.
+        % constructor
+        apply IH3 to H1 H5 H3 H4.
+        apply translation_valtyss_are_wf to H3.
+        apply translation_comptys_are_wf to H4.
+        search.
+        % context
+        apply ctx_member to H1 H6. case H5.
+
+    % del/cases-of'
+    intros. case H2.
+        % nil
+        case H3. search.
+        % cons
+        case H3. apply IH2 to _ H5 H7 H4. apply IH4 to _ H6 H4 with Gdel2mon = (del2mon/value n1 n2 :: Gdel2mon). search.
+        % context
+        apply ctx_member to H1 H6. case H5.
+
+    % del/comp-of
+    intros. case H2.
+        % constructor
+        apply IH5 to H1 H4 H3.
+        apply translation_comptys_are_wf to H3.
+        search.
+        % context
+        apply ctx_member to H1 H5. case H4.
+ 
+    % del/comp-of'
+    intros.
+    case H2.
+        % ret
+        case H3. apply IH to _ H4 H6. search.
+        % lambda
+        case H3. apply IH4 to _ H4 H6 with Gdel2mon = (del2mon/value n1 n2 :: Gdel2mon). search.
+        % split
+        apply value_typing_is_wf to _ H4.
+        apply wf_valty_has_translation to H6.
+        case H7.
+        apply IH to _ H4 _.
+        apply IH4 to _ H5 H3 with Gdel2mon = (del2mon/value n2 n4 :: del2mon/value n1 n3 :: Gdel2mon).
+        search.
+        % case
+        apply value_typing_is_wf to _ H4.
+        apply wf_valty_has_translation to H6.
+        case H7.
+        apply IH to _ H4 _.
+        apply IH2 to _ H5 H8 H3.
+        search.
+        % u
+        apply IH to _ H4 _. search.
+        % bind
+        apply comp_typing_is_wf to _ H5. apply wf_compty_has_translation to H7. case H8.
+        apply IH4 to _ H5 _.
+        apply IH4 to _ H6 H3 with Gdel2mon = (del2mon/value n1 n2 :: Gdel2mon).
+        assert {mon/eff-kind C' Eff'}. skip.
+        search.
+        % app
+        apply comp_typing_is_wf to _ H4. apply wf_compty_has_translation to H6. case H7.
+        apply compty_translation_is_unique to H3 H9.
+        apply IH4 to _ H4 _. apply IH to _ H5 _. search.
+        % comppair
+        case H3. apply IH4 to _ H4 _. apply IH4 to _ H5 _. search.
+        % prj1
+        apply comp_typing_is_wf to _ H6. apply wf_compty_has_translation to H7. case H8.
+        assert exists Eff', {del2mon/eff Eff Eff'}. skip.
+        case H11.
+        assert {mon/eff-kind C' Eff'}. skip.
+        assert {mon/eff-kind C2' Eff'}. skip.
+        apply IH4 to _ H6 _. search.
+        % prj2
+        apply comp_typing_is_wf to _ H6. apply wf_compty_has_translation to H7. case H8.
+        assert exists Eff', {del2mon/eff Eff Eff'}. skip.
+        case H11.
+        assert {mon/eff-kind C1' Eff'}. skip.
+        assert {mon/eff-kind C' Eff'}. skip.
+        apply IH4 to _ H6 _. search.
+        % reset
+        apply comp_typing_is_wf to _ H6. apply wf_compty_has_translation to H7. case H8.
+        assert exists Eff', {del2mon/eff Eff Eff'}. skip.
+        case H9.
+        apply IH4 to _ H6 _.
+        apply IH4 to _ H5 _ with Gdel2mon = (del2mon/value n1 n2 :: Gdel2mon).
+        skip.
+        % shift
+        case H3.
+        case H6.
+        apply IH4 to _ H5 _ with Gdel2mon = (del2mon/value n1 n2 :: Gdel2mon).
+        exists (mon/reflect (mon/fun M')).
+        apply translation_valtys_are_wf to H7.
+        apply translation_comptys_are_wf to H8.
+        search.
+        % context
+        apply ctx_member to H1 H5. case H4.
+
 
 Split preservation_lemma as
     value_preservation_lemma,
