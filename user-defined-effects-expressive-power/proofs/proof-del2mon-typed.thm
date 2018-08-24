@@ -461,16 +461,17 @@ Theorem preservation_lemma : (
         apply IH4 to _ H6 _. search.
         % reset
         apply comp_typing_is_wf to _ H6. apply wf_compty_has_translation to H7. case H8.
-        assert exists Eff', {del2mon/eff Eff Eff'}. skip.
         case H9.
         apply IH4 to _ H6 _.
         apply IH4 to _ H5 _ with Gdel2mon = (del2mon/value n1 n2 :: Gdel2mon).
-        skip.
+        exists (mon/app (mon/reify M' (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ mon/app (mon/force m) (mon/thunk (mon/fun y\ mon/app (mon/app (mon/force f) y) c))))) (mon/thunk (mon/fun M'1))).
+        split.
+            search.
+            skip.
         % shift
         case H3.
         case H6.
         apply IH4 to _ H5 _ with Gdel2mon = (del2mon/value n1 n2 :: Gdel2mon).
-        exists (mon/reflect (mon/fun M')).
         apply translation_valtys_are_wf to H7.
         apply translation_comptys_are_wf to H8.
         search.
