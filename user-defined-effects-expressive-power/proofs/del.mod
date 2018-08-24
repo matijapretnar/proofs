@@ -19,11 +19,11 @@ del/progresses ES C :-
     del/hoisting E,
     del/plug E (del/shift _) ES.
 
-del/of-comp (del/reset M N) C :-
+del/of-comp' (del/reset M N) C :-
     del/eff-kind C Eff,
     pi x\ (del/of-value x A => del/of-comp (N x) C),
     del/of-comp M (del/f (del/cons Eff C) A).
-del/of-comp (del/shift M) (del/f (del/cons Eff C) A) :-
+del/of-comp' (del/shift M) (del/f (del/cons Eff C) A) :-
     del/eff-kind C Eff,
     pi k\ (del/of-value k (del/u (del/arrow A C)) => del/of-comp (M k) C).
 

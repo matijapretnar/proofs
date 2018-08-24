@@ -18,10 +18,10 @@ mon/of-monad (mon/mon Nu Nb) (mon/cons Eff C Nu Nb) :-
     pi a\ pi x\ (mon/of-value x a => mon/of-comp (Nu x) (C a)),
     pi a\ pi b\ pi x\ pi k\ (mon/of-value x (mon/u (C a)) => mon/of-value k (mon/u (mon/arrow a (C b))) => mon/of-comp (Nb x k) (C b)).
 
-mon/of-comp (mon/reify N T) (C A) :-
+mon/of-comp' (mon/reify N T) (C A) :-
     mon/of-monad T (mon/cons Eff C Nu Nb),
     mon/of-comp N (mon/f (mon/cons Eff C Nu Nb) A).
-mon/of-comp (mon/reflect N) (mon/f (mon/cons Eff C Nu Nb) A) :-
+mon/of-comp' (mon/reflect N) (mon/f (mon/cons Eff C Nu Nb) A) :-
     mon/of-comp N (C A).
 
 mon/of-evctx (mon/evctx/reify E T) D (C A) :-
