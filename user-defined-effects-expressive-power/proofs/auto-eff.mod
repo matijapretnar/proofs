@@ -1,38 +1,37 @@
 module auto-eff.
 accumulate common.
 
-eff/eff-kind (eff/f Eff A) Eff :-
-    eff/is-eff Eff.
+eff/eff-kind (eff/f Eff A) Eff.
 eff/eff-kind (eff/arrow _ C) Eff :- eff/eff-kind C Eff.
 eff/eff-kind (eff/compprod C1 C2) Eff :-
     eff/eff-kind C1 Eff,
     eff/eff-kind C2 Eff.
 
-eff/is-eff eff/empty.
+eff/wf-eff eff/empty.
 
-eff/is-valty eff/unitty.
-eff/is-valty (eff/prod A1 A2) :-
-    eff/is-valty A1,
-    eff/is-valty A2.
-eff/is-valty (eff/sum As) :-
-    eff/is-valtys As.
-eff/is-valty (eff/u C) :-
-    eff/is-compty C.
+eff/wf-valty eff/unitty.
+eff/wf-valty (eff/prod A1 A2) :-
+    eff/wf-valty A1,
+    eff/wf-valty A2.
+eff/wf-valty (eff/sum As) :-
+    eff/wf-valtys As.
+eff/wf-valty (eff/u C) :-
+    eff/wf-compty C.
 
-eff/is-valtys eff/valtys/nil.
-eff/is-valtys (eff/valtys/cons As L A) :-
-    eff/is-valtys As,
-    eff/is-valty A.
+eff/wf-valtys eff/valtys/nil.
+eff/wf-valtys (eff/valtys/cons As L A) :-
+    eff/wf-valtys As,
+    eff/wf-valty A.
 
-eff/is-compty (eff/f Eff A) :-
-    eff/is-eff Eff,
-    eff/is-valty A.
-eff/is-compty (eff/arrow A C) :-
-    eff/is-valty A,
-    eff/is-compty C.
-eff/is-compty (eff/compprod C1 C2) :-
-    eff/is-compty C1,
-    eff/is-compty C2.
+eff/wf-compty (eff/f Eff A) :-
+    eff/wf-eff Eff,
+    eff/wf-valty A.
+eff/wf-compty (eff/arrow A C) :-
+    eff/wf-valty A,
+    eff/wf-compty C.
+eff/wf-compty (eff/compprod C1 C2) :-
+    eff/wf-compty C1,
+    eff/wf-compty C2.
 
 eff/of-value eff/unit eff/unitty.
 eff/of-value (eff/pair V1 V2) (eff/prod A1 A2) :-
@@ -44,10 +43,8 @@ eff/of-value (eff/inj L V) (eff/sum As) :-
 eff/of-value (eff/thunk M) (eff/u C) :- eff/of-comp M C.
 
 eff/of-comp (eff/ret V) (eff/f Eff A) :-
-    eff/is-eff Eff,
     eff/of-value V A.
 eff/of-comp (eff/fun M) (eff/arrow A C) :-
-    eff/is-valty A,
     pi x\ (eff/of-value x A => eff/of-comp (M x) C).
 eff/of-comp (eff/split V M) C :-
     eff/of-value V (eff/prod A1 A2),
@@ -75,11 +72,9 @@ eff/of-comp (eff/prj2 M) C2 :-
     eff/eff-kind C2 Eff,
     eff/of-comp M (eff/compprod C1 C2).
 
-eff/of-cases eff/cases/nil eff/valtys/nil C :-
-    eff/is-compty C.
+eff/of-cases eff/cases/nil eff/valtys/nil C.
 eff/of-cases (eff/cases/cons Ms L M) (eff/valtys/cons As L A) C :-
     eff/of-cases Ms As C,
-    eff/is-valty A,
     pi x\ (eff/of-value x A => eff/of-comp (M x) C).
 
 eff/of-evctx eff/hole C C.

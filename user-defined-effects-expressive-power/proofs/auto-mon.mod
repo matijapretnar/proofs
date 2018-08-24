@@ -1,38 +1,37 @@
 module auto-mon.
 accumulate common.
 
-mon/eff-kind (mon/f Eff A) Eff :-
-    mon/is-eff Eff.
+mon/eff-kind (mon/f Eff A) Eff.
 mon/eff-kind (mon/arrow _ C) Eff :- mon/eff-kind C Eff.
 mon/eff-kind (mon/compprod C1 C2) Eff :-
     mon/eff-kind C1 Eff,
     mon/eff-kind C2 Eff.
 
-mon/is-eff mon/empty.
+mon/wf-eff mon/empty.
 
-mon/is-valty mon/unitty.
-mon/is-valty (mon/prod A1 A2) :-
-    mon/is-valty A1,
-    mon/is-valty A2.
-mon/is-valty (mon/sum As) :-
-    mon/is-valtys As.
-mon/is-valty (mon/u C) :-
-    mon/is-compty C.
+mon/wf-valty mon/unitty.
+mon/wf-valty (mon/prod A1 A2) :-
+    mon/wf-valty A1,
+    mon/wf-valty A2.
+mon/wf-valty (mon/sum As) :-
+    mon/wf-valtys As.
+mon/wf-valty (mon/u C) :-
+    mon/wf-compty C.
 
-mon/is-valtys mon/valtys/nil.
-mon/is-valtys (mon/valtys/cons As L A) :-
-    mon/is-valtys As,
-    mon/is-valty A.
+mon/wf-valtys mon/valtys/nil.
+mon/wf-valtys (mon/valtys/cons As L A) :-
+    mon/wf-valtys As,
+    mon/wf-valty A.
 
-mon/is-compty (mon/f Eff A) :-
-    mon/is-eff Eff,
-    mon/is-valty A.
-mon/is-compty (mon/arrow A C) :-
-    mon/is-valty A,
-    mon/is-compty C.
-mon/is-compty (mon/compprod C1 C2) :-
-    mon/is-compty C1,
-    mon/is-compty C2.
+mon/wf-compty (mon/f Eff A) :-
+    mon/wf-eff Eff,
+    mon/wf-valty A.
+mon/wf-compty (mon/arrow A C) :-
+    mon/wf-valty A,
+    mon/wf-compty C.
+mon/wf-compty (mon/compprod C1 C2) :-
+    mon/wf-compty C1,
+    mon/wf-compty C2.
 
 mon/of-value mon/unit mon/unitty.
 mon/of-value (mon/pair V1 V2) (mon/prod A1 A2) :-
@@ -44,10 +43,8 @@ mon/of-value (mon/inj L V) (mon/sum As) :-
 mon/of-value (mon/thunk M) (mon/u C) :- mon/of-comp M C.
 
 mon/of-comp (mon/ret V) (mon/f Eff A) :-
-    mon/is-eff Eff,
     mon/of-value V A.
 mon/of-comp (mon/fun M) (mon/arrow A C) :-
-    mon/is-valty A,
     pi x\ (mon/of-value x A => mon/of-comp (M x) C).
 mon/of-comp (mon/split V M) C :-
     mon/of-value V (mon/prod A1 A2),
@@ -75,11 +72,9 @@ mon/of-comp (mon/prj2 M) C2 :-
     mon/eff-kind C2 Eff,
     mon/of-comp M (mon/compprod C1 C2).
 
-mon/of-cases mon/cases/nil mon/valtys/nil C :-
-    mon/is-compty C.
+mon/of-cases mon/cases/nil mon/valtys/nil C.
 mon/of-cases (mon/cases/cons Ms L M) (mon/valtys/cons As L A) C :-
     mon/of-cases Ms As C,
-    mon/is-valty A,
     pi x\ (mon/of-value x A => mon/of-comp (M x) C).
 
 mon/of-evctx mon/hole C C.

@@ -1,38 +1,37 @@
 module auto-del.
 accumulate common.
 
-del/eff-kind (del/f Eff A) Eff :-
-    del/is-eff Eff.
+del/eff-kind (del/f Eff A) Eff.
 del/eff-kind (del/arrow _ C) Eff :- del/eff-kind C Eff.
 del/eff-kind (del/compprod C1 C2) Eff :-
     del/eff-kind C1 Eff,
     del/eff-kind C2 Eff.
 
-del/is-eff del/empty.
+del/wf-eff del/empty.
 
-del/is-valty del/unitty.
-del/is-valty (del/prod A1 A2) :-
-    del/is-valty A1,
-    del/is-valty A2.
-del/is-valty (del/sum As) :-
-    del/is-valtys As.
-del/is-valty (del/u C) :-
-    del/is-compty C.
+del/wf-valty del/unitty.
+del/wf-valty (del/prod A1 A2) :-
+    del/wf-valty A1,
+    del/wf-valty A2.
+del/wf-valty (del/sum As) :-
+    del/wf-valtys As.
+del/wf-valty (del/u C) :-
+    del/wf-compty C.
 
-del/is-valtys del/valtys/nil.
-del/is-valtys (del/valtys/cons As L A) :-
-    del/is-valtys As,
-    del/is-valty A.
+del/wf-valtys del/valtys/nil.
+del/wf-valtys (del/valtys/cons As L A) :-
+    del/wf-valtys As,
+    del/wf-valty A.
 
-del/is-compty (del/f Eff A) :-
-    del/is-eff Eff,
-    del/is-valty A.
-del/is-compty (del/arrow A C) :-
-    del/is-valty A,
-    del/is-compty C.
-del/is-compty (del/compprod C1 C2) :-
-    del/is-compty C1,
-    del/is-compty C2.
+del/wf-compty (del/f Eff A) :-
+    del/wf-eff Eff,
+    del/wf-valty A.
+del/wf-compty (del/arrow A C) :-
+    del/wf-valty A,
+    del/wf-compty C.
+del/wf-compty (del/compprod C1 C2) :-
+    del/wf-compty C1,
+    del/wf-compty C2.
 
 del/of-value del/unit del/unitty.
 del/of-value (del/pair V1 V2) (del/prod A1 A2) :-
@@ -44,10 +43,8 @@ del/of-value (del/inj L V) (del/sum As) :-
 del/of-value (del/thunk M) (del/u C) :- del/of-comp M C.
 
 del/of-comp (del/ret V) (del/f Eff A) :-
-    del/is-eff Eff,
     del/of-value V A.
 del/of-comp (del/fun M) (del/arrow A C) :-
-    del/is-valty A,
     pi x\ (del/of-value x A => del/of-comp (M x) C).
 del/of-comp (del/split V M) C :-
     del/of-value V (del/prod A1 A2),
@@ -75,11 +72,9 @@ del/of-comp (del/prj2 M) C2 :-
     del/eff-kind C2 Eff,
     del/of-comp M (del/compprod C1 C2).
 
-del/of-cases del/cases/nil del/valtys/nil C :-
-    del/is-compty C.
+del/of-cases del/cases/nil del/valtys/nil C.
 del/of-cases (del/cases/cons Ms L M) (del/valtys/cons As L A) C :-
     del/of-cases Ms As C,
-    del/is-valty A,
     pi x\ (del/of-value x A => del/of-comp (M x) C).
 
 del/of-evctx del/hole C C.

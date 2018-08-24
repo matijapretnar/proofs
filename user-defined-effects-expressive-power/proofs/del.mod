@@ -1,9 +1,9 @@
 module del.
 accumulate auto-del.
 
-del/is-eff (del/cons Eff C) :-
-    del/is-eff Eff,
-    del/is-compty C.
+del/wf-eff (del/cons Eff C) :-
+    del/wf-eff Eff,
+    del/wf-compty C.
 
 del/plug (del/evctx/reset E N) M (del/reset EM N) :-
     del/plug E M EM.
@@ -24,7 +24,6 @@ del/of-comp (del/reset M N) C :-
     pi x\ (del/of-value x A => del/of-comp (N x) C),
     del/of-comp M (del/f (del/cons Eff C) A).
 del/of-comp (del/shift M) (del/f (del/cons Eff C) A) :-
-    del/is-valty A,
     del/eff-kind C Eff,
     pi k\ (del/of-value k (del/u (del/arrow A C)) => del/of-comp (M k) C).
 

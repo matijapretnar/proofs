@@ -22,10 +22,10 @@ type    del/valtys/cons       del/valtys -> label -> del/valty -> del/valtys.
 
 type    del/eff-kind          del/compty -> del/eff -> o.
 type    del/valtys/get        del/valtys -> label -> del/valty -> o.
-type    del/is-eff            del/eff -> o.
-type    del/is-valty          del/valty -> o.
-type    del/is-compty         del/compty -> o.
-type    del/is-valtys         del/valtys -> o.
+type    del/wf-eff            del/eff -> o.
+type    del/wf-valty          del/valty -> o.
+type    del/wf-compty         del/compty -> o.
+type    del/wf-valtys         del/valtys -> o.
 
 
 kind    del/value             type.

@@ -22,10 +22,10 @@ type    xxx/valtys/cons       xxx/valtys -> label -> xxx/valty -> xxx/valtys.
 
 type    xxx/eff-kind          xxx/compty -> xxx/eff -> o.
 type    xxx/valtys/get        xxx/valtys -> label -> xxx/valty -> o.
-type    xxx/is-eff            xxx/eff -> o.
-type    xxx/is-valty          xxx/valty -> o.
-type    xxx/is-compty         xxx/compty -> o.
-type    xxx/is-valtys         xxx/valtys -> o.
+type    xxx/wf-eff            xxx/eff -> o.
+type    xxx/wf-valty          xxx/valty -> o.
+type    xxx/wf-compty         xxx/compty -> o.
+type    xxx/wf-valtys         xxx/valtys -> o.
 
 
 kind    xxx/value             type.

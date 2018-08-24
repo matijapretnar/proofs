@@ -22,10 +22,10 @@ type    mon/valtys/cons       mon/valtys -> label -> mon/valty -> mon/valtys.
 
 type    mon/eff-kind          mon/compty -> mon/eff -> o.
 type    mon/valtys/get        mon/valtys -> label -> mon/valty -> o.
-type    mon/is-eff            mon/eff -> o.
-type    mon/is-valty          mon/valty -> o.
-type    mon/is-compty         mon/compty -> o.
-type    mon/is-valtys         mon/valtys -> o.
+type    mon/wf-eff            mon/eff -> o.
+type    mon/wf-valty          mon/valty -> o.
+type    mon/wf-compty         mon/compty -> o.
+type    mon/wf-valtys         mon/valtys -> o.
 
 
 kind    mon/value             type.

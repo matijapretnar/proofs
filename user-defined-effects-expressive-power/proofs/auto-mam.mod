@@ -1,38 +1,37 @@
 module auto-mam.
 accumulate common.
 
-mam/eff-kind (mam/f Eff A) Eff :-
-    mam/is-eff Eff.
+mam/eff-kind (mam/f Eff A) Eff.
 mam/eff-kind (mam/arrow _ C) Eff :- mam/eff-kind C Eff.
 mam/eff-kind (mam/compprod C1 C2) Eff :-
     mam/eff-kind C1 Eff,
     mam/eff-kind C2 Eff.
 
-mam/is-eff mam/empty.
+mam/wf-eff mam/empty.
 
-mam/is-valty mam/unitty.
-mam/is-valty (mam/prod A1 A2) :-
-    mam/is-valty A1,
-    mam/is-valty A2.
-mam/is-valty (mam/sum As) :-
-    mam/is-valtys As.
-mam/is-valty (mam/u C) :-
-    mam/is-compty C.
+mam/wf-valty mam/unitty.
+mam/wf-valty (mam/prod A1 A2) :-
+    mam/wf-valty A1,
+    mam/wf-valty A2.
+mam/wf-valty (mam/sum As) :-
+    mam/wf-valtys As.
+mam/wf-valty (mam/u C) :-
+    mam/wf-compty C.
 
-mam/is-valtys mam/valtys/nil.
-mam/is-valtys (mam/valtys/cons As L A) :-
-    mam/is-valtys As,
-    mam/is-valty A.
+mam/wf-valtys mam/valtys/nil.
+mam/wf-valtys (mam/valtys/cons As L A) :-
+    mam/wf-valtys As,
+    mam/wf-valty A.
 
-mam/is-compty (mam/f Eff A) :-
-    mam/is-eff Eff,
-    mam/is-valty A.
-mam/is-compty (mam/arrow A C) :-
-    mam/is-valty A,
-    mam/is-compty C.
-mam/is-compty (mam/compprod C1 C2) :-
-    mam/is-compty C1,
-    mam/is-compty C2.
+mam/wf-compty (mam/f Eff A) :-
+    mam/wf-eff Eff,
+    mam/wf-valty A.
+mam/wf-compty (mam/arrow A C) :-
+    mam/wf-valty A,
+    mam/wf-compty C.
+mam/wf-compty (mam/compprod C1 C2) :-
+    mam/wf-compty C1,
+    mam/wf-compty C2.
 
 mam/of-value mam/unit mam/unitty.
 mam/of-value (mam/pair V1 V2) (mam/prod A1 A2) :-
@@ -44,10 +43,8 @@ mam/of-value (mam/inj L V) (mam/sum As) :-
 mam/of-value (mam/thunk M) (mam/u C) :- mam/of-comp M C.
 
 mam/of-comp (mam/ret V) (mam/f Eff A) :-
-    mam/is-eff Eff,
     mam/of-value V A.
 mam/of-comp (mam/fun M) (mam/arrow A C) :-
-    mam/is-valty A,
     pi x\ (mam/of-value x A => mam/of-comp (M x) C).
 mam/of-comp (mam/split V M) C :-
     mam/of-value V (mam/prod A1 A2),
@@ -75,11 +72,9 @@ mam/of-comp (mam/prj2 M) C2 :-
     mam/eff-kind C2 Eff,
     mam/of-comp M (mam/compprod C1 C2).
 
-mam/of-cases mam/cases/nil mam/valtys/nil C :-
-    mam/is-compty C.
+mam/of-cases mam/cases/nil mam/valtys/nil C.
 mam/of-cases (mam/cases/cons Ms L M) (mam/valtys/cons As L A) C :-
     mam/of-cases Ms As C,
-    mam/is-valty A,
     pi x\ (mam/of-value x A => mam/of-comp (M x) C).
 
 mam/of-evctx mam/hole C C.
