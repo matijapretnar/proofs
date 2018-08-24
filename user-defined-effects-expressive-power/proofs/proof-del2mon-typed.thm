@@ -341,6 +341,40 @@ induction on 2. intros. case H2.
         apply ctx_member to H1 H11. case H10.
     apply ctx_member to H1 H5. case H4.
 
+Theorem continuation_monad :
+    forall Eff C ContC Nu Nb,
+    {mon/wf-compty C} ->
+    ContC = (a\mon/arrow (mon/u (mon/arrow a C)) C) ->
+    Nu = (x\mon/fun (c\mon/app (mon/force c) x)) ->
+    Nb = (m\f\mon/fun
+            (c\mon/app (mon/force m)
+                 (mon/thunk
+                    (mon/fun
+                       (y\mon/app (mon/app (mon/force f) y) c))))) ->
+    {
+        mon/of-monad
+        (mon/mon Nu Nb)
+        (mon/cons Eff ContC Nu Nb)
+    }.
+% Proof
+    intros.
+    case H2. case H3. case H4.
+    assert {
+        mon/wf-valty n1,
+        mon/wf-valty n2,
+        mon/of-value n3 (mon/u (mon/arrow (mon/u (mon/arrow n1 C)) C)),
+        mon/of-value n4
+            (mon/u (mon/arrow n1 (mon/arrow (mon/u (mon/arrow n2 C)) C))),
+        mon/of-value n5 (mon/u (mon/arrow n2 C)),
+        mon/of-value n6 n1
+        |-
+        mon/of-comp
+         (mon/app (mon/app (mon/force n4) n6) n5)
+         C
+    }. search 10.
+    search 10.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The hard work
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -475,9 +509,12 @@ Theorem preservation_lemma : (
         apply IH4 to _ H6 _.
         apply IH4 to _ H5 _ with Gdel2mon = (del2mon/value n1 n2 :: Gdel2mon).
         exists (mon/app (mon/reify M' (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ mon/app (mon/force m) (mon/thunk (mon/fun y\ mon/app (mon/app (mon/force f) y) c))))) (mon/thunk (mon/fun M'1))).
-        split.
-            search.
-            skip.
+        apply compty_translation_is_unique to H3 H11.
+        apply translation_valtys_are_wf to H10.
+        apply translation_comptys_are_wf to H11.
+        apply translation_effs_are_wf to H12.
+        apply continuation_monad to _ _ _ _ with Eff = Eff'1, C = C'2.
+        search.
         % shift
         case H3.
         case H6.
