@@ -39,8 +39,8 @@ intros. case H2.
     case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
     case H1. case H4. apply mam/of-get-case to H3 H5 H7. inst H8 with n1 = V. cut H9. search.
     case H1. case H3. search.
-    case H1. case H4. inst H5 with n1 = V. cut H8. search.
-    case H1. case H3. inst H6 with n1 = V. cut H7. search.
+    case H1. case H4. inst H5 with n1 = V. cut H7. search.
+    case H1. case H3. inst H5 with n1 = V. cut H6. search.
     case H1. case H5. search.
     case H1. case H5. search.
 

@@ -18,7 +18,7 @@ induction on 1. intros. case H1.
 
 
 Theorem of-plug : forall L E M EM C1 C2,
-    {del/of-evctx E C1 C2} -> {L |- of-comp M C1} -> {del/plug E M EM} -> {L |- of-comp EM C2}.
+    {del/of-evctx E C1 C2} -> {L |- del/of-comp M C1} -> {del/plug E M EM} -> {L |- del/of-comp EM C2}.
 induction on 1. intros. case H1.
     case H3. search.
     case H3. apply IH to H5 H2 H7. search.
@@ -40,7 +40,7 @@ induction on 1. intros. case H1.
 
 Theorem of-get-case : forall Ms L M As C A,
     {del/get-case Ms L M} -> {del/of-cases Ms As C} -> {del/valtys/get As L A} ->
-    {pi x\ of-value x A => of-comp (M x) C}.
+    {pi x\ del/of-value x A => del/of-comp (M x) C}.
 induction on 1. intros.
 assert forall N, {apart N N} -> false.
     induction on 1. intros. case H4. apply IH1 to H5.
@@ -54,7 +54,7 @@ case H1.
             case H5. apply H4 to H9.
             apply IH to H6 H7 H10. search.
 
-Theorem reduce-preservation : forall M M' C, {of-comp M C} -> {reduce M M'} -> {of-comp M' C}.
+Theorem reduce-preservation : forall M M' C, {del/of-comp M C} -> {del/reduce M M'} -> {del/of-comp M' C}.
 intros. case H2.
     case H1. case H3. inst H4 with n1 = V1, n2 = V2. cut H7. search.
     case H1. case H4. apply of-get-case to H3 H5 H7. inst H8 with n1 = V. cut H9. search.
@@ -67,12 +67,12 @@ intros. case H2.
     case H1.
         apply of-unplug to H3 H8. case H9.
         apply hoisting-equal-eff to H4 H10 _ _.
-        inst H12 with n1 = thunk (fun (x\reset (ER x) N)).
-        assert {of-value n1 A1 |- of-comp (ER n1) (f (cons Eff C) A)}.
-            apply of-plug to H10 _ H5 with L = of-value n1 A1 :: nil. search.
+        inst H12 with n1 = del/thunk (del/fun (x\del/reset (ER x) N)).
+        assert {del/of-value n1 A1 |- del/of-comp (ER n1) (del/f (del/cons Eff C) A)}.
+            apply of-plug to H10 _ H5 with L = del/of-value n1 A1 :: nil. search.
         cut H13. search.
 
-Theorem preservation : forall M M' C, {of-comp M C} -> {step M M'} -> {of-comp M' C}.
+Theorem preservation : forall M M' C, {del/of-comp M C} -> {del/step M M'} -> {del/of-comp M' C}.
 intros. case H2.
     apply of-unplug to H3 H1.
     apply reduce-preservation to H6 H4.
