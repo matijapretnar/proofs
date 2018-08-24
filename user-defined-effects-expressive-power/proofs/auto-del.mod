@@ -1,7 +1,8 @@
 module auto-del.
 accumulate common.
 
-del/eff-kind (del/f Eff A) Eff.
+del/eff-kind (del/f Eff A) Eff :-
+    del/wf-eff Eff.
 del/eff-kind (del/arrow _ C) Eff :- del/eff-kind C Eff.
 del/eff-kind (del/compprod C1 C2) Eff :-
     del/eff-kind C1 Eff,

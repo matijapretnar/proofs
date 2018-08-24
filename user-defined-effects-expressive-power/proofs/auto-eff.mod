@@ -1,7 +1,8 @@
 module auto-eff.
 accumulate common.
 
-eff/eff-kind (eff/f Eff A) Eff.
+eff/eff-kind (eff/f Eff A) Eff :-
+    eff/wf-eff Eff.
 eff/eff-kind (eff/arrow _ C) Eff :- eff/eff-kind C Eff.
 eff/eff-kind (eff/compprod C1 C2) Eff :-
     eff/eff-kind C1 Eff,

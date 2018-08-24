@@ -1,7 +1,8 @@
 module auto-mam.
 accumulate common.
 
-mam/eff-kind (mam/f Eff A) Eff.
+mam/eff-kind (mam/f Eff A) Eff :-
+    mam/wf-eff Eff.
 mam/eff-kind (mam/arrow _ C) Eff :- mam/eff-kind C Eff.
 mam/eff-kind (mam/compprod C1 C2) Eff :-
     mam/eff-kind C1 Eff,

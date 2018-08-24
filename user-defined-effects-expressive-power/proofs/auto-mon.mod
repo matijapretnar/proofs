@@ -1,7 +1,8 @@
 module auto-mon.
 accumulate common.
 
-mon/eff-kind (mon/f Eff A) Eff.
+mon/eff-kind (mon/f Eff A) Eff :-
+    mon/wf-eff Eff.
 mon/eff-kind (mon/arrow _ C) Eff :- mon/eff-kind C Eff.
 mon/eff-kind (mon/compprod C1 C2) Eff :-
     mon/eff-kind C1 Eff,
