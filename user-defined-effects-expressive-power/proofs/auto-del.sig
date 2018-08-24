@@ -67,6 +67,9 @@ type    del/of-value          del/value -> del/valty -> o.
 type    del/of-comp           del/comp -> del/compty -> o.
 type    del/of-evctx          del/evctx -> del/compty -> del/compty -> o.
 type    del/of-cases          del/cases -> del/valtys -> del/compty -> o.
+type    del/of-value'         del/value -> del/valty -> o.
+type    del/of-comp'          del/comp -> del/compty -> o.
+type    del/of-cases'         del/cases -> del/valtys -> del/compty -> o.
 
 type    del/get-case          del/cases -> label -> (del/value -> del/comp) -> o.     
 type    del/plug              del/evctx -> del/comp -> del/comp -> o.

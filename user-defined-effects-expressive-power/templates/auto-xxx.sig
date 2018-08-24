@@ -67,6 +67,9 @@ type    xxx/of-value          xxx/value -> xxx/valty -> o.
 type    xxx/of-comp           xxx/comp -> xxx/compty -> o.
 type    xxx/of-evctx          xxx/evctx -> xxx/compty -> xxx/compty -> o.
 type    xxx/of-cases          xxx/cases -> xxx/valtys -> xxx/compty -> o.
+type    xxx/of-value'         xxx/value -> xxx/valty -> o.
+type    xxx/of-comp'          xxx/comp -> xxx/compty -> o.
+type    xxx/of-cases'         xxx/cases -> xxx/valtys -> xxx/compty -> o.
 
 type    xxx/get-case          xxx/cases -> label -> (xxx/value -> xxx/comp) -> o.     
 type    xxx/plug              xxx/evctx -> xxx/comp -> xxx/comp -> o.

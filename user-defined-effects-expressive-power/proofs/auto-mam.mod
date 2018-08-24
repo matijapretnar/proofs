@@ -33,47 +33,57 @@ mam/wf-compty (mam/compprod C1 C2) :-
     mam/wf-compty C1,
     mam/wf-compty C2.
 
-mam/of-value mam/unit mam/unitty.
-mam/of-value (mam/pair V1 V2) (mam/prod A1 A2) :-
+mam/of-value V A :-
+    mam/of-value' V A,
+    mam/wf-valty A.
+mam/of-value' mam/unit mam/unitty.
+mam/of-value' (mam/pair V1 V2) (mam/prod A1 A2) :-
     mam/of-value V1 A1,
     mam/of-value V2 A2.
-mam/of-value (mam/inj L V) (mam/sum As) :-
+mam/of-value' (mam/inj L V) (mam/sum As) :-
     mam/of-value V A,
     mam/valtys/get As L A.
-mam/of-value (mam/thunk M) (mam/u C) :- mam/of-comp M C.
+mam/of-value' (mam/thunk M) (mam/u C) :- mam/of-comp M C.
 
-mam/of-comp (mam/ret V) (mam/f Eff A) :-
+mam/of-comp M C :-
+    mam/of-comp' M C,
+    mam/wf-compty C.
+mam/of-comp' (mam/ret V) (mam/f Eff A) :-
     mam/of-value V A.
-mam/of-comp (mam/fun M) (mam/arrow A C) :-
+mam/of-comp' (mam/fun M) (mam/arrow A C) :-
     pi x\ (mam/of-value x A => mam/of-comp (M x) C).
-mam/of-comp (mam/split V M) C :-
+mam/of-comp' (mam/split V M) C :-
     mam/of-value V (mam/prod A1 A2),
     pi x1\ pi x2\ (mam/of-value x1 A1 => mam/of-value x2 A2 => mam/of-comp (M x1 x2) C).
-mam/of-comp (mam/case V Ms) C :-
+mam/of-comp' (mam/case V Ms) C :-
     mam/of-value V (mam/sum As),
     mam/of-cases Ms As C.
-mam/of-comp (mam/force V) C :- mam/of-value V (mam/u C).
-mam/of-comp (mam/bind M N) C :-
+mam/of-comp' (mam/force V) C :- mam/of-value V (mam/u C).
+mam/of-comp' (mam/bind M N) C :-
     mam/eff-kind C Eff,
     mam/of-comp M (mam/f Eff A),
     pi x\ (mam/of-value x A => mam/of-comp (N x) C).
-mam/of-comp (mam/app M V) C :-
+mam/of-comp' (mam/app M V) C :-
     mam/of-comp M (mam/arrow A C),
     mam/of-value V A.
-mam/of-comp (mam/comppair M1 M2) (mam/compprod C1 C2) :-
+mam/of-comp' (mam/comppair M1 M2) (mam/compprod C1 C2) :-
     mam/of-comp M1 C1,
     mam/of-comp M2 C2.
-mam/of-comp (mam/prj1 M) C1 :-
+mam/of-comp' (mam/prj1 M) C1 :-
     mam/eff-kind C1 Eff,
     mam/eff-kind C2 Eff,
     mam/of-comp M (mam/compprod C1 C2).
-mam/of-comp (mam/prj2 M) C2 :-
+mam/of-comp' (mam/prj2 M) C2 :-
     mam/eff-kind C1 Eff,
     mam/eff-kind C2 Eff,
     mam/of-comp M (mam/compprod C1 C2).
 
-mam/of-cases mam/cases/nil mam/valtys/nil C.
-mam/of-cases (mam/cases/cons Ms L M) (mam/valtys/cons As L A) C :-
+mam/of-cases Ms As C :-
+    mam/of-cases' Ms As C,
+    mam/wf-valtys As,
+    mam/wf-compty C.
+mam/of-cases' mam/cases/nil mam/valtys/nil C.
+mam/of-cases' (mam/cases/cons Ms L M) (mam/valtys/cons As L A) C :-
     mam/of-cases Ms As C,
     pi x\ (mam/of-value x A => mam/of-comp (M x) C).
 

@@ -67,6 +67,9 @@ type    eff/of-value          eff/value -> eff/valty -> o.
 type    eff/of-comp           eff/comp -> eff/compty -> o.
 type    eff/of-evctx          eff/evctx -> eff/compty -> eff/compty -> o.
 type    eff/of-cases          eff/cases -> eff/valtys -> eff/compty -> o.
+type    eff/of-value'         eff/value -> eff/valty -> o.
+type    eff/of-comp'          eff/comp -> eff/compty -> o.
+type    eff/of-cases'         eff/cases -> eff/valtys -> eff/compty -> o.
 
 type    eff/get-case          eff/cases -> label -> (eff/value -> eff/comp) -> o.     
 type    eff/plug              eff/evctx -> eff/comp -> eff/comp -> o.

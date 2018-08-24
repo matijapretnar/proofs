@@ -67,6 +67,9 @@ type    mon/of-value          mon/value -> mon/valty -> o.
 type    mon/of-comp           mon/comp -> mon/compty -> o.
 type    mon/of-evctx          mon/evctx -> mon/compty -> mon/compty -> o.
 type    mon/of-cases          mon/cases -> mon/valtys -> mon/compty -> o.
+type    mon/of-value'         mon/value -> mon/valty -> o.
+type    mon/of-comp'          mon/comp -> mon/compty -> o.
+type    mon/of-cases'         mon/cases -> mon/valtys -> mon/compty -> o.
 
 type    mon/get-case          mon/cases -> label -> (mon/value -> mon/comp) -> o.     
 type    mon/plug              mon/evctx -> mon/comp -> mon/comp -> o.
