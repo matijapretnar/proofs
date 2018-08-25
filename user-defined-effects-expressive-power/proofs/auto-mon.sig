@@ -21,6 +21,7 @@ type    mon/valtys/nil        mon/valtys.
 type    mon/valtys/cons       mon/valtys -> label -> mon/valty -> mon/valtys.
 
 type    mon/eff-kind          mon/compty -> mon/eff -> o.
+type    mon/eff-kind'         mon/compty -> mon/eff -> o.
 type    mon/valtys/get        mon/valtys -> label -> mon/valty -> o.
 type    mon/wf-eff            mon/eff -> o.
 type    mon/wf-valty          mon/valty -> o.
@@ -70,6 +71,7 @@ type    mon/of-cases          mon/cases -> mon/valtys -> mon/compty -> o.
 type    mon/of-value'         mon/value -> mon/valty -> o.
 type    mon/of-comp'          mon/comp -> mon/compty -> o.
 type    mon/of-cases'         mon/cases -> mon/valtys -> mon/compty -> o.
+type    mon/of-evctx'         mon/evctx -> mon/compty -> mon/compty -> o.
 
 type    mon/get-case          mon/cases -> label -> (mon/value -> mon/comp) -> o.     
 type    mon/plug              mon/evctx -> mon/comp -> mon/comp -> o.

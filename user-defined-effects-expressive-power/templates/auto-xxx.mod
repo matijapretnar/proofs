@@ -1,10 +1,13 @@
 module auto-xxx.
 accumulate common.
 
-xxx/eff-kind (xxx/f Eff A) Eff :-
+xxx/eff-kind C Eff :-
+    xxx/eff-kind' C Eff,
+    xxx/wf-compty C,
     xxx/wf-eff Eff.
-xxx/eff-kind (xxx/arrow _ C) Eff :- xxx/eff-kind C Eff.
-xxx/eff-kind (xxx/compprod C1 C2) Eff :-
+xxx/eff-kind' (xxx/f Eff A) Eff.
+xxx/eff-kind' (xxx/arrow _ C) Eff :- xxx/eff-kind C Eff.
+xxx/eff-kind' (xxx/compprod C1 C2) Eff :-
     xxx/eff-kind C1 Eff,
     xxx/eff-kind C2 Eff.
 
@@ -88,19 +91,23 @@ xxx/of-cases' (xxx/cases/cons Ms L M) (xxx/valtys/cons As L A) C :-
     xxx/of-cases Ms As C,
     pi x\ (xxx/of-value x A => xxx/of-comp (M x) C).
 
-xxx/of-evctx xxx/hole C C.
-xxx/of-evctx (xxx/evctx/bind E N) C1 C2 :-
+xxx/of-evctx E C1 C2 :-
+    xxx/of-evctx' E C1 C2,
+    xxx/wf-compty C1,
+    xxx/wf-compty C2.
+xxx/of-evctx' xxx/hole C C.
+xxx/of-evctx' (xxx/evctx/bind E N) C1 C2 :-
     xxx/eff-kind C2 Eff,
     xxx/of-evctx E C1 (xxx/f Eff A),
     pi x\ (xxx/of-value x A => xxx/of-comp (N x) C2).
-xxx/of-evctx (xxx/evctx/app E V) C1 C2 :-
+xxx/of-evctx' (xxx/evctx/app E V) C1 C2 :-
     xxx/of-evctx E C1 (xxx/arrow A C2),
     xxx/of-value V A.
-xxx/of-evctx (xxx/evctx/prj1 E) C C1 :-
+xxx/of-evctx' (xxx/evctx/prj1 E) C C1 :-
     xxx/eff-kind C1 Eff,
     xxx/eff-kind C2 Eff,
     xxx/of-evctx E C (xxx/compprod C1 C2).
-xxx/of-evctx (xxx/evctx/prj2 E) C C2 :-
+xxx/of-evctx' (xxx/evctx/prj2 E) C C2 :-
     xxx/eff-kind C1 Eff,
     xxx/eff-kind C2 Eff,
     xxx/of-evctx E C (xxx/compprod C1 C2).

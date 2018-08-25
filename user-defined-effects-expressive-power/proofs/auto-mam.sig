@@ -21,6 +21,7 @@ type    mam/valtys/nil        mam/valtys.
 type    mam/valtys/cons       mam/valtys -> label -> mam/valty -> mam/valtys.
 
 type    mam/eff-kind          mam/compty -> mam/eff -> o.
+type    mam/eff-kind'         mam/compty -> mam/eff -> o.
 type    mam/valtys/get        mam/valtys -> label -> mam/valty -> o.
 type    mam/wf-eff            mam/eff -> o.
 type    mam/wf-valty          mam/valty -> o.
@@ -70,6 +71,7 @@ type    mam/of-cases          mam/cases -> mam/valtys -> mam/compty -> o.
 type    mam/of-value'         mam/value -> mam/valty -> o.
 type    mam/of-comp'          mam/comp -> mam/compty -> o.
 type    mam/of-cases'         mam/cases -> mam/valtys -> mam/compty -> o.
+type    mam/of-evctx'         mam/evctx -> mam/compty -> mam/compty -> o.
 
 type    mam/get-case          mam/cases -> label -> (mam/value -> mam/comp) -> o.     
 type    mam/plug              mam/evctx -> mam/comp -> mam/comp -> o.

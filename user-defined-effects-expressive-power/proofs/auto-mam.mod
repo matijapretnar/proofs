@@ -1,10 +1,13 @@
 module auto-mam.
 accumulate common.
 
-mam/eff-kind (mam/f Eff A) Eff :-
+mam/eff-kind C Eff :-
+    mam/eff-kind' C Eff,
+    mam/wf-compty C,
     mam/wf-eff Eff.
-mam/eff-kind (mam/arrow _ C) Eff :- mam/eff-kind C Eff.
-mam/eff-kind (mam/compprod C1 C2) Eff :-
+mam/eff-kind' (mam/f Eff A) Eff.
+mam/eff-kind' (mam/arrow _ C) Eff :- mam/eff-kind C Eff.
+mam/eff-kind' (mam/compprod C1 C2) Eff :-
     mam/eff-kind C1 Eff,
     mam/eff-kind C2 Eff.
 
@@ -88,19 +91,23 @@ mam/of-cases' (mam/cases/cons Ms L M) (mam/valtys/cons As L A) C :-
     mam/of-cases Ms As C,
     pi x\ (mam/of-value x A => mam/of-comp (M x) C).
 
-mam/of-evctx mam/hole C C.
-mam/of-evctx (mam/evctx/bind E N) C1 C2 :-
+mam/of-evctx E C1 C2 :-
+    mam/of-evctx' E C1 C2,
+    mam/wf-compty C1,
+    mam/wf-compty C2.
+mam/of-evctx' mam/hole C C.
+mam/of-evctx' (mam/evctx/bind E N) C1 C2 :-
     mam/eff-kind C2 Eff,
     mam/of-evctx E C1 (mam/f Eff A),
     pi x\ (mam/of-value x A => mam/of-comp (N x) C2).
-mam/of-evctx (mam/evctx/app E V) C1 C2 :-
+mam/of-evctx' (mam/evctx/app E V) C1 C2 :-
     mam/of-evctx E C1 (mam/arrow A C2),
     mam/of-value V A.
-mam/of-evctx (mam/evctx/prj1 E) C C1 :-
+mam/of-evctx' (mam/evctx/prj1 E) C C1 :-
     mam/eff-kind C1 Eff,
     mam/eff-kind C2 Eff,
     mam/of-evctx E C (mam/compprod C1 C2).
-mam/of-evctx (mam/evctx/prj2 E) C C2 :-
+mam/of-evctx' (mam/evctx/prj2 E) C C2 :-
     mam/eff-kind C1 Eff,
     mam/eff-kind C2 Eff,
     mam/of-evctx E C (mam/compprod C1 C2).

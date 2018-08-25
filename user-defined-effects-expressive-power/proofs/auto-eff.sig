@@ -21,6 +21,7 @@ type    eff/valtys/nil        eff/valtys.
 type    eff/valtys/cons       eff/valtys -> label -> eff/valty -> eff/valtys.
 
 type    eff/eff-kind          eff/compty -> eff/eff -> o.
+type    eff/eff-kind'         eff/compty -> eff/eff -> o.
 type    eff/valtys/get        eff/valtys -> label -> eff/valty -> o.
 type    eff/wf-eff            eff/eff -> o.
 type    eff/wf-valty          eff/valty -> o.
@@ -70,6 +71,7 @@ type    eff/of-cases          eff/cases -> eff/valtys -> eff/compty -> o.
 type    eff/of-value'         eff/value -> eff/valty -> o.
 type    eff/of-comp'          eff/comp -> eff/compty -> o.
 type    eff/of-cases'         eff/cases -> eff/valtys -> eff/compty -> o.
+type    eff/of-evctx'         eff/evctx -> eff/compty -> eff/compty -> o.
 
 type    eff/get-case          eff/cases -> label -> (eff/value -> eff/comp) -> o.     
 type    eff/plug              eff/evctx -> eff/comp -> eff/comp -> o.

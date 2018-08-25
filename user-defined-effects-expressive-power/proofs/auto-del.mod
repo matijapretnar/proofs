@@ -1,10 +1,13 @@
 module auto-del.
 accumulate common.
 
-del/eff-kind (del/f Eff A) Eff :-
+del/eff-kind C Eff :-
+    del/eff-kind' C Eff,
+    del/wf-compty C,
     del/wf-eff Eff.
-del/eff-kind (del/arrow _ C) Eff :- del/eff-kind C Eff.
-del/eff-kind (del/compprod C1 C2) Eff :-
+del/eff-kind' (del/f Eff A) Eff.
+del/eff-kind' (del/arrow _ C) Eff :- del/eff-kind C Eff.
+del/eff-kind' (del/compprod C1 C2) Eff :-
     del/eff-kind C1 Eff,
     del/eff-kind C2 Eff.
 
@@ -88,19 +91,23 @@ del/of-cases' (del/cases/cons Ms L M) (del/valtys/cons As L A) C :-
     del/of-cases Ms As C,
     pi x\ (del/of-value x A => del/of-comp (M x) C).
 
-del/of-evctx del/hole C C.
-del/of-evctx (del/evctx/bind E N) C1 C2 :-
+del/of-evctx E C1 C2 :-
+    del/of-evctx' E C1 C2,
+    del/wf-compty C1,
+    del/wf-compty C2.
+del/of-evctx' del/hole C C.
+del/of-evctx' (del/evctx/bind E N) C1 C2 :-
     del/eff-kind C2 Eff,
     del/of-evctx E C1 (del/f Eff A),
     pi x\ (del/of-value x A => del/of-comp (N x) C2).
-del/of-evctx (del/evctx/app E V) C1 C2 :-
+del/of-evctx' (del/evctx/app E V) C1 C2 :-
     del/of-evctx E C1 (del/arrow A C2),
     del/of-value V A.
-del/of-evctx (del/evctx/prj1 E) C C1 :-
+del/of-evctx' (del/evctx/prj1 E) C C1 :-
     del/eff-kind C1 Eff,
     del/eff-kind C2 Eff,
     del/of-evctx E C (del/compprod C1 C2).
-del/of-evctx (del/evctx/prj2 E) C C2 :-
+del/of-evctx' (del/evctx/prj2 E) C C2 :-
     del/eff-kind C1 Eff,
     del/eff-kind C2 Eff,
     del/of-evctx E C (del/compprod C1 C2).

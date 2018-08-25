@@ -21,6 +21,7 @@ type    del/valtys/nil        del/valtys.
 type    del/valtys/cons       del/valtys -> label -> del/valty -> del/valtys.
 
 type    del/eff-kind          del/compty -> del/eff -> o.
+type    del/eff-kind'         del/compty -> del/eff -> o.
 type    del/valtys/get        del/valtys -> label -> del/valty -> o.
 type    del/wf-eff            del/eff -> o.
 type    del/wf-valty          del/valty -> o.
@@ -70,6 +71,7 @@ type    del/of-cases          del/cases -> del/valtys -> del/compty -> o.
 type    del/of-value'         del/value -> del/valty -> o.
 type    del/of-comp'          del/comp -> del/compty -> o.
 type    del/of-cases'         del/cases -> del/valtys -> del/compty -> o.
+type    del/of-evctx'         del/evctx -> del/compty -> del/compty -> o.
 
 type    del/get-case          del/cases -> label -> (del/value -> del/comp) -> o.     
 type    del/plug              del/evctx -> del/comp -> del/comp -> o.
