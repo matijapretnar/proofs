@@ -310,21 +310,15 @@ Theorem translate_eff-kind :
     {Gs |- del/eff-kind C Eff} -> {del2mon/compty C C'} -> {del2mon/eff Eff Eff'} ->
     {Gt |- mon/eff-kind C' Eff'}.
 % Proof
-    induction on 2. intros Hctx. case H1.
-        case H2. apply eff_translation_is_unique to H3 H5. apply translation_effs_are_wf to H5. search.
-        case H2. apply IH to _ H4 H6 H3. search.
-        case H2. apply IH to _ H4 H6 H3. apply IH to _ H5 H7 H3. search.
-        apply ctx_member to Hctx H5. case H4.
-
-Theorem eff-kind_is_wf :
-    forall Gs Gdel2mon Gt C Eff, ctx Gs Gdel2mon Gt ->
-    {Gs |- del/eff-kind C Eff} -> {del/wf-eff Eff}.
-% Proof
-    induction on 2. intros Hctx. case H1.
-        apply strengthen_eff_wf to Hctx H2. search.
-        apply IH to Hctx H2. search.
-        apply IH to Hctx H2. search.
-        apply ctx_member to Hctx H3. case H2.
+    induction on 2. intros. case H2.
+        apply translation_comptys_are_wf to H3.
+        apply translation_effs_are_wf to H4.
+        case H5.
+            case H3. apply eff_translation_is_unique to H4 H12. case H9. search.
+            case H3. apply IH to _ H12 H14 H4. search.
+            case H3. apply IH to _ H12 H14 H4. apply IH to _ H13 H15 H4. search.
+            apply ctx_member to _ H13. case H12.
+        apply ctx_member to _ H6. case H5.
 
 Theorem translate_valtys/get :
     forall Gs Gdel2mon Gt As L A As', ctx Gs Gdel2mon Gt ->
@@ -491,18 +485,22 @@ Theorem preservation_lemma : (
         case H3. apply IH4 to _ H4 _. apply IH4 to _ H5 _. search.
         % prj1
         apply comp_typing_is_wf to _ H6. apply wf_compty_has_translation to H7. case H8.
-        apply eff-kind_is_wf to _ H4.
+        Hwf: case H4 (keep).
+        apply strengthen_eff_wf to _ Hwf2.
         apply wf_eff_has_translation to H11.
         apply translate_eff-kind to _ H4 H3 H12.
         apply translate_eff-kind to _ H5 H10 H12.
         apply IH4 to _ H6 _. search.
+        apply ctx_member to _ Hwf1. case Hwf.
         % prj2
         apply comp_typing_is_wf to _ H6. apply wf_compty_has_translation to H7. case H8.
-        apply eff-kind_is_wf to _ H4.
+        Hwf: case H4 (keep).
+        apply strengthen_eff_wf to _ Hwf2.
         apply wf_eff_has_translation to H11.
         apply translate_eff-kind to _ H4 H9 H12.
         apply translate_eff-kind to _ H5 H3 H12.
         apply IH4 to _ H6 _. search.
+        apply ctx_member to _ Hwf1. case Hwf.
         % reset
         apply comp_typing_is_wf to _ H6. apply wf_compty_has_translation to H7. case H8.
         case H9.

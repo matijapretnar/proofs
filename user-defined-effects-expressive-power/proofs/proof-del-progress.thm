@@ -12,51 +12,61 @@ Theorem can-get-case : forall Ms As C L A,
     {del/of-cases Ms As C} -> {del/valtys/get As L A} ->
     exists M, {del/get-case Ms L M}.
 induction on 1. intros. case H1.
-    case H2.
-    case H2.
-        search.
-        apply IH to H3 H6. search.
+    case H3.
+        case H2.
+        case H2.
+            search.
+            apply IH to H6 H9. search.
 
-Theorem progress : forall M C, {del/of-comp M C} -> {del/progresses M C}.
-induction on 1. intros. case H1.
-    search.
-    search.
-    case H2.
+Theorem progress : (
+    forall M C, {del/of-comp M C} -> {del/progresses M C}
+) /\ (
+    forall M C, {del/wf-compty C} -> {del/of-comp' M C} -> {del/progresses M C}
+).
+induction on 1 2. split.
+
+    intros. case H1.
+    apply IH1 to H3 H2. search.
+
+    intros Hwellf. case H1.
         search.
-    case H2.
-        apply can-get-case to H3 H5.
         search.
-    case H2.
-        search.
-    apply IH to H3. case H5.
-        search.
-        case H3.
-        case H3.
-        case H6. search.
-        case H6. search.
-    apply IH to H2. case H4.
-        case H2.
-        search.
-        case H2.
-        case H5. search.
-        case H5. search.
-    apply IH to H2. apply IH to H3. search.
-    apply IH to H4. case H5.
-        case H4.
-        case H4.
-        search.
-        case H6. search.
-        case H6. search.
-    apply IH to H4. case H5.
-        case H4.
-        case H4.
-        search.
-        case H6. search.
-        case H6. search.
-    apply IH to H4. case H5.
-        search.
-        case H4.
-        case H4.
-        case H6. search.
-        apply pluggable to H7. search.
-    skip. 
+        Hwf: case H2. case Hwf.
+            search.
+        Hwf: case H2. case Hwf.
+            apply can-get-case to H3 H5.
+            search.
+        Hwf: case H2. case Hwf.
+            search.
+        apply IH to H3. case H5.
+            search.
+            Hwf: case H3. case Hwf.
+            Hwf: case H3. case Hwf.
+            case H6. search.
+            case H6. case H9. search.
+        apply IH to H2. case H4.
+            Hwf: case H2. case Hwf.
+            search.
+            Hwf: case H2. case Hwf.
+            case H5. search.
+            case H5. case H8. search.
+        apply IH to H2. apply IH to H3. search.
+        apply IH to H4. case H5.
+            Hwf: case H4. case Hwf.
+            Hwf: case H4. case Hwf.
+            search.
+            case H6. search.
+            case H6. case H9. search.
+        apply IH to H4. case H5.
+            Hwf: case H4. case Hwf.
+            Hwf: case H4. case Hwf.
+            search.
+            case H6. search.
+            case H6. case H9. search.
+        apply IH to H4. case H5.
+            search.
+            Hwf: case H4. case Hwf.
+            Hwf: case H4. case Hwf.
+            case H6. search.
+            apply pluggable to H7. search.
+        case Hwellf. case H4. search.

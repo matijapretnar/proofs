@@ -27,7 +27,7 @@ del/of-comp' (del/shift M) (del/f (del/cons Eff C) A) :-
     del/eff-kind C Eff,
     pi k\ (del/of-value k (del/u (del/arrow A C)) => del/of-comp (M k) C).
 
-del/of-evctx (del/evctx/reset E N) C D :-
+del/of-evctx' (del/evctx/reset E N) C D :-
     del/eff-kind D Eff,
     pi x\ (del/of-value x A => del/of-comp (N x) D),
     del/of-evctx E C (del/f (del/cons Eff D) A).

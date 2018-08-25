@@ -1,6 +1,9 @@
 module mon.
 accumulate auto-mon.
 
+mon/is-evctx (mon/evctx/reify E T) :-
+    mon/is-evctx E.
+
 mon/wf-eff (mon/cons Eff C _ _) :-
     mon/wf-eff Eff,
     pi a\ mon/wf-valty a => mon/wf-compty (C a).

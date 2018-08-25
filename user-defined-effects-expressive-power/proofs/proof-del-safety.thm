@@ -7,9 +7,9 @@ Theorem safety : forall M A,
     {del/of-comp M (del/f del/empty A)} ->
         (exists N, {del/step M N} /\ {del/of-comp N (del/f del/empty A)}) \/
         (exists V, M = del/ret V /\ {del/of-value V A}).
-intros. apply progress to H1. case H2.
-    case H1. right. search.
-    case H1.
-    case H1.
+intros. prog_part : apply progress. apply prog_part to H1. case H2.
+    case H1. case H3. right. search.
+    case H1. case H3.
+    case H1. case H5.
     apply preservation to H1 H3. left. search.
-    case H3.
+    case H3. case H6.
