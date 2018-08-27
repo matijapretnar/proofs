@@ -11,21 +11,19 @@ type    del/empty             del/eff.
 type    del/unitty            del/valty.
 type    del/prod              del/valty -> del/valty -> del/valty.
 type    del/sum               del/valtys -> del/valty.
-type    del/u                 del/compty -> del/valty.
+type    del/u                 del/eff -> del/compty -> del/valty.
 
-type    del/f                 del/eff -> del/valty -> del/compty.
+type    del/f                 del/valty -> del/compty.
 type    del/arrow             del/valty -> del/compty -> del/compty.
 type    del/compprod          del/compty -> del/compty -> del/compty.
 
 type    del/valtys/nil        del/valtys.
 type    del/valtys/cons       del/valtys -> label -> del/valty -> del/valtys.
 
-type    del/eff-kind          del/compty -> del/eff -> o.
-type    del/eff-kind'         del/compty -> del/eff -> o.
 type    del/valtys/get        del/valtys -> label -> del/valty -> o.
 type    del/wf-eff            del/eff -> o.
 type    del/wf-valty          del/valty -> o.
-type    del/wf-compty         del/compty -> o.
+type    del/wf-compty         del/eff -> del/compty -> o.
 type    del/wf-valtys         del/valtys -> o.
 
 
@@ -65,16 +63,16 @@ type    del/evctx/prj2        del/evctx -> del/evctx.
 type    del/hoisting          del/evctx -> o.
 
 type    del/of-value          del/value -> del/valty -> o.
-type    del/of-comp           del/comp -> del/compty -> o.
-type    del/of-evctx          del/evctx -> del/compty -> del/compty -> o.
-type    del/of-cases          del/cases -> del/valtys -> del/compty -> o.
+type    del/of-comp           del/comp -> del/eff -> del/compty -> o.
+type    del/of-evctx          del/evctx -> del/eff -> del/compty -> del/eff -> del/compty -> o.
+type    del/of-cases          del/cases -> del/eff -> del/valtys -> del/compty -> o.
 type    del/of-value'         del/value -> del/valty -> o.
-type    del/of-comp'          del/comp -> del/compty -> o.
-type    del/of-cases'         del/cases -> del/valtys -> del/compty -> o.
-type    del/of-evctx'         del/evctx -> del/compty -> del/compty -> o.
+type    del/of-comp'          del/comp -> del/eff -> del/compty -> o.
+type    del/of-cases'         del/cases -> del/eff -> del/valtys -> del/compty -> o.
+type    del/of-evctx'         del/evctx -> del/eff -> del/compty -> del/eff -> del/compty -> o.
 
 type    del/get-case          del/cases -> label -> (del/value -> del/comp) -> o.     
 type    del/plug              del/evctx -> del/comp -> del/comp -> o.
 type    del/reduce            del/comp -> del/comp -> o.
 type    del/step              del/comp -> del/comp -> o.
-type    del/progresses        del/comp -> del/compty -> o.
+type    del/progresses        del/comp -> del/eff -> o.

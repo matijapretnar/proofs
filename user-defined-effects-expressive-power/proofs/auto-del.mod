@@ -1,16 +1,6 @@
 module auto-del.
 accumulate common.
 
-del/eff-kind C Eff :-
-    del/eff-kind' C Eff,
-    del/wf-compty C,
-    del/wf-eff Eff.
-del/eff-kind' (del/f Eff A) Eff.
-del/eff-kind' (del/arrow _ C) Eff :- del/eff-kind C Eff.
-del/eff-kind' (del/compprod C1 C2) Eff :-
-    del/eff-kind C1 Eff,
-    del/eff-kind C2 Eff.
-
 del/wf-eff del/empty.
 
 del/wf-valty del/unitty.
@@ -19,23 +9,23 @@ del/wf-valty (del/prod A1 A2) :-
     del/wf-valty A2.
 del/wf-valty (del/sum As) :-
     del/wf-valtys As.
-del/wf-valty (del/u C) :-
-    del/wf-compty C.
+del/wf-valty (del/u Eff C) :-
+    del/wf-compty Eff C.
 
 del/wf-valtys del/valtys/nil.
 del/wf-valtys (del/valtys/cons As L A) :-
     del/wf-valtys As,
     del/wf-valty A.
 
-del/wf-compty (del/f Eff A) :-
+del/wf-compty Eff (del/f A) :-
     del/wf-eff Eff,
     del/wf-valty A.
-del/wf-compty (del/arrow A C) :-
+del/wf-compty Eff (del/arrow A C) :-
     del/wf-valty A,
-    del/wf-compty C.
-del/wf-compty (del/compprod C1 C2) :-
-    del/wf-compty C1,
-    del/wf-compty C2.
+    del/wf-compty Eff C.
+del/wf-compty Eff (del/compprod C1 C2) :-
+    del/wf-compty Eff C1,
+    del/wf-compty Eff C2.
 
 del/of-value V A :-
     del/of-value' V A,
@@ -47,70 +37,61 @@ del/of-value' (del/pair V1 V2) (del/prod A1 A2) :-
 del/of-value' (del/inj L V) (del/sum As) :-
     del/of-value V A,
     del/valtys/get As L A.
-del/of-value' (del/thunk M) (del/u C) :- del/of-comp M C.
+del/of-value' (del/thunk M) (del/u Eff C) :-
+    del/of-comp M Eff C.
 
-del/of-comp M C :-
-    del/of-comp' M C,
-    del/wf-compty C.
-del/of-comp' (del/ret V) (del/f Eff A) :-
+del/of-comp M Eff C :-
+    del/of-comp' M Eff C,
+    del/wf-compty Eff C.
+del/of-comp' (del/ret V) Eff (del/f A) :-
     del/of-value V A.
-del/of-comp' (del/fun M) (del/arrow A C) :-
-    pi x\ (del/of-value x A => del/of-comp (M x) C).
-del/of-comp' (del/split V M) C :-
+del/of-comp' (del/fun M) Eff (del/arrow A C) :-
+    pi x\ (del/of-value x A => del/of-comp (M x) Eff C).
+del/of-comp' (del/split V M) Eff C :-
     del/of-value V (del/prod A1 A2),
-    pi x1\ pi x2\ (del/of-value x1 A1 => del/of-value x2 A2 => del/of-comp (M x1 x2) C).
-del/of-comp' (del/case V Ms) C :-
+    pi x1\ pi x2\ (del/of-value x1 A1 => del/of-value x2 A2 => del/of-comp (M x1 x2) Eff C).
+del/of-comp' (del/case V Ms) Eff C :-
     del/of-value V (del/sum As),
-    del/of-cases Ms As C.
-del/of-comp' (del/force V) C :- del/of-value V (del/u C).
-del/of-comp' (del/bind M N) C :-
-    del/eff-kind C Eff,
-    del/of-comp M (del/f Eff A),
-    pi x\ (del/of-value x A => del/of-comp (N x) C).
-del/of-comp' (del/app M V) C :-
-    del/of-comp M (del/arrow A C),
+    del/of-cases Ms Eff As C.
+del/of-comp' (del/force V) Eff C :- del/of-value V (del/u Eff C).
+del/of-comp' (del/bind M N) Eff C :-
+    del/of-comp M Eff (del/f A),
+    pi x\ (del/of-value x A => del/of-comp (N x) Eff C).
+del/of-comp' (del/app M V) Eff C :-
+    del/of-comp M Eff (del/arrow A C),
     del/of-value V A.
-del/of-comp' (del/comppair M1 M2) (del/compprod C1 C2) :-
-    del/of-comp M1 C1,
-    del/of-comp M2 C2.
-del/of-comp' (del/prj1 M) C1 :-
-    del/eff-kind C1 Eff,
-    del/eff-kind C2 Eff,
-    del/of-comp M (del/compprod C1 C2).
-del/of-comp' (del/prj2 M) C2 :-
-    del/eff-kind C1 Eff,
-    del/eff-kind C2 Eff,
-    del/of-comp M (del/compprod C1 C2).
+del/of-comp' (del/comppair M1 M2) Eff (del/compprod C1 C2) :-
+    del/of-comp M1 Eff C1,
+    del/of-comp M2 Eff C2.
+del/of-comp' (del/prj1 M) Eff C1 :-
+    del/of-comp M Eff (del/compprod C1 C2).
+del/of-comp' (del/prj2 M) Eff C2 :-
+    del/of-comp M Eff (del/compprod C1 C2).
 
-del/of-cases Ms As C :-
-    del/of-cases' Ms As C,
+del/of-cases Ms Eff As C :-
+    del/of-cases' Ms Eff As C,
     del/wf-valtys As,
-    del/wf-compty C.
-del/of-cases' del/cases/nil del/valtys/nil C.
-del/of-cases' (del/cases/cons Ms L M) (del/valtys/cons As L A) C :-
-    del/of-cases Ms As C,
-    pi x\ (del/of-value x A => del/of-comp (M x) C).
+    del/wf-compty Eff C.
+del/of-cases' del/cases/nil Eff del/valtys/nil C.
+del/of-cases' (del/cases/cons Ms L M) Eff (del/valtys/cons As L A) C :-
+    del/of-cases Ms Eff As C,
+    pi x\ (del/of-value x A => del/of-comp (M x) Eff C).
 
-del/of-evctx E C1 C2 :-
-    del/of-evctx' E C1 C2,
-    del/wf-compty C1,
-    del/wf-compty C2.
-del/of-evctx' del/hole C C.
-del/of-evctx' (del/evctx/bind E N) C1 C2 :-
-    del/eff-kind C2 Eff,
-    del/of-evctx E C1 (del/f Eff A),
-    pi x\ (del/of-value x A => del/of-comp (N x) C2).
-del/of-evctx' (del/evctx/app E V) C1 C2 :-
-    del/of-evctx E C1 (del/arrow A C2),
+del/of-evctx E Eff1 C1 Eff2 C2 :-
+    del/of-evctx' E Eff1 C1 Eff2 C2,
+    del/wf-compty Eff1 C1,
+    del/wf-compty Eff2 C2.
+del/of-evctx' del/hole Eff C Eff C.
+del/of-evctx' (del/evctx/bind E N) Eff1 C1 Eff2 C2 :-
+    del/of-evctx E Eff1 C1 Eff2 (del/f A),
+    pi x\ (del/of-value x A => del/of-comp (N x) Eff2 C2).
+del/of-evctx' (del/evctx/app E V) Eff1 C1 Eff2 C2 :-
+    del/of-evctx E Eff1 C1 Eff2 (del/arrow A C2),
     del/of-value V A.
-del/of-evctx' (del/evctx/prj1 E) C C1 :-
-    del/eff-kind C1 Eff,
-    del/eff-kind C2 Eff,
-    del/of-evctx E C (del/compprod C1 C2).
-del/of-evctx' (del/evctx/prj2 E) C C2 :-
-    del/eff-kind C1 Eff,
-    del/eff-kind C2 Eff,
-    del/of-evctx E C (del/compprod C1 C2).
+del/of-evctx' (del/evctx/prj1 E) Eff1 C Eff2 C1 :-
+    del/of-evctx E Eff1 C Eff2 (del/compprod C1 C2).
+del/of-evctx' (del/evctx/prj2 E) Eff1 C Eff2 C2 :-
+    del/of-evctx E Eff1 C Eff2 (del/compprod C1 C2).
 
 del/valtys/get (del/valtys/cons As L A) L A.
 del/valtys/get (del/valtys/cons As L' _) L A :-

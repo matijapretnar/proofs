@@ -11,21 +11,19 @@ type    eff/empty             eff/eff.
 type    eff/unitty            eff/valty.
 type    eff/prod              eff/valty -> eff/valty -> eff/valty.
 type    eff/sum               eff/valtys -> eff/valty.
-type    eff/u                 eff/compty -> eff/valty.
+type    eff/u                 eff/eff -> eff/compty -> eff/valty.
 
-type    eff/f                 eff/eff -> eff/valty -> eff/compty.
+type    eff/f                 eff/valty -> eff/compty.
 type    eff/arrow             eff/valty -> eff/compty -> eff/compty.
 type    eff/compprod          eff/compty -> eff/compty -> eff/compty.
 
 type    eff/valtys/nil        eff/valtys.
 type    eff/valtys/cons       eff/valtys -> label -> eff/valty -> eff/valtys.
 
-type    eff/eff-kind          eff/compty -> eff/eff -> o.
-type    eff/eff-kind'         eff/compty -> eff/eff -> o.
 type    eff/valtys/get        eff/valtys -> label -> eff/valty -> o.
 type    eff/wf-eff            eff/eff -> o.
 type    eff/wf-valty          eff/valty -> o.
-type    eff/wf-compty         eff/compty -> o.
+type    eff/wf-compty         eff/eff -> eff/compty -> o.
 type    eff/wf-valtys         eff/valtys -> o.
 
 
@@ -65,16 +63,16 @@ type    eff/evctx/prj2        eff/evctx -> eff/evctx.
 type    eff/hoisting          eff/evctx -> o.
 
 type    eff/of-value          eff/value -> eff/valty -> o.
-type    eff/of-comp           eff/comp -> eff/compty -> o.
-type    eff/of-evctx          eff/evctx -> eff/compty -> eff/compty -> o.
-type    eff/of-cases          eff/cases -> eff/valtys -> eff/compty -> o.
+type    eff/of-comp           eff/comp -> eff/eff -> eff/compty -> o.
+type    eff/of-evctx          eff/evctx -> eff/eff -> eff/compty -> eff/eff -> eff/compty -> o.
+type    eff/of-cases          eff/cases -> eff/eff -> eff/valtys -> eff/compty -> o.
 type    eff/of-value'         eff/value -> eff/valty -> o.
-type    eff/of-comp'          eff/comp -> eff/compty -> o.
-type    eff/of-cases'         eff/cases -> eff/valtys -> eff/compty -> o.
-type    eff/of-evctx'         eff/evctx -> eff/compty -> eff/compty -> o.
+type    eff/of-comp'          eff/comp -> eff/eff -> eff/compty -> o.
+type    eff/of-cases'         eff/cases -> eff/eff -> eff/valtys -> eff/compty -> o.
+type    eff/of-evctx'         eff/evctx -> eff/eff -> eff/compty -> eff/eff -> eff/compty -> o.
 
 type    eff/get-case          eff/cases -> label -> (eff/value -> eff/comp) -> o.     
 type    eff/plug              eff/evctx -> eff/comp -> eff/comp -> o.
 type    eff/reduce            eff/comp -> eff/comp -> o.
 type    eff/step              eff/comp -> eff/comp -> o.
-type    eff/progresses        eff/comp -> eff/compty -> o.
+type    eff/progresses        eff/comp -> eff/eff -> o.

@@ -11,21 +11,19 @@ type    mam/empty             mam/eff.
 type    mam/unitty            mam/valty.
 type    mam/prod              mam/valty -> mam/valty -> mam/valty.
 type    mam/sum               mam/valtys -> mam/valty.
-type    mam/u                 mam/compty -> mam/valty.
+type    mam/u                 mam/eff -> mam/compty -> mam/valty.
 
-type    mam/f                 mam/eff -> mam/valty -> mam/compty.
+type    mam/f                 mam/valty -> mam/compty.
 type    mam/arrow             mam/valty -> mam/compty -> mam/compty.
 type    mam/compprod          mam/compty -> mam/compty -> mam/compty.
 
 type    mam/valtys/nil        mam/valtys.
 type    mam/valtys/cons       mam/valtys -> label -> mam/valty -> mam/valtys.
 
-type    mam/eff-kind          mam/compty -> mam/eff -> o.
-type    mam/eff-kind'         mam/compty -> mam/eff -> o.
 type    mam/valtys/get        mam/valtys -> label -> mam/valty -> o.
 type    mam/wf-eff            mam/eff -> o.
 type    mam/wf-valty          mam/valty -> o.
-type    mam/wf-compty         mam/compty -> o.
+type    mam/wf-compty         mam/eff -> mam/compty -> o.
 type    mam/wf-valtys         mam/valtys -> o.
 
 
@@ -65,16 +63,16 @@ type    mam/evctx/prj2        mam/evctx -> mam/evctx.
 type    mam/hoisting          mam/evctx -> o.
 
 type    mam/of-value          mam/value -> mam/valty -> o.
-type    mam/of-comp           mam/comp -> mam/compty -> o.
-type    mam/of-evctx          mam/evctx -> mam/compty -> mam/compty -> o.
-type    mam/of-cases          mam/cases -> mam/valtys -> mam/compty -> o.
+type    mam/of-comp           mam/comp -> mam/eff -> mam/compty -> o.
+type    mam/of-evctx          mam/evctx -> mam/eff -> mam/compty -> mam/eff -> mam/compty -> o.
+type    mam/of-cases          mam/cases -> mam/eff -> mam/valtys -> mam/compty -> o.
 type    mam/of-value'         mam/value -> mam/valty -> o.
-type    mam/of-comp'          mam/comp -> mam/compty -> o.
-type    mam/of-cases'         mam/cases -> mam/valtys -> mam/compty -> o.
-type    mam/of-evctx'         mam/evctx -> mam/compty -> mam/compty -> o.
+type    mam/of-comp'          mam/comp -> mam/eff -> mam/compty -> o.
+type    mam/of-cases'         mam/cases -> mam/eff -> mam/valtys -> mam/compty -> o.
+type    mam/of-evctx'         mam/evctx -> mam/eff -> mam/compty -> mam/eff -> mam/compty -> o.
 
 type    mam/get-case          mam/cases -> label -> (mam/value -> mam/comp) -> o.     
 type    mam/plug              mam/evctx -> mam/comp -> mam/comp -> o.
 type    mam/reduce            mam/comp -> mam/comp -> o.
 type    mam/step              mam/comp -> mam/comp -> o.
-type    mam/progresses        mam/comp -> mam/compty -> o.
+type    mam/progresses        mam/comp -> mam/eff -> o.

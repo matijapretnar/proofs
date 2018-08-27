@@ -1,8 +1,8 @@
 Specification "proofs".
-% Import "proof-del-safety".
+Import "proof-del-safety".
 % Import "proof-del2eff".
+Import "proof-del2mon".
 Import "proof-del2mon-typed".
-% Import "proof-del2mon".
 % Import "proof-eff-safety".
 % Import "proof-eff2del".
 % Import "proof-eff2mon".

@@ -11,21 +11,19 @@ type    mon/empty             mon/eff.
 type    mon/unitty            mon/valty.
 type    mon/prod              mon/valty -> mon/valty -> mon/valty.
 type    mon/sum               mon/valtys -> mon/valty.
-type    mon/u                 mon/compty -> mon/valty.
+type    mon/u                 mon/eff -> mon/compty -> mon/valty.
 
-type    mon/f                 mon/eff -> mon/valty -> mon/compty.
+type    mon/f                 mon/valty -> mon/compty.
 type    mon/arrow             mon/valty -> mon/compty -> mon/compty.
 type    mon/compprod          mon/compty -> mon/compty -> mon/compty.
 
 type    mon/valtys/nil        mon/valtys.
 type    mon/valtys/cons       mon/valtys -> label -> mon/valty -> mon/valtys.
 
-type    mon/eff-kind          mon/compty -> mon/eff -> o.
-type    mon/eff-kind'         mon/compty -> mon/eff -> o.
 type    mon/valtys/get        mon/valtys -> label -> mon/valty -> o.
 type    mon/wf-eff            mon/eff -> o.
 type    mon/wf-valty          mon/valty -> o.
-type    mon/wf-compty         mon/compty -> o.
+type    mon/wf-compty         mon/eff -> mon/compty -> o.
 type    mon/wf-valtys         mon/valtys -> o.
 
 
@@ -65,16 +63,16 @@ type    mon/evctx/prj2        mon/evctx -> mon/evctx.
 type    mon/hoisting          mon/evctx -> o.
 
 type    mon/of-value          mon/value -> mon/valty -> o.
-type    mon/of-comp           mon/comp -> mon/compty -> o.
-type    mon/of-evctx          mon/evctx -> mon/compty -> mon/compty -> o.
-type    mon/of-cases          mon/cases -> mon/valtys -> mon/compty -> o.
+type    mon/of-comp           mon/comp -> mon/eff -> mon/compty -> o.
+type    mon/of-evctx          mon/evctx -> mon/eff -> mon/compty -> mon/eff -> mon/compty -> o.
+type    mon/of-cases          mon/cases -> mon/eff -> mon/valtys -> mon/compty -> o.
 type    mon/of-value'         mon/value -> mon/valty -> o.
-type    mon/of-comp'          mon/comp -> mon/compty -> o.
-type    mon/of-cases'         mon/cases -> mon/valtys -> mon/compty -> o.
-type    mon/of-evctx'         mon/evctx -> mon/compty -> mon/compty -> o.
+type    mon/of-comp'          mon/comp -> mon/eff -> mon/compty -> o.
+type    mon/of-cases'         mon/cases -> mon/eff -> mon/valtys -> mon/compty -> o.
+type    mon/of-evctx'         mon/evctx -> mon/eff -> mon/compty -> mon/eff -> mon/compty -> o.
 
 type    mon/get-case          mon/cases -> label -> (mon/value -> mon/comp) -> o.     
 type    mon/plug              mon/evctx -> mon/comp -> mon/comp -> o.
 type    mon/reduce            mon/comp -> mon/comp -> o.
 type    mon/step              mon/comp -> mon/comp -> o.
-type    mon/progresses        mon/comp -> mon/compty -> o.
+type    mon/progresses        mon/comp -> mon/eff -> o.

@@ -1,16 +1,6 @@
 module auto-mon.
 accumulate common.
 
-mon/eff-kind C Eff :-
-    mon/eff-kind' C Eff,
-    mon/wf-compty C,
-    mon/wf-eff Eff.
-mon/eff-kind' (mon/f Eff A) Eff.
-mon/eff-kind' (mon/arrow _ C) Eff :- mon/eff-kind C Eff.
-mon/eff-kind' (mon/compprod C1 C2) Eff :-
-    mon/eff-kind C1 Eff,
-    mon/eff-kind C2 Eff.
-
 mon/wf-eff mon/empty.
 
 mon/wf-valty mon/unitty.
@@ -19,23 +9,23 @@ mon/wf-valty (mon/prod A1 A2) :-
     mon/wf-valty A2.
 mon/wf-valty (mon/sum As) :-
     mon/wf-valtys As.
-mon/wf-valty (mon/u C) :-
-    mon/wf-compty C.
+mon/wf-valty (mon/u Eff C) :-
+    mon/wf-compty Eff C.
 
 mon/wf-valtys mon/valtys/nil.
 mon/wf-valtys (mon/valtys/cons As L A) :-
     mon/wf-valtys As,
     mon/wf-valty A.
 
-mon/wf-compty (mon/f Eff A) :-
+mon/wf-compty Eff (mon/f A) :-
     mon/wf-eff Eff,
     mon/wf-valty A.
-mon/wf-compty (mon/arrow A C) :-
+mon/wf-compty Eff (mon/arrow A C) :-
     mon/wf-valty A,
-    mon/wf-compty C.
-mon/wf-compty (mon/compprod C1 C2) :-
-    mon/wf-compty C1,
-    mon/wf-compty C2.
+    mon/wf-compty Eff C.
+mon/wf-compty Eff (mon/compprod C1 C2) :-
+    mon/wf-compty Eff C1,
+    mon/wf-compty Eff C2.
 
 mon/of-value V A :-
     mon/of-value' V A,
@@ -47,70 +37,61 @@ mon/of-value' (mon/pair V1 V2) (mon/prod A1 A2) :-
 mon/of-value' (mon/inj L V) (mon/sum As) :-
     mon/of-value V A,
     mon/valtys/get As L A.
-mon/of-value' (mon/thunk M) (mon/u C) :- mon/of-comp M C.
+mon/of-value' (mon/thunk M) (mon/u Eff C) :-
+    mon/of-comp M Eff C.
 
-mon/of-comp M C :-
-    mon/of-comp' M C,
-    mon/wf-compty C.
-mon/of-comp' (mon/ret V) (mon/f Eff A) :-
+mon/of-comp M Eff C :-
+    mon/of-comp' M Eff C,
+    mon/wf-compty Eff C.
+mon/of-comp' (mon/ret V) Eff (mon/f A) :-
     mon/of-value V A.
-mon/of-comp' (mon/fun M) (mon/arrow A C) :-
-    pi x\ (mon/of-value x A => mon/of-comp (M x) C).
-mon/of-comp' (mon/split V M) C :-
+mon/of-comp' (mon/fun M) Eff (mon/arrow A C) :-
+    pi x\ (mon/of-value x A => mon/of-comp (M x) Eff C).
+mon/of-comp' (mon/split V M) Eff C :-
     mon/of-value V (mon/prod A1 A2),
-    pi x1\ pi x2\ (mon/of-value x1 A1 => mon/of-value x2 A2 => mon/of-comp (M x1 x2) C).
-mon/of-comp' (mon/case V Ms) C :-
+    pi x1\ pi x2\ (mon/of-value x1 A1 => mon/of-value x2 A2 => mon/of-comp (M x1 x2) Eff C).
+mon/of-comp' (mon/case V Ms) Eff C :-
     mon/of-value V (mon/sum As),
-    mon/of-cases Ms As C.
-mon/of-comp' (mon/force V) C :- mon/of-value V (mon/u C).
-mon/of-comp' (mon/bind M N) C :-
-    mon/eff-kind C Eff,
-    mon/of-comp M (mon/f Eff A),
-    pi x\ (mon/of-value x A => mon/of-comp (N x) C).
-mon/of-comp' (mon/app M V) C :-
-    mon/of-comp M (mon/arrow A C),
+    mon/of-cases Ms Eff As C.
+mon/of-comp' (mon/force V) Eff C :- mon/of-value V (mon/u Eff C).
+mon/of-comp' (mon/bind M N) Eff C :-
+    mon/of-comp M Eff (mon/f A),
+    pi x\ (mon/of-value x A => mon/of-comp (N x) Eff C).
+mon/of-comp' (mon/app M V) Eff C :-
+    mon/of-comp M Eff (mon/arrow A C),
     mon/of-value V A.
-mon/of-comp' (mon/comppair M1 M2) (mon/compprod C1 C2) :-
-    mon/of-comp M1 C1,
-    mon/of-comp M2 C2.
-mon/of-comp' (mon/prj1 M) C1 :-
-    mon/eff-kind C1 Eff,
-    mon/eff-kind C2 Eff,
-    mon/of-comp M (mon/compprod C1 C2).
-mon/of-comp' (mon/prj2 M) C2 :-
-    mon/eff-kind C1 Eff,
-    mon/eff-kind C2 Eff,
-    mon/of-comp M (mon/compprod C1 C2).
+mon/of-comp' (mon/comppair M1 M2) Eff (mon/compprod C1 C2) :-
+    mon/of-comp M1 Eff C1,
+    mon/of-comp M2 Eff C2.
+mon/of-comp' (mon/prj1 M) Eff C1 :-
+    mon/of-comp M Eff (mon/compprod C1 C2).
+mon/of-comp' (mon/prj2 M) Eff C2 :-
+    mon/of-comp M Eff (mon/compprod C1 C2).
 
-mon/of-cases Ms As C :-
-    mon/of-cases' Ms As C,
+mon/of-cases Ms Eff As C :-
+    mon/of-cases' Ms Eff As C,
     mon/wf-valtys As,
-    mon/wf-compty C.
-mon/of-cases' mon/cases/nil mon/valtys/nil C.
-mon/of-cases' (mon/cases/cons Ms L M) (mon/valtys/cons As L A) C :-
-    mon/of-cases Ms As C,
-    pi x\ (mon/of-value x A => mon/of-comp (M x) C).
+    mon/wf-compty Eff C.
+mon/of-cases' mon/cases/nil Eff mon/valtys/nil C.
+mon/of-cases' (mon/cases/cons Ms L M) Eff (mon/valtys/cons As L A) C :-
+    mon/of-cases Ms Eff As C,
+    pi x\ (mon/of-value x A => mon/of-comp (M x) Eff C).
 
-mon/of-evctx E C1 C2 :-
-    mon/of-evctx' E C1 C2,
-    mon/wf-compty C1,
-    mon/wf-compty C2.
-mon/of-evctx' mon/hole C C.
-mon/of-evctx' (mon/evctx/bind E N) C1 C2 :-
-    mon/eff-kind C2 Eff,
-    mon/of-evctx E C1 (mon/f Eff A),
-    pi x\ (mon/of-value x A => mon/of-comp (N x) C2).
-mon/of-evctx' (mon/evctx/app E V) C1 C2 :-
-    mon/of-evctx E C1 (mon/arrow A C2),
+mon/of-evctx E Eff1 C1 Eff2 C2 :-
+    mon/of-evctx' E Eff1 C1 Eff2 C2,
+    mon/wf-compty Eff1 C1,
+    mon/wf-compty Eff2 C2.
+mon/of-evctx' mon/hole Eff C Eff C.
+mon/of-evctx' (mon/evctx/bind E N) Eff1 C1 Eff2 C2 :-
+    mon/of-evctx E Eff1 C1 Eff2 (mon/f A),
+    pi x\ (mon/of-value x A => mon/of-comp (N x) Eff2 C2).
+mon/of-evctx' (mon/evctx/app E V) Eff1 C1 Eff2 C2 :-
+    mon/of-evctx E Eff1 C1 Eff2 (mon/arrow A C2),
     mon/of-value V A.
-mon/of-evctx' (mon/evctx/prj1 E) C C1 :-
-    mon/eff-kind C1 Eff,
-    mon/eff-kind C2 Eff,
-    mon/of-evctx E C (mon/compprod C1 C2).
-mon/of-evctx' (mon/evctx/prj2 E) C C2 :-
-    mon/eff-kind C1 Eff,
-    mon/eff-kind C2 Eff,
-    mon/of-evctx E C (mon/compprod C1 C2).
+mon/of-evctx' (mon/evctx/prj1 E) Eff1 C Eff2 C1 :-
+    mon/of-evctx E Eff1 C Eff2 (mon/compprod C1 C2).
+mon/of-evctx' (mon/evctx/prj2 E) Eff1 C Eff2 C2 :-
+    mon/of-evctx E Eff1 C Eff2 (mon/compprod C1 C2).
 
 mon/valtys/get (mon/valtys/cons As L A) L A.
 mon/valtys/get (mon/valtys/cons As L' _) L A :-

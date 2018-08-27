@@ -18,7 +18,7 @@ del2mon/evctx (del/evctx/reset E N) (mon/evctx/app (mon/evctx/reify E' (mon/mon 
 
 del2mon/eff del/empty mon/empty.
 del2mon/eff (del/cons Eff C) (mon/cons Eff'
-    (a\ mon/arrow (mon/u (mon/arrow a C')) C')
+    (a\ mon/arrow (mon/u Eff' (mon/arrow a C')) C')
     (x\ mon/fun c\ mon/app (mon/force c) x)
     (m\ f\ mon/fun c\ mon/app (mon/force m) (mon/thunk (mon/fun y\ mon/app (mon/app (mon/force f) y) c)))
 ) :- 
@@ -31,11 +31,11 @@ del2mon/valty (del/prod A1 A2) (mon/prod A1' A2') :-
     del2mon/valty A2 A2'.
 del2mon/valty (del/sum As) (mon/sum As') :-
     del2mon/valtys As As'.
-del2mon/valty (del/u C) (mon/u C') :-
+del2mon/valty (del/u Eff C) (mon/u Eff' C') :-
+    del2mon/eff Eff Eff',
     del2mon/compty C C'.
 
-del2mon/compty (del/f Eff A) (mon/f Eff' A') :-
-    del2mon/eff Eff Eff',
+del2mon/compty (del/f A) (mon/f A') :-
     del2mon/valty A A'.
 del2mon/compty (del/arrow A C) (mon/arrow A' C') :-
     del2mon/valty A A',

@@ -1,16 +1,6 @@
 module auto-eff.
 accumulate common.
 
-eff/eff-kind C Eff :-
-    eff/eff-kind' C Eff,
-    eff/wf-compty C,
-    eff/wf-eff Eff.
-eff/eff-kind' (eff/f Eff A) Eff.
-eff/eff-kind' (eff/arrow _ C) Eff :- eff/eff-kind C Eff.
-eff/eff-kind' (eff/compprod C1 C2) Eff :-
-    eff/eff-kind C1 Eff,
-    eff/eff-kind C2 Eff.
-
 eff/wf-eff eff/empty.
 
 eff/wf-valty eff/unitty.
@@ -19,23 +9,23 @@ eff/wf-valty (eff/prod A1 A2) :-
     eff/wf-valty A2.
 eff/wf-valty (eff/sum As) :-
     eff/wf-valtys As.
-eff/wf-valty (eff/u C) :-
-    eff/wf-compty C.
+eff/wf-valty (eff/u Eff C) :-
+    eff/wf-compty Eff C.
 
 eff/wf-valtys eff/valtys/nil.
 eff/wf-valtys (eff/valtys/cons As L A) :-
     eff/wf-valtys As,
     eff/wf-valty A.
 
-eff/wf-compty (eff/f Eff A) :-
+eff/wf-compty Eff (eff/f A) :-
     eff/wf-eff Eff,
     eff/wf-valty A.
-eff/wf-compty (eff/arrow A C) :-
+eff/wf-compty Eff (eff/arrow A C) :-
     eff/wf-valty A,
-    eff/wf-compty C.
-eff/wf-compty (eff/compprod C1 C2) :-
-    eff/wf-compty C1,
-    eff/wf-compty C2.
+    eff/wf-compty Eff C.
+eff/wf-compty Eff (eff/compprod C1 C2) :-
+    eff/wf-compty Eff C1,
+    eff/wf-compty Eff C2.
 
 eff/of-value V A :-
     eff/of-value' V A,
@@ -47,70 +37,61 @@ eff/of-value' (eff/pair V1 V2) (eff/prod A1 A2) :-
 eff/of-value' (eff/inj L V) (eff/sum As) :-
     eff/of-value V A,
     eff/valtys/get As L A.
-eff/of-value' (eff/thunk M) (eff/u C) :- eff/of-comp M C.
+eff/of-value' (eff/thunk M) (eff/u Eff C) :-
+    eff/of-comp M Eff C.
 
-eff/of-comp M C :-
-    eff/of-comp' M C,
-    eff/wf-compty C.
-eff/of-comp' (eff/ret V) (eff/f Eff A) :-
+eff/of-comp M Eff C :-
+    eff/of-comp' M Eff C,
+    eff/wf-compty Eff C.
+eff/of-comp' (eff/ret V) Eff (eff/f A) :-
     eff/of-value V A.
-eff/of-comp' (eff/fun M) (eff/arrow A C) :-
-    pi x\ (eff/of-value x A => eff/of-comp (M x) C).
-eff/of-comp' (eff/split V M) C :-
+eff/of-comp' (eff/fun M) Eff (eff/arrow A C) :-
+    pi x\ (eff/of-value x A => eff/of-comp (M x) Eff C).
+eff/of-comp' (eff/split V M) Eff C :-
     eff/of-value V (eff/prod A1 A2),
-    pi x1\ pi x2\ (eff/of-value x1 A1 => eff/of-value x2 A2 => eff/of-comp (M x1 x2) C).
-eff/of-comp' (eff/case V Ms) C :-
+    pi x1\ pi x2\ (eff/of-value x1 A1 => eff/of-value x2 A2 => eff/of-comp (M x1 x2) Eff C).
+eff/of-comp' (eff/case V Ms) Eff C :-
     eff/of-value V (eff/sum As),
-    eff/of-cases Ms As C.
-eff/of-comp' (eff/force V) C :- eff/of-value V (eff/u C).
-eff/of-comp' (eff/bind M N) C :-
-    eff/eff-kind C Eff,
-    eff/of-comp M (eff/f Eff A),
-    pi x\ (eff/of-value x A => eff/of-comp (N x) C).
-eff/of-comp' (eff/app M V) C :-
-    eff/of-comp M (eff/arrow A C),
+    eff/of-cases Ms Eff As C.
+eff/of-comp' (eff/force V) Eff C :- eff/of-value V (eff/u Eff C).
+eff/of-comp' (eff/bind M N) Eff C :-
+    eff/of-comp M Eff (eff/f A),
+    pi x\ (eff/of-value x A => eff/of-comp (N x) Eff C).
+eff/of-comp' (eff/app M V) Eff C :-
+    eff/of-comp M Eff (eff/arrow A C),
     eff/of-value V A.
-eff/of-comp' (eff/comppair M1 M2) (eff/compprod C1 C2) :-
-    eff/of-comp M1 C1,
-    eff/of-comp M2 C2.
-eff/of-comp' (eff/prj1 M) C1 :-
-    eff/eff-kind C1 Eff,
-    eff/eff-kind C2 Eff,
-    eff/of-comp M (eff/compprod C1 C2).
-eff/of-comp' (eff/prj2 M) C2 :-
-    eff/eff-kind C1 Eff,
-    eff/eff-kind C2 Eff,
-    eff/of-comp M (eff/compprod C1 C2).
+eff/of-comp' (eff/comppair M1 M2) Eff (eff/compprod C1 C2) :-
+    eff/of-comp M1 Eff C1,
+    eff/of-comp M2 Eff C2.
+eff/of-comp' (eff/prj1 M) Eff C1 :-
+    eff/of-comp M Eff (eff/compprod C1 C2).
+eff/of-comp' (eff/prj2 M) Eff C2 :-
+    eff/of-comp M Eff (eff/compprod C1 C2).
 
-eff/of-cases Ms As C :-
-    eff/of-cases' Ms As C,
+eff/of-cases Ms Eff As C :-
+    eff/of-cases' Ms Eff As C,
     eff/wf-valtys As,
-    eff/wf-compty C.
-eff/of-cases' eff/cases/nil eff/valtys/nil C.
-eff/of-cases' (eff/cases/cons Ms L M) (eff/valtys/cons As L A) C :-
-    eff/of-cases Ms As C,
-    pi x\ (eff/of-value x A => eff/of-comp (M x) C).
+    eff/wf-compty Eff C.
+eff/of-cases' eff/cases/nil Eff eff/valtys/nil C.
+eff/of-cases' (eff/cases/cons Ms L M) Eff (eff/valtys/cons As L A) C :-
+    eff/of-cases Ms Eff As C,
+    pi x\ (eff/of-value x A => eff/of-comp (M x) Eff C).
 
-eff/of-evctx E C1 C2 :-
-    eff/of-evctx' E C1 C2,
-    eff/wf-compty C1,
-    eff/wf-compty C2.
-eff/of-evctx' eff/hole C C.
-eff/of-evctx' (eff/evctx/bind E N) C1 C2 :-
-    eff/eff-kind C2 Eff,
-    eff/of-evctx E C1 (eff/f Eff A),
-    pi x\ (eff/of-value x A => eff/of-comp (N x) C2).
-eff/of-evctx' (eff/evctx/app E V) C1 C2 :-
-    eff/of-evctx E C1 (eff/arrow A C2),
+eff/of-evctx E Eff1 C1 Eff2 C2 :-
+    eff/of-evctx' E Eff1 C1 Eff2 C2,
+    eff/wf-compty Eff1 C1,
+    eff/wf-compty Eff2 C2.
+eff/of-evctx' eff/hole Eff C Eff C.
+eff/of-evctx' (eff/evctx/bind E N) Eff1 C1 Eff2 C2 :-
+    eff/of-evctx E Eff1 C1 Eff2 (eff/f A),
+    pi x\ (eff/of-value x A => eff/of-comp (N x) Eff2 C2).
+eff/of-evctx' (eff/evctx/app E V) Eff1 C1 Eff2 C2 :-
+    eff/of-evctx E Eff1 C1 Eff2 (eff/arrow A C2),
     eff/of-value V A.
-eff/of-evctx' (eff/evctx/prj1 E) C C1 :-
-    eff/eff-kind C1 Eff,
-    eff/eff-kind C2 Eff,
-    eff/of-evctx E C (eff/compprod C1 C2).
-eff/of-evctx' (eff/evctx/prj2 E) C C2 :-
-    eff/eff-kind C1 Eff,
-    eff/eff-kind C2 Eff,
-    eff/of-evctx E C (eff/compprod C1 C2).
+eff/of-evctx' (eff/evctx/prj1 E) Eff1 C Eff2 C1 :-
+    eff/of-evctx E Eff1 C Eff2 (eff/compprod C1 C2).
+eff/of-evctx' (eff/evctx/prj2 E) Eff1 C Eff2 C2 :-
+    eff/of-evctx E Eff1 C Eff2 (eff/compprod C1 C2).
 
 eff/valtys/get (eff/valtys/cons As L A) L A.
 eff/valtys/get (eff/valtys/cons As L' _) L A :-
