@@ -52,7 +52,6 @@ type    mon/cases/cons        mon/cases -> label -> (mon/value -> mon/comp) -> m
 
 
 kind    mon/evctx             type.
-type    mon/is-evctx          mon/evctx -> o.
 
 type    mon/hole              mon/evctx.
 type    mon/evctx/bind        mon/evctx -> (mon/value -> mon/comp) -> mon/evctx.

@@ -1,0 +1,58 @@
+Specification "eff".
+
+Define eff/sim : eff/comp -> eff/comp -> prop by
+    eff/sim M M' := {eff/step M M'};
+    eff/sim M1 M3 := exists M2, eff/sim M1 M2 /\ eff/sim M2 M3.
+
+Theorem eff/pluggable : forall E, {eff/hoisting E} -> exists ER, {pi x\ eff/plug E (eff/ret x) (ER x)}.
+induction on 1. intros. case H1.
+    exists x\ eff/ret x. search.
+    apply IH to H2. exists x\ (eff/bind (ER x x) X). search.
+    apply IH to H2. exists x\ (eff/app (ER x x) X). search.
+    apply IH to H2. exists x\ (eff/prj1 (ER x x)). search.
+    apply IH to H2. exists x\ (eff/prj2 (ER x x)). search.
+
+Theorem eff/plug/is-function : forall E M EM, {eff/plug E M EM} -> exists E', forall M', {eff/plug E M' (E' M')}.
+induction on 1. intros. case H1.
+    exists m\ m. intros. search.
+    apply IH to H2. exists m\ eff/bind (E' m) N. intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ eff/app (E' m) V. intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ eff/prj1 (E' m). intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ eff/prj2 (E' m). intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ eff/handle (E' m) H. intros.
+    apply H3 with M' = M'. search.
+
+Theorem eff/plug/unique : forall E M EM EM',
+    {eff/plug E M EM} -> {eff/plug E M EM'} -> EM = EM'.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem plug/step : forall E M1 EM1 M2 EM2,
+    {eff/plug E M1 EM1} -> {eff/plug E M2 EM2} -> {eff/step M1 M2} -> {eff/step EM1 EM2}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+    case H2. apply IH to H4 H5 H3. case H6. search.
+
+Theorem eff/plug/sim : forall E M1 EM1 M2,
+    {eff/plug E M1 EM1} -> eff/sim M1 M2 -> exists EM2, {eff/plug E M2 EM2} /\ eff/sim EM1 EM2.
+induction on 2. intros. case H2.
+    apply eff/plug/is-function to H1.
+    exists (E' M2).
+    apply H4 with M' = M1.
+    apply H4 with M' = M2.
+    apply eff/plug/unique to H1 H5.
+    apply plug/step to H5 H6 H3. search.
+    apply IH to H1 H3. apply IH to H5 H4. search.

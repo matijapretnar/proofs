@@ -1,9 +1,6 @@
 module mon.
 accumulate auto-mon.
 
-mon/is-evctx (mon/evctx/reify E T) :-
-    mon/is-evctx E.
-
 mon/wf-eff (mon/cons Eff C _ _) :-
     mon/wf-eff Eff,
     pi a\ mon/wf-valty a => mon/wf-compty Eff (C a).
@@ -26,6 +23,9 @@ mon/of-comp' (mon/reify N T) Eff (C A) :-
     mon/of-comp N (mon/cons Eff C Nu Nb) (mon/f A).
 mon/of-comp' (mon/reflect N) (mon/cons Eff C Nu Nb) (mon/f A) :-
     mon/of-comp N Eff (C A).
+mon/of-evctx' (mon/evctx/reify E T) Eff1 D Eff (C A) :-
+    mon/of-monad T (mon/cons Eff C Nu Nb),
+    mon/of-evctx E Eff1 D (mon/cons Eff C Nu Nb) (mon/f A).
 
 mon/progresses ES (mon/cons _ _ _ _) :-
     mon/hoisting E,

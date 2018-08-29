@@ -144,9 +144,3 @@ mam/progresses (mam/comppair M1 M2) _ :-
     mam/progresses M2 _.
 mam/progresses M _ :-
     mam/step M _.
-
-mam/is-evctx mam/hole.
-mam/is-evctx (mam/evctx/bind E N) :- mam/is-evctx E.
-mam/is-evctx (mam/evctx/app E V) :- mam/is-evctx E.
-mam/is-evctx (mam/evctx/prj1 E) :- mam/is-evctx E.
-mam/is-evctx (mam/evctx/prj2 E) :- mam/is-evctx E.

@@ -24,6 +24,7 @@ type    eff/call            eff/operation -> eff/value -> eff/comp.
 type    eff/handle          eff/comp -> eff/handler -> eff/comp.
 
 
-type    eff/of-handler      eff/handler -> eff/valty -> eff/eff -> eff/compty -> o.
+type    eff/of-handler      eff/handler -> eff/valty -> eff/eff -> eff/eff -> eff/compty -> o.
+type    eff/of-handler'      eff/handler -> eff/valty -> eff/eff -> eff/eff -> eff/compty -> o.
 
 type    eff/evctx/handle    eff/evctx -> eff/handler -> eff/evctx.

@@ -1,9 +1,5 @@
 Specification "del2eff".
 
-Define eff/sim : eff/comp -> eff/comp -> prop by
-    eff/sim M M' := {eff/step M M'};
-    eff/sim M1 M3 := exists M2, eff/sim M1 M2 /\ eff/sim M2 M3.
-
 Define ctx : olist -> prop by
     ctx nil;
     nabla x x', ctx (del2eff/value x x' :: L) := ctx L.
@@ -277,16 +273,6 @@ induction on 3. intros. case H3.
     apply del2eff/comp-unique to _ H2 H18.
     unfold 2.
     search. 
-
-Theorem plug/step : forall E M1 EM1 M2 EM2,
-    {eff/plug E M1 EM1} -> {eff/plug E M2 EM2} -> {eff/step M1 M2} -> {eff/step EM1 EM2}.
-induction on 1. intros. case H1.
-    case H2. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
 
 Theorem plug/context : forall E, {eff/is-evctx E} -> exists E', forall M, {eff/plug E M (E' M)}.
 induction on 1. intros. case H1.

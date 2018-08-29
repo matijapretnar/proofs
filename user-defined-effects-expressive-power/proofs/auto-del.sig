@@ -52,7 +52,6 @@ type    del/cases/cons        del/cases -> label -> (del/value -> del/comp) -> d
 
 
 kind    del/evctx             type.
-type    del/is-evctx          del/evctx -> o.
 
 type    del/hole              del/evctx.
 type    del/evctx/bind        del/evctx -> (del/value -> del/comp) -> del/evctx.

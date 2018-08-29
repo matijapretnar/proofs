@@ -144,9 +144,3 @@ del/progresses (del/comppair M1 M2) _ :-
     del/progresses M2 _.
 del/progresses M _ :-
     del/step M _.
-
-del/is-evctx del/hole.
-del/is-evctx (del/evctx/bind E N) :- del/is-evctx E.
-del/is-evctx (del/evctx/app E V) :- del/is-evctx E.
-del/is-evctx (del/evctx/prj1 E) :- del/is-evctx E.
-del/is-evctx (del/evctx/prj2 E) :- del/is-evctx E.

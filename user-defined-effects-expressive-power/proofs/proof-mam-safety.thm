@@ -1,14 +1,66 @@
 Specification "mam".
+Import "lemmas-mam".
 
-Import "proof-mam-progress".
-Import "proof-mam-preservation".
+Theorem mam/progress :
+    forall M Eff C, {mam/of-comp M Eff C} -> {mam/progresses M Eff}.
+induction on 1.
 
-Theorem safety : forall M A,
-    {mam/of-comp M (mam/f mam/empty A)} ->
-        (exists N, {mam/step M N} /\ {mam/of-comp N (mam/f mam/empty A)}) \/
+    intros Hwf. Hwellf: case Hwf.
+    case Hwellf.
+        search.
+        search.
+        Hwf: case H1. case Hwf.
+            search.
+        Hwf: case H1. case Hwf.
+            apply mam/can-get-case to H2 H4.
+            search.
+        Hwf: case H1. case Hwf.
+            search.
+        apply IH to H1. case H3.
+            search.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            case H4. search.
+        apply IH to H1. case H3.
+            Hwf: case H1. case Hwf.
+            search.
+            Hwf: case H1. case Hwf.
+            case H4. search.
+        apply IH to H1. apply IH to H2. search.
+        apply IH to H1. case H2.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            search.
+            case H3. search.
+        apply IH to H1. case H2.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            search.
+            case H3. search.
+
+Theorem mam/reduce-preservation : forall M M' Eff C, {mam/of-comp M Eff C} -> {mam/reduce M M'} -> {mam/of-comp M' Eff C}.
+intros. Hwf: case H1. case H2.
+    case Hwf. case H3. case H5. inst H4 with n1 = V1, n2 = V2. cut H9. search.
+    case Hwf. case H4. case H6. apply mam/of-get-case to H3 H5 H9. inst H10 with n1 = V. cut H11. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H5. inst H4 with n1 = V. cut H8. search.
+    case Hwf. case H3. case H5. inst H7 with n1 = V. cut H8. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H4. search.
+
+Theorem mam/preservation : forall M M' Eff C, {mam/of-comp M Eff C} -> {mam/step M M'} -> {mam/of-comp M' Eff C}.
+intros. case H2.
+    apply mam/of-unplug to H3 H1.
+    apply mam/reduce-preservation to H6 H4.
+    apply mam/of-plug to H7 H8 H5 with L = nil.
+    search.
+
+Theorem mam/safety : forall M A,
+    {mam/of-comp M mam/empty (mam/f A)} ->
+        (exists N, {mam/step M N} /\ {mam/of-comp N mam/empty (mam/f A)}) \/
         (exists V, M = mam/ret V /\ {mam/of-value V A}).
-intros. apply progress to H1. case H2.
-    case H1. right. search.
-    case H1.
-    case H1.
-    apply preservation to H1 H3. left. search.
+intros. prog_part : apply mam/progress. apply prog_part to H1. case H2.
+    case H1. case H3. search.
+    case H1. case H3.
+    case H1. case H5.
+    apply mam/preservation to H1 H3. search.

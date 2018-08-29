@@ -52,7 +52,6 @@ type    eff/cases/cons        eff/cases -> label -> (eff/value -> eff/comp) -> e
 
 
 kind    eff/evctx             type.
-type    eff/is-evctx          eff/evctx -> o.
 
 type    eff/hole              eff/evctx.
 type    eff/evctx/bind        eff/evctx -> (eff/value -> eff/comp) -> eff/evctx.

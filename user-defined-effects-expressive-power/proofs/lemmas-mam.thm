@@ -1,0 +1,103 @@
+Specification "mam".
+
+Theorem mam/can-get-case : forall Ms Eff As C L A,
+    {mam/of-cases Ms Eff As C} -> {mam/valtys/get As L A} ->
+    exists M, {mam/get-case Ms L M}.
+induction on 1. intros. case H1.
+    case H3.
+        case H2.
+        case H2.
+            search.
+            apply IH to H6 H9. search.
+
+Define mam/cong : mam/comp -> mam/comp -> prop by
+    mam/cong M M' := {mam/step M M'};
+    mam/cong CM CM' := exists C (M : mam/value -> mam/comp) M', CM = C M /\ (forall y, mam/cong (M y) (M' y)) /\ C M' = CM';
+    mam/cong M1 M3 := exists M2, mam/cong M1 M2 /\ mam/cong M2 M3.
+
+Theorem mam/cong/plain : forall CM CM',
+  (exists C M M', CM = C M /\ mam/cong M M' /\ C M' = CM') -> mam/cong CM CM'.
+intros. case H1. unfold 2. exists m\ C (m mam/unit), x\ M, x\ M'. search.
+
+Theorem mam/pluggable : forall E, {mam/hoisting E} -> exists ER, {pi x\ mam/plug E (mam/ret x) (ER x)}.
+induction on 1. intros. case H1.
+    exists x\ mam/ret x. search.
+    apply IH to H2. exists x\ (mam/bind (ER x x) X). search.
+    apply IH to H2. exists x\ (mam/app (ER x x) X). search.
+    apply IH to H2. exists x\ (mam/prj1 (ER x x)). search.
+    apply IH to H2. exists x\ (mam/prj2 (ER x x)). search.
+
+Theorem mam/plug/is-function : forall E M EM, {mam/plug E M EM} -> exists E', forall M', {mam/plug E M' (E' M')}.
+induction on 1. intros. case H1.
+    exists m\ m. intros. search.
+    apply IH to H2. exists m\ mam/bind (E' m) N. intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ mam/app (E' m) V. intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ mam/prj1 (E' m). intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ mam/prj2 (E' m). intros.
+    apply H3 with M' = M'. search.
+
+Theorem mam/plug/unique : forall E M EM EM',
+    {mam/plug E M EM} -> {mam/plug E M EM'} -> EM = EM'.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem mam/plug/cong : forall E M1 EM1 M2,
+    {mam/plug E M1 EM1} -> mam/cong M1 M2 -> exists EM2, {mam/plug E M2 EM2} /\ mam/cong EM1 EM2.
+intros.
+    apply mam/plug/is-function to H1.
+    exists (E' M2).
+    apply H3 with M' = M1.
+    apply H3 with M' = M2.
+    apply mam/plug/unique to H1 H4.
+    split.
+    search.
+    backchain mam/cong/plain. exists E', M1, M2. search.
+
+Theorem mam/hoisting-equal-eff : forall E C1 C2 Eff1 Eff2,
+    {mam/hoisting E} -> {mam/of-evctx E Eff1 C1 Eff2 C2} -> Eff1 = Eff2.
+induction on 1. intros. Hwf: case H2. case H1.
+    case Hwf. search.
+    case Hwf. apply IH to H3 H4. search.
+    case Hwf. apply IH to H3 H4. search.
+    case Hwf. apply IH to H3 H4. search.
+    case Hwf. apply IH to H3 H4. search.
+
+Theorem mam/of-get-case : forall Ms L M Eff As C A,
+    {mam/get-case Ms L M} -> {mam/of-cases Ms Eff As C} -> {mam/valtys/get As L A} ->
+    {pi x\ mam/of-value x A => mam/of-comp (M x) Eff C}.
+% Proof
+    induction on 1. intros.
+    apart_not_reflexive: assert forall N, {apart N N} -> false.
+        induction on 1. intros. case H4. apply IH1 to H5.
+    case H1.
+        case H2. case H4.
+            case H3. search.
+            case H9. apply apart_not_reflexive to H11.
+        case H2. case H4. case H6. case H3.
+            apply apart_not_reflexive to H9.
+            apply IH to H5 H10 H13. search.
+
+Theorem mam/of-plug : forall L E M EM Eff1 C1 Eff2 C2,
+    {mam/of-evctx E Eff1 C1 Eff2 C2} -> {L |- mam/of-comp M Eff1 C1} -> {mam/plug E M EM} -> {L |- mam/of-comp EM Eff2 C2}.
+induction on 1. intros. Hwf: case H1. case Hwf.
+    case H3. search.
+    case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H4 H2 H5. search.
+    case H3. apply IH to H4 H2 H5. search.
+
+Theorem mam/of-unplug : forall E M EM Eff2 C2,
+    {mam/plug E M EM} -> {mam/of-comp EM Eff2 C2} -> exists Eff1 C1, {mam/of-comp M Eff1 C1} /\ {mam/of-evctx E Eff1 C1 Eff2 C2}.
+induction on 1. intros. case H2 (keep). case H1.
+    search.
+    case H3. apply IH to H5 H6. case H9 (keep). search.
+    case H3. apply IH to H5 H6. case H9 (keep). search.
+    case H3. apply IH to H5 H6. case H8 (keep). search.
+    case H3. apply IH to H5 H6. case H8 (keep). search.

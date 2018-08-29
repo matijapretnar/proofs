@@ -144,9 +144,3 @@ xxx/progresses (xxx/comppair M1 M2) _ :-
     xxx/progresses M2 _.
 xxx/progresses M _ :-
     xxx/step M _.
-
-xxx/is-evctx xxx/hole.
-xxx/is-evctx (xxx/evctx/bind E N) :- xxx/is-evctx E.
-xxx/is-evctx (xxx/evctx/app E V) :- xxx/is-evctx E.
-xxx/is-evctx (xxx/evctx/prj1 E) :- xxx/is-evctx E.
-xxx/is-evctx (xxx/evctx/prj2 E) :- xxx/is-evctx E.

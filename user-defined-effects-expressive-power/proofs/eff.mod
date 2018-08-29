@@ -1,8 +1,6 @@
 module eff.
 accumulate auto-eff.
 
-eff/is-evctx (eff/evctx/handle E H) :- eff/is-evctx E.
-
 eff/op/apart (eff/op N) (eff/op N') :-
     apart N N'.
 
@@ -32,25 +30,30 @@ eff/reduce (eff/handle EOp H) (M V (eff/thunk (eff/fun x\ eff/handle (ER x) H)))
     eff/get-opcase H Op M.
 
 
-eff/of-handler (eff/valcase M) A eff/empty C :-
-    pi x\ (eff/of-value x A => eff/of-comp (M x) C).
-eff/of-handler (eff/opcase H Op M) A (eff/cons Eff Op A1 A2) C :-
-    eff/of-handler H A Eff C,
-    pi x\ pi k\ (eff/of-value x A1 => eff/of-value k (eff/u (eff/arrow A2 C)) => eff/of-comp (M x k) C).
+eff/of-handler H A Eff1 Eff2 C :-
+    eff/of-handler' H A Eff1 Eff2 C,
+    eff/wf-valty A,
+    eff/wf-eff Eff1,
+    eff/wf-compty Eff2 C.
 
-eff/of-comp (eff/call Op V) (eff/f Eff B) :-
+eff/of-handler' (eff/valcase M) A eff/empty Eff2 C :-
+    pi x\ (eff/of-value x A => eff/of-comp (M x) Eff2 C).
+eff/of-handler' (eff/opcase H Op M) A (eff/cons Eff1 Op A1 A2) Eff2 C :-
+    eff/of-handler H A Eff1 Eff2 C,
+    pi x\ pi k\ (eff/of-value x A1 => eff/of-value k (eff/u Eff2 (eff/arrow A2 C)) => eff/of-comp (M x k) Eff2 C).
+
+eff/of-comp' (eff/call Op V) Eff (eff/f B) :-
     eff/op-sig Eff Op A B,
     eff/of-value V A.
-eff/of-comp (eff/handle M H) C :-
-    eff/of-comp M (eff/f Eff A),
-    eff/of-handler H A Eff C.
+eff/of-comp' (eff/handle M H) Eff2 C :-
+    eff/of-comp M Eff1 (eff/f A),
+    eff/of-handler H A Eff1 Eff2 C.
 
-eff/of-evctx (eff/evctx/handle E H) C C' :-
-    eff/of-evctx E C (eff/f Eff A),
-    eff/of-handler H A Eff C'.
+eff/of-evctx (eff/evctx/handle E H) Eff1 C1 Eff2 C2 :-
+    eff/of-evctx E Eff1 C1 Eff (eff/f A),
+    eff/of-handler H A Eff Eff2 C2.
 
-eff/progresses EOp C :-
-    eff/eff-kind C Eff,
+eff/progresses EOp Eff :-
     eff/op-sig Eff Op _ _,
     eff/plug E (eff/call Op _) EOp,
     eff/hoisting E.

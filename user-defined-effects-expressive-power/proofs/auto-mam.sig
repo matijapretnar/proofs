@@ -52,7 +52,6 @@ type    mam/cases/cons        mam/cases -> label -> (mam/value -> mam/comp) -> m
 
 
 kind    mam/evctx             type.
-type    mam/is-evctx          mam/evctx -> o.
 
 type    mam/hole              mam/evctx.
 type    mam/evctx/bind        mam/evctx -> (mam/value -> mam/comp) -> mam/evctx.

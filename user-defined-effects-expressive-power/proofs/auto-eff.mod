@@ -144,9 +144,3 @@ eff/progresses (eff/comppair M1 M2) _ :-
     eff/progresses M2 _.
 eff/progresses M _ :-
     eff/step M _.
-
-eff/is-evctx eff/hole.
-eff/is-evctx (eff/evctx/bind E N) :- eff/is-evctx E.
-eff/is-evctx (eff/evctx/app E V) :- eff/is-evctx E.
-eff/is-evctx (eff/evctx/prj1 E) :- eff/is-evctx E.
-eff/is-evctx (eff/evctx/prj2 E) :- eff/is-evctx E.

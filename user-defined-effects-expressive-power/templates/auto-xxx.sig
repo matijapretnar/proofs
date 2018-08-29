@@ -52,7 +52,6 @@ type    xxx/cases/cons        xxx/cases -> label -> (xxx/value -> xxx/comp) -> x
 
 
 kind    xxx/evctx             type.
-type    xxx/is-evctx          xxx/evctx -> o.
 
 type    xxx/hole              xxx/evctx.
 type    xxx/evctx/bind        xxx/evctx -> (xxx/value -> xxx/comp) -> xxx/evctx.

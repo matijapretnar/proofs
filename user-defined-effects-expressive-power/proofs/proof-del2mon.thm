@@ -1,13 +1,5 @@
 Specification "del2mon".
-
-Define mon/cong : mon/comp -> mon/comp -> prop by
-    mon/cong M M' := {mon/step M M'};
-    mon/cong CM CM' := exists C (M : mon/value -> mon/comp) M', CM = C M /\ (forall y, mon/cong (M y) (M' y)) /\ C M' = CM';
-    mon/cong M1 M3 := exists M2, mon/cong M1 M2 /\ mon/cong M2 M3.
-
-Theorem mon/cong/plain : forall CM CM',
-  (exists C M M', CM = C M /\ mon/cong M M' /\ C M' = CM') -> mon/cong CM CM'.
-intros. case H1. unfold 2. exists m\ C (m mon/unit), x\ M, x\ M'. search.
+Import "lemmas-mon".
 
 Theorem del2mon/hoisting : forall E E',
     {del/hoisting E} -> {del2mon/evctx E E'} -> {mon/hoisting E'}.
@@ -28,14 +20,6 @@ induction on 1. intros. case H1.
     case H2. apply IH to H3 H4. exists (mon/evctx/prj1 E'), M'1.  search.
     case H2. apply IH to H3 H4. exists (mon/evctx/prj2 E'), M'1.  search.
     case H2. apply IH to H3 H4. exists (mon/evctx/app (mon/evctx/reify E' (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ mon/app (mon/force m) (mon/thunk (mon/fun y\ mon/app (mon/app (mon/force f) y) c))))) (mon/thunk (mon/fun N'))), M'1. search.
-
-Theorem mon/pluggable : forall E, {mon/hoisting E} -> exists ER, {pi x\ mon/plug E (mon/ret x) (ER x)}.
-induction on 1. intros. case H1.
-    exists x\ mon/ret x. search.
-    apply IH to H2. exists x\ (mon/bind (ER x x) X). search.
-    apply IH to H2. exists x\ (mon/app (ER x x) X). search.
-    apply IH to H2. exists x\ (mon/prj1 (ER x x)). search.
-    apply IH to H2. exists x\ (mon/prj2 (ER x x)). search.
 
 Theorem del2mon/plug : forall L E M EM E' M' EM',
     {del/plug E M EM} -> {del2mon/evctx E E'} -> {L |- del2mon/comp M M'} ->
@@ -231,48 +215,12 @@ induction on 2. intros. case H2.
     exists red\ M'2 (mon/thunk (mon/fun (x\mon/app (red x) (mon/thunk (mon/fun N'))))).
     search.
 
-Theorem plug/is-function : forall E M EM, {mon/plug E M EM} -> exists E', forall M', {mon/plug E M' (E' M')}.
-induction on 1. intros. case H1.
-    exists m\ m. intros. search.
-    apply IH to H2. exists m\ mon/bind (E' m) N. intros.
-    apply H3 with M' = M'. search.
-    apply IH to H2. exists m\ mon/app (E' m) V. intros.
-    apply H3 with M' = M'. search.
-    apply IH to H2. exists m\ mon/prj1 (E' m). intros.
-    apply H3 with M' = M'. search.
-    apply IH to H2. exists m\ mon/prj2 (E' m). intros.
-    apply H3 with M' = M'. search.
-    apply IH to H2. exists m\ mon/reify (E' m) T. intros.
-    apply H3 with M' = M'. search.
-
-Theorem plug/unique : forall E M EM EM',
-    {mon/plug E M EM} -> {mon/plug E M EM'} -> EM = EM'.
-induction on 1. intros. case H1.
-    case H2. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H4. search.
-
-Theorem plug/cong : forall E M1 EM1 M2,
-    {mon/plug E M1 EM1} -> mon/cong M1 M2 -> exists EM2, {mon/plug E M2 EM2} /\ mon/cong EM1 EM2.
-intros.
-    apply plug/is-function to _ with E = E.
-    exists (E' M2).
-    apply H3 with M' = M1.
-    apply H3 with M' = M2.
-    apply plug/unique to H1 H4.
-    split.
-    search.
-    backchain mon/cong/plain. exists E', M1, M2. search.
-
 Theorem correctness : forall M1 M2 M1',
     {del2mon/comp M1 M1'} -> {del/step M1 M2} -> 
     exists M2', {del2mon/comp M2 M2'} /\ mon/cong M1' M2'.
 intros. case H2.
     apply del2mon/unplug to H3 H1.
     apply del2mon/reduce to H7 H4.
-    apply plug/cong to H8 H10.
+    apply mon/plug/cong to H8 H10.
     apply del2mon/plug to H5 H6 H9 H11 with L = nil.
     search.

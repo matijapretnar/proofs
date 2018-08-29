@@ -1,0 +1,108 @@
+Specification "del".
+
+Theorem del/can-get-case : forall Ms Eff As C L A,
+    {del/of-cases Ms Eff As C} -> {del/valtys/get As L A} ->
+    exists M, {del/get-case Ms L M}.
+induction on 1. intros. case H1.
+    case H3.
+        case H2.
+        case H2.
+            search.
+            apply IH to H6 H9. search.
+
+Define del/cong : del/comp -> del/comp -> prop by
+    del/cong M M' := {del/step M M'};
+    del/cong CM CM' := exists C (M : del/value -> del/comp) M', CM = C M /\ (forall y, del/cong (M y) (M' y)) /\ C M' = CM';
+    del/cong M1 M3 := exists M2, del/cong M1 M2 /\ del/cong M2 M3.
+
+Theorem del/cong/plain : forall CM CM',
+  (exists C M M', CM = C M /\ del/cong M M' /\ C M' = CM') -> del/cong CM CM'.
+intros. case H1. unfold 2. exists m\ C (m del/unit), x\ M, x\ M'. search.
+
+Theorem del/pluggable : forall E, {del/hoisting E} -> exists ER, {pi x\ del/plug E (del/ret x) (ER x)}.
+induction on 1. intros. case H1.
+    exists x\ del/ret x. search.
+    apply IH to H2. exists x\ (del/bind (ER x x) X). search.
+    apply IH to H2. exists x\ (del/app (ER x x) X). search.
+    apply IH to H2. exists x\ (del/prj1 (ER x x)). search.
+    apply IH to H2. exists x\ (del/prj2 (ER x x)). search.
+
+Theorem del/plug/is-function : forall E M EM, {del/plug E M EM} -> exists E', forall M', {del/plug E M' (E' M')}.
+induction on 1. intros. case H1.
+    exists m\ m. intros. search.
+    apply IH to H2. exists m\ del/bind (E' m) N. intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ del/app (E' m) V. intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ del/prj1 (E' m). intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ del/prj2 (E' m). intros.
+    apply H3 with M' = M'. search.
+    apply IH to H2. exists m\ del/reset (E' m) N. intros.
+    apply H3 with M' = M'. search.
+
+Theorem del/plug/unique : forall E M EM EM',
+    {del/plug E M EM} -> {del/plug E M EM'} -> EM = EM'.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem del/plug/cong : forall E M1 EM1 M2,
+    {del/plug E M1 EM1} -> del/cong M1 M2 -> exists EM2, {del/plug E M2 EM2} /\ del/cong EM1 EM2.
+intros.
+    apply del/plug/is-function to H1.
+    exists (E' M2).
+    apply H3 with M' = M1.
+    apply H3 with M' = M2.
+    apply del/plug/unique to H1 H4.
+    split.
+    search.
+    backchain del/cong/plain. exists E', M1, M2. search.
+
+Theorem del/hoisting-equal-eff : forall E C1 C2 Eff1 Eff2,
+    {del/hoisting E} -> {del/of-evctx E Eff1 C1 Eff2 C2} -> Eff1 = Eff2.
+induction on 1. intros. Hwf: case H2. case H1.
+    case Hwf. search.
+    case Hwf. apply IH to H3 H4. search.
+    case Hwf. apply IH to H3 H4. search.
+    case Hwf. apply IH to H3 H4. search.
+    case Hwf. apply IH to H3 H4. search.
+
+Theorem del/of-get-case : forall Ms L M Eff As C A,
+    {del/get-case Ms L M} -> {del/of-cases Ms Eff As C} -> {del/valtys/get As L A} ->
+    {pi x\ del/of-value x A => del/of-comp (M x) Eff C}.
+% Proof
+    induction on 1. intros.
+    apart_not_reflexive: assert forall N, {apart N N} -> false.
+        induction on 1. intros. case H4. apply IH1 to H5.
+    case H1.
+        case H2. case H4.
+            case H3. search.
+            case H9. apply apart_not_reflexive to H11.
+        case H2. case H4. case H6. case H3.
+            apply apart_not_reflexive to H9.
+            apply IH to H5 H10 H13. search.
+
+Theorem del/of-plug : forall L E M EM Eff1 C1 Eff2 C2,
+    {del/of-evctx E Eff1 C1 Eff2 C2} -> {L |- del/of-comp M Eff1 C1} -> {del/plug E M EM} -> {L |- del/of-comp EM Eff2 C2}.
+induction on 1. intros. Hwf: case H1. case Hwf.
+    case H3. search.
+    case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H4 H2 H5. search.
+    case H3. apply IH to H4 H2 H5. search.
+    case H3. apply IH to H5 H2 H6. search.
+
+Theorem del/of-unplug : forall E M EM Eff2 C2,
+    {del/plug E M EM} -> {del/of-comp EM Eff2 C2} -> exists Eff1 C1, {del/of-comp M Eff1 C1} /\ {del/of-evctx E Eff1 C1 Eff2 C2}.
+induction on 1. intros. case H2 (keep). case H1.
+    search.
+    case H3. apply IH to H5 H6. case H9 (keep). search.
+    case H3. apply IH to H5 H6. case H9 (keep). search.
+    case H3. apply IH to H5 H6. case H8 (keep). search.
+    case H3. apply IH to H5 H6. case H8 (keep). search.
+    case H3. apply IH to H5 H7. case H8 (keep). search.

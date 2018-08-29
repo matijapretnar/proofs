@@ -144,9 +144,3 @@ mon/progresses (mon/comppair M1 M2) _ :-
     mon/progresses M2 _.
 mon/progresses M _ :-
     mon/step M _.
-
-mon/is-evctx mon/hole.
-mon/is-evctx (mon/evctx/bind E N) :- mon/is-evctx E.
-mon/is-evctx (mon/evctx/app E V) :- mon/is-evctx E.
-mon/is-evctx (mon/evctx/prj1 E) :- mon/is-evctx E.
-mon/is-evctx (mon/evctx/prj2 E) :- mon/is-evctx E.
