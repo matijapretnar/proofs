@@ -1,5 +1,15 @@
 Specification "eff".
 
+Theorem eff/can-get-case : forall Ms Eff As C L A,
+    {eff/of-cases Ms Eff As C} -> {eff/valtys/get As L A} ->
+    exists M, {eff/get-case Ms L M}.
+induction on 1. intros. case H1.
+    case H3.
+        case H2.
+        case H2.
+            search.
+            apply IH to H6 H9. search.
+
 Define eff/sim : eff/comp -> eff/comp -> prop by
     eff/sim M M' := {eff/step M M'};
     eff/sim M1 M3 := exists M2, eff/sim M1 M2 /\ eff/sim M2 M3.
@@ -36,7 +46,7 @@ induction on 1. intros. case H1.
     case H2. apply IH to H3 H4. search.
     case H2. apply IH to H3 H4. search.
 
-Theorem plug/step : forall E M1 EM1 M2 EM2,
+Theorem eff/plug/step : forall E M1 EM1 M2 EM2,
     {eff/plug E M1 EM1} -> {eff/plug E M2 EM2} -> {eff/step M1 M2} -> {eff/step EM1 EM2}.
 induction on 1. intros. case H1.
     case H2. search.
@@ -54,5 +64,50 @@ induction on 2. intros. case H2.
     apply H4 with M' = M1.
     apply H4 with M' = M2.
     apply eff/plug/unique to H1 H5.
-    apply plug/step to H5 H6 H3. search.
+    apply eff/plug/step to H5 H6 H3. search.
     apply IH to H1 H3. apply IH to H5 H4. search.
+
+Theorem eff/hoisting-equal-eff : forall E C1 C2 Eff1 Eff2,
+    {eff/hoisting E} -> {eff/of-evctx E Eff1 C1 Eff2 C2} -> Eff1 = Eff2.
+induction on 1. intros. Hwf: case H2. case H1.
+    case Hwf. search.
+    case Hwf. apply IH to H3 H4. search.
+    case Hwf. apply IH to H3 H4. search.
+    case Hwf. apply IH to H3 H4. search.
+    case Hwf. apply IH to H3 H4. search.
+
+Theorem eff/of-get-case : forall Ms L M Eff As C A,
+    {eff/get-case Ms L M} -> {eff/of-cases Ms Eff As C} -> {eff/valtys/get As L A} ->
+    {pi x\ eff/of-value x A => eff/of-comp (M x) Eff C}.
+% Proof
+    induction on 1. intros.
+    apart_not_reflexive: assert forall N, {apart N N} -> false.
+        induction on 1. intros. case H4. apply IH1 to H5.
+    case H1.
+        case H2. case H4.
+            case H3. search.
+            case H9. apply apart_not_reflexive to H11.
+        case H2. case H4. case H6. case H3.
+            apply apart_not_reflexive to H9.
+            apply IH to H5 H10 H13. search.
+
+Theorem eff/of-plug : forall L E M EM Eff1 C1 Eff2 C2,
+    {eff/of-evctx E Eff1 C1 Eff2 C2} -> {L |- eff/of-comp M Eff1 C1} -> {eff/plug E M EM} -> {L |- eff/of-comp EM Eff2 C2}.
+induction on 1. intros. Hwf: case H1. case Hwf.
+    case H3. search.
+    case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H4 H2 H6. search.
+    case H3. apply IH to H4 H2 H5. search.
+    case H3. apply IH to H4 H2 H5. search.
+    case H3. apply IH to H5 H2 H6. search.
+
+Theorem eff/of-unplug : forall E M EM Eff2 C2,
+    {eff/plug E M EM} -> {eff/of-comp EM Eff2 C2} -> exists Eff1 C1, {eff/of-comp M Eff1 C1} /\ {eff/of-evctx E Eff1 C1 Eff2 C2}.
+induction on 1. intros. case H2 (keep). case H1.
+    search.
+    case H3. apply IH to H5 H6. case H9 (keep). search.
+    case H3. apply IH to H5 H6. case H9 (keep). search.
+    case H3. apply IH to H5 H6. case H8 (keep). search.
+    case H3. apply IH to H5 H6. case H8 (keep). search.
+    case H3. apply IH to H5 H7. case H8 (keep). search.
+

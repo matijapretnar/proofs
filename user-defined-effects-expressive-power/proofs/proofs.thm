@@ -1,12 +1,12 @@
 Specification "proofs".
 Import "proof-mam-safety".
 Import "proof-del-safety".
+Import "proof-mon-safety".
+Import "proof-del2mon".
+Import "proof-del2mon-typed".
 % Import "proof-del2eff".
-% Import "proof-del2mon".
-% Import "proof-del2mon-typed".
 % Import "proof-eff-safety".
 % Import "proof-eff2del".
 % Import "proof-eff2mon".
-% Import "proof-mon-safety".
 % Import "proof-mon2del".
 % Import "proof-mon2eff".

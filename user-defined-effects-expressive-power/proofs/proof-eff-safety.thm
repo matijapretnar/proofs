@@ -1,15 +1,103 @@
 Specification "eff".
+Import "lemmas-eff".
 
-Import "eff-progress".
-Import "eff-preservation".
+Theorem eff/can-get-valcase : forall H A Eff1 Eff2 C,
+    {eff/of-handler H A Eff1 Eff2 C} -> exists M, {eff/get-valcase H M}.
+induction on 1. intros. case H1. case H2.
+    search.
+    apply IH to H6. search.
 
-Theorem safety : forall M A,
-    {of/comp M (f empty A)} ->
-        (exists N, {step M N} /\ {of/comp N (f empty A)}) \/
-        (exists V, M = ret V /\ {of/value V A}).
-intros. apply progress to H1. case H2.
-    case H1. right. search.
-    case H1.
-    case H1.
-    apply preservation to H1 H3. left. search.
-    case H3. case H4.
+Theorem eff/can-get-opcase : forall H A Eff1 Eff2 C Op A1 A2,
+    {eff/of-handler H A Eff1 Eff2 C} -> {eff/op-sig Eff1 Op A1 A2} -> exists M, {eff/get-opcase H Op M}.
+induction on 1. intros. case H1. case H3.
+    case H2.
+    case H2.
+        search.
+        apply IH to H7 H10. search.
+
+Theorem eff/progress :
+    forall M Eff C, {eff/of-comp M Eff C} -> {eff/progresses M Eff}.
+induction on 1.
+
+    intros Hwf. Hwellf: case Hwf.
+
+    case Hwellf.
+        search.
+        search.
+        Hwf: case H1. case Hwf.
+            search.
+        Hwf: case H1. case Hwf.
+            apply eff/can-get-case to H2 H4.
+            search.
+        Hwf: case H1. case Hwf.
+            search.
+        apply IH to H1. case H3.
+            search.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            case H4. search.
+            case H1. search.
+        apply IH to H1. case H3.
+            Hwf: case H1. case Hwf.
+            search.
+            Hwf: case H1. case Hwf.
+            case H4. search.
+            case H1. search.
+        apply IH to H1. apply IH to H2. search.
+        apply IH to H1. case H2.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            search.
+            case H3. search.
+            case H1. search.
+        apply IH to H1. case H2.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            search.
+            case H3. search.
+            case H1. search.
+        case Hwellf1. search.
+        apply IH to H1. case H3.
+            apply eff/can-get-valcase to H2. search.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            case H4. search.
+            apply eff/pluggable to H6. apply eff/can-get-opcase to H2 H4. search.
+
+Theorem eff/reduce-preservation : forall M M' Eff C, {eff/of-comp M Eff C} -> {eff/reduce M M'} -> {eff/of-comp M' Eff C}.
+intros. Hwf: case H1. case H2.
+    case Hwf. case H3. case H5. inst H4 with n1 = V1, n2 = V2. cut H9. search.
+    case Hwf. case H4. case H6. apply eff/of-get-case to H3 H5 H9. inst H10 with n1 = V. cut H11. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H5. inst H4 with n1 = V. cut H8. search.
+    case Hwf. case H3. case H5. inst H7 with n1 = V. cut H8. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H4. case H7. case H8. inst H5 with n1 = A, n2 = V. cut H12. search.
+    case Hwf.
+        apply eff/of-unplug to H3 H7. case H8. case H10.
+        apply eff/hoisting-equal-eff to H4 H9.
+        case H11. case H12. case H13. case H6.
+        assert {eff/of-value (eff/thunk N) (eff/u Eff (C1 A1))}.
+        apply eff/of-plug to H9 _ H5 with L = eff/of-value n1 A1 :: nil.
+        assert {eff/of-value n1 A1 |- eff/of-comp (eff/reify (ER n1) (eff/eff Nu1 Nb1)) Eff (C1 A)}.
+        inst H20 with n1 = A1, n2 = A, n3 = eff/thunk N, n4 = eff/thunk (eff/fun (x\eff/reify (ER x) (eff/eff Nu1 Nb1))).
+        case H7. case H26.
+        cut H24. search.
+
+Theorem eff/preservation : forall M M' Eff C, {eff/of-comp M Eff C} -> {eff/step M M'} -> {eff/of-comp M' Eff C}.
+intros. case H2.
+    apply eff/of-unplug to H3 H1.
+    apply eff/reduce-preservation to H6 H4.
+    apply eff/of-plug to H7 H8 H5 with L = nil.
+    search.
+
+Theorem eff/safety : forall M A,
+    {eff/of-comp M eff/empty (eff/f A)} ->
+        (exists N, {eff/step M N} /\ {eff/of-comp N eff/empty (eff/f A)}) \/
+        (exists V, M = eff/ret V /\ {eff/of-value V A}).
+intros. prog_part : apply eff/progress. apply prog_part to H1. case H2.
+    case H1. case H3. search.
+    case H1. case H3.
+    case H1. case H5.
+    apply eff/preservation to H1 H3. search.
