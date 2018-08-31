@@ -49,7 +49,7 @@ eff/of-comp' (eff/handle M H) Eff2 C :-
     eff/of-comp M Eff1 (eff/f A),
     eff/of-handler H A Eff1 Eff2 C.
 
-eff/of-evctx (eff/evctx/handle E H) Eff1 C1 Eff2 C2 :-
+eff/of-evctx' (eff/evctx/handle E H) Eff1 C1 Eff2 C2 :-
     eff/of-evctx E Eff1 C1 Eff (eff/f A),
     eff/of-handler H A Eff Eff2 C2.
 

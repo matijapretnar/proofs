@@ -99,7 +99,7 @@ induction on 1. intros. Hwf: case H1. case Hwf.
     case H3. apply IH to H4 H2 H6. search.
     case H3. apply IH to H4 H2 H5. search.
     case H3. apply IH to H4 H2 H5. search.
-    case H3. apply IH to H5 H2 H6. search.
+    case H3. apply IH to H4 H2 H6. search.
 
 Theorem eff/of-unplug : forall E M EM Eff2 C2,
     {eff/plug E M EM} -> {eff/of-comp EM Eff2 C2} -> exists Eff1 C1, {eff/of-comp M Eff1 C1} /\ {eff/of-evctx E Eff1 C1 Eff2 C2}.
@@ -109,5 +109,37 @@ induction on 1. intros. case H2 (keep). case H1.
     case H3. apply IH to H5 H6. case H9 (keep). search.
     case H3. apply IH to H5 H6. case H8 (keep). search.
     case H3. apply IH to H5 H6. case H8 (keep). search.
-    case H3. apply IH to H5 H7. case H8 (keep). search.
+    case H3. apply IH to H5 H6. case H8 (keep). search.
+
+Theorem eff/equal-not-apart : forall Op, {eff/op/apart Op Op} -> false.
+intros.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H2. apply IH to H3.
+case H1. apply H2 to H3.
+
+
+Theorem eff/op-sig-det : forall Eff Op A1 A2 B1 B2,
+    {eff/op-sig Eff Op A1 A2} -> {eff/op-sig Eff Op B1 B2} -> A1 = B1 /\ A2 = B2.
+induction on 1. intros. case H1.
+    case H2. search.
+    apply eff/equal-not-apart to H3.
+    case H2.
+        apply eff/equal-not-apart to H3.
+        apply IH to H4 H6. search.
+
+Theorem eff/of-valcase : forall H A Eff1 Eff2 C M,
+    {eff/of-handler H A Eff1 Eff2 C} -> {eff/get-valcase H M} -> nabla x, {eff/of-value x A |- eff/of-comp (M x) Eff2 C}.
+induction on 2. intros. case H2.
+    case H1. case H3. search.
+    case H1. case H4. apply IH to H8 H3. search.
+
+Theorem eff/of-opcase : forall H A Eff1 Eff2 C Op M,
+    {eff/of-handler H A Eff1 Eff2 C} ->
+    {eff/get-opcase H Op M} ->
+    exists A1 A2,
+    {eff/op-sig Eff1 Op A1 A2} /\ nabla x, nabla k, {eff/of-value x A1, eff/of-value k (eff/u Eff2 (eff/arrow A2 C)) |- eff/of-comp (M x k) Eff2 C}.
+induction on 2. intros. case H2.
+    case H1. case H3. search.
+    case H1. case H5. apply IH to H9 H4. search.
+
 

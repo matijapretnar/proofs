@@ -73,17 +73,20 @@ intros. Hwf: case H1. case H2.
     case Hwf. case H3. case H5. inst H7 with n1 = V. cut H8. search.
     case Hwf. case H3. case H4. search.
     case Hwf. case H3. case H4. search.
-    case Hwf. case H3. case H4. case H7. case H8. inst H5 with n1 = A, n2 = V. cut H12. search.
+    case Hwf. apply eff/of-valcase to H5 H3. case H4. case H7. inst H6 with n1 = V. cut H10. search.
     case Hwf.
-        apply eff/of-unplug to H3 H7. case H8. case H10.
-        apply eff/hoisting-equal-eff to H4 H9.
-        case H11. case H12. case H13. case H6.
-        assert {eff/of-value (eff/thunk N) (eff/u Eff (C1 A1))}.
-        apply eff/of-plug to H9 _ H5 with L = eff/of-value n1 A1 :: nil.
-        assert {eff/of-value n1 A1 |- eff/of-comp (eff/reify (ER n1) (eff/eff Nu1 Nb1)) Eff (C1 A)}.
-        inst H20 with n1 = A1, n2 = A, n3 = eff/thunk N, n4 = eff/thunk (eff/fun (x\eff/reify (ER x) (eff/eff Nu1 Nb1))).
-        case H7. case H26.
-        cut H24. search.
+        apply eff/of-opcase to H8 H6.
+        apply eff/of-unplug to H3 H7.
+        apply eff/hoisting-equal-eff to H5 H12.
+        case H11. case H13.
+        apply eff/op-sig-det to H9 H15.
+        case H14.
+        inst H10 with n1 = V, n2 = (eff/thunk (eff/fun (x\eff/handle (ER x) H))).
+        apply eff/of-plug to H12 _ H4 with L = eff/of-value n1 A2 :: nil.
+        assert {eff/of-comp (eff/fun (x\eff/handle (ER x) H))
+         Eff (eff/arrow B C)}.
+        cut H19.
+        search.
 
 Theorem eff/preservation : forall M M' Eff C, {eff/of-comp M Eff C} -> {eff/step M M'} -> {eff/of-comp M' Eff C}.
 intros. case H2.
@@ -101,3 +104,4 @@ intros. prog_part : apply eff/progress. apply prog_part to H1. case H2.
     case H1. case H3.
     case H1. case H5.
     apply eff/preservation to H1 H3. search.
+    case H3.
