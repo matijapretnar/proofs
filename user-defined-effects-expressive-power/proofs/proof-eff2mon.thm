@@ -1,175 +1,5 @@
 Specification "eff2mon".
-
-Define mon/cong : mon/comp -> mon/comp -> prop by
-    mon/cong M M' := {mon/step M M'};
-    mon/cong M1 M3 := exists M2, mon/cong M1 M2 /\ mon/cong M2 M3;
-    mon/cong CM CM' := exists C (M : mon/value -> mon/comp) M', CM = C M /\ (forall y, mon/cong (M y) (M' y)) /\ C M' = CM'.
-
-Theorem mon/cong/plain : forall CM CM',
-  (exists C M M', CM = C M /\ mon/cong M M' /\ C M' = CM') -> mon/cong CM CM'.
-intros. case H1. unfold 3. exists m\ C (m mon/unit), x\ M, x\ M'. search.
-
-
-Define ctx : olist -> prop by
-    ctx nil;
-    nabla x x', ctx (eff2mon/value x x' :: L) := ctx L.
-
-Define eff/fresh : eff/value -> prop,
-       mon/fresh : mon/value -> prop by
-    nabla x, eff/fresh x;
-    nabla x, mon/fresh x.
-
-Theorem ctx-member : forall L F,
-    ctx L -> member F L ->
-    exists X X', (F = eff2mon/value X X') /\ eff/fresh X /\ mon/fresh X'.
-induction on 2. intros. case H2.
-    case H1. exists n1, n2. search.
-    case H1. apply IH to H4 H3. exists (X n2 n1), (X' n2 n1). search.
-
-Theorem member-prune : forall L E, nabla (x : eff/value) (x' : mon/value),
-    member (E x x') L -> exists F, E = x\ x'\ F.
-induction on 1. intros. case H1.
-    search.
-    apply IH to H2. search.
-
-Theorem ctx-unique : forall L X X' X'',
-    ctx L -> member (eff2mon/value X X') L -> member (eff2mon/value X X'') L -> X' = X''.
-induction on 1. intros. case H1.
-    case H2.
-    case H2.
-        case H3.
-            search.
-            apply member-prune to H5.
-        case H3.
-            apply member-prune to H5.
-            apply IH to H4 H5 H6. search.
-
-Theorem eff2mon/nat-unique : forall L N N' N'',
-    ctx L -> {L |- eff2mon/nat N N'} -> {L |- eff2mon/nat N N''} -> N' = N''.
-induction on 2. intros. case H2.
-    case H3. search.
-    apply ctx-member to H1 H5. case H4.
-    case H3. apply IH to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5.
-    apply ctx-member to H1 H5. case H4.
-
-Theorem eff2mon/label-unique : forall L N N' N'',
-    ctx L -> {L |- eff2mon/label N N'} -> {L |- eff2mon/label N N''} -> N' = N''.
-intros.
-    case H2.
-        case H3.
-            apply eff2mon/nat-unique to H1 H4 H5. search.
-            apply ctx-member to H1 H6. case H5.
-    apply ctx-member to H1 H5. case H4.
-
-Theorem eff2mon/cases-unique : forall L N N' N'',
-    ctx L -> {L |- eff2mon/label N N'} -> {L |- eff2mon/label N N''} -> N' = N''.
-intros.
-    case H2.
-        case H3.
-            apply eff2mon/nat-unique to H1 H4 H5. search.
-            apply ctx-member to H1 H6. case H5.
-    apply ctx-member to H1 H5. case H4.
-
-Theorem eff2mon-unique :
-    (forall L V V' V'', ctx L -> {L |- eff2mon/value V V'} -> {L |- eff2mon/value V V''} -> V' = V'') /\
-    (forall L M M' M'', ctx L -> {L |- eff2mon/comp M M'} -> {L |- eff2mon/comp M M''} -> M' = M'') /\
-    (forall L Ms Ms' Ms'', ctx L -> {L |- eff2mon/cases Ms Ms'} -> {L |- eff2mon/cases Ms Ms''} -> Ms' = Ms'') /\
-    (forall L H N' Ms' N'' Ms'', ctx L -> {L |- eff2mon/handler H N' Ms'} -> {L |- eff2mon/handler H N'' Ms''} -> N' = N'' /\ Ms' = Ms'').
-induction on 2 2 2 2. split.
-% value
-intros. case H2.
-    % unit
-    case H3. search.
-    apply ctx-member to H1 H5. case H4. case H6.
-    % pair
-    case H3. apply IH to H1 H4 H6. apply IH to H1 H5 H7. search.
-    apply ctx-member to H1 H7. case H6. case H8.
-    % inj
-    case H3. apply eff2mon/label-unique to H1 H4 H6. apply IH to H1 H5 H7. search.
-    apply ctx-member to H1 H7. case H6. case H8.
-    % thunk
-    case H3. apply IH1 to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5. case H7.
-    % backchain
-    apply ctx-member to H1 H5. case H4. case H3.
-        case H6. case H6. case H6. case H6.
-        apply ctx-member to H1 H9. case H8. apply ctx-unique to H1 H5 H9. search.
-
-% comp
-intros. case H2.
-    % ret
-    case H3. apply IH to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5.
-    % fun
-    case H3. apply IH1 to _ H4 H5. search.
-    apply ctx-member to H1 H6. case H5.
-    % split
-    case H3. apply IH to H1 H4 H6. apply IH1 to _ H5 H7. search.
-    apply ctx-member to H1 H7. case H6.
-    % case
-    case H3. apply IH to H1 H4 H6. apply IH2 to _ H5 H7. search.
-    apply ctx-member to H1 H7. case H6.
-    % force
-    case H3. apply IH to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5.
-    % bind
-    case H3. apply IH1 to H1 H4 H6. apply IH1 to _ H5 H7. search.
-    apply ctx-member to H1 H7. case H6.
-    % app
-    case H3. apply IH1 to H1 H4 H6. apply IH to H1 H5 H7. search.
-    apply ctx-member to H1 H7. case H6.
-    % comppair
-    case H3. apply IH1 to H1 H4 H6. apply IH1 to H1 H5 H7. search.
-    apply ctx-member to H1 H7. case H6.
-    % prj1
-    case H3. apply IH1 to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5.
-    % prj2
-    case H3. apply IH1 to H1 H4 H5. search.
-    apply ctx-member to H1 H6. case H5.
-    % call
-    case H3. apply eff2mon/nat-unique to H1 H4 H6. apply IH to H1 H5 H7. search.
-    apply ctx-member to H1 H7. case H6.
-    % handle
-    case H3. apply IH1 to H1 H4 H6. apply IH3 to H1 H5 H7. search.
-    apply ctx-member to H1 H7. case H6.
-    % backchain
-    apply ctx-member to H1 H5. case H4.
-
-% cases
-intros. case H2.
-    % nil
-    case H3. search.
-    apply ctx-member to H1 H5. case H4.
-    % cons
-    case H3. apply IH2 to H1 H4 H7. apply eff2mon/label-unique to H1 H5 H8. apply IH1 to _ H6 H9. search.
-    apply ctx-member to H1 H8. case H7.
-    % backchain
-    apply ctx-member to H1 H5. case H4.
-
-% handler
-intros. case H2.
-    % valcase
-    case H3. apply IH1 to _ H4 H5. search.
-    apply ctx-member to H1 H6. case H5.
-    % opcase
-    case H3. apply IH3 to H1 H4 H7. apply eff2mon/nat-unique to H1 H5 H8. apply IH1 to _ H6 H9. search.
-    apply ctx-member to H1 H8. case H7.
-    % backchain
-    apply ctx-member to H1 H5. case H4.
-
-Split eff2mon-unique as eff2mon/value-unique, eff2mon/comp-unique, eff2mon/cases-unique, eff2mon/handler-unique.
-
-Theorem eff2mon/evctx-unique : forall E E' E'',
-    {eff2mon/evctx E E'} -> {eff2mon/evctx E E''} -> E' = E''.
-induction on 1. intros. case H1.
-    case H2. search.
-    case H2. apply IH to H3 H5. apply eff2mon/comp-unique to _ H4 H6. search.
-    case H2. apply IH to H3 H5. apply eff2mon/value-unique to _ H4 H6. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H5. apply eff2mon/handler-unique to _ H4 H6. search.
+Import "lemmas-mon".
 
 Theorem eff2mon/hoisting : forall E E',
     {eff/hoisting E} -> {eff2mon/evctx E E'} -> {mon/hoisting E'}.
@@ -194,14 +24,6 @@ induction on 1. intros. case H1.
     (mon/evctx/reify E' (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ (mon/app (mon/force m) (mon/thunk (mon/fun y\ (mon/app (mon/app (mon/force f) y) c)))))) )
     ) (mon/thunk (mon/fun x\ (mon/fun h\ (Nu' x))))) (mon/thunk (mon/fun y\ mon/case y Ms'))), M'1.  search.
 
-Theorem mon/pluggable : forall E, {mon/hoisting E} -> exists ER, {pi x\ mon/plug E (mon/ret x) (ER x)}.
-induction on 1. intros. case H1.
-    exists x\ mon/ret x. search.
-    apply IH to H2. exists x\ (mon/bind (ER x x) X). search.
-    apply IH to H2. exists x\ (mon/app (ER x x) X). search.
-    apply IH to H2. exists x\ (mon/prj1 (ER x x)). search.
-    apply IH to H2. exists x\ (mon/prj2 (ER x x)). search.
-
 Theorem eff2mon/plug : forall L E M EM E' M' EM',
     {eff/plug E M EM} -> {eff2mon/evctx E E'} -> {L |- eff2mon/comp M M'} ->
     {mon/plug E' M' EM'} -> {L |- eff2mon/comp EM EM'}.
@@ -213,43 +35,28 @@ induction on 2. intros. case H2.
     case H1. case H4. apply IH to H6 H5 H3 H7. search.
     case H1. case H4. case H8. case H9. apply IH to H7 H5 H3 H10. search.
 
-Theorem eff2mon/apart : forall N1 N2 N1' N2',
-    {eff/apart N1 N2} -> {eff2mon/nat N1 N1'} -> {eff2mon/nat N2 N2'} -> {mon/apart N1' N2'}.
+Theorem eff2mon/get-case : forall Ms L M Ms',
+    {eff/get-case Ms L M} -> {eff2mon/cases Ms Ms'} ->
+    exists M', {mon/get-case Ms' L M'}.
 induction on 1. intros. case H1.
-    case H2. case H3. search.
-    case H2. case H3. search.
-    case H2. case H3. apply IH to H4 H5 H6. search.
+    case H2. search.
+    case H2. apply IH to H4 H5. search.
 
-Theorem eff2mon/label-apart : forall L1 L2 L1' L2',
-    {eff/label-apart L1 L2} -> {eff2mon/label L1 L1'} -> {eff2mon/label L2 L2'} ->
-    {mon/label-apart L1' L2'}.
-intros. case H1. case H2. case H3. apply eff2mon/apart to H4 H5 H6. search.
-
-Theorem eff2mon/get-case : forall Ms L M Ms' L',
-    {eff/get-case Ms L M} -> {eff2mon/cases Ms Ms'} -> {eff2mon/label L L'} ->
-    exists M', {mon/get-case Ms' L' M'}.
-induction on 1. intros. case H1.
-    case H2. apply eff2mon/label-unique to _ H3 H5. search.
-    case H2.
-        apply IH to H5 H6 H3. exists M'1.
-        apply eff2mon/label-apart to H4 H3 H7. search.
-
-Theorem eff2mon/get-case/unique : forall Ms L M Ms' L' M',
-    {eff/get-case Ms L M} -> {eff2mon/cases Ms Ms'} -> {eff2mon/label L L'} ->
-    {mon/get-case Ms' L' M'} -> {pi x\ pi x'\ eff2mon/value x x' => eff2mon/comp (M x) (M' x')}.
+Theorem eff2mon/get-case/unique : forall Ms L M Ms' M',
+    {eff/get-case Ms L M} -> {eff2mon/cases Ms Ms'} ->
+    {mon/get-case Ms' L M'} -> {pi x\ pi x'\ eff2mon/value x x' => eff2mon/comp (M x) (M' x')}.
 induction on 1. intros.
-assert forall N, {mon/apart N N} -> false.
-    induction on 1. intros. case H5. apply IH1 to H6.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H4. apply IH1 to H5.
 case H2.
     case H1.
     case H1.
-        apply eff2mon/label-unique to _ H3 H7.
-        case H4.
+        case H3.
             search.
-            case H9. apply H5 to H11.
-        case H4.
-            apply eff2mon/label-apart to H9 H3 H7. case H11. apply H5 to H12.
-            apply IH to H10 H6 H3 H12. search.
+            case H7. apply H4 to H9.
+        case H3.
+            case H7. apply H4 to H9.
+            apply IH to H8 H5 H10. search.
 
 Theorem eff2mon/get-valcase : forall H M Nu' Ms',
     {eff/get-valcase H M} -> {eff2mon/handler H Nu' Ms'} ->
@@ -258,104 +65,118 @@ induction on 1. intros. case H1.
     case H2. search.
     case H2. apply IH to H3 H4. search.
 
-Theorem eff2mon/get-opcase : forall H X M Nu' Ms' X',
+Theorem eff2mon/get-opcase : forall H X M Nu' Ms',
     {eff/get-opcase H (eff/op X) M} -> {eff2mon/handler H Nu' Ms'} ->
-    {eff2mon/nat X X'} -> exists M', {mon/get-case Ms' (mon/lbl X') (p\ mon/split p M')}.
+    exists M', {mon/get-case Ms' (lbl X) (p\ mon/split p M')}.
 induction on 1. intros. case H1.
-    case H2. apply eff2mon/nat-unique to _ H3 H5. search.
-    case H2. apply IH to H5 H6 _. case H4. apply eff2mon/apart to H10 H3 H7. search.
+    case H2. search.
+    case H2. apply IH to H4 H5. case H3. search.
 
-Theorem eff2mon/get-opcase/unique : forall H X M Nu' Ms' X' M',
+Theorem eff2mon/get-opcase/unique : forall H X M Nu' Ms' M',
     {eff/get-opcase H (eff/op X) M} -> {eff2mon/handler H Nu' Ms'} ->
-    {eff2mon/nat X X'} -> {mon/get-case Ms' (mon/lbl X') (p\ mon/split p M')} -> 
+    {mon/get-case Ms' (lbl X) (p\ mon/split p M')} -> 
     {pi x\ pi x'\ pi k\ pi k'\ eff2mon/value x x' => eff2mon/value k k' => eff2mon/comp (M x k) (M' x' k')}.
 induction on 1. intros.
-assert forall N, {mon/apart N N} -> false.
-    induction on 1. intros. case H5. apply IH1 to H6.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H4. apply IH1 to H5.
 case H1.
-    case H2. apply eff2mon/nat-unique to _ H3 H7. case H4.
+    case H2. case H3.
         search.
-        case H9. apply H5 to H11.
-    case H2. case H4.
-        case H6. apply eff2mon/apart to H11 H3 H9. apply H5 to H12.
-        apply IH to H7 H8 H3 H12. search.
+        case H7. apply H4 to H9.
+    case H2. case H3.
+        case H5. apply H4 to H9.
+        apply IH to H6 H7 H10. search.
 
-Theorem eff2mon/reduce : forall M1 M2 M1' M2',
-    {eff2mon/comp M1 M1'} -> {eff2mon/comp M2 M2'} -> 
-    {eff/reduce M1 M2} -> mon/cong M1' M2'.
-induction on 3. intros. case H3.
+Theorem eff2mon/reduce : forall M1 M2 M1',
+    {eff2mon/comp M1 M1'} -> {eff/reduce M1 M2} ->
+    exists M2', {eff2mon/comp M2 M2'} /\ mon/cong M1' M2'.
+induction on 2. intros. case H2.
 % split (pair V1 V2) M ~> M V1 V2
-    case H1. case H4. inst H5 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
-    assert {eff2mon/comp (M V1 V2) (M' V1' V2')}. cut H8. search.
-    apply eff2mon/comp-unique to _ H2 H9. search.
+    case H1. case H3.
+    inst H4 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
+    cut H7. search.
 % case (inj V) Ms ~> M V
-    case H1. case H5.
-    apply eff2mon/get-case to H4 H6 H7.
-    apply eff2mon/get-case/unique to H4 H6 H7 H9.
-    inst H10 with n1 = V, n2 = V'1.
-    cut H11. apply eff2mon/comp-unique to _ H2 H12. search.
+    case H1. case H4.
+    apply eff2mon/get-case to H3 H5.
+    apply eff2mon/get-case/unique to H3 H5 H7.
+    inst H8 with n1 = V, n2 = V'1.
+    cut H9. search.
 % force (thunk M) ~> M
-    case H1. case H4.
-    apply eff2mon/comp-unique to _ H2 H5. search.
+    case H1. case H3.
+    search.
 % bind (ret V) N ~> N V
-    case H1. case H4. inst H5 with n1 = V, n2 = V'.
-    assert {eff2mon/comp (M V) (N' V')}. cut H7. search.
-    apply eff2mon/comp-unique to _ H2 H8. search.
+    case H1. case H3. inst H4 with n1 = V, n2 = V'.
+    cut H6. search.
 % app (fun M) V ~> M V
-    case H1. case H4. inst H6 with n1 = V, n2 = V'.
-    assert {eff2mon/comp (M V) (M'1 V')}. cut H7. search.
-    apply eff2mon/comp-unique to _ H2 H8. search.
+    case H1. case H3. inst H5 with n1 = V, n2 = V'.
+    cut H6. search.
 % prj1 (comppair M1 M2) ~> M1
-    case H1. case H4.
-    apply eff2mon/comp-unique to _ H2 H5. search.
+    case H1. case H3. search.
 % prj2 (comppair M1 M2) ~> M2
-    case H1. case H4.
-    apply eff2mon/comp-unique to _ H2 H6. search.
+    case H1. case H3. search.
 % handle (ret V) H ~> Hret V
-    case H1. case H5.
-    apply eff2mon/get-valcase to H4 H6. inst H8 with n1 = V, n2 = V'.
-    cut H9. apply eff2mon/comp-unique to _ H2 H10.
-    unfold 2.
+    case H1. case H4.
+    apply eff2mon/get-valcase to H3 H5.
+    inst H7 with n1 = V, n2 = V'.
+    cut H8.
+    exists (Nu' V'). split. search.
+    unfold 3.
     exists (mon/app
       (mon/app
          ((x\mon/fun (c\mon/app (mon/force c) x)) ( V'))
          (mon/thunk (mon/fun (x\mon/fun (h\Nu' x)))))
       (mon/thunk (mon/fun (y\mon/case y Ms')))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists (mon/app
       (((c\mon/app (mon/force c) V'))
          (mon/thunk (mon/fun (x\mon/fun (h\Nu' x)))))
       (mon/thunk (mon/fun (y\mon/case y Ms')))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists mon/app
       (mon/app (((mon/fun (x\mon/fun (h\Nu' x))))) V')
       (mon/thunk (mon/fun (y\mon/case y Ms'))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists mon/app (((x\mon/fun (h\Nu' x))) V')
       (mon/thunk (mon/fun (y\mon/case y Ms'))).
-    split. search.
-    unfold 1. search.
-    exists (h\Nu' V') (mon/thunk (mon/fun (y\mon/case y Ms'))).
-% handle E[op V] H ~> Hop V {\x. handle E[ret x] H}
-    case H1. apply eff2mon/unplug to H4 H8. case H11.
-    apply eff2mon/hoisting to H6 H10.
-    apply mon/pluggable to H15. inst H16 with n1 = n2.
-    apply eff2mon/plug to H5 H10 _ H17 with L = eff2mon/value n1 n2 :: nil.
-    apply eff2mon/get-opcase to H7 H9 H13.
-    apply eff2mon/get-opcase/unique to H7 H9 H13 H19.
-    inst H20 with
+    search.
+  % handle E[op V] H ~> Hop V {\x. handle E[ret x] H}
+    case H1. apply eff2mon/unplug to H3 H7. case H10.
+    apply eff2mon/hoisting to H5 H9.
+    apply mon/pluggable to H13. inst H14 with n1 = n2.
+    apply eff2mon/plug to H4 H9 _ H15 with L = eff2mon/value n1 n2 :: nil.
+    apply eff2mon/get-opcase to H6 H8.
+    apply eff2mon/get-opcase/unique to H6 H8 H17.
+    inst H18 with
         n1 = V,
         n2 = V',
         n3 = eff/thunk (eff/fun (x\eff/handle (ER x) H)),
         n4 = mon/thunk (mon/fun (x\ (mon/app (mon/app (
     (mon/reify (ER1 x x) (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ (mon/app (mon/force m) (mon/thunk (mon/fun y\ (mon/app (mon/app (mon/force f) y) c)))))) )
     ) (mon/thunk (mon/fun x\ (mon/fun h\ (Nu' x))))) (mon/thunk (mon/fun y\ mon/case y Ms'))))).
-    cut H21.
-    apply eff2mon/comp-unique to _ H2 H22.
-    unfold 2.
+    cut H19.
+    exists ((M'2 V'
+            (mon/thunk
+               (mon/fun
+                  (x\mon/app
+                       (mon/app
+                          (mon/reify (ER1 x x)
+                             (mon/mon
+                                (x1\mon/fun (c\mon/app (mon/force c) x1))
+                                (m\f\mon/fun
+                                       (c\mon/app (mon/force m)
+                                            (mon/thunk
+                                               (mon/fun
+                                                  (y\mon/app
+                                                       (mon/app (mon/force f)
+                                                          y)
+                                                       c)))))))
+                          (mon/thunk (mon/fun (x1\mon/fun (h\Nu' x1)))))
+                       (mon/thunk (mon/fun (y\mon/case y Ms')))))))).
+    split. search.
+    unfold 3.
     exists (mon/app
       (mon/app
          (
@@ -367,7 +188,7 @@ induction on 3. intros. case H3.
               (mon/thunk (mon/fun
                (k\mon/fun
                     (h\mon/app (mon/force h)
-                         (mon/inj (mon/lbl X')
+                         (mon/inj (lbl X)
                             (mon/pair V'
                                (mon/thunk
                                   (mon/fun
@@ -382,7 +203,7 @@ induction on 3. intros. case H3.
          (mon/thunk (mon/fun (x\mon/fun (h\Nu' x)))))
       (mon/thunk (mon/fun (y\mon/case y Ms')))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists mon/app
       (
          (
@@ -392,7 +213,7 @@ induction on 3. intros. case H3.
                        (mon/fun
                           (k\mon/fun
                                (h\mon/app (mon/force h)
-                                    (mon/inj (mon/lbl X')
+                                    (mon/inj (lbl X)
                                        (mon/pair V'
                                           (mon/thunk
                                              (mon/fun
@@ -426,7 +247,7 @@ induction on 3. intros. case H3.
          (mon/thunk (mon/fun (x\mon/fun (h\Nu' x)))))
       (mon/thunk (mon/fun (y\mon/case y Ms'))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists (mon/app
       (mon/app
          (
@@ -434,7 +255,7 @@ induction on 3. intros. case H3.
                (mon/fun
                   (k\mon/fun
                        (h\mon/app (mon/force h)
-                            (mon/inj (mon/lbl X')
+                            (mon/inj (lbl X)
                                (mon/pair V'
                                   (mon/thunk
                                      (mon/fun
@@ -464,13 +285,13 @@ induction on 3. intros. case H3.
                     (mon/thunk (mon/fun (x\mon/fun (h\Nu' x))))))))
       (mon/thunk (mon/fun (y\mon/case y Ms')))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists mon/app
       (
          (
             (k\mon/fun
                  (h\mon/app (mon/force h)
-                      (mon/inj (mon/lbl X')
+                      (mon/inj (lbl X)
                          (mon/pair V'
                             (mon/thunk
                                (mon/fun
@@ -499,11 +320,11 @@ induction on 3. intros. case H3.
                     (mon/thunk (mon/fun (x\mon/fun (h\Nu' x))))))))
       (mon/thunk (mon/fun (y\mon/case y Ms'))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists (
       (
          (h\mon/app (mon/force h)
-              (mon/inj (mon/lbl X')
+              (mon/inj (lbl X)
                  (mon/pair V'
                     (mon/thunk
                        (mon/fun
@@ -546,9 +367,9 @@ induction on 3. intros. case H3.
                                h)))))))
       (mon/thunk (mon/fun (y\mon/case y Ms')))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists (mon/app (((mon/fun (y\mon/case y Ms'))))
-      (mon/inj (mon/lbl X')
+      (mon/inj (lbl X)
          (mon/pair V'
             (mon/thunk
                (mon/fun
@@ -587,9 +408,9 @@ induction on 3. intros. case H3.
                           y)
                        (mon/thunk (mon/fun (y1\mon/case y1 Ms'))))))))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists (((y\mon/case y Ms'))
-      (mon/inj (mon/lbl X')
+      (mon/inj (lbl X)
          (mon/pair V'
             (mon/thunk
                (mon/fun
@@ -628,7 +449,7 @@ induction on 3. intros. case H3.
                           y)
                        (mon/thunk (mon/fun (y1\mon/case y1 Ms'))))))))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists ((p\mon/split p M'2) (mon/pair V'
             (mon/thunk
                (mon/fun
@@ -667,7 +488,7 @@ induction on 3. intros. case H3.
                           y)
                        (mon/thunk (mon/fun (y1\mon/case y1 Ms')))))))).
     split. search.
-    unfold 2.
+    unfold 3.
     exists (M'2 V' (mon/thunk
             (mon/fun
                (y\mon/app
@@ -704,7 +525,7 @@ induction on 3. intros. case H3.
                        y)
                     (mon/thunk (mon/fun (y1\mon/case y1 Ms'))))))).
     split. search.
-    unfold 3.
+    unfold 2.
     exists (red\ (M'2 V'
       (mon/thunk
          (mon/fun
@@ -754,7 +575,7 @@ induction on 3. intros. case H3.
                     (mon/thunk (mon/fun (x1\mon/fun (h\Nu' x1)))).
     split. search.
     intros.
-    unfold 2.
+    unfold 3.
     exists mon/app
       (
          (
@@ -781,7 +602,7 @@ induction on 3. intros. case H3.
                      (mon/thunk (mon/fun (x\mon/fun (h1\Nu' x))))))))
       y.
     split. search.
-    unfold 2.
+    unfold 3.
     exists (
       (
          (y1\mon/app
@@ -805,7 +626,7 @@ induction on 3. intros. case H3.
                (mon/thunk (mon/fun (x\mon/fun (h1\Nu' x))))))
       y).
     split. search.
-    unfold 2.
+    unfold 3.
     exists (mon/app
       (mon/app
          (
@@ -825,76 +646,12 @@ induction on 3. intros. case H3.
     search.
     search.
 
-Theorem plug/step : forall E M1 EM1 M2 EM2,
-    {mon/plug E M1 EM1} -> {mon/plug E M2 EM2} -> {mon/step M1 M2} -> {mon/step EM1 EM2}.
-induction on 1. intros. case H1.
-    case H2. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
-    case H2. apply IH to H4 H5 H3. case H6. search.
-
-Theorem plug/context : forall E, {mon/is-evctx E} -> exists E', forall M, {mon/plug E M (E' M)}.
-induction on 1. intros. case H1.
-    exists m\ m. intros. search.
-    apply IH to H2. exists m\ mon/bind (E' m) N. intros.
-    assert {mon/plug E1 M (E' M)}. apply H3 with M = M. search. search.
-    apply IH to H2. exists m\ mon/app (E' m) V. intros.
-    assert {mon/plug E1 M (E' M)}. apply H3 with M = M. search. search.
-    apply IH to H2. exists m\ mon/prj1 (E' m). intros.
-    assert {mon/plug E1 M (E' M)}. apply H3 with M = M. search. search.
-    apply IH to H2. exists m\ mon/prj2 (E' m). intros.
-    assert {mon/plug E1 M (E' M)}. apply H3 with M = M. search. search.
-    apply IH to H2. exists m\ mon/reify (E' m) T. intros.
-    assert {mon/plug E1 M (E' M)}. apply H3 with M = M. search. search.
-
-Theorem plug/unique : forall E M EM EM',
-    {mon/plug E M EM} -> {mon/plug E M EM'} -> EM = EM'.
-induction on 1. intros. case H1.
-    case H2. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H4. search.
-    case H2. apply IH to H3 H4. search.
-
-Theorem plug/is-evctx : forall E M EM, {mon/plug E M EM} -> {mon/is-evctx E}.
-induction on 1. intros. case H1.
-    search.
-    apply IH to H2. search.
-    apply IH to H2. search.
-    apply IH to H2. search.
-    apply IH to H2. search.
-    apply IH to H2. search.
-
-Theorem all/pluggable : forall E M, {mon/is-evctx E} -> exists EM, {mon/plug E M EM}.
-induction on 1. intros. case H1.
-    search.
-    apply IH to H2 with M = M. search.
-    apply IH to H2 with M = M. search.
-    apply IH to H2 with M = M. search.
-    apply IH to H2 with M = M. search.
-    apply IH to H2 with M = M. search.
-
-Theorem plug/cong : forall E M1 EM1 M2 EM2,
-    {mon/plug E M1 EM1} -> {mon/plug E M2 EM2} -> mon/cong M1 M2 -> mon/cong EM1 EM2.
-intros.
-    apply plug/context to _ with E = E.
-        apply plug/is-evctx to H1. search.
-    apply H4 with M = M1.
-    apply H4 with M = M2.
-    apply plug/unique to H1 H5. apply plug/unique to H2 H6.
-    backchain mon/cong/plain.
-    exists E', M1, M2. search.
-
-Theorem correctness : forall M1 M2 M1' M2',
-    {eff2mon/comp M1 M1'} -> {eff2mon/comp M2 M2'} -> 
-    {eff/step M1 M2} -> mon/cong M1' M2'.
-intros. case H3.
-    apply eff2mon/unplug to H4 H1.
-    apply eff2mon/unplug to H6 H2.
-    apply eff2mon/reduce to H8 H11 H5.
-    apply eff2mon/evctx-unique to H7 H10.
-    apply plug/cong to H9 H12 H13.
+Theorem correctness : forall M1 M2 M1',
+    {eff2mon/comp M1 M1'} -> {eff/step M1 M2} -> 
+    exists M2', {eff2mon/comp M2 M2'} /\ mon/cong M1' M2'.
+intros. case H2.
+    apply eff2mon/unplug to H3 H1.
+    apply eff2mon/reduce to H7 H4.
+    apply mon/plug/cong to H8 H10.
+    apply eff2mon/plug to H5 H6 H9 H11 with L = nil.
     search.
