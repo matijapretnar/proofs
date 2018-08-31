@@ -209,7 +209,7 @@ induction on 2. intros. case H2.
          (del/fun red)).
     search.
 
-Theorem correctness : forall M1 M2 M1',
+Theorem mon2del/correctness : forall M1 M2 M1',
     {mon2del/comp M1 M1'} -> {mon/step M1 M2} -> 
     exists M2', {mon2del/comp M2 M2'} /\ del/cong M1' M2'.
 intros. case H2.

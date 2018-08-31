@@ -215,7 +215,7 @@ induction on 2. intros. case H2.
     exists red\ M'2 (mon/thunk (mon/fun (x\mon/app (red x) (mon/thunk (mon/fun N'))))).
     search.
 
-Theorem correctness : forall M1 M2 M1',
+Theorem del2mon/correctness : forall M1 M2 M1',
     {del2mon/comp M1 M1'} -> {del/step M1 M2} -> 
     exists M2', {del2mon/comp M2 M2'} /\ mon/cong M1' M2'.
 intros. case H2.
