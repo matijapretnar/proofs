@@ -1,0 +1,11 @@
+module proofs.
+accumulate mam.
+accumulate del.
+accumulate eff.
+accumulate mon.
+accumulate del2eff.
+accumulate del2mon.
+accumulate eff2del.
+accumulate eff2mon.
+accumulate mon2del.
+accumulate mon2eff.

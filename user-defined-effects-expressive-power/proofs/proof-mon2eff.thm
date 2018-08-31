@@ -1,0 +1,109 @@
+Specification "mon2eff".
+Import "lemmas-eff".
+
+Theorem mon2eff/hoisting : forall E E',
+    {mon/hoisting E} -> {mon2eff/evctx E E'} -> {eff/hoisting E'}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem mon2eff/unplug : forall E M EM EM',
+    {mon/plug E M EM} -> {mon2eff/comp EM EM'} ->
+    exists E' M', {mon2eff/evctx E E'} /\ {mon2eff/comp M M'} /\ {eff/plug E' M' EM'}.
+induction on 1. intros. case H1.
+    exists eff/hole, EM'. search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/bind E' N'), M'1. search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/app E' V'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/prj1 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/prj2 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/handle E' (eff/opcase (eff/valcase Nu') (eff/op z) Nb')), M'1.  search.
+
+Theorem mon2eff/plug : forall L E M EM E' M' EM',
+    {mon/plug E M EM} -> {mon2eff/evctx E E'} -> {L |- mon2eff/comp M M'} ->
+    {eff/plug E' M' EM'} -> {L |- mon2eff/comp EM EM'}.
+induction on 2. intros. case H2.
+    case H1. case H4. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. apply IH to H8 H5 H3 H9. search.
+
+Theorem mon2eff/get-case : forall Ms L M Ms',
+    {mon/get-case Ms L M} -> {mon2eff/cases Ms Ms'} ->
+    exists M', {eff/get-case Ms' L M'}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H4 H5. search.
+
+Theorem mon2eff/get-case/unique : forall Ms L M Ms' M',
+    {mon/get-case Ms L M} -> {mon2eff/cases Ms Ms'} ->
+    {eff/get-case Ms' L M'} -> {pi x\ pi x'\ mon2eff/value x x' => mon2eff/comp (M x) (M' x')}.
+induction on 1. intros.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H4. apply IH1 to H5.
+case H2.
+    case H1.
+    case H1.
+        case H3.
+            search.
+            case H7. apply H4 to H9.
+        case H3.
+            case H7. apply H4 to H9.
+            apply IH to H8 H5 H10. search.
+
+Theorem mon2eff/reduce : forall M1 M2 M1',
+    {mon2eff/comp M1 M1'} -> {mon/reduce M1 M2} ->
+    exists M2', {mon2eff/comp M2 M2'} /\ eff/sim M1' M2'.
+induction on 2. intros. case H2.
+% split (pair V1 V2) M ~> M V1 V2
+    case H1. case H3.
+    inst H4 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
+    cut H7. search.
+% case (inj V) Ms ~> M V
+    case H1. case H4.
+    apply mon2eff/get-case to H3 H5.
+    apply mon2eff/get-case/unique to H3 H5 H7.
+    inst H8 with n1 = V, n2 = V'1.
+    cut H9. search.
+% force (thunk M) ~> M
+    case H1. case H3.
+    search.
+% bind (ret V) N ~> N V
+    case H1. case H3. inst H4 with n1 = V, n2 = V'.
+    cut H6. search.
+% app (fun M) V ~> M V
+    case H1. case H3. inst H5 with n1 = V, n2 = V'.
+    cut H6. search.
+% prj1 (comppair M1 M2) ~> M1
+    case H1. case H3. search.
+% prj2 (comppair M1 M2) ~> M2
+    case H1. case H3. search.
+% reify (ret V) (mon Nu Nb) ~> Nu V
+    case H1. case H3. inst H4 with n1 = V, n2 = V'.
+    cut H7. search.
+% reify H[reflect M T] T ~> Nb {M} {\x. reify H[ret x] T}
+    case H1. apply mon2eff/unplug to H3 H6. case H10.
+    apply mon2eff/hoisting to H4 H9.
+    apply eff/pluggable to H13. inst H14 with n1 = n2.
+    apply mon2eff/plug to H5 H9 _ H15 with L = mon2eff/value n1 n2 :: nil.
+    inst H8 with
+        n1 = (mon/thunk N),
+        n2 = (eff/thunk M'2),
+        n3 = (mon/thunk (mon/fun (x\mon/reify (ER x) (mon/mon Nu Nb)))),
+        n4 = (eff/thunk (eff/fun (x\eff/handle (ER1 x x) (eff/opcase (eff/valcase Nu') (eff/op z) (Nb'))))).
+    cut H17.
+    search 10. 
+
+Theorem mon2eff/correctness : forall M1 M2 M1',
+    {mon2eff/comp M1 M1'} -> {mon/step M1 M2} -> 
+    exists M2', {mon2eff/comp M2 M2'} /\ eff/sim M1' M2'.
+intros. case H2.
+    apply mon2eff/unplug to H3 H1.
+    apply mon2eff/reduce to H7 H4.
+    apply eff/plug/sim to H8 H10.
+    apply mon2eff/plug to H5 H6 H9 H11 with L = nil.
+    search.

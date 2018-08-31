@@ -1,0 +1,226 @@
+Specification "del2mon".
+Import "lemmas-mon".
+
+Theorem del2mon/hoisting : forall E E',
+    {del/hoisting E} -> {del2mon/evctx E E'} -> {mon/hoisting E'}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem del2mon/unplug : forall E M EM EM',
+    {del/plug E M EM} -> {del2mon/comp EM EM'} ->
+    exists E' M', {del2mon/evctx E E'} /\ {del2mon/comp M M'} /\ {mon/plug E' M' EM'}.
+induction on 1. intros. case H1.
+    exists mon/hole, EM'. search.
+    case H2. apply IH to H3 H4. exists (mon/evctx/bind E' N'), M'1. search.
+    case H2. apply IH to H3 H4. exists (mon/evctx/app E' V'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (mon/evctx/prj1 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (mon/evctx/prj2 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (mon/evctx/app (mon/evctx/reify E' (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ mon/app (mon/force m) (mon/thunk (mon/fun y\ mon/app (mon/app (mon/force f) y) c))))) (mon/thunk (mon/fun N'))), M'1. search.
+
+Theorem del2mon/plug : forall L E M EM E' M' EM',
+    {del/plug E M EM} -> {del2mon/evctx E E'} -> {L |- del2mon/comp M M'} ->
+    {mon/plug E' M' EM'} -> {L |- del2mon/comp EM EM'}.
+induction on 2. intros. case H2.
+    case H1. case H4. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. case H8. apply IH to H7 H5 H3 H9. search.
+
+Theorem del2mon/get-case : forall Ms L M Ms',
+    {del/get-case Ms L M} -> {del2mon/cases Ms Ms'} ->
+    exists M', {mon/get-case Ms' L M'}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H4 H5. search.
+
+Theorem del2mon/get-case/unique : forall Ms L M Ms' M',
+    {del/get-case Ms L M} -> {del2mon/cases Ms Ms'} ->
+    {mon/get-case Ms' L M'} -> {pi x\ pi x'\ del2mon/value x x' => del2mon/comp (M x) (M' x')}.
+induction on 1. intros.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H4. apply IH1 to H5.
+case H2.
+    case H1.
+    case H1.
+        case H3.
+            search.
+            case H7. apply H4 to H9.
+        case H3.
+            case H7. apply H4 to H9.
+            apply IH to H8 H5 H10. search.
+
+Theorem del2mon/reduce : forall M1 M2 M1',
+    {del2mon/comp M1 M1'} -> {del/reduce M1 M2} ->
+    exists M2', {del2mon/comp M2 M2'} /\ mon/cong M1' M2'.
+induction on 2. intros. case H2.
+% split (pair V1 V2) M ~> M V1 V2
+    case H1. case H3.
+    inst H4 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
+    cut H7. search.
+% case (inj V) Ms ~> M V
+    case H1. case H4.
+    apply del2mon/get-case to H3 H5.
+    apply del2mon/get-case/unique to H3 H5 H7.
+    inst H8 with n1 = V, n2 = V'1.
+    cut H9. search.
+% force (thunk M) ~> M
+    case H1. case H3.
+    search.
+% bind (ret V) N ~> N V
+    case H1. case H3. inst H4 with n1 = V, n2 = V'.
+    cut H6. search.
+% app (fun M) V ~> M V
+    case H1. case H3. inst H5 with n1 = V, n2 = V'.
+    cut H6. search.
+% prj1 (comppair M1 M2) ~> M1
+    case H1. case H3. search.
+% prj2 (comppair M1 M2) ~> M2
+    case H1. case H3. search.
+% reify (ret V) (del Nu Nb) ~> Nu V
+    case H1. case H3. inst H4 with n1 = V, n2 = V'.
+    cut H6. search 6.
+% reify H[reflect M T] T ~> Nb {M} {\x. reify H[ret x] T}
+    case H1. apply del2mon/unplug to H3 H6. case H9.
+    apply del2mon/hoisting to H4 H8.
+    apply mon/pluggable to H12. inst H13 with n1 = n2.
+    apply del2mon/plug to H5 H8 _ H14 with L = del2mon/value n1 n2 :: nil.
+    inst H11 with
+        n1 = (del/thunk (del/fun (x\del/reset (ER x) N))),
+        n2 = (mon/thunk (mon/fun (x\(mon/app (mon/reify (ER1 x x) (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ mon/app (mon/force m) (mon/thunk (mon/fun y\ mon/app (mon/app (mon/force f) y) c))))) (mon/thunk (mon/fun N')))))).
+    cut H16.
+    exists ((M'2
+            (mon/thunk
+               (mon/fun
+                  (x\mon/app
+                       (mon/reify (ER1 x x)
+                          (mon/mon (x1\mon/fun (c\mon/app (mon/force c) x1))
+                             (m\f\mon/fun
+                                    (c\mon/app (mon/force m)
+                                         (mon/thunk
+                                            (mon/fun
+                                               (y\mon/app
+                                                    (mon/app (mon/force f) y)
+                                                    c)))))))
+                       (mon/thunk (mon/fun N'))))))).
+    split. search.
+    unfold 3.
+    exists
+        mon/app
+        %%%
+            ((m\f\mon/fun
+                                          (c\mon/app (mon/force m)
+                                               (mon/thunk
+                                                  (mon/fun
+                                                     (y\mon/app (mon/app (mon/force f) y)
+                                                          c)))))
+                        (mon/thunk (mon/fun M'2))
+                        (mon/thunk (mon/fun (x\ mon/reify (ER1 x x) (mon/mon (x\mon/fun (c\mon/app (mon/force c) x))
+                       (m\f\mon/fun
+                              (c\mon/app (mon/force m)
+                                   (mon/thunk
+                                      (mon/fun
+                                         (y\mon/app (mon/app (mon/force f) y)
+                                              c))))))))))
+        %%%
+                 (mon/thunk (mon/fun N')).
+    split. search.
+    unfold 3.
+    exists 
+         (c\mon/app (mon/force (mon/thunk (mon/fun M'2)))
+              (mon/thunk
+                 (mon/fun
+                    (y\mon/app
+                         (mon/app
+                            (mon/force
+                               (mon/thunk
+                                  (mon/fun
+                                     (x\mon/reify (ER1 x x)
+                                          (mon/mon
+                                             (x1\mon/fun
+                                                   (c1\mon/app (mon/force c1)
+                                                         x1))
+                                             (m\f\mon/fun
+                                                    (c1\mon/app (mon/force m)
+                                                          (mon/thunk
+                                                             (mon/fun
+                                                                (y1\mon/app
+                                                                    (mon/app
+                                                                    (mon/force
+                                                                    f) y1) c1))))))))))
+                            y)
+                         c))))
+      (mon/thunk (mon/fun N')).
+      split. search.
+      unfold 3.
+      exists mon/app (mon/fun M'2)
+                 (mon/thunk
+                    (mon/fun
+                       (y\mon/app
+                            (mon/app
+                               (mon/force
+                                  (mon/thunk
+                                     (mon/fun
+                                        (x\mon/reify (ER1 x x)
+                                             (mon/mon
+                                                (x1\mon/fun
+                                                      (c1\mon/app
+                                                            (mon/force c1) x1))
+                                                (m\f\mon/fun
+                                                       (c1\mon/app
+                                                             (mon/force m)
+                                                             (mon/thunk
+                                                                (mon/fun
+                                                                   (y1\
+                                                                    mon/app
+                                                                    (mon/app
+                                                                    (mon/force
+                                                                    f) y1) c1))))))))))
+                               y)
+                            (mon/thunk (mon/fun N'))))).
+    split. search.
+    unfold 3.
+    exists M'2
+                 (mon/thunk
+                    (mon/fun
+                       (y\mon/app
+                            (mon/app
+                               (mon/force
+                                  (mon/thunk
+                                     (mon/fun
+                                        (x\mon/reify (ER1 x x)
+                                             (mon/mon
+                                                (x1\mon/fun
+                                                      (c1\mon/app
+                                                            (mon/force c1) x1))
+                                                (m\f\mon/fun
+                                                       (c1\mon/app
+                                                             (mon/force m)
+                                                             (mon/thunk
+                                                                (mon/fun
+                                                                   (y1\
+                                                                    mon/app
+                                                                    (mon/app
+                                                                    (mon/force
+                                                                    f) y1) c1))))))))))
+                               y)
+                            (mon/thunk (mon/fun N'))))).
+    split. search.
+    unfold 2.
+    exists red\ M'2 (mon/thunk (mon/fun (x\mon/app (red x) (mon/thunk (mon/fun N'))))).
+    search.
+
+Theorem del2mon/correctness : forall M1 M2 M1',
+    {del2mon/comp M1 M1'} -> {del/step M1 M2} -> 
+    exists M2', {del2mon/comp M2 M2'} /\ mon/cong M1' M2'.
+intros. case H2.
+    apply del2mon/unplug to H3 H1.
+    apply del2mon/reduce to H7 H4.
+    apply mon/plug/cong to H8 H10.
+    apply del2mon/plug to H5 H6 H9 H11 with L = nil.
+    search.

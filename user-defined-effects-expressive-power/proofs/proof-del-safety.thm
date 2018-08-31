@@ -1,0 +1,89 @@
+Specification "del".
+Import "lemmas-del".
+
+Theorem del/progress :
+    forall M Eff C, {del/of-comp M Eff C} -> {del/progresses M Eff}.
+induction on 1.
+
+    intros Hwf. Hwellf: case Hwf.
+
+    case Hwellf.
+        search.
+        search.
+        Hwf: case H1. case Hwf.
+            search.
+        Hwf: case H1. case Hwf.
+            apply del/can-get-case to H2 H4.
+            search.
+        Hwf: case H1. case Hwf.
+            search.
+        apply IH to H1. case H3.
+            search.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            case H4. search.
+            case H1. search.
+        apply IH to H1. case H3.
+            Hwf: case H1. case Hwf.
+            search.
+            Hwf: case H1. case Hwf.
+            case H4. search.
+            case H1. search.
+        apply IH to H1. apply IH to H2. search.
+        apply IH to H1. case H2.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            search.
+            case H3. search.
+            case H1. search.
+        apply IH to H1. case H2.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            search.
+            case H3. search.
+            case H1. search.
+        apply IH to H2. case H3.
+            search.
+            Hwf: case H2. case Hwf.
+            Hwf: case H2. case Hwf.
+            case H4. search.
+            apply del/pluggable to H4. search.
+        case Hwellf1. search.
+
+Theorem del/reduce-preservation : forall M M' Eff C, {del/of-comp M Eff C} -> {del/reduce M M'} -> {del/of-comp M' Eff C}.
+intros. Hwf: case H1. case H2.
+    case Hwf. case H3. case H5. inst H4 with n1 = V1, n2 = V2. cut H9. search.
+    case Hwf. case H4. case H6. apply del/of-get-case to H3 H5 H9. inst H10 with n1 = V. cut H11. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H5. inst H4 with n1 = V. cut H8. search.
+    case Hwf. case H3. case H5. inst H7 with n1 = V. cut H8. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H4. case H5. inst H3 with n1 = V. cut H8. search.
+    case Hwf.
+        apply del/of-unplug to H3 H7. case H8. case H10.
+        apply del/hoisting-equal-eff to H4 H9.
+        inst H12 with n1 = del/thunk (del/fun (x\del/reset (ER x) N)).
+        case H11.
+        case H14.
+        apply del/of-plug to H9 _ H5 with L = (del/of-value n1 A1 :: nil).
+        assert {del/of-value n1 A1 |- del/of-comp' (del/reset (ER n1) N) Eff C}.
+        cut H13.
+        search.
+
+Theorem del/preservation : forall M M' Eff C, {del/of-comp M Eff C} -> {del/step M M'} -> {del/of-comp M' Eff C}.
+intros. case H2.
+    apply del/of-unplug to H3 H1.
+    apply del/reduce-preservation to H6 H4.
+    apply del/of-plug to H7 H8 H5 with L = nil.
+    search.
+
+Theorem del/safety : forall M A,
+    {del/of-comp M del/empty (del/f A)} ->
+        (exists N, {del/step M N} /\ {del/of-comp N del/empty (del/f A)}) \/
+        (exists V, M = del/ret V /\ {del/of-value V A}).
+intros. prog_part : apply del/progress. apply prog_part to H1. case H2.
+    case H1. case H3. search.
+    case H1. case H3.
+    case H1. case H5.
+    apply del/preservation to H1 H3. search.

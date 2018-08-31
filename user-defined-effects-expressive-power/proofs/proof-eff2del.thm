@@ -1,0 +1,250 @@
+Specification "eff2del".
+Import "lemmas-del".
+
+Theorem eff2del/hoisting : forall E E',
+    {eff/hoisting E} -> {eff2del/evctx E E'} -> {del/hoisting E'}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem eff2del/unplug : forall E M EM EM',
+    {eff/plug E M EM} -> {eff2del/comp EM EM'} ->
+    exists E' M', {eff2del/evctx E E'} /\ {eff2del/comp M M'} /\ {del/plug E' M' EM'}.
+induction on 1. intros. case H1.
+    exists del/hole, EM'. search.
+    case H2. apply IH to H3 H4. exists (del/evctx/bind E' N'), M'1. search.
+    case H2. apply IH to H3 H4. exists (del/evctx/app E' V'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (del/evctx/prj1 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (del/evctx/prj2 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (del/evctx/app (del/evctx/reset E' (x\ del/fun b\ (Nu' x))) (del/thunk (del/fun y\ del/case y Ms'))), M'1.  search.
+
+Theorem eff2del/plug : forall L E M EM E' M' EM',
+    {eff/plug E M EM} -> {eff2del/evctx E E'} -> {L |- eff2del/comp M M'} ->
+    {del/plug E' M' EM'} -> {L |- eff2del/comp EM EM'}.
+induction on 2. intros. case H2.
+    case H1. case H4. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. case H8. apply IH to H7 H5 H3 H9. search.
+
+Theorem eff2del/get-case : forall Ms L M Ms',
+    {eff/get-case Ms L M} -> {eff2del/cases Ms Ms'} ->
+    exists M', {del/get-case Ms' L M'}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H4 H5. search.
+
+Theorem eff2del/get-case/unique : forall Ms L M Ms' M',
+    {eff/get-case Ms L M} -> {eff2del/cases Ms Ms'} ->
+    {del/get-case Ms' L M'} -> {pi x\ pi x'\ eff2del/value x x' => eff2del/comp (M x) (M' x')}.
+induction on 1. intros.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H4. apply IH1 to H5.
+case H2.
+    case H1.
+    case H1.
+        case H3.
+            search.
+            case H7. apply H4 to H9.
+        case H3.
+            case H7. apply H4 to H9.
+            apply IH to H8 H5 H10. search.
+
+Theorem eff2del/get-valcase : forall H M Nu' Ms',
+    {eff/get-valcase H M} -> {eff2del/handler H Nu' Ms'} ->
+    {pi x\ pi x'\ eff2del/value x x' => eff2del/comp (M x) (Nu' x')}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem eff2del/get-opcase : forall H X M Nu' Ms',
+    {eff/get-opcase H (eff/op X) M} -> {eff2del/handler H Nu' Ms'} ->
+    exists M', {del/get-case Ms' (lbl X) (p\ del/split p M')}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H4 H5. case H3. search.
+
+Theorem eff2del/get-opcase/unique : forall H X M Nu' Ms' M',
+    {eff/get-opcase H (eff/op X) M} -> {eff2del/handler H Nu' Ms'} ->
+    {del/get-case Ms' (lbl X) (p\ del/split p M')} -> 
+    {pi x\ pi x'\ pi k\ pi k'\ eff2del/value x x' => eff2del/value k k' => eff2del/comp (M x k) (M' x' k')}.
+induction on 1. intros.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H4. apply IH1 to H5.
+case H1.
+    case H2. case H3.
+        search.
+        case H7. apply H4 to H9.
+    case H2. case H3.
+        case H5. apply H4 to H9.
+        apply IH to H6 H7 H10. search.
+
+Theorem eff2del/reduce : forall M1 M2 M1',
+    {eff2del/comp M1 M1'} -> {eff/reduce M1 M2} ->
+    exists M2', {eff2del/comp M2 M2'} /\ del/cong M1' M2'.
+induction on 2. intros. case H2.
+% split (pair V1 V2) M ~> M V1 V2
+    case H1. case H3.
+    inst H4 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
+    cut H7. search.
+% case (inj V) Ms ~> M V
+    case H1. case H4.
+    apply eff2del/get-case to H3 H5.
+    apply eff2del/get-case/unique to H3 H5 H7.
+    inst H8 with n1 = V, n2 = V'1.
+    cut H9. search.
+% force (thunk M) ~> M
+    case H1. case H3.
+    search.
+% bind (ret V) N ~> N V
+    case H1. case H3. inst H4 with n1 = V, n2 = V'.
+    cut H6. search.
+% app (fun M) V ~> M V
+    case H1. case H3. inst H5 with n1 = V, n2 = V'.
+    cut H6. search.
+% prj1 (comppair M1 M2) ~> M1
+    case H1. case H3. search.
+% prj2 (comppair M1 M2) ~> M2
+    case H1. case H3. search.
+% handle (ret V) H ~> Hret V
+    case H1. case H4.
+    apply eff2del/get-valcase to H3 H5. inst H7 with n1 = V, n2 = V'.
+    cut H8. search.
+  % handle E[op V] H ~> Hop V {\x. handle E[ret x] H}
+    case H1. apply eff2del/unplug to H3 H7. case H10.
+    apply eff2del/hoisting to H5 H9.
+    apply del/pluggable to H13. inst H14 with n1 = n2.
+    apply eff2del/plug to H4 H9 _ H15 with L = eff2del/value n1 n2 :: nil.
+    apply eff2del/get-opcase to H6 H8.
+    apply eff2del/get-opcase/unique to H6 H8 H17.
+    inst H18 with
+        n1 = V,
+        n2 = V',
+        n3 = eff/thunk (eff/fun (x\eff/handle (ER x) H)),
+        n4 = del/thunk (del/fun (x\del/app (del/reset (ER1 x x) (x\ del/fun b\ (Nu' x))) (del/thunk (del/fun y\ del/case y Ms')))).
+    cut H19.
+    exists ((M'2 V'
+            (del/thunk
+               (del/fun
+                  (x\del/app (del/reset (ER1 x x) (x1\del/fun (b\Nu' x1)))
+                       (del/thunk (del/fun (y\del/case y Ms')))))))).
+    split. search.
+    unfold 3.
+    exists del/app (
+        (k\del/fun
+                 (h\del/app (del/force h)
+                      (del/inj (lbl X)
+                         (del/pair V'
+                            (del/thunk
+                               (del/fun
+                                  (y\del/app (del/app (del/force k) y) h)))))))
+        (del/thunk (del/fun (x\ del/reset (ER1 x x) (x\del/fun (b\Nu' x)))))
+        ) (del/thunk (del/fun (y\del/case y Ms'))).
+    split. search.
+    unfold 3.
+    exists
+        (h\del/app (del/force h)
+             (del/inj (lbl X)
+                (del/pair V'
+                   (del/thunk
+                      (del/fun
+                         (y\del/app
+                              (del/app
+                                 (del/force
+                                    (del/thunk
+                                       (del/fun
+                                          (x\del/reset (ER1 x x)
+                                               (x1\del/fun
+                                                     (b\Nu' x1))))))
+                                 y)
+                              h))))))
+     (del/thunk (del/fun (y\del/case y Ms'))).
+    split. search.
+    unfold 3.
+    exists
+    del/app (del/fun (y\del/case y Ms'))
+                 (del/inj (lbl X)
+                    (del/pair V'
+                       (del/thunk
+                          (del/fun
+                             (y\del/app
+                                  (del/app
+                                     (del/force
+                                        (del/thunk
+                                           (del/fun
+                                              (x\del/reset (ER1 x x)
+                                                   (x1\del/fun (b\Nu' x1))))))
+                                     y)
+                                  (del/thunk (del/fun (y1\del/case y1 Ms')))))))).
+    split. search.
+    unfold 3.
+    exists 
+    (y\del/case y Ms')
+                 (del/inj (lbl X)
+                    (del/pair V'
+                       (del/thunk
+                          (del/fun
+                             (y\del/app
+                                  (del/app
+                                     (del/force
+                                        (del/thunk
+                                           (del/fun
+                                              (x\del/reset (ER1 x x)
+                                                   (x1\del/fun (b\Nu' x1))))))
+                                     y)
+                                  (del/thunk (del/fun (y1\del/case y1 Ms')))))))).
+    split. search.
+    unfold 3.
+    exists
+        (p\del/split p M'2)
+                    (del/pair V'
+                       (del/thunk
+                          (del/fun
+                             (y\del/app
+                                  (del/app
+                                     (del/force
+                                        (del/thunk
+                                           (del/fun
+                                              (x\del/reset (ER1 x x)
+                                                   (x1\del/fun (b\Nu' x1))))))
+                                     y)
+                                  (del/thunk (del/fun (y1\del/case y1 Ms'))))))).
+    split. search.
+    unfold 3.
+    exists
+      M'2 V'
+         (del/thunk
+            (del/fun
+               (y\del/app
+                    (del/app
+                       (del/force
+                          (del/thunk
+                             (del/fun
+                                (x\del/reset (ER1 x x)
+                                     (x1\del/fun (b\Nu' x1))))))
+                       y)
+                    (del/thunk (del/fun (y1\del/case y1 Ms')))))).
+    split. search.
+    unfold 2.
+    exists red\
+         M'2 V'
+           (del/thunk
+              (del/fun
+                 (y\del/app (red y)
+                      (del/thunk (del/fun (y1\del/case y1 Ms')))))).
+    search.
+
+Theorem eff2del/correctness : forall M1 M2 M1',
+    {eff2del/comp M1 M1'} -> {eff/step M1 M2} -> 
+    exists M2', {eff2del/comp M2 M2'} /\ del/cong M1' M2'.
+intros. case H2.
+    apply eff2del/unplug to H3 H1.
+    apply eff2del/reduce to H7 H4.
+    apply del/plug/cong to H8 H10.
+    apply eff2del/plug to H5 H6 H9 H11 with L = nil.
+    search.

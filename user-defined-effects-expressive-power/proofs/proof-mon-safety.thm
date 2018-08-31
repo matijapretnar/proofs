@@ -1,0 +1,89 @@
+Specification "mon".
+Import "lemmas-mon".
+
+Theorem mon/progress :
+    forall M Eff C, {mon/of-comp M Eff C} -> {mon/progresses M Eff}.
+induction on 1.
+
+    intros Hwf. Hwellf: case Hwf.
+
+    case Hwellf.
+        search.
+        search.
+        Hwf: case H1. case Hwf.
+            search.
+        Hwf: case H1. case Hwf.
+            apply mon/can-get-case to H2 H4.
+            search.
+        Hwf: case H1. case Hwf.
+            search.
+        apply IH to H1. case H3.
+            search.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            case H4. search.
+            case H1. search.
+        apply IH to H1. case H3.
+            Hwf: case H1. case Hwf.
+            search.
+            Hwf: case H1. case Hwf.
+            case H4. search.
+            case H1. search.
+        apply IH to H1. apply IH to H2. search.
+        apply IH to H1. case H2.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            search.
+            case H3. search.
+            case H1. search.
+        apply IH to H1. case H2.
+            Hwf: case H1. case Hwf.
+            Hwf: case H1. case Hwf.
+            search.
+            case H3. search.
+            case H1. search.
+        case H1. apply IH to H2. case H5.
+            search.
+            Hwf: case H2. case Hwf.
+            Hwf: case H2. case Hwf.
+            case H6. search.
+            apply mon/pluggable to H6. search.
+        case Hwellf1. search.
+
+Theorem mon/reduce-preservation : forall M M' Eff C, {mon/of-comp M Eff C} -> {mon/reduce M M'} -> {mon/of-comp M' Eff C}.
+intros. Hwf: case H1. case H2.
+    case Hwf. case H3. case H5. inst H4 with n1 = V1, n2 = V2. cut H9. search.
+    case Hwf. case H4. case H6. apply mon/of-get-case to H3 H5 H9. inst H10 with n1 = V. cut H11. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H5. inst H4 with n1 = V. cut H8. search.
+    case Hwf. case H3. case H5. inst H7 with n1 = V. cut H8. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H4. search.
+    case Hwf. case H3. case H4. case H7. case H8. inst H5 with n1 = A, n2 = V. cut H12. search.
+    case Hwf.
+        apply mon/of-unplug to H3 H7. case H8. case H10.
+        apply mon/hoisting-equal-eff to H4 H9.
+        case H11. case H12. case H13. case H6.
+        assert {mon/of-value (mon/thunk N) (mon/u Eff (C1 A1))}.
+        apply mon/of-plug to H9 _ H5 with L = mon/of-value n1 A1 :: nil.
+        assert {mon/of-value n1 A1 |- mon/of-comp (mon/reify (ER n1) (mon/mon Nu1 Nb1)) Eff (C1 A)}.
+        inst H20 with n1 = A1, n2 = A, n3 = mon/thunk N, n4 = mon/thunk (mon/fun (x\mon/reify (ER x) (mon/mon Nu1 Nb1))).
+        case H7. case H26.
+        cut H24. search.
+
+Theorem mon/preservation : forall M M' Eff C, {mon/of-comp M Eff C} -> {mon/step M M'} -> {mon/of-comp M' Eff C}.
+intros. case H2.
+    apply mon/of-unplug to H3 H1.
+    apply mon/reduce-preservation to H6 H4.
+    apply mon/of-plug to H7 H8 H5 with L = nil.
+    search.
+
+Theorem mon/safety : forall M A,
+    {mon/of-comp M mon/empty (mon/f A)} ->
+        (exists N, {mon/step M N} /\ {mon/of-comp N mon/empty (mon/f A)}) \/
+        (exists V, M = mon/ret V /\ {mon/of-value V A}).
+intros. prog_part : apply mon/progress. apply prog_part to H1. case H2.
+    case H1. case H3. search.
+    case H1. case H3.
+    case H1. case H5.
+    apply mon/preservation to H1 H3. search.

@@ -1,0 +1,107 @@
+Specification "del2eff".
+Import "lemmas-eff".
+
+Theorem del2eff/hoisting : forall E E',
+    {del/hoisting E} -> {del2eff/evctx E E'} -> {eff/hoisting E'}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+
+Theorem del2eff/unplug : forall E M EM EM',
+    {del/plug E M EM} -> {del2eff/comp EM EM'} ->
+    exists E' M', {del2eff/evctx E E'} /\ {del2eff/comp M M'} /\ {eff/plug E' M' EM'}.
+induction on 1. intros. case H1.
+    exists eff/hole, EM'. search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/bind E' N'), M'1. search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/app E' V'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/prj1 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/prj2 E'), M'1.  search.
+    case H2. apply IH to H3 H4. exists (eff/evctx/handle E' (eff/opcase (eff/valcase N') (eff/op z) (f\k\eff/app (eff/force f) k))), M'1.  search.
+
+Theorem del2eff/plug : forall L E M EM E' M' EM',
+    {del/plug E M EM} -> {del2eff/evctx E E'} -> {L |- del2eff/comp M M'} ->
+    {eff/plug E' M' EM'} -> {L |- del2eff/comp EM EM'}.
+induction on 2. intros. case H2.
+    case H1. case H4. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. apply IH to H6 H5 H3 H7. search.
+    case H1. case H4. apply IH to H7 H5 H3 H8. search.
+
+Theorem del2eff/get-case : forall Ms L M Ms',
+    {del/get-case Ms L M} -> {del2eff/cases Ms Ms'} ->
+    exists M', {eff/get-case Ms' L M'}.
+induction on 1. intros. case H1.
+    case H2. search.
+    case H2. apply IH to H4 H5. search.
+
+Theorem del2eff/get-case/unique : forall Ms L M Ms' M',
+    {del/get-case Ms L M} -> {del2eff/cases Ms Ms'} ->
+    {eff/get-case Ms' L M'} -> {pi x\ pi x'\ del2eff/value x x' => del2eff/comp (M x) (M' x')}.
+induction on 1. intros.
+assert forall N, {apart N N} -> false.
+    induction on 1. intros. case H4. apply IH1 to H5.
+case H2.
+    case H1.
+    case H1.
+        case H3.
+            search.
+            case H7. apply H4 to H9.
+        case H3.
+            case H7. apply H4 to H9.
+            apply IH to H8 H5 H10. search.
+
+Theorem del2eff/reduce : forall M1 M2 M1',
+    {del2eff/comp M1 M1'} -> {del/reduce M1 M2} ->
+    exists M2', {del2eff/comp M2 M2'} /\ eff/sim M1' M2'.
+induction on 2. intros. case H2.
+% split (pair V1 V2) M ~> M V1 V2
+    case H1. case H3.
+    inst H4 with n1 = V1, n2 = V2, n3 = V1', n4 = V2'.
+    cut H7. search.
+% case (inj V) Ms ~> M V
+    case H1. case H4.
+    apply del2eff/get-case to H3 H5.
+    apply del2eff/get-case/unique to H3 H5 H7.
+    inst H8 with n1 = V, n2 = V'1.
+    cut H9. search.
+% force (thunk M) ~> M
+    case H1. case H3.
+    search.
+% bind (ret V) N ~> N V
+    case H1. case H3. inst H4 with n1 = V, n2 = V'.
+    cut H6. search.
+% app (fun M) V ~> M V
+    case H1. case H3. inst H5 with n1 = V, n2 = V'.
+    cut H6. search.
+% prj1 (comppair M1 M2) ~> M1
+    case H1. case H3. search.
+% prj2 (comppair M1 M2) ~> M2
+    case H1. case H3. search.
+% reify (ret V) (del Nu Nb) ~> Nu V
+    case H1. case H3. inst H4 with n1 = V, n2 = V'.
+    cut H6. search 6.
+% reify H[reflect M T] T ~> Nb {M} {\x. reify H[ret x] T}
+    case H1. apply del2eff/unplug to H3 H6. case H9.
+    apply del2eff/hoisting to H4 H8.
+    apply eff/pluggable to H12. inst H13 with n1 = n2.
+    apply del2eff/plug to H5 H8 _ H14 with L = del2eff/value n1 n2 :: nil.
+    inst H11 with
+        n1 = (del/thunk (del/fun (x\del/reset (ER x) N))),
+        n2 = (eff/thunk (eff/fun (x\(eff/handle (ER1 x x) (eff/opcase (eff/valcase N') (eff/op z) (f\ k\ eff/app (eff/force f) k) ))))).
+    cut H16.
+    search 10. 
+
+Theorem del2eff/correctness : forall M1 M2 M1',
+    {del2eff/comp M1 M1'} -> {del/step M1 M2} -> 
+    exists M2', {del2eff/comp M2 M2'} /\ eff/sim M1' M2'.
+intros. case H2.
+    apply del2eff/unplug to H3 H1.
+    apply del2eff/reduce to H7 H4.
+    apply eff/plug/sim to H8 H10.
+    apply del2eff/plug to H5 H6 H9 H11 with L = nil.
+    search.
