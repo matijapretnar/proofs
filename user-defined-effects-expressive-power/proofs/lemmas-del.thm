@@ -12,8 +12,9 @@ induction on 1. intros. case H1.
 
 Define del/cong : del/comp -> del/comp -> prop by
     del/cong M M' := {del/step M M'};
-    del/cong CM CM' := exists C (M : del/value -> del/comp) M', CM = C M /\ (forall y, del/cong (M y) (M' y)) /\ C M' = CM';
-    del/cong M1 M3 := exists M2, del/cong M1 M2 /\ del/cong M2 M3.
+    del/cong CM CM' := exists C (M : del/value -> del/comp) M', CM = C M /\ C M' = CM' /\ (forall y, del/cong (M y) (M' y));
+    del/cong M1 M3 := exists M2, del/cong M1 M2 /\ del/cong M2 M3;
+    del/cong CM CM' := exists C (M : del/value -> del/value -> del/comp) M', CM = C M /\ C M' = CM' /\ (forall y1 y2, del/cong (M y1 y2) (M' y1 y2)).
 
 Theorem del/cong/plain : forall CM CM',
   (exists C M M', CM = C M /\ del/cong M M' /\ C M' = CM') -> del/cong CM CM'.
