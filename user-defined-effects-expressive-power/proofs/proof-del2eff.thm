@@ -14,12 +14,12 @@ Theorem del2eff/unplug : forall E M EM EM',
     {del/plug E M EM} -> {del2eff/comp EM EM'} ->
     exists E' M', {del2eff/evctx E E'} /\ {del2eff/comp M M'} /\ {eff/plug E' M' EM'}.
 induction on 1. intros. case H1.
-    exists eff/hole, EM'. search.
-    case H2. apply IH to H3 H4. exists (eff/evctx/bind E' N'), M'1. search.
-    case H2. apply IH to H3 H4. exists (eff/evctx/app E' V'), M'1.  search.
-    case H2. apply IH to H3 H4. exists (eff/evctx/prj1 E'), M'1.  search.
-    case H2. apply IH to H3 H4. exists (eff/evctx/prj2 E'), M'1.  search.
-    case H2. apply IH to H3 H4. exists (eff/evctx/handle E' (eff/opcase (eff/valcase N') (eff/op z) (f\k\eff/app (eff/force f) k))), M'1.  search.
+    search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
 
 Theorem del2eff/plug : forall L E M EM E' M' EM',
     {del/plug E M EM} -> {del2eff/evctx E E'} -> {L |- del2eff/comp M M'} ->

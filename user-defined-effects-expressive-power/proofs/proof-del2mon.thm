@@ -14,12 +14,12 @@ Theorem del2mon/unplug : forall E M EM EM',
     {del/plug E M EM} -> {del2mon/comp EM EM'} ->
     exists E' M', {del2mon/evctx E E'} /\ {del2mon/comp M M'} /\ {mon/plug E' M' EM'}.
 induction on 1. intros. case H1.
-    exists mon/hole, EM'. search.
-    case H2. apply IH to H3 H4. exists (mon/evctx/bind E' N'), M'1. search.
-    case H2. apply IH to H3 H4. exists (mon/evctx/app E' V'), M'1.  search.
-    case H2. apply IH to H3 H4. exists (mon/evctx/prj1 E'), M'1.  search.
-    case H2. apply IH to H3 H4. exists (mon/evctx/prj2 E'), M'1.  search.
-    case H2. apply IH to H3 H4. exists (mon/evctx/app (mon/evctx/reify E' (mon/mon (x\ mon/fun c\ mon/app (mon/force c) x) (m\ f\ mon/fun c\ mon/app (mon/force m) (mon/thunk (mon/fun y\ mon/app (mon/app (mon/force f) y) c))))) (mon/thunk (mon/fun N'))), M'1. search.
+    search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
+    case H2. apply IH to H3 H4. search.
 
 Theorem del2mon/plug : forall L E M EM E' M' EM',
     {del/plug E M EM} -> {del2mon/evctx E E'} -> {L |- del2mon/comp M M'} ->
