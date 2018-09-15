@@ -110,81 +110,6 @@ induction on 2. intros. case H2.
                        (mon/thunk (mon/fun N'))))))).
     split. search.
     unfold 3.
-    exists
-        mon/app
-        %%%
-            ((m\f\mon/fun
-                                          (c\mon/app (mon/force m)
-                                               (mon/thunk
-                                                  (mon/fun
-                                                     (y\mon/app (mon/app (mon/force f) y)
-                                                          c)))))
-                        (mon/thunk (mon/fun M'2))
-                        (mon/thunk (mon/fun (x\ mon/reify (ER1 x x) (mon/mon (x\mon/fun (c\mon/app (mon/force c) x))
-                       (m\f\mon/fun
-                              (c\mon/app (mon/force m)
-                                   (mon/thunk
-                                      (mon/fun
-                                         (y\mon/app (mon/app (mon/force f) y)
-                                              c))))))))))
-        %%%
-                 (mon/thunk (mon/fun N')).
-    split. search.
-    unfold 3.
-    exists 
-         (c\mon/app (mon/force (mon/thunk (mon/fun M'2)))
-              (mon/thunk
-                 (mon/fun
-                    (y\mon/app
-                         (mon/app
-                            (mon/force
-                               (mon/thunk
-                                  (mon/fun
-                                     (x\mon/reify (ER1 x x)
-                                          (mon/mon
-                                             (x1\mon/fun
-                                                   (c1\mon/app (mon/force c1)
-                                                         x1))
-                                             (m\f\mon/fun
-                                                    (c1\mon/app (mon/force m)
-                                                          (mon/thunk
-                                                             (mon/fun
-                                                                (y1\mon/app
-                                                                    (mon/app
-                                                                    (mon/force
-                                                                    f) y1) c1))))))))))
-                            y)
-                         c))))
-      (mon/thunk (mon/fun N')).
-      split. search.
-      unfold 3.
-      exists mon/app (mon/fun M'2)
-                 (mon/thunk
-                    (mon/fun
-                       (y\mon/app
-                            (mon/app
-                               (mon/force
-                                  (mon/thunk
-                                     (mon/fun
-                                        (x\mon/reify (ER1 x x)
-                                             (mon/mon
-                                                (x1\mon/fun
-                                                      (c1\mon/app
-                                                            (mon/force c1) x1))
-                                                (m\f\mon/fun
-                                                       (c1\mon/app
-                                                             (mon/force m)
-                                                             (mon/thunk
-                                                                (mon/fun
-                                                                   (y1\
-                                                                    mon/app
-                                                                    (mon/app
-                                                                    (mon/force
-                                                                    f) y1) c1))))))))))
-                               y)
-                            (mon/thunk (mon/fun N'))))).
-    split. search.
-    unfold 3.
     exists M'2
                  (mon/thunk
                     (mon/fun
@@ -210,7 +135,7 @@ induction on 2. intros. case H2.
                                                                     f) y1) c1))))))))))
                                y)
                             (mon/thunk (mon/fun N'))))).
-    split. search.
+    split. search 10.
     unfold 2.
     exists red\ M'2 (mon/thunk (mon/fun (x\mon/app (red x) (mon/thunk (mon/fun N'))))).
     search.

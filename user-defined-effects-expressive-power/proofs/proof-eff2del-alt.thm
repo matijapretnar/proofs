@@ -136,125 +136,6 @@ induction on 2. intros. case H2.
                        (y\del/case y Ms'))))).
     split. search.
     unfold 3.
-    exists (del/reset 
-        ((k\del/shift
-                 (h\del/app (del/force h)
-                      (del/inj (lbl X)
-                         (del/pair V'
-                            (del/thunk
-                               (del/fun
-                                  (x\del/reset (del/app (del/force k) x)
-                                       (y\del/app (del/force h) y))))))))
-            (del/thunk (del/fun (x\ del/reset (ER1 x x) (x\del/shift (h\Nu' x))))))
-            (y\del/case y Ms')).
-    split. search.
-    unfold 3.
-    exists 
-        (h\del/app (del/force h)
-        (del/inj (lbl X)
-            (del/pair V'
-            (del/thunk
-                (del/fun
-                    (x\del/reset
-                        (del/app
-                            (del/force
-                                (del/thunk
-                                (del/fun
-                                    (x1\del/reset (ER1 x1 x1)
-                                            (x2\del/shift (h1\Nu' x2))))))
-                            x)
-                        (y\del/app (del/force h) y)))))))
-            (del/thunk (del/fun (x\ del/reset (del/ret x) (y\del/case y Ms')))).
-    split. search.
-    unfold 3.
-    exists
-      (del/app
-      (del/fun (x\del/reset (del/ret x) (y\del/case y Ms')))
-      (del/inj (lbl X)
-         (del/pair V'
-            (del/thunk
-               (del/fun
-                  (x\del/reset
-                       (del/app
-                          (del/force
-                             (del/thunk
-                                (del/fun
-                                   (x1\del/reset (ER1 x1 x1)
-                                         (x2\del/shift (h1\Nu' x2))))))
-                          x)
-                       (y\del/app
-                            (del/force
-                               (del/thunk
-                                  (del/fun
-                                     (x1\del/reset (del/ret x1)
-                                           (y1\del/case y1 Ms')))))
-                            y))))))).
-    split. search.
-    unfold 3.
-    exists (x\del/reset (del/ret x) (y\del/case y Ms'))
-                 (del/inj (lbl X)
-                    (del/pair V'
-                       (del/thunk
-                          (del/fun
-                             (x\del/reset
-                                  (del/app
-                                     (del/force
-                                        (del/thunk
-                                           (del/fun
-                                              (x1\del/reset (ER1 x1 x1)
-                                                    (x2\del/shift (h1\Nu' x2))))))
-                                     x)
-                                  (y\del/app
-                                       (del/force
-                                          (del/thunk
-                                             (del/fun
-                                                (x1\del/reset (del/ret x1)
-                                                      (y1\del/case y1 Ms')))))
-                                       y)))))).
-    split. search.
-    unfold 3.
-    exists (y\del/case y Ms')
-         (del/inj (lbl X)
-            (del/pair V'
-               (del/thunk
-                  (del/fun
-                     (x\del/reset
-                          (del/app
-                             (del/force
-                                (del/thunk
-                                   (del/fun
-                                      (x1\del/reset (ER1 x1 x1)
-                                            (x2\del/shift (h1\Nu' x2))))))
-                             x)
-                          (y\del/app
-                               (del/force
-                                  (del/thunk
-                                     (del/fun
-                                        (x1\del/reset (del/ret x1)
-                                              (y1\del/case y1 Ms')))))
-                               y)))))).
-    split. search.
-    unfold 3.
-    exists (p\del/split p M'2) (del/pair V'
-                       (del/thunk
-                          (del/fun
-                             (x\del/reset
-                                  (del/app
-                                     (del/force
-                                        (del/thunk
-                                           (del/fun
-                                              (x1\del/reset (ER1 x1 x1)
-                                                    (x2\del/shift (h1\Nu' x2))))))
-                                     x)
-                                  (y\del/app
-                                       (del/force
-                                          (del/thunk
-                                             (del/fun
-                                                (x1\del/reset (del/ret x1)
-                                                      (y1\del/case y1 Ms')))))
-                                       y))))).
-    split. search.
-    unfold 3.
     exists M'2 V'
          (del/thunk
             (del/fun
@@ -273,10 +154,10 @@ induction on 2. intros. case H2.
                                   (x1\del/reset (del/ret x1)
                                         (y1\del/case y1 Ms')))))
                          y)))).
-    split. search.
+    split. search 10.
     unfold 2.
     exists (red\ M'2 V' (del/thunk (del/fun red))).
-    exists             (x\del/reset
+    exists (x\del/reset
                  (del/app
                     (del/force
                        (del/thunk
@@ -296,17 +177,6 @@ induction on 2. intros. case H2.
     split. search. search.
     intros.
     unfold 3.
-    exists (del/reset
-      (del/app
-               (del/fun (x1\del/reset (ER1 x1 x1) (x2\del/shift (h1\Nu' x2))))
-         y)
-      (y\del/app
-           (del/force
-              (del/thunk
-                 (del/fun (x1\del/reset (del/ret x1) (y1\del/case y1 Ms')))))
-           y)).
-    split. search.
-    unfold 3.
     exists (   (del/reset
       ((x1\del/reset (ER1 x1 x1) (x2\del/shift (h1\Nu' x2))) y)
       (y\del/app
@@ -314,7 +184,7 @@ induction on 2. intros. case H2.
               (del/thunk
                  (del/fun (x1\del/reset (del/ret x1) (y1\del/case y1 Ms')))))
            y))).
-    split. search.
+    split. search 10.
     unfold 2.
     exists red\ (del/reset (del/reset (ER1 y y) (x2\del/shift (h1\Nu' x2))) red).
     exists (y\del/app

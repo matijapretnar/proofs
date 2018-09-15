@@ -103,69 +103,6 @@ induction on 2. intros. case H2.
                        (del/thunk (del/fun (x1\del/fun (k\Nb' x1 k)))))))).
     split. search.
     unfold 3.
-    exists (
-        del/app
-            (
-                (k\del/fun
-                 (nb\del/app (del/app (del/force nb) (del/thunk M'2))
-                       (del/thunk
-                          (del/fun (y\del/app (del/app (del/force k) y) nb)))))
-                (del/thunk (del/fun (x\ del/reset (ER1 x x) (x\ del/fun nb\ Nu' x))))
-            )
-            (del/thunk (del/fun (x\del/fun (k\Nb' x k))))
-    ).
-    split. search.
-    unfold 3.
-    exists (
-         (nb\del/app (del/app (del/force nb) (del/thunk M'2))
-               (del/thunk
-                  (del/fun
-                     (y\del/app
-                          (del/app
-                             (del/force
-                                (del/thunk
-                                   (del/fun
-                                      (x\del/reset (ER1 x x)
-                                           (x1\del/fun (nb1\Nu' x1))))))
-                             y)
-                          nb))))
-          (del/thunk (del/fun (x\del/fun (k\Nb' x k))))
-    ).
-    split. search.
-    unfold 3.
-    exists (
-       (del/app
-          (del/app (del/fun (x\del/fun (k\Nb' x k)))
-             (del/thunk M'2))
-          (del/thunk
-             (del/fun
-                (y\del/app
-                     (del/app
-                        (del/force
-                           (del/thunk
-                              (del/fun
-                                 (x\del/reset (ER1 x x) (x1\del/fun (nb1\Nu' x1))))))
-                        y)
-                     (del/thunk (del/fun (x\del/fun (k\Nb' x k))))))))
-    ).
-    split. search.
-    unfold 3.
-    exists (
-   (del/app ((x\del/fun (k\Nb' x k)) (del/thunk M'2))
-      (del/thunk
-         (del/fun
-            (y\del/app
-                 (del/app
-                    (del/force
-                       (del/thunk
-                          (del/fun
-                             (x\del/reset (ER1 x x) (x1\del/fun (nb1\Nu' x1))))))
-                    y)
-                 (del/thunk (del/fun (x\del/fun (k\Nb' x k))))))))
-
-    ).
-    split. search.
-    unfold 3.
     exists
       (k\Nb' (del/thunk M'2) k)
       (del/thunk
@@ -178,7 +115,7 @@ induction on 2. intros. case H2.
                              (x\del/reset (ER1 x x) (x1\del/fun (nb1\Nu' x1))))))
                     y)
                  (del/thunk (del/fun (x\del/fun (k\Nb' x k))))))).
-    split. search.
+    split. search 10.
     unfold 3.
     exists
       (Nb' (del/thunk M'2)

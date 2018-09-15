@@ -104,113 +104,6 @@ induction on 2. intros. case H2.
                         (z\del/split z (y\f\Nb' y f)))))).
     split. search.
     unfold 3.
-    exists (del/reset (
-        (k\del/shift
-                 (b\del/app (del/force b)
-                      (del/pair (del/thunk M'2)
-                         (del/thunk
-                            (del/fun
-                               (x\del/reset (del/app (del/force k) x)
-                                    (z\del/split z
-                                         (y\f\del/app (del/force b)
-                                                (del/pair y f)))))))))
-        (del/thunk (del/fun (x'\ del/reset (ER1 x' x') (x\del/shift (b\Nu' x)))))
-    ) (z\del/split z (y\f\Nb' y f))).
-    split. search.
-    unfold 3.
-    exists
-        (b\del/app (del/force b)
-        (del/pair (del/thunk M'2)
-            (del/thunk
-            (del/fun
-                (x\del/reset
-                    (del/app
-                        (del/force
-                            (del/thunk
-                                (del/fun
-                                (x'\del/reset (ER1 x' x')
-                                        (x1\del/shift (b1\Nu' x1))))))
-                        x)
-                    (z\del/split z
-                            (y\f\del/app (del/force b) (del/pair y f))))))))
-        (del/thunk (del/fun (x\ del/reset (del/ret x) (z\del/split z (y\f\Nb' y f))))).
-    split. search.
-    unfold 3.
-    exists (del/app
-    (del/fun
-            (x\del/reset (del/ret x)
-                (z\del/split z (y\f\Nb' y f))))
-    (del/pair (del/thunk M'2)
-    (del/thunk
-        (del/fun
-            (x\del/reset
-                (del/app
-                    (del/force
-                        (del/thunk
-                        (del/fun
-                            (x'\del/reset (ER1 x' x')
-                                    (x1\del/shift (b1\Nu' x1))))))
-                    x)
-                (z\del/split z
-                    (y\f\del/app
-                            (del/force
-                                (del/thunk
-                                    (del/fun
-                                    (x1\del/reset
-                                            (del/ret x1)
-                                            (z1\del/split z1
-                                                (y1\f1\
-                                                    Nb' y1 f1))))))
-                            (del/pair y f)))))))).
-    split. search.
-    unfold 3.
-    exists (x\del/reset (del/ret x) (z\del/split z (y\f\Nb' y f)))
-    (del/pair (del/thunk M'2)
-        (del/thunk
-        (del/fun
-            (x\del/reset
-                (del/app
-                    (del/force
-                        (del/thunk
-                            (del/fun
-                            (x'\del/reset (ER1 x' x')
-                                    (x1\del/shift (b1\Nu' x1))))))
-                    x)
-                (z\del/split z
-                        (y\f\del/app
-                            (del/force
-                                (del/thunk
-                                    (del/fun
-                                        (x1\del/reset (del/ret x1)
-                                            (z1\del/split z1
-                                                    (y1\f1\Nb' y1 f1))))))
-                            (del/pair y f)))))))
-    .
-    split. search.
-    unfold 3.
-    exists (z\del/split z (y\f\Nb' y f))
-        (del/pair (del/thunk M'2)
-        (del/thunk
-            (del/fun
-                (x\del/reset
-                    (del/app
-                        (del/force
-                            (del/thunk
-                            (del/fun
-                                (x'\del/reset (ER1 x' x')
-                                        (x1\del/shift (b1\Nu' x1))))))
-                        x)
-                    (z\del/split z
-                        (y\f\del/app
-                                (del/force
-                                    (del/thunk
-                                        (del/fun
-                                        (x1\del/reset (del/ret x1)
-                                                (z1\del/split z1
-                                                    (y1\f1\Nb' y1 f1))))))
-                                (del/pair y f))))))).
-    split. search.
-    unfold 3.
     exists (y\f\Nb' y f)
     (del/thunk M'2)
         (del/thunk
@@ -233,7 +126,7 @@ induction on 2. intros. case H2.
                                                     (y1\f1\Nb' y1 f1))))))
                             (del/pair y f))))))
     .
-    split. search.
+    split. search 10.
     unfold 2.
     exists red\ (Nb' (del/thunk M'2) (del/thunk (del/fun red))).
     exists x\del/reset
