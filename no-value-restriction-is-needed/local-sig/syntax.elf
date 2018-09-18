@@ -1,0 +1,138 @@
+%%%%% Abstract syntax %%%%%
+
+%%% Operations %%%
+
+% We need a way of representing operations.
+% Furthermore, these operations need to be comparable.
+% Ideally, we would prefer to *hypothesize* about this fact,
+% but there is no legal way of doing this in Twelf.
+%
+% Instead, we represent operations with natural numbers
+% and implement the relevant decision procedures.
+% We consider this to be a very clumsy solution,
+% mainly because it exposes implementation details.
+
+operation : type.
+%name operation O.
+
+operation/z : operation.
+operation/s : operation -> operation.
+
+
+% We only have to define the apartness relation,
+% because two operations are equal only if they are identical.
+
+apart : operation -> operation -> type.
+%mode apart +O1 +O2.
+
+apart/sz : apart (operation/s _) operation/z.
+apart/zs : apart operation/z (operation/s _).
+apart/ss : apart (operation/s O1) (operation/s O2)
+                 <- apart O1 O2.
+
+
+%%% Types, dirty types, and dirt %%%
+
+ty : type.
+dirty : type.
+dirt : type.
+
+%name ty A.
+%name dirty B.
+%name dirt D.
+
+% Usually, we write underlined "C" and "D" for computation types.
+% However, all variables in Twelf need to be capital letters,
+% so "C" is already taken by computations, and "D" is convenient for dirt,
+% thus we label dirty types by "B".
+
+bool  : ty.                   % the type of booleans
+-->   : ty -> dirty -> ty.    % the function type
+==>   : dirty -> dirty -> ty. % the type of handlers
+%infix right 50 -->.
+%infix right 55 ==>.
+
+! : ty -> dirt -> dirty.
+%infix none 60 !.
+
+% For the sake of simplicity, we represent dirt with association lists.
+% If an operation is assigned two different signatures, the first one is
+% taken, making assignment unique.
+ 
+dirt/empty : dirt.
+dirt/cons  : operation -> ty -> ty -> dirt -> dirt.
+
+% "sig D O A1 A2" states that in the dirt "D" the operation "O" is assigned
+% a parameter type "A1" and a result type "A2".
+
+sig : dirt -> operation -> ty -> ty -> type.
+
+sig/here : sig (dirt/cons O A1 A2 _) O A1 A2.
+sig/there : sig (dirt/cons O _ _ D) O' A1 A2
+            <- apart O' O
+            <- sig D O' A1 A2.
+
+outside : operation -> dirt -> type.
+
+outside/empty : outside O dirt/empty.
+outside/cons  : outside O (dirt/cons O' _ _ D)
+                 <- outside O D
+                 <- apart O O'.
+
+covered : dirt -> dirt -> dirt -> type.
+
+covered/empty : covered dirt/empty _ _.
+covered/first : covered (dirt/cons O A1 A2 D) D1 D2
+                 <- sig D1 O A1 A2
+                 <- covered D D1 D2.
+covered/second : covered (dirt/cons O A1 A2 D) D1 D2
+                 <- sig D2 O A1 A2
+                 <- covered D D1 D2.
+
+%%% Schemes %%%
+
+scheme : type.
+%name scheme S.
+
+plain  : ty -> scheme.             % plain type
+forall : (ty -> scheme) -> scheme. % universally quantified type
+
+
+% "concrete S A" states that the type "A" is obtained by replacing all
+% universally quantified type variables in "S" by closed types.
+
+concrete : scheme -> ty -> type.
+
+concrete/plain : concrete (plain A) A.
+concrete/forall : {A} concrete (forall S) A'
+                    <- concrete (S A) A'.
+
+%%% Terms %%%
+
+expr : type.
+comp : type.
+op-cases : type.
+%name comp C.
+%name expr E.
+%name op-cases OCs.
+
+% Abbreviations for handler cases
+
+%abbrev ret-case = expr -> comp.
+%abbrev op-case = expr -> expr -> comp.
+%name op-case OC.
+
+tru : expr.                               % true
+fls : expr.                               % false
+fun : (expr -> comp) -> expr.             % function
+hnd : ret-case -> op-cases -> expr.       % handler
+
+op-cases/nil  : dirty -> op-cases.
+op-cases/cons : operation -> op-case -> op-cases -> op-cases.
+
+cond : expr -> comp -> comp -> comp.   % conditional statement
+app  : expr -> expr -> comp.           % application
+ret  : expr -> comp.                   % injection of values into computations
+op   : operation -> expr -> (expr -> comp) -> comp. % operation call
+seq  : comp -> (expr -> comp) -> comp. % sequencing
+with : expr -> comp -> comp.           % handling construct

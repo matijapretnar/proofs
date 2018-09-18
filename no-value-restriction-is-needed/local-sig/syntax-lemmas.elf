@@ -1,0 +1,27 @@
+comparable : operation -> operation -> type.
+
+comparable/equal : comparable O O.
+comparable/apart : comparable O O'
+                    <- apart O O'.
+
+comparable-ss : comparable O O' -> comparable (operation/s O) (operation/s O') -> type.
+%mode comparable-ss +Comp -Comp'.
+
+- : comparable-ss comparable/equal comparable/equal.
+- : comparable-ss (comparable/apart Ap) (comparable/apart (apart/ss Ap)).
+
+%worlds () (comparable-ss _ _).
+%total {} (comparable-ss _ _).
+
+all-comparable : {O} {O'} comparable O O' -> type.
+%mode all-comparable +O +O' -Comp.
+
+- : all-comparable operation/z operation/z comparable/equal.
+- : all-comparable operation/z (operation/s _) (comparable/apart apart/zs).
+- : all-comparable (operation/s _) operation/z (comparable/apart apart/sz).
+- : all-comparable (operation/s O) (operation/s O') Comp'
+     <- all-comparable O O' Comp
+     <- comparable-ss Comp Comp'.
+
+%worlds () (all-comparable _ _ _).
+%total {O} (all-comparable O _ _).

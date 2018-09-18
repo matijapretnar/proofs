@@ -1,0 +1,183 @@
+%%%%% Signatures %%%%%
+
+% Since effects are all labeled with natural numbers,
+% a signature can be represented by a list of effect signatures, so that
+% the first effect signature corresponds to effect "effect/ name/z",
+% the second to "effect/ (name/s name/z)", etc.
+%
+% Similarly, operation symbols are also labeled with natural numbers,
+% so an effect signature is represented by a list of pairs of types.
+%
+% Note that this representation implies that in typed terms,
+% we can only consider a finite number of effects and
+% a finite number of operation symbols for each one.
+
+effsignature : type.
+
+effsignature/empty : effsignature.
+effsignature/cons : ty -> ty -> effsignature -> effsignature.
+
+
+signature : type.
+
+signature/empty : signature.
+signature/cons : effsignature -> signature -> signature.
+
+
+% "effsig ESig O A1 A2" states that the effect signature "ESig" assigns
+% a parameter type "A1" and a result type "A2" to the operation symbol labeled by "O".
+
+effsig : effsignature -> name -> ty -> ty -> type.
+
+effsig/here : effsig (effsignature/cons A1 A2 _) name/z A1 A2.
+effsig/there : effsig (effsignature/cons _ _ ESig) (name/s O) A1 A2
+                <- effsig ESig O A1 A2.
+
+%worlds () (effsig _ _ _ _).
+%unique effsig +Sig +X -1A1 -1A2.
+
+
+% "sig Sig O A1 A2" states that the signature "Sig" assigns
+% a parameter type "A1" and a result type "A2" to the operation symbol "O".
+
+sig : signature -> opsym Eff -> ty -> ty -> type.
+
+sig/here : sig (signature/cons ESig _) (opsym/ (effect/ name/z) O) A1 A2
+            <- effsig ESig O A1 A2.
+sig/there : sig (signature/cons _ Sig) (opsym/ (effect/ (name/s Eff)) O) A1 A2
+            <- sig Sig (opsym/ (effect/ Eff) O) A1 A2.
+
+%worlds () (sig _ _ _ _).
+%unique sig +Sig +O -1A1 -1A2.
+
+% We need to state that "sig" (and similarly "effsig" above) assigns
+% a unique parameter and result type to each operation symbol.
+% This fact is used in the proof of preservation when handling operation calls.
+% There, one gets one signature for the operation symbol of the handled operation,
+% and another one for the one in the handler case.
+% Because of uniqueness, we may safely assume that the two are the same.
+
+%%%%% Typing judgments %%%%%
+
+% The three typing judgments that correspond to the three families of terms:
+% - "eof Sig E A" means that expression "E" has type "A" under signature "Sig"
+% - "cof Sig C B" states the same for computation "C" and dirty type "B"
+% - "opcof Sig OCs B D" states that operation cases "OCs" all have a return type "B"
+%   and cover operations from dirt "D"
+
+eof : signature -> expr -> ty -> type.
+cof : signature -> comp -> dirty -> type.
+seof : signature -> expr -> scheme -> type.
+scof : signature -> comp -> scheme -> dirt -> type.
+opcof : signature -> op-cases -> dirty -> dirt -> type.
+
+% We have an additional judgment "var E A" to represent variables of type "A"
+% in a context. We could use "eof" instead of "var" in hypothetical judgments,
+% but the latter presentation of contexts is closer to the formalization
+% in the paper, and also later allow us to relate variables between typing
+% and type inference judgments.
+
+var : expr -> ty -> type.
+pvar : expr -> scheme -> type.
+
+% Block declaration to be used in theorems that hold for open typed terms.
+
+%block mopen : some {A : ty} block {x : expr}{_ : var x A}.
+%block popen : some {S : scheme} block {x : expr}{_ : pvar x S}.
+%block open = (mopen | popen | topen).
+
+
+%%% Expressions %%%
+
+eof/var : eof _ E A
+           <- var E A.
+eof/pvar : eof _ E A
+           <- concrete S A
+           <- pvar E S.
+eof/tru : eof _ tru bool.
+eof/fls : eof _ fls bool.
+eof/zro : eof _ zro nat.
+eof/suc : eof Sig (suc E) nat
+           <- eof Sig E nat.
+eof/unt : eof _ unt unit.
+eof/fun : eof Sig (fun A E) (A --> B)
+           <- ({x} var x A -> cof Sig (E x) B).
+eof/ins : eof _ (ins I) (inst R)
+           <- in-region I R.
+eof/sub : eof Sig E A'
+           <- A <t A'
+           <- eof Sig E A.
+eof/hnd : eof Sig (hnd A Cv OCs) (A ! D ==> A' ! D')
+           <- covers D Dcov D'
+           <- opcof Sig OCs (A' ! D') Dcov
+           <- ({x} var x A -> cof Sig (Cv x) (A' ! D')).
+
+
+%%% Operation cases %%%
+
+% We can guarantee that an operation case matches a given operation only if
+% its instance expressions is a singleton.
+% To do so, we introduce "add-if-singleton D R O D'",
+% which adds "I#O" to dirt "D" to obtain dirt "D'", if "R" is exactly singleton "I".
+ 
+add-if-singleton : dirt -> region Eff -> opsym Eff -> dirt -> type.
+
+add-if-singleton/take : add-if-singleton D (region/cons I region/empty) O (dirt/cons (I # O) D).
+add-if-singleton/skip : add-if-singleton D _ _ D.
+ 
+opcof/nil  : opcof Sig (op-cases/nil B) B dirt/empty.
+opcof/cons : opcof Sig (op-cases/cons E O OC OCs) B D'
+              <- add-if-singleton D R O D'
+              <- opcof Sig OCs B D
+              <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof Sig (OC x k) B)
+              <- sig Sig O A1 A2
+              <- eof Sig E (inst R).
+
+
+%%% Computations %%%
+
+cof/cond : cof Sig (cond E C1 C2) B
+            <- cof Sig C2 B
+            <- cof Sig C1 B
+            <- eof Sig E bool.
+cof/mtch : cof Sig (mtch E C1 C2) B
+            <- ({x} var x nat -> cof Sig (C2 x) B)
+            <- cof Sig C1 B
+            <- eof Sig E nat.
+cof/absd : cof Sig (absd B E) B
+            <- eof Sig E empty.
+cof/app  : cof Sig (app E1 E2) B
+            <- eof Sig E2 A
+            <- eof Sig E1 (A --> B).
+cof/val  : cof Sig (val E) (A ! D)
+            <- eof Sig E A.
+cof/op   : cof Sig (op Ei O Ep K) (B ! D)
+            <- in-dirt-region R O D
+            <- ({x} var x A2 -> cof Sig (K x) (B ! D))
+            <- eof Sig Ep A1
+            <- sig Sig O A1 A2
+            <- eof Sig Ei (inst R).
+cof/let  : cof Sig (let C1 C2) (A ! D)
+            <- ({x} pvar x S -> cof Sig (C2 x) (A ! D))
+            <- scof Sig C1 S D.
+cof/letr : cof Sig (letr A B C1 C2) B'
+            <- ({f} var f (A --> B) -> cof Sig (C2 f) B')
+            <- ({f} var f (A --> B) -> {x} var x A -> cof Sig (C1 f x) B).
+cof/with : cof Sig (with E C) B'
+            <- cof Sig C B
+            <- eof Sig E (B ==> B').
+cof/sub  : cof Sig C B'
+            <- B <dt B'
+            <- cof Sig C B.
+
+scof/plain : scof Sig C (plain A) D
+             <- cof Sig C (A ! D).
+
+scof/forall: scof Sig C (forall S) D
+             <- {x} scof Sig C (S x) D.
+
+seof/plain : seof Sig E (plain A)
+             <- eof Sig E A.
+
+seof/forall: seof Sig E (forall S)
+             <- {x} seof Sig E (S x).

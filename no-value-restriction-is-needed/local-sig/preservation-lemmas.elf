@@ -1,0 +1,180 @@
+%%% Subcases of the preservation theorem %%%
+
+
+apart-not-refl : apart O O -> {C} {B} cof C B -> type.
+%mode apart-not-refl +O!O +C +B -CofB.
+
+- : apart-not-refl (apart/ss O!O) C B CofB
+     <- apart-not-refl O!O C B CofB.
+
+%worlds (topen) (apart-not-refl _ _ _ _).
+%total {O!O} (apart-not-refl O!O _ _ _).
+
+apart-not-refl-eof : apart O O -> {C} {B} eof C B -> type.
+%mode apart-not-refl-eof +O!O +C +B -CofB.
+
+- : apart-not-refl-eof (apart/ss O!O) C B CofB
+     <- apart-not-refl-eof O!O C B CofB.
+
+%worlds (topen) (apart-not-refl-eof _ _ _ _).
+%total {O!O} (apart-not-refl-eof O!O _ _ _).
+
+
+ty-eq : ty -> ty -> type.
+ty-eq/refl : ty-eq A A.
+
+expr-eq : expr -> expr -> type.
+expr-eq/refl : expr-eq A A.
+
+strengthen : ({t:ty} sig D O (A1 t) (A2 t)) -> sig D O A1' A2' -> ({t:ty} ty-eq (A1 t) A1') -> ({t:ty} ty-eq (A2 t) A2') -> type.
+%mode strengthen +O -O' -Eq1 -Eq2.
+
+- : strengthen ([_] sig/here) sig/here ([_] ty-eq/refl) ([_] ty-eq/refl).
+
+- : strengthen ([t] (sig/there (O t) Ap)) (sig/there O' Ap) Eq1 Eq2
+     <- strengthen O O' Eq1 Eq2.
+
+%worlds (topen) (strengthen _ _ _ _).
+%total {O} (strengthen O _ _ _).
+
+undependent-sig : scof (op O _ _) _ D -> sig D O A1 A2 -> type.
+%mode undependent-sig +C -O.
+
+- : undependent-sig (scof/plain (cof/op O _ _)) O.
+
+- : undependent-sig (scof/forall S) O'
+     <- ({t} undependent-sig (S t) (O t))
+     <- strengthen O O' _ _.
+
+%worlds (topen) (undependent-sig _ _).
+%total {S} (undependent-sig S _).
+
+absurd-eq : apart O O -> {A} {B} {K} ({x} var x A -> cof (K x) B) -> type.
+%mode absurd-eq +O!O +A +B +K -Eq.
+
+- : absurd-eq (apart/ss O!O) A B K Eq
+     <- absurd-eq O!O A B K Eq.
+
+%worlds (topen) (absurd-eq _ _ _ _ _).
+%total {O!O} (absurd-eq O!O _ _ _ _).
+
+sig-unique : sig D O A1 A2 -> sig D O A1' A2' -> eof E A1 -> eof E A1' -> type.
+%mode sig-unique +O +O' +E -E'.
+
+- : sig-unique sig/here sig/here E E.
+
+- : sig-unique (sig/there O _) (sig/there O' _) Eq1 Eq2
+     <- sig-unique O O' Eq1 Eq2.
+
+- : sig-unique sig/here (sig/there _ O!O) Eq1 Eq2
+     <- apart-not-refl-eof O!O _ _ Eq2.
+
+- : sig-unique (sig/there _ O!O) sig/here Eq1 Eq2
+     <- apart-not-refl-eof O!O _ _ Eq2.
+
+%worlds (topen) (sig-unique _ _ _ _).
+%total O (sig-unique O _ _ _).
+
+sig-unique2 : sig D O A1 A2 -> sig D O A1' A2' -> ({x} var x A2 -> cof (K x) B) -> ({x} var x A2' -> cof (K x) B) -> type.
+%mode sig-unique2 +O +O' +K -K'.
+
+- : sig-unique2 sig/here sig/here E E.
+
+- : sig-unique2 (sig/there O _) (sig/there O' _) Eq1 Eq2
+     <- sig-unique2 O O' Eq1 Eq2.
+
+- : sig-unique2 sig/here (sig/there _ O!O) Eq1 Eq2
+     <- absurd-eq O!O _ _ _ Eq2.
+
+- : sig-unique2 (sig/there _ O!O) sig/here Eq1 Eq2
+     <- absurd-eq O!O _ _ _ Eq2.
+
+%worlds (topen) (sig-unique2 _ _ _ _).
+%total O (sig-unique2 O _ _ _).
+
+preservation-with-hand : sig D O A1 A2
+                        -> eof Ep A1 -> eof K (A2 --> A' ! D')
+                        -> get-op-case O OCs OC -> opcof D OCs (A' ! D') Os
+                        -> cof (OC Ep K) (A' ! D') -> type.
+%mode preservation-with-hand +O +Ep +K +OC +OCs -OC.
+
+- : preservation-with-hand O Ep (eof/fun K) get-op-case/here (opcof/cons O' OC _) OC'
+    <- sig-unique O O' Ep Ep'
+    <- sig-unique2 O O' K K'
+    <- subst2 OC Ep' (eof/fun K') OC'.
+
+- : preservation-with-hand O Ep K (get-op-case/there OC _) (opcof/cons _ _ OCs) OC'
+    <- preservation-with-hand O Ep K OC OCs OC'.
+
+%worlds (topen) (preservation-with-hand _ _ _ _ _ _).
+%total {OC} (preservation-with-hand _ _ _ OC _ _).
+
+
+operation-scheme-inversion : scof (op O E K) S D ->
+              sig D O A1 A2 ->
+              eof E A1 -> 
+              ({x} var x A2 -> scof (K x) S D) -> type.
+%mode operation-scheme-inversion +C +O -E -K.
+
+- : operation-scheme-inversion (scof/forall S) O (E bool) ([x] [dx] (scof/forall ([t] K' x dx t)))
+     <- ({t} operation-scheme-inversion (S t) O (E t) ([x] [dx] (K' x dx t))).
+
+- : operation-scheme-inversion (scof/plain (cof/op O E K)) O' E' ([x] [dx] scof/plain (K' x dx))
+     <- sig-unique O O' E E'
+     <- sig-unique2 O O' K K'.
+
+%worlds (topen) (operation-scheme-inversion _ _ _ _).
+%total {S} (operation-scheme-inversion S _ _ _).
+
+not-found-outside : not-get-op-case O OCs -> opcof _ OCs _ Os -> outside O Os -> type.
+%mode not-found-outside +Not +OCs -Out.
+
+- : not-found-outside not-get-op-case/nil opcof/nil outside/empty.
+
+- : not-found-outside (not-get-op-case/there Not Ap) (opcof/cons _ _ OCs) (outside/cons Ap Out)
+     <- not-found-outside Not OCs Out.
+
+%worlds (topen) (not-found-outside _ _ _).
+%total {OCs} (not-found-outside _ OCs _).
+
+apart-sig : apart O' O' -> {D} {O} {A1} {A2} sig D O A1 A2 -> type.
+%mode apart-sig +O!O +D +O +A1 +A2 -O'.
+
+- : apart-sig (apart/ss O!O) D O A1 A2 O'
+     <- apart-sig O!O D O A1 A2 O'.
+
+%worlds (topen) (apart-sig _ _ _ _ _ _).
+%total {O!O} (apart-sig O!O _ _ _ _ _).
+
+inside-outside : sig D O _ _ -> outside O D -> {D} {A1} {A2} sig D O A1 A2 -> type.
+%mode inside-outside +In +Out +D +A1 +A2 -O'.
+
+- : inside-outside sig/here (outside/cons Ap _) D A1 A2 O'
+     <- apart-sig Ap D _ A1 A2 O'.
+
+- : inside-outside (sig/there In _) (outside/cons _ Out) D A1 A2 O'
+     <- inside-outside In Out D A1 A2 O'.
+
+%worlds (topen) (inside-outside _ _ _ _ _ _).
+%total {In} (inside-outside In _ _ _ _ _).
+
+covered-sig : sig D O A1 A2
+    -> covered D Os D'
+    -> not-get-op-case O OCs
+    -> opcof _ OCs _ Os
+    -> sig D' O A1 A2
+    -> type.
+%mode covered-sig +O +Cov +Not +OCs -O'.
+
+- : covered-sig sig/here (covered/second _ O') _ _ O'.
+- : covered-sig (sig/there O _) (covered/second Cov _) Not OCs O'
+     <- covered-sig O Cov Not OCs O'.
+- : covered-sig (sig/there O _) (covered/first Cov _) Not OCs O'
+     <- covered-sig O Cov Not OCs O'.
+- : covered-sig sig/here (covered/first _ In) Not OCs O'
+     <- not-found-outside Not OCs Out
+     <- inside-outside In Out _ _ _ O'.
+
+%worlds (topen) (covered-sig _ _ _ _ _).
+%total {O} (covered-sig O _ _ _ _).
+

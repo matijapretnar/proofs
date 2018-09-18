@@ -1,0 +1,68 @@
+%%%%% Abstract syntax %%%%%
+
+%%% Types %%%
+
+ty : type.
+dirty : type.
+%name ty A.
+%name dirty B.
+
+% Usually, we write underlined "C" and "D" for computation types.
+% However, all variables in Twelf need to be capital letters,
+% so "C" is already taken by computations, and "D" is convenient for dirt,
+% thus we label dirty types by "B".
+
+bool  : ty.                   % the type of booleans
+-->   : ty -> dirty -> ty.    % the function type
+==>   : dirty -> dirty -> ty. % the type of handlers
+%infix right 50 -->.
+%infix right 55 ==>.
+
+! : ty -> dirt -> dirty.
+%infix none 60 !.
+
+%block topen : block {t : ty}.
+
+%%% Schemes %%%
+
+scheme : type.
+%name scheme S.
+
+plain  : ty -> scheme.            % the type of booleans
+forall : (ty -> scheme) -> scheme.   % the type of natural numbers
+
+concrete : scheme -> ty -> type.
+
+concrete/plain : concrete (plain A) A.
+concrete/forall : {A} concrete (forall S) A'
+                    <- concrete (S A) A'.
+
+%%% Terms %%%
+
+expr : type.
+comp : type.
+op-cases : type.
+%name comp C.
+%name expr E.
+%name op-cases OCs.
+
+% Abbreviations for handler cases
+
+%abbrev ret-case = expr -> comp.
+%abbrev op-case = expr -> expr -> comp.
+%name op-case OC.
+
+tru : expr.                               % true
+fls : expr.                               % false
+fun : ty -> (expr -> comp) -> expr.       % function
+hnd : ty -> ret-case -> op-cases -> expr. % handler
+
+op-cases/nil  : dirty -> op-cases.
+op-cases/cons : operation -> op-case -> op-cases -> op-cases.
+
+cond : expr -> comp -> comp -> comp.   % conditional statement
+app  : expr -> expr -> comp.           % application
+ret  : expr -> comp.                   % injection of values into computations
+op   : operation -> expr -> (expr -> comp) -> comp. % operation call
+seq  : comp -> (expr -> comp) -> comp. % sequencing
+with : expr -> comp -> comp.           % handling construct

@@ -1,0 +1,45 @@
+% We need to simultaneously prove both preservation of dirty types and schemes.
+
+preservation      : cof C B -> step C C' -> cof C' B -> type.
+preservation-scof : scof C S D -> step C C' -> scof C' S D -> type.
+%mode preservation +C +S -C'.
+%mode preservation-scof +C +S -C'.
+
+- : preservation (cof/cond _ C1 _) step/cond-tru C1.
+
+- : preservation (cof/cond _ _ C2) step/cond-fls C2.
+
+- : preservation (cof/app (eof/fun C) E) step/app C'
+     <- subst C E C'.
+
+- : preservation (cof/seq C1 C2) step/seq-ret C2'
+     <- ret-ceof C1 E
+     <- psubst-cof E C2 C2'.
+
+- : preservation (cof/seq C1 C2) (step/seq-step S) (cof/seq C1' C2)
+     <- preservation-scof C1 S C1'.
+
+- : preservation (cof/with (eof/hnd Cv _) (cof/ret E)) step/with-ret C'
+     <- subst Cv E C'.
+
+- : preservation (cof/with (eof/hnd Cv OCs) (cof/op O E K)) (step/with-op OC) C'
+     <- preservation-with-op O E (eof/fun K) OC OCs C'.
+
+- : preservation (cof/with E C) (step/with-step S) (cof/with E C')
+     <- preservation C S C'.
+
+
+- : preservation-scof (scof/plain C) S (scof/plain C')
+     <- preservation C S C'.
+
+- : preservation-scof (scof/forall C) S (scof/forall C')
+     <- {t} preservation-scof (C t) S (C' t).
+
+- : preservation (cof/seq C1 C2) step/seq-op (cof/op O E ([y] [dy] cof/seq (K y dy) C2))
+     <- undependent-sig C1 O
+     <- operation-scheme-inversion C1 O E K.
+
+
+
+%worlds (topen) (preservation _ _ _) (preservation-scof _ _ _).
+%total {(S S') (C C')} (preservation C S _) (preservation-scof C' S' _).

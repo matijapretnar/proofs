@@ -1,0 +1,191 @@
+ret-ceof : scof (ret E) S _ -> seof E S -> type.
+%mode ret-ceof +V -E.
+
+- : ret-ceof (scof/plain (cof/ret E)) (seof/plain E).
+
+- : ret-ceof (scof/forall S) (seof/forall S')
+     <- {t} ret-ceof (S t) (S' t).
+
+%worlds (topen) (ret-ceof _ _).
+%total {V} (ret-ceof V _).
+
+
+concrete-seof : seof E S -> concrete S A -> eof E A -> type.
+%mode concrete-seof +S +SA -A.
+
+- : concrete-seof (seof/plain A) _ A.
+
+- : concrete-seof (seof/forall S) (concrete/forall A SA) E
+     <- concrete-seof (S A) SA E.
+
+%worlds (open) (concrete-seof _ _ _).
+%total {S} (concrete-seof S _ _).
+
+%%% Substitution lemma %%%
+
+% Because we represent variable judgments by "var" instead of "eof",
+% we cannot use Twelf substitution, but need to prove an explicit substitution lemma.
+
+subst-eof   : eof E' A -> ({x} var x A -> eof (E x) A') -> eof (E E') A' -> type.
+subst-cof   : eof E' A -> ({x} var x A -> cof (C x) B) -> cof (C E') B -> type.
+subst-scof   : eof E' A -> ({x} var x A -> scof (C x) S D) -> scof (C E') S D -> type.
+subst-opcof : eof E' A -> ({x} var x A -> opcof (OCs x) B B' Dcov) -> opcof (OCs E') B B' Dcov -> type.
+%mode subst-eof +X +E -E'.
+%mode subst-cof +X +C -C'.
+%mode subst-scof +X +C -C'.
+%mode subst-opcof +X +OCs -OCs'.
+
+- : subst-eof X ([x] [dx] (eof/var dx)) X.
+
+- : subst-eof _ ([x] [dx] (eof/var Y )) (eof/var Y).
+
+- : subst-eof _ ([x] [dx] (eof/pvar Y SA)) (eof/pvar Y SA).
+
+- : subst-eof _ ([x] [dx] eof/tru) eof/tru.
+
+- : subst-eof _ ([x] [dx] eof/fls) eof/fls.
+
+- : subst-eof X ([x] [dx] eof/fun (F x dx)) (eof/fun F')
+     <- {y} {dy} subst-cof X ([x] [dx] F x dx y dy) (F' y dy).
+
+- : subst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx)) (eof/hnd Cv' OCs')
+     <- ({y} {dy} subst-cof X ([x] [dx] Cv x dx y dy) (Cv' y dy))
+     <- subst-opcof X OCs OCs'.
+
+
+- : subst-cof X ([x] [dx] cof/cond (E x dx) (C1 x dx) (C2 x dx)) (cof/cond E' C1' C2')
+     <- subst-eof X E E'
+     <- subst-cof X C1 C1'
+     <- subst-cof X C2 C2'.
+
+- : subst-cof X ([x] [dx] cof/app (E1 x dx) (E2 x dx)) (cof/app E1' E2')
+     <- subst-eof X E1 E1'
+     <- subst-eof X E2 E2'.
+
+- : subst-cof X ([x] [dx] cof/ret (E x dx)) (cof/ret E')
+     <- subst-eof X E E'.
+
+- : subst-cof X ([x] [dx] cof/op O (E x dx) ([y] [dy] K x dx y dy))
+     (cof/op O E' K')
+     <- subst-eof X E E'
+     <- {y} {dy} subst-cof X ([x] [dx] K x dx y dy) (K' y dy).
+
+- : subst-cof X ([x] [dx] cof/seq (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/seq C1' C2')
+     <- subst-scof X C1 C1'
+     <- {y} {dy} subst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy).
+
+- : subst-cof X ([x] [dx] cof/with (E x dx) (C x dx)) (cof/with E' C')
+     <- subst-eof X E E'
+     <- subst-cof X C C'.
+
+- : subst-scof X ([x] [dx] scof/plain (C x dx)) (scof/plain C')
+     <- subst-cof X C C'.
+
+- : subst-scof X ([x] [dx] scof/forall ([t] C x dx t)) (scof/forall C')
+     <- {t} subst-scof X ([x] [dx] C x dx t) (C' t).
+
+- : subst-opcof _ ([x] [dx] opcof/nil) opcof/nil.
+
+- : subst-opcof X ([x] [dx] opcof/cons ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
+     (opcof/cons K' OCs')
+     <- ({y} {dy} {k} {dk} subst-cof X ([x] [dx] K x dx y dy k dk) (K' y dy k dk))
+     <- subst-opcof X OCs OCs'.
+
+%worlds (open) (subst-eof _ _ _) (subst-cof _ _ _) (subst-scof _ _ _) (subst-opcof _ _ _).
+%total {(E C C' C'')} (subst-eof _ E _) (subst-cof _ C _) (subst-scof _ C' _) (subst-opcof _ C'' _).
+
+% We prove a similar lemma for polymorphic variables.
+
+psubst-eof   : seof E' S -> ({x} pvar x S -> eof (E x) A) -> eof (E E') A -> type.
+psubst-cof   : seof E S -> ({x} pvar x S -> cof (C x) B) -> cof (C E) B -> type.
+psubst-scof   : seof E S -> ({x} pvar x S -> scof (C x) S' D) -> scof (C E) S' D -> type.
+psubst-opcof : seof E S -> ({x} pvar x S -> opcof (OCs x) B B' Dcov)
+               -> opcof (OCs E) B B' Dcov -> type.
+%mode psubst-eof +X +E -E'.
+%mode psubst-cof +X +C -C'.
+%mode psubst-scof +X +C -C'.
+%mode psubst-opcof +X +OCs -OCs'.
+
+- : psubst-eof _ ([x] [dx] (eof/var X)) (eof/var X).
+
+- : psubst-eof _ ([x] [dx] (eof/pvar Y SA)) (eof/pvar Y SA).
+
+- : psubst-eof X ([x] [dx] (eof/pvar dx SA)) E
+     <- concrete-seof X SA E.
+
+- : psubst-eof _ ([x] [dx] eof/tru) eof/tru.
+
+- : psubst-eof _ ([x] [dx] eof/fls) eof/fls.
+
+- : psubst-eof X ([x] [dx] eof/fun (F x dx)) (eof/fun F')
+     <- {y} {dy} psubst-cof X ([x] [dx] F x dx y dy) (F' y dy).
+
+- : psubst-eof X ([x] [dx] eof/hnd (Cv x dx) (OCs x dx)) (eof/hnd Cv' OCs')
+     <- ({y} {dy} psubst-cof X ([x] [dx] Cv x dx y dy) (Cv' y dy))
+     <- psubst-opcof X OCs OCs'.
+
+
+- : psubst-cof X ([x] [dx] cof/cond (E x dx) (C1 x dx) (C2 x dx)) (cof/cond E' C1' C2')
+     <- psubst-eof X E E'
+     <- psubst-cof X C1 C1'
+     <- psubst-cof X C2 C2'.
+
+- : psubst-cof X ([x] [dx] cof/app (E1 x dx) (E2 x dx)) (cof/app E1' E2')
+     <- psubst-eof X E1 E1'
+     <- psubst-eof X E2 E2'.
+
+- : psubst-cof X ([x] [dx] cof/ret (E x dx)) (cof/ret E')
+     <- psubst-eof X E E'.
+
+- : psubst-cof X ([x] [dx] cof/op O (E x dx) ([y] [dy] K x dx y dy))
+     (cof/op O E' K')
+     <- psubst-eof X E E'
+     <- {y} {dy} psubst-cof X ([x] [dx] K x dx y dy) (K' y dy).
+
+- : psubst-cof X ([x] [dx] cof/seq (C1 x dx) ([y] [dy] C2 x dx y dy)) (cof/seq C1' C2')
+     <- psubst-scof X C1 C1'
+     <- {y} {dy} psubst-cof X ([x] [dx] C2 x dx y dy) (C2' y dy).
+
+- : psubst-cof X ([x] [dx] cof/with (E x dx) (C x dx)) (cof/with E' C')
+     <- psubst-eof X E E'
+     <- psubst-cof X C C'.
+
+- : psubst-scof X ([x] [dx] scof/plain (C x dx)) (scof/plain C')
+     <- psubst-cof X C C'.
+
+- : psubst-scof X ([x] [dx] scof/forall ([t] C x dx t)) (scof/forall C')
+     <- {t} psubst-scof X ([x] [dx] C x dx t) (C' t).
+
+- : psubst-opcof _ ([x] [dx] opcof/nil) opcof/nil.
+
+- : psubst-opcof X ([x] [dx] opcof/cons ([y] [dy] [k] [dk] K x dx y dy k dk) (OCs x dx))
+     (opcof/cons K' OCs')
+     <- ({y} {dy} {k} {dk} psubst-cof X ([x] [dx] K x dx y dy k dk) (K' y dy k dk))
+     <- psubst-opcof X OCs OCs'.
+
+%worlds (open) (psubst-eof _ _ _) (psubst-cof _ _ _) (psubst-scof _ _ _) (psubst-opcof _ _ _).
+%total {(E C C' C'')} (psubst-eof _ E _) (psubst-cof _ C _) (psubst-scof _ C' _) (psubst-opcof _ C'' _).
+
+% Two frequently used instances of the substitution lemma
+
+subst : ({x} var x A -> cof (C x) B) -> eof E A -> cof (C E) B -> type.
+%mode subst +C +X -C'.
+
+- : subst C E C'
+     <- subst-cof E C C'.
+
+%worlds (topen) (subst _ _ _).
+%total {} (subst _ _ _).
+
+
+subst2 : ({x1} var x1 A1 -> {x2} var x2 A2 -> cof (C x1 x2) B)
+          -> eof E1 A1 -> eof E2 A2 -> cof (C E1 E2) B -> type.
+%mode subst2 +C +X1 +X2 -C'.
+
+- : subst2 C E1 E2 C''
+     <- ({x1} {dx1 : var x1 A1} subst-cof E2 (C x1 dx1) (C' x1 dx1))
+     <- subst-cof E1 C' C''.
+
+%worlds (topen) (subst2 _ _ _ _).
+%total {} (subst2 _ _ _ _).
+

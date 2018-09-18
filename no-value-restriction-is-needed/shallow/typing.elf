@@ -1,0 +1,90 @@
+%%%%% Typing judgments %%%%%
+
+% The three typing judgments that correspond to the three families of terms:
+% - "eof E A" means that expression "E" has type "A"
+% - "cof C B" states the same for computation "C" and dirty type "B"
+% - "seof E A" means that expression "E" has a scheme "S"
+%   (this is not used in the paper, but is technically useful in the formalization)
+% - "scof C S B" states the same for computation "C" a scheme "S" and dirt "D"
+% - "opcof OCs B D" states that operation cases "OCs" all have a return type "B"
+%   and cover operations from dirt "D"
+
+eof : expr -> ty -> type.
+cof : comp -> dirty -> type.
+seof : expr -> scheme -> type.
+scof : comp -> scheme -> dirt -> type.
+opcof : op-cases -> dirty -> dirty -> dirt -> type.
+
+% We have an additional judgment "var E A" to represent variables of type "A"
+% in a context. Similarly, we use "pvar E S" to represent polymorphic variables.
+
+var : expr -> ty -> type.
+pvar : expr -> scheme -> type.
+
+% Block declaration to be used in theorems that hold for open terms.
+
+% Free type variables may appear in a theorem.
+%block topen : block {t : ty}.
+% Free monomorphic variables may appear in a theorem (used only to define open).
+%block mopen : some {A : ty} block {x : expr}{_ : var x A}.
+% Free polymorphic variables may appear in a theorem (used only to define open).
+%block popen : some {S : scheme} block {x : expr}{_ : pvar x S}.
+% Any free variable may appear in a theorem.
+%block open = (mopen | popen | topen).
+
+
+%%% Expressions %%%
+
+eof/var : eof E A
+           <- var E A.
+eof/pvar : eof E A
+           <- concrete S A
+           <- pvar E S.
+eof/tru : eof tru bool.
+eof/fls : eof fls bool.
+eof/fun : eof (fun E) (A --> B)
+           <- ({x} var x A -> cof (E x) B).
+eof/hnd : eof (hnd Cv OCs) (A ! D ==> A' ! D')
+           <- opcof OCs (A ! D) (A' ! D') D
+           <- ({x} var x A -> cof (Cv x) (A' ! D')).
+
+scof/plain : scof C (plain A) D
+             <- cof C (A ! D).
+scof/forall: scof C (forall S) D
+             <- {x} scof C (S x) D.
+
+
+%%% Operation cases %%%
+
+opcof/nil  : opcof (op-cases/nil B) _ B dirt/empty.
+opcof/cons : opcof (op-cases/cons O OC OCs) B B' (dirt/cons O A1 A2 D)
+              <- opcof OCs B B' D
+              <- ({x} var x A1 -> {k} var k (A2 --> B) -> cof (OC x k) B').
+
+
+%%% Computations %%%
+
+cof/cond : cof (cond E C1 C2) B
+            <- cof C2 B
+            <- cof C1 B
+            <- eof E bool.
+cof/app  : cof (app E1 E2) B
+            <- eof E2 A
+            <- eof E1 (A --> B).
+cof/ret  : cof (ret E) (A ! D)
+            <- eof E A.
+cof/op   : cof (op O E K) (B ! D)
+            <- ({x} var x A2 -> cof (K x) (B ! D))
+            <- eof E A1
+            <- sig D O A1 A2.
+cof/seq  : cof (seq C1 C2) (A ! D)
+            <- ({x} pvar x S -> cof (C2 x) (A ! D))
+            <- scof C1 S D.
+cof/with : cof (with E C) B'
+            <- cof C B
+            <- eof E (B ==> B').
+
+seof/plain : seof E (plain A)
+             <- eof E A.
+seof/forall: seof E (forall S)
+             <- {x} seof E (S x).
