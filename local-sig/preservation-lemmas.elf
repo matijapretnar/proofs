@@ -125,3 +125,56 @@ operation-scheme-inversion : scof (op O E K) S D ->
 
 %worlds (topen) (operation-scheme-inversion _ _ _ _).
 %total {S} (operation-scheme-inversion S _ _ _).
+
+not-found-outside : not-get-op-case O OCs -> opcof _ OCs _ Os -> outside O Os -> type.
+%mode not-found-outside +Not +OCs -Out.
+
+- : not-found-outside not-get-op-case/nil opcof/nil outside/empty.
+
+- : not-found-outside (not-get-op-case/there Not Ap) (opcof/cons _ _ OCs) (outside/cons Ap Out)
+     <- not-found-outside Not OCs Out.
+
+%worlds (topen) (not-found-outside _ _ _).
+%total {OCs} (not-found-outside _ OCs _).
+
+apart-sig : apart O' O' -> {D} {O} {A1} {A2} sig D O A1 A2 -> type.
+%mode apart-sig +O!O +D +O +A1 +A2 -O'.
+
+- : apart-sig (apart/ss O!O) D O A1 A2 O'
+     <- apart-sig O!O D O A1 A2 O'.
+
+%worlds (topen) (apart-sig _ _ _ _ _ _).
+%total {O!O} (apart-sig O!O _ _ _ _ _).
+
+inside-outside : sig D O _ _ -> outside O D -> {D} {A1} {A2} sig D O A1 A2 -> type.
+%mode inside-outside +In +Out +D +A1 +A2 -O'.
+
+- : inside-outside sig/here (outside/cons Ap _) D A1 A2 O'
+     <- apart-sig Ap D _ A1 A2 O'.
+
+- : inside-outside (sig/there In _) (outside/cons _ Out) D A1 A2 O'
+     <- inside-outside In Out D A1 A2 O'.
+
+%worlds (topen) (inside-outside _ _ _ _ _ _).
+%total {In} (inside-outside In _ _ _ _ _).
+
+covered-sig : sig D O A1 A2
+    -> covered D Os D'
+    -> not-get-op-case O OCs
+    -> opcof _ OCs _ Os
+    -> sig D' O A1 A2
+    -> type.
+%mode covered-sig +O +Cov +Not +OCs -O'.
+
+- : covered-sig sig/here (covered/second _ O') _ _ O'.
+- : covered-sig (sig/there O _) (covered/second Cov _) Not OCs O'
+     <- covered-sig O Cov Not OCs O'.
+- : covered-sig (sig/there O _) (covered/first Cov _) Not OCs O'
+     <- covered-sig O Cov Not OCs O'.
+- : covered-sig sig/here (covered/first _ In) Not OCs O'
+     <- not-found-outside Not OCs Out
+     <- inside-outside In Out _ _ _ O'.
+
+%worlds (topen) (covered-sig _ _ _ _ _).
+%total {O} (covered-sig O _ _ _ _).
+
