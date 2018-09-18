@@ -2,27 +2,51 @@
 
 This repository collects proofs I have formalised in various proof assistants:
 
+* `eff-safety`:
+    Twelf formalisation of proofs that appear in the paper (tag `lmcs-2014`)
+
+    > Andrej Bauer, Matija Pretnar:
+    > *An Effect System for Algebraic Effects and Handlers*,
+    > Logical Methods in Computer Science, Volume 10, Issue 4, 2014
+
 * `explicit-effect-subtyping`:
-    Abella formalisation of proofs that appear in the paper
+
+    Abella formalisation of proofs that appear in the paper (tag `esop-2018`)
+
     > Amr Hany Saleh, Georgios Karachalias, Matija Pretnar, Tom Schrijvers:
     > *Explicit Effect Subtyping*,
-    > submitted to ESOP 2018
+    > ESOP 2018
+
+* `no-value-restriction-is-needed`:
+    Twelf formalisation of proofs that appear in the paper (tag `jfp-2017`)
+
+    > Ohad Kammar, Matija Pretnar:
+    > *No value restriction is needed for algebraic effects and handlers*,
+    > Journal of Functional Programming, Volume 27, 2017
+
 * `polymorphic-fgcbv`:
     Abella formalisation of safety for polymorphic fine-grain call-by-value
     lambda calculus. Not particular interesting, but a good starting point.
+
 * `user-defined-effects-expressive-power`:
-    Abella formalisation of proofs that appear in the paper
+    Abella formalisation of proofs that appear in the paper (tag `icfp-2017`)
+
     > Yannick Forster, Ohad Kammar, Sam Lindley, Matija Pretnar:
     > *On the Expressive Power of User-Defined Effects:*
     > *Effect Handlers, Monadic Reflection, Delimited Control*,
     > ICFP 2017
 
+    and paper (branch `jfp-2018`)
+
+    > Yannick Forster, Ohad Kammar, Sam Lindley, Matija Pretnar:
+    > *On the expressive power of user-defined effects:*
+    > *effect handlers, monadic reflection, delimited control*,
+    > Submitted to JFP
+
 More details about the proofs can be found in the respective subdirectories.
 Note that proofs may change over time if I find a better way of writing them.
 If you want the exact version that was used for a given publication, check
-out the suitably tagged Git commit. You can get a list of all available tags
-by running `git tag -n`.
-
+out the suitably labelled Git commit.
 
 ## Set up
 
@@ -49,7 +73,6 @@ If you want to check out an older version that has been tagged with `tag`, use:
 
     docker pull matijapretnar/proofs:tag
     docker run --interactive --tty matijapretnar/proofs:tag
-
 
 ### Building your own Docker image
 
