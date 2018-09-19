@@ -1,11 +1,11 @@
 sig proofs.
 accum_sig mam.
-accum_sig del.
 accum_sig eff.
 accum_sig mon.
-accum_sig del2eff.
+accum_sig del.
 accum_sig del2mon.
-accum_sig eff2del.
-accum_sig eff2mon.
 accum_sig mon2del.
+accum_sig del2eff.
+accum_sig eff2del.
 accum_sig mon2eff.
+accum_sig eff2mon.
