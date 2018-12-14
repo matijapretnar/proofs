@@ -1,0 +1,15 @@
+Specification "target2emell".
+
+Theorem x_of_val :
+  forall Sig_t Sig_ml Vt Vml A,
+        {x_sig Sig_t Sig_ml} 
+     -> {x_val Vt Vml}
+     -> {t/of_val Sig_t Vt A} 
+     -> exists T, {x_val_ty A (T:ml/ty)} /\ {ml/of_term Sig_ml Vml T}.
+induction on 2.
+intros.
+case H2.
+  case H3.
+  exists ml/unit_ty.
+  search.
+
