@@ -1,15 +1,51 @@
 Specification "exp2ml".
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Contexts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Define e2m/ctx : exp/sig -> ml/sig -> olist -> prop by
+  e2m/ctx Sig_t Sig_m nil 
+    := {e2m/sig Sig_t Sig_m};
+  nabla x x', e2m/ctx Sig_t Sig_m
+    (e2m/val Sig_t x A_t x' :: Ctx)
+    := e2m/ctx Sig_t Sig_m Ctx.
+
+%   nabla t, e2m/ctx Sig_t Sig_e
+%     (exp/skel_val_ty t Te :: Ctx_t)
+%     (exp/skel_val_ty t Te :: Ctx_t2e)
+%     Ctx_e
+%     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e;
+%   nabla w, e2m/ctx Sig_t Sig_e
+%     (exp/of_coer w (exp/val_ty_coer_ty At1 At2) :: Ctx_t)
+%     Ctx_t2e
+%     Ctx_e
+%     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- exp/skel_val_ty At1 S} /\ {Ctx_t |- exp/skel_val_ty At2 S};
+%   nabla w, e2m/ctx Sig_t Sig_e
+%     (exp/of_coer w (exp/comp_ty_coer_ty At1 At2) :: Ctx_t)
+%     Ctx_t2e
+%     Ctx_e
+%     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- exp/skel_comp_ty At1 S} /\ {Ctx_t |- exp/skel_comp_ty At2 S};
+%   nabla w, e2m/ctx Sig_t Sig_e
+%     (exp/of_coer w (exp/dirt_coer_ty D1 D2) :: Ctx_t)
+%     Ctx_t2e
+%     Ctx_e
+%     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Main Theorem
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 Theorem e2m/of_val :
- (forall Sig_t Sig_ml Vt Vml At,
-        {e2m/sig Sig_t Sig_ml} 
-     -> {e2m/val Sig_t Vt At Vml}
-     -> exists T, {e2m/val_ty At (T:ml/ty)} /\ {ml/of_term Sig_ml Vml T})
+ (forall Sig_t Sig_ml V_t V_ml A_t Ctx,
+        e2m/ctx Sig_t Sig_ml Ctx
+     -> {Ctx |- e2m/val Sig_t V_t A_t V_ml}
+     -> exists T, {e2m/val_ty A_t (T:ml/ty)} /\ {ml/of_term Sig_ml V_ml T})
  /\
- (forall Sig_t Sig_ml Ct Cml Dt,
-        {e2m/sig Sig_t Sig_ml} 
-     -> {e2m/comp Sig_t Ct Dt Cml}
-     -> exists T, {e2m/comp_ty Dt (T:ml/ty)} /\ {ml/of_term Sig_ml Cml T})
+ (forall Sig_t Sig_ml C_t C_ml D_t Ctx,
+        e2m/ctx Sig_t Sig_ml Ctx
+     -> {Ctx |- e2m/comp Sig_t C_t D_t C_ml}
+     -> exists T, {e2m/comp_ty D_t (T:ml/ty)} /\ {ml/of_term Sig_ml C_ml T})
  .
 induction on 2 2. split.
 % VALUES
@@ -19,4 +55,5 @@ case H2.
 exists ml/unit_ty.
 search.
 % FUN
-apply IH1 to H1.
+apply IH1 to _ H4.
+search.
