@@ -57,121 +57,98 @@ ml/of_op (ml/cons_sig O1 A1 B1 Sig) O2 A2 B2 :-
 % ml/skel_comp_ty (ml/bang A _) S :-
 %   ml/skel_val_ty A S.
 % 
-% ml/good_coer_ty (ml/val_ty_coer_ty A1 A2) :-
+% ml/good_coer_ty (ml/ty_coer_ty A1 A2) :-
 %   ml/skel_val_ty A1 S,
 %   ml/skel_val_ty A2 S.
-% ml/good_coer_ty (ml/comp_ty_coer_ty A1 A2) :-
+% ml/good_coer_ty (ml/ty_coer_ty A1 A2) :-
 %   ml/skel_comp_ty A1 S,
 %   ml/skel_comp_ty A2 S.
 % ml/good_coer_ty (ml/dirt_coer_ty D1 D2).
 % 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/of_coer
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/of_coer (ml/compose_coer Y1 Y2) (ml/val_ty_coer_ty A1 A3) :-
-%   ml/of_coer Y1 (ml/val_ty_coer_ty A1 A2),
-%   ml/of_coer Y2 (ml/val_ty_coer_ty A2 A3).
-% ml/of_coer (ml/compose_coer Y1 Y2) (ml/dirt_coer_ty D1 D3) :-
-%   ml/of_coer Y1 (ml/dirt_coer_ty D1 D2),
-%   ml/of_coer Y2 (ml/dirt_coer_ty D2 D3).
-% ml/of_coer (ml/compose_coer Y1 Y2) (ml/comp_ty_coer_ty B1 B3) :-
-%   ml/of_coer Y1 (ml/comp_ty_coer_ty B1 B2),
-%   ml/of_coer Y2 (ml/comp_ty_coer_ty B2 B3).
-% 
-% % ml/of_coer (ml/val_ty_coer A) (ml/val_ty_coer_ty A A).
-% ml/of_coer (ml/fun_coer Y1 Y2) (ml/val_ty_coer_ty (ml/fun_ty A1 B1) (ml/fun_ty A2 B2)) :-
-%   ml/of_coer Y1 (ml/val_ty_coer_ty A2 A1),
-%   ml/of_coer Y2 (ml/comp_ty_coer_ty B1 B2).
-% ml/of_coer (ml/hand_coer Y1 Y2) (ml/val_ty_coer_ty (ml/hand_ty B1 B1') (ml/hand_ty B2 B2')) :-
-%   ml/of_coer Y1 (ml/comp_ty_coer_ty B2 B1),
-%   ml/of_coer Y2 (ml/comp_ty_coer_ty B1' B2').
-% 
-% ml/of_coer (ml/left_coer Y) (ml/val_ty_coer_ty A2 A1) :-
-%   ml/of_coer Y (ml/val_ty_coer_ty (ml/fun_ty A1 _) (ml/fun_ty A2 _)).
-% ml/of_coer (ml/left_coer Y) (ml/comp_ty_coer_ty B2 B1) :-
-%   ml/of_coer Y (ml/val_ty_coer_ty (ml/hand_ty B1 _) (ml/hand_ty B2 _)).
-% ml/of_coer (ml/right_coer Y) (ml/comp_ty_coer_ty B1 B2) :-
-%   ml/of_coer Y (ml/val_ty_coer_ty (ml/fun_ty _ B1) (ml/fun_ty _ B2)).
-% ml/of_coer (ml/right_coer Y) (ml/comp_ty_coer_ty B1 B2) :-
-%   ml/of_coer Y (ml/val_ty_coer_ty (ml/hand_ty _ B1) (ml/hand_ty _ B2)).
-% 
-% ml/of_coer (ml/app_skel_coer Y S) (ml/val_ty_coer_ty (A1 S) (A2 S)) :-
-%   ml/of_coer Y (ml/val_ty_coer_ty (ml/all_skel A1) (ml/all_skel A2)).
-% ml/of_coer (ml/app_ty_coer Y A) (ml/val_ty_coer_ty (A1 A) (A2 A)) :-
-%   ml/of_coer Y (ml/val_ty_coer_ty (ml/all_ty S A1) (ml/all_ty S A2)),
-%   ml/skel_val_ty A S.
-% ml/of_coer (ml/app_dirt_coer Y D) (ml/val_ty_coer_ty (A1 D) (A2 D)) :-
-%   ml/of_coer Y (ml/val_ty_coer_ty (ml/all_dirt A1) (ml/all_dirt A2)).
-% ml/of_coer (ml/app_coer_coer Y1 Y2) (ml/val_ty_coer_ty A1 A2) :-
-%   ml/of_coer Y1 (ml/val_ty_coer_ty (ml/qual_ty Pi A1) (ml/qual_ty Pi A2)),
-%   ml/of_coer Y2 Pi.
-% 
-% ml/of_coer (ml/comp_ty_coer Y1 Y2) (ml/comp_ty_coer_ty (ml/bang A1 D1) (ml/bang A2 D2)) :-
-%   ml/of_coer Y1 (ml/val_ty_coer_ty A1 A2),
-%   ml/of_coer Y2 (ml/dirt_coer_ty D1 D2).
-% ml/of_coer (ml/pure_coer Y) (ml/val_ty_coer_ty A1 A2) :-
-%   ml/of_coer Y (ml/comp_ty_coer_ty (ml/bang A1 _) (ml/bang A2 _)).
-% ml/of_coer (ml/impure_coer Y) (ml/dirt_coer_ty D1 D2) :-
-%   ml/of_coer Y (ml/comp_ty_coer_ty (ml/bang _ D1) (ml/bang _ D2)).
-% 
-% ml/of_coer (ml/dirt_coer D) (ml/dirt_coer_ty D D) :-
-%   is_dirt D.
-% ml/of_coer (ml/empty_coer D) (ml/dirt_coer_ty empty D).
-% ml/of_coer (ml/cons_coer O Y) (ml/dirt_coer_ty (cons O D1) (cons O D2)) :-
-%   ml/of_coer Y (ml/dirt_coer_ty D1 D2).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/of_coer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/of_coer (ml/compose_coer Y1 Y2) (ml/ty_coer_ty A1 A3) :-
+  ml/of_coer Y1 (ml/ty_coer_ty A1 A2),
+  ml/of_coer Y2 (ml/ty_coer_ty A2 A3).
+
+ml/of_coer (ml/refl_coer A) (ml/ty_coer_ty A A).
+ml/of_coer (ml/fun_coer Y1 Y2) (ml/ty_coer_ty (ml/fun_ty A1 B1) (ml/fun_ty A2 B2)) :-
+  ml/of_coer Y1 (ml/ty_coer_ty A2 A1),
+  ml/of_coer Y2 (ml/ty_coer_ty B1 B2).
+ml/of_coer (ml/hand_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/hand_ty B2 B2')) :-
+  ml/of_coer Y1 (ml/ty_coer_ty B2 B1),
+  ml/of_coer Y2 (ml/ty_coer_ty B1' B2').
+
+ml/of_coer (ml/left_coer Y) (ml/ty_coer_ty A2 A1) :-
+  ml/of_coer Y (ml/ty_coer_ty (ml/fun_ty A1 _) (ml/fun_ty A2 _)).
+ml/of_coer (ml/left_coer Y) (ml/ty_coer_ty B2 B1) :-
+  ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty B1 _) (ml/hand_ty B2 _)).
+ml/of_coer (ml/right_coer Y) (ml/ty_coer_ty B1 B2) :-
+  ml/of_coer Y (ml/ty_coer_ty (ml/fun_ty _ B1) (ml/fun_ty _ B2)).
+ml/of_coer (ml/right_coer Y) (ml/ty_coer_ty B1 B2) :-
+  ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty _ B1) (ml/hand_ty _ B2)).
+
+ml/of_coer (ml/app_ty_coer Y A) (ml/ty_coer_ty (A1 A) (A2 A)) :-
+  ml/of_coer Y (ml/ty_coer_ty (ml/all_ty A1) (ml/all_ty A2)).
+ml/of_coer (ml/app_coer_coer Y1 Y2) (ml/ty_coer_ty A1 A2) :-
+  ml/of_coer Y1 (ml/ty_coer_ty (ml/qual_ty Pi A1) (ml/qual_ty Pi A2)),
+  ml/of_coer Y2 Pi.
  
+ml/of_coer (ml/comp_ty_coer Y) (ml/ty_coer_ty (ml/comp_ty A1) (ml/comp_ty A2)) :-
+  ml/of_coer Y (ml/ty_coer_ty A1 A2).
+ml/of_coer (ml/return_coer Y) (ml/ty_coer_ty A1 (ml/comp_ty A2)) :-
+  ml/of_coer Y (ml/ty_coer_ty A1 A2).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/of_term
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
 ml/of_term Sig ml/unit ml/unit_ty.
-ml/of_term Sig (ml/fun A C) (ml/fun_ty A B) :-
-  pi x\ (ml/of_term Sig x A => ml/of_term Sig (C x) B).
-ml/of_term Sig (ml/lam_ty V) (ml/all_ty A) :-
-  pi x\ (ml/of_term Sig (V x) (A x)).
-ml/of_term Sig (ml/app_ty V A1) (A2 A1) :-
-  ml/of_term Sig V (ml/all_ty A2).
-ml/of_term Sig (ml/cast V Y) A2 :-
-  ml/of_term Sig V A1,
+ml/of_term Sig (ml/fun A T) (ml/fun_ty A B) :-
+  pi x\ (ml/of_term Sig x A => ml/of_term Sig (T x) B).
+ml/of_term Sig (ml/lam_ty T) (ml/all_ty A) :-
+  pi x\ (ml/of_term Sig (T x) (A x)).
+ml/of_term Sig (ml/app_ty T A1) (A2 A1) :-
+  ml/of_term Sig T (ml/all_ty A2).
+ml/of_term Sig (ml/cast T Y) A2 :-
+  ml/of_term Sig T A1,
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
-ml/of_term Sig (ml/lam_coer Pi V) (ml/qual_ty Pi A) :-
-  pi w\ (ml/of_coer w Pi => ml/of_term Sig (V w) A).
-  % ml/good_coer_ty Pi.
-ml/of_term Sig (ml/app_coer V Y) A :-
-  ml/of_term Sig V (ml/qual_ty Pi A),
+ml/of_term Sig (ml/hand H) (ml/hand_ty A B) :-
+  ml/of_hand Sig H A B.
+ml/of_term Sig (ml/lam_coer Pi T) (ml/qual_ty Pi A) :-
+  pi w\ (ml/of_coer w Pi => ml/of_term Sig (T w) A).
+ml/of_term Sig (ml/app_coer T Y) A :-
+  ml/of_term Sig T (ml/qual_ty Pi A),
   ml/of_coer Y Pi.
 
-ml/of_term Sig (ml/app V1 V2) B :-
-  ml/of_term Sig V1 (ml/fun_ty A B),
-  ml/of_term Sig V2 A.
-ml/of_term Sig (ml/let V C) B :-
-  ml/of_term Sig V A,
-  pi x\ (ml/of_term Sig x A => ml/of_term Sig (C x) B).
-ml/of_term Sig (ml/op O V A2 C) (ml/comp_ty A) :-
+ml/of_hand Sig (ml/ret_case A1 T) A1 A2 :-
+  pi x\ (ml/of_term Sig x A1 => ml/of_term Sig (T x) A2).
+ml/of_hand Sig (ml/op_case O T H) A B :-
+  ml/of_hand Sig H A B,
   ml/of_op Sig O A1 A2,
-  ml/of_term Sig V A1,
+  pi x\ pi k\ (ml/of_term Sig x A1 => ml/of_term Sig k (ml/fun_ty A2 B) => ml/of_term Sig (T x k) B),
+  is_op O.
+ 
+ml/of_term Sig (ml/app T1 T2) B :-
+  ml/of_term Sig T1 (ml/fun_ty A B),
+  ml/of_term Sig T2 A.
+ml/of_term Sig (ml/let T C) B :-
+  ml/of_term Sig T A,
+  pi x\ (ml/of_term Sig x A => ml/of_term Sig (C x) B).
+ml/of_term Sig (ml/op O T A2 C) (ml/comp_ty A) :-
+  ml/of_op Sig O A1 A2,
+  ml/of_term Sig T A1,
   pi x\ (ml/of_term Sig x A2 => ml/of_term Sig (C x) (ml/comp_ty A)),
   is_op O.
 ml/of_term Sig (ml/do C1 C2) (ml/comp_ty A2) :-
   ml/of_term Sig C1 (ml/comp_ty A1),
   pi x\ (ml/of_term Sig x A1 => ml/of_term Sig (C2 x) (ml/comp_ty A2)).
-ml/of_term Sig (ml/with C V) B2 :-
+ml/of_term Sig (ml/with C T) B2 :-
   ml/of_term Sig C (ml/comp_ty B1),
-  ml/of_term Sig V (ml/hand_ty B1 B2).
+  ml/of_term Sig T (ml/hand_ty B1 B2).
 
-ml/of_term Sig (ml/hand H) (ml/hand_ty A B) :-
-  ml/of_hand Sig H A B.
-
-ml/of_hand Sig (ml/ret_case A1 C) A1 A2 :-
-  pi x\ (ml/of_term Sig x A1 => ml/of_term Sig (C x) A2).
-ml/of_hand Sig (ml/op_case O C H) A B :-
-  ml/of_hand Sig H A B,
-  ml/of_op Sig O A1 A2,
-  pi x\ pi k\ (ml/of_term Sig x A1 => ml/of_term Sig k (ml/fun_ty A2 B) => ml/of_term Sig (C x k) B),
-  is_op O.
- 
- 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % ml/term_val
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -188,7 +165,7 @@ ml/of_hand Sig (ml/op_case O C H) A B :-
 % % ml/result_val
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
-% ml/result_val V :-
+% ml/result_val T :-
 %   ml/term_val V.
 % ml/result_val (ml/val_cast V Cv) :-
 %   ml/term_val V.
