@@ -1,22 +1,22 @@
-Specification "target".
+Specification "exp".
 Import "common".
-Close t/val_ty, t/comp_ty, t/coer_ty.
+Close exp/val_ty, exp/comp_ty, exp/coer_ty.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Theorem t/of_op_unique : forall Sig O A A' B B',
-  {t/of_op Sig O A B} -> {t/of_op Sig O A' B'} -> A = A' /\ B = B'.
+Theorem exp/of_op_unique : forall Sig O A A' B B',
+  {exp/of_op Sig O A B} -> {exp/of_op Sig O A' B'} -> A = A' /\ B = B'.
 induction on 1. intros. case H1.
   case H2. search. apply apart_not_reflexive to H4.
   case H2.
     apply apart_not_reflexive to H4.
     apply IH to H3 H5. search.
 
-Theorem t/less_ty_transitive :
-  (forall A B C, {t/less_val_ty A B} -> {t/less_val_ty B C} -> {t/less_val_ty A C}) /\
-  (forall A B C, {t/less_val_ty B C} -> {t/less_val_ty A B} -> {t/less_val_ty A C}) /\
-  (forall A B C, {t/less_comp_ty A B} -> {t/less_comp_ty B C} -> {t/less_comp_ty A C}) /\
-  (forall A B C, {t/less_comp_ty B C} -> {t/less_comp_ty A B} -> {t/less_comp_ty A C}).
+Theorem exp/less_ty_transitive :
+  (forall A B C, {exp/less_val_ty A B} -> {exp/less_val_ty B C} -> {exp/less_val_ty A C}) /\
+  (forall A B C, {exp/less_val_ty B C} -> {exp/less_val_ty A B} -> {exp/less_val_ty A C}) /\
+  (forall A B C, {exp/less_comp_ty A B} -> {exp/less_comp_ty B C} -> {exp/less_comp_ty A C}) /\
+  (forall A B C, {exp/less_comp_ty B C} -> {exp/less_comp_ty A B} -> {exp/less_comp_ty A C}).
 induction on 1 1 1 1. split.
 
 intros. case H1.
@@ -43,16 +43,16 @@ case H2. apply IH to H3 H5. apply less_dirt_transitive to H4 H6. search.
 intros. case H1.
 case H2. apply IH1 to H3 H5. apply less_dirt_transitive to H6 H4. search.
 
-Split t/less_ty_transitive as t/less_val_ty_transitive, forget, t/less_comp_ty_transitive, forget.
+Split exp/less_ty_transitive as exp/less_val_ty_transitive, forget, exp/less_comp_ty_transitive, forget.
 
-Theorem t/coer_less_ty :
-  (forall Y A B, {t/of_coer Y (t/val_ty_coer_ty A B)} -> {t/less_val_ty A B}) /\
-  (forall Y A B, {t/of_coer Y (t/comp_ty_coer_ty A B)} -> {t/less_comp_ty A B}) /\
-  (forall Y A B, {t/of_coer Y (t/dirt_coer_ty A B)} -> {less_dirt A B}).
+Theorem exp/coer_less_ty :
+  (forall Y A B, {exp/of_coer Y (exp/val_ty_coer_ty A B)} -> {exp/less_val_ty A B}) /\
+  (forall Y A B, {exp/of_coer Y (exp/comp_ty_coer_ty A B)} -> {exp/less_comp_ty A B}) /\
+  (forall Y A B, {exp/of_coer Y (exp/dirt_coer_ty A B)} -> {less_dirt A B}).
 induction on 1 1 1. split.
 
 intros. case H1.
-apply IH to H2. apply IH to H3. apply t/less_val_ty_transitive to H4 H5. search.
+apply IH to H2. apply IH to H3. apply exp/less_val_ty_transitive to H4 H5. search.
 apply IH to H2. apply IH1 to H3. search.
 apply IH1 to H2. apply IH1 to H3. search.
 apply IH to H2. case H3. search.
@@ -63,7 +63,7 @@ apply IH to H2. case H4. search.
 apply IH1 to H2. case H3. search.
 
 intros. case H1.
-apply IH1 to H2. apply IH1 to H3. case H4. case H5. apply t/less_val_ty_transitive to H6 H8. apply less_dirt_transitive to H7 H9. search.
+apply IH1 to H2. apply IH1 to H3. case H4. case H5. apply exp/less_val_ty_transitive to H6 H8. apply less_dirt_transitive to H7 H9. search.
 apply IH to H2. case H3. search.
 apply IH to H2. case H3. search.
 apply IH to H2. case H3. search.
@@ -75,4 +75,4 @@ apply IH1 to H2. case H3. search.
 apply less_dirt_reflexive to H2. search.
 search.
 apply IH2 to H2. apply less_dirt_cons to H3 with O = O. search.
-Split t/coer_less_ty as t/coer_less_val_ty, t/coer_less_comp_ty.
+Split exp/coer_less_ty as exp/coer_less_val_ty, exp/coer_less_comp_ty.

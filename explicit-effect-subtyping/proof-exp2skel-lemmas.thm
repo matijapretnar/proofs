@@ -1,61 +1,61 @@
-Specification "erasure".
+Specification "exp2skel".
 Import "common".
 Set subgoals off.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Contexts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Define ctx3 : t/sig -> e/sig -> olist -> olist -> olist -> prop by
-  ctx3 Sig_t Sig_e nil nil nil := {ers_sig Sig_t Sig_e};
+Define ctx3 : exp/sig -> skel/sig -> olist -> olist -> olist -> prop by
+  ctx3 Sig_t Sig_e nil nil nil := {e2s/sig Sig_t Sig_e};
   nabla x x', ctx3 Sig_t Sig_e
-    (t/of_val Sig_t x A :: Ctx_t)
-    (ers_val x x' :: Ctx_t2e)
-    (e/of_val Sig_e x' T :: Ctx_e)
-    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ {Ctx_t2e |- t/skel_val_ty A T};
+    (exp/of_val Sig_t x A :: Ctx_t)
+    (e2s/val x x' :: Ctx_t2e)
+    (skel/of_val Sig_e x' T :: Ctx_e)
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ {Ctx_t2e |- exp/skel_val_ty A T};
   nabla t, ctx3 Sig_t Sig_e
-    (t/skel_val_ty t Te :: Ctx_t)
-    (t/skel_val_ty t Te :: Ctx_t2e)
+    (exp/skel_val_ty t Te :: Ctx_t)
+    (exp/skel_val_ty t Te :: Ctx_t2e)
     Ctx_e
     := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e;
   nabla w, ctx3 Sig_t Sig_e
-    (t/of_coer w (t/val_ty_coer_ty At1 At2) :: Ctx_t)
+    (exp/of_coer w (exp/val_ty_coer_ty At1 At2) :: Ctx_t)
     Ctx_t2e
     Ctx_e
-    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- t/skel_val_ty At1 S} /\ {Ctx_t |- t/skel_val_ty At2 S};
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- exp/skel_val_ty At1 S} /\ {Ctx_t |- exp/skel_val_ty At2 S};
   nabla w, ctx3 Sig_t Sig_e
-    (t/of_coer w (t/comp_ty_coer_ty At1 At2) :: Ctx_t)
+    (exp/of_coer w (exp/comp_ty_coer_ty At1 At2) :: Ctx_t)
     Ctx_t2e
     Ctx_e
-    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- t/skel_comp_ty At1 S} /\ {Ctx_t |- t/skel_comp_ty At2 S};
+    := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- exp/skel_comp_ty At1 S} /\ {Ctx_t |- exp/skel_comp_ty At2 S};
   nabla w, ctx3 Sig_t Sig_e
-    (t/of_coer w (t/dirt_coer_ty D1 D2) :: Ctx_t)
+    (exp/of_coer w (exp/dirt_coer_ty D1 D2) :: Ctx_t)
     Ctx_t2e
     Ctx_e
     := ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e.
 
 Define simple_ctx : olist -> prop by
   simple_ctx nil;
-  nabla x x', simple_ctx (ers_val x x' :: Ctx)
+  nabla x x', simple_ctx (e2s/val x x' :: Ctx)
     := simple_ctx Ctx;
-  nabla t, simple_ctx (t/skel_val_ty t S :: Ctx)
+  nabla t, simple_ctx (exp/skel_val_ty t S :: Ctx)
     := simple_ctx Ctx.
 
 Theorem ctx_t_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
   ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t ->
     (exists X A,
-      fresh X /\ (F = t/of_val Sig_t X A)
+      fresh X /\ (F = exp/of_val Sig_t X A)
     ) \/
     (exists A T,
-      fresh A /\ (F = t/skel_val_ty A T)
+      fresh A /\ (F = exp/skel_val_ty A T)
     ) \/
     (exists W A1 A2 T,
-      fresh W /\ (F = t/of_coer W (t/val_ty_coer_ty A1 A2)) /\ {Ctx_t |- t/skel_val_ty A1 T} /\ {Ctx_t |- t/skel_val_ty A2 T}
+      fresh W /\ (F = exp/of_coer W (exp/val_ty_coer_ty A1 A2)) /\ {Ctx_t |- exp/skel_val_ty A1 T} /\ {Ctx_t |- exp/skel_val_ty A2 T}
     ) \/
     (exists W B1 B2 T,
-      fresh W /\ (F = t/of_coer W (t/comp_ty_coer_ty B1 B2)) /\ {Ctx_t |- t/skel_comp_ty B1 T} /\ {Ctx_t |- t/skel_comp_ty B2 T}
+      fresh W /\ (F = exp/of_coer W (exp/comp_ty_coer_ty B1 B2)) /\ {Ctx_t |- exp/skel_comp_ty B1 T} /\ {Ctx_t |- exp/skel_comp_ty B2 T}
     ) \/
     (exists W D1 D2,
-      fresh W /\ (F = t/of_coer W (t/dirt_coer_ty D1 D2))).
+      fresh W /\ (F = exp/of_coer W (exp/dirt_coer_ty D1 D2))).
 induction on 1. intros. case H1.
 case H2.
 case H2.
@@ -76,8 +76,8 @@ case H2.
 
 Theorem ctx_skel_val_ty_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e A S,
   ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-  member (t/skel_val_ty A S) Ctx_t ->
-  member (t/skel_val_ty A S) Ctx_t2e.
+  member (exp/skel_val_ty A S) Ctx_t ->
+  member (exp/skel_val_ty A S) Ctx_t2e.
 induction on 1. intros. case H1.
   case H2.
   case H2.
@@ -92,19 +92,19 @@ induction on 1. intros. case H1.
   case H2.
     apply IH to H3 H4. search.
 
-Theorem ctx_ers_member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
+Theorem ctx_e2s/member : forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e F,
   ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e -> member F Ctx_t2e ->
     (exists X A X' T,
       fresh X /\ fresh X' /\
-      (F = ers_val X X') /\
-      {Ctx_t2e |- t/skel_val_ty A T} /\ member (t/of_val Sig_t X A) Ctx_t /\ member (e/of_val Sig_e X' T) Ctx_e)
+      (F = e2s/val X X') /\
+      {Ctx_t2e |- exp/skel_val_ty A T} /\ member (exp/of_val Sig_t X A) Ctx_t /\ member (skel/of_val Sig_e X' T) Ctx_e)
     \/
     (exists A T,
-      fresh A /\ (F = t/skel_val_ty A T)).
+      fresh A /\ (F = exp/skel_val_ty A T)).
 induction on 1. intros. case H1.
 % empty
 case H2.
-% ers_val
+% e2s/val
 case H2.
   % here
   search.
@@ -112,7 +112,7 @@ case H2.
   apply IH to H3 H5. case H6.
     left. exists (X n2 n1), (A1 n2 n1). search.
     right. search.
-% t/skel_val_ty
+% exp/skel_val_ty
 case H2.
   % here
   search.
@@ -120,26 +120,26 @@ case H2.
   apply IH to H3 H4. case H5.
     search.
     search.
-% t/of_coer
+% exp/of_coer
 apply IH to H3 H2. case H6.
   search.
   search.
-% t/of_coer
+% exp/of_coer
 apply IH to H3 H2. case H6.
   search.
   search.
-% t/of_coer
+% exp/of_coer
 apply IH to H3 H2. case H4.
   search.
   search.
 
-Theorem t/skel_ty_strengthen :
+Theorem exp/skel_ty_strengthen :
   (
     forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e A T, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t2e, ers_val n1 n2 |- t/skel_val_ty A T} -> {Ctx_t2e |- t/skel_val_ty A T}
+    {Ctx_t2e, e2s/val n1 n2 |- exp/skel_val_ty A T} -> {Ctx_t2e |- exp/skel_val_ty A T}
   ) /\ (
     forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e B T, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t2e, ers_val n1 n2 |- t/skel_comp_ty B T} -> {Ctx_t2e |- t/skel_comp_ty B T}
+    {Ctx_t2e, e2s/val n1 n2 |- exp/skel_comp_ty B T} -> {Ctx_t2e |- exp/skel_comp_ty B T}
   ).
 induction on 2 2. split.
 intros. case H2.
@@ -152,27 +152,27 @@ intros. case H2.
   apply IH to _ H3. search.
   case H4.
     case H3.
-    apply ctx_ers_member to H1 H5. case H6. case H3. case H3. search.
+    apply ctx_e2s/member to H1 H5. case H6. case H3. case H3. search.
 intros. case H2.
   apply IH to H1 H3. search.
   case H4.
     case H3.
-    apply ctx_ers_member to H1 H5. case H6. case H3. case H3.
-Split t/skel_ty_strengthen as t/skel_val_ty_strengthen, t/skel_comp_ty_strengthen.
+    apply ctx_e2s/member to H1 H5. case H6. case H3. case H3.
+Split exp/skel_ty_strengthen as exp/skel_val_ty_strengthen, exp/skel_comp_ty_strengthen.
 
 Theorem of_val_nominal_absurd : forall L Sig A, nabla x,
-  member (t/of_val Sig x A) L -> false.
+  member (exp/of_val Sig x A) L -> false.
 induction on 1. intros. case H1. apply IH to H2.
 
 Theorem skel_val_ty_nominal_absurd : forall L S, nabla x,
-  member (t/skel_val_ty x S) L -> false.
+  member (exp/skel_val_ty x S) L -> false.
 induction on 1. intros. case H1. apply IH to H2.
 
-Close t/comp_ty, t/coer_ty, t/val_ty.
+Close exp/comp_ty, exp/coer_ty, exp/val_ty.
 
 Theorem unique_ctx_of_val :
   forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e V A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-  member (t/of_val Sig_t V A1) Ctx_t -> member (t/of_val Sig_t V A2) Ctx_t -> A1 = A2.
+  member (exp/of_val Sig_t V A1) Ctx_t -> member (exp/of_val Sig_t V A2) Ctx_t -> A1 = A2.
 induction on 2. intros. case H2.
   case H3.
     search.
@@ -188,7 +188,7 @@ induction on 2. intros. case H2.
 
 Theorem unique_ctx_skel_ty :
   forall Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e A S1 S2, ctx3 Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e ->
-  member (t/skel_val_ty A S1) Ctx_t2e -> member (t/skel_val_ty A S2) Ctx_t2e -> S1 = S2.
+  member (exp/skel_val_ty A S1) Ctx_t2e -> member (exp/skel_val_ty A S2) Ctx_t2e -> S1 = S2.
 induction on 1. intros. case H1.
   case H2.
   case H2.
@@ -207,41 +207,41 @@ induction on 1. intros. case H1.
 Theorem unique_skel_ty :
   (
     forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Vt S1 S2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t2e |- t/skel_val_ty Vt S1} -> {Ctx_t2e |- t/skel_val_ty Vt S2} -> S1 = S2
+    {Ctx_t2e |- exp/skel_val_ty Vt S1} -> {Ctx_t2e |- exp/skel_val_ty Vt S2} -> S1 = S2
   ) /\ (
     forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Ct S1 S2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t2e |- t/skel_comp_ty Ct S1} -> {Ctx_t2e |- t/skel_comp_ty Ct S2} -> S1 = S2
+    {Ctx_t2e |- exp/skel_comp_ty Ct S1} -> {Ctx_t2e |- exp/skel_comp_ty Ct S2} -> S1 = S2
   ).
 induction on 2 2. split.
 intros. case H2.
   case H3.
     search.
-    apply ctx_ers_member to H1 H5. case H6. case H4. case H4. case H7.
+    apply ctx_e2s/member to H1 H5. case H6. case H4. case H4. case H7.
   case H3.
     apply IH to H1 H4 H6. apply IH1 to H1 H5 H7. search.
-    apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+    apply ctx_e2s/member to H1 H7. case H8. case H6. case H6. case H9.
   case H3.
     apply IH1 to H1 H4 H6. apply IH1 to H1 H5 H7. search.
-    apply ctx_ers_member to H1 H7. case H8. case H6. case H6. case H9.
+    apply ctx_e2s/member to H1 H7. case H8. case H6. case H6. case H9.
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H5. case H8.
+    apply ctx_e2s/member to H1 H6. case H7. case H5. case H5. case H8.
   case H3.
     apply IH to _ H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H5. case H8.
+    apply ctx_e2s/member to H1 H6. case H7. case H5. case H5. case H8.
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H5. case H8.
+    apply ctx_e2s/member to H1 H6. case H7. case H5. case H5. case H8.
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H5. case H8.
-  apply ctx_ers_member to H1 H5. case H6. case H4. case H4. case H7. case H3.
-  apply ctx_ers_member to H1 H9. case H10. case H8. case H8. apply unique_ctx_skel_ty to H1 H5 H9. search.
+    apply ctx_e2s/member to H1 H6. case H7. case H5. case H5. case H8.
+  apply ctx_e2s/member to H1 H5. case H6. case H4. case H4. case H7. case H3.
+  apply ctx_e2s/member to H1 H9. case H10. case H8. case H8. apply unique_ctx_skel_ty to H1 H5 H9. search.
 intros. case H2.
   case H3.
     apply IH to H1 H4 H5. search.
-    apply ctx_ers_member to H1 H6. case H7. case H5. case H5.
-  apply ctx_ers_member to H1 H5. case H6. case H4. case H4.
+    apply ctx_e2s/member to H1 H6. case H7. case H5. case H5.
+  apply ctx_e2s/member to H1 H5. case H6. case H4. case H4.
 Split unique_skel_ty as unique_skel_val_ty, unique_skel_comp_ty.
 
 Theorem strengthen_is_op :
@@ -254,12 +254,12 @@ induction on 2. intros. case H2.
 
 Theorem simple_ctx_member : forall Ctx F,
   simple_ctx Ctx -> member F Ctx ->
-    (exists X X', fresh X /\ fresh X' /\ (F = ers_val X X')) \/
-    (exists X S, fresh X /\ (F = t/skel_val_ty X S)).
+    (exists X X', fresh X /\ fresh X' /\ (F = e2s/val X X')) \/
+    (exists X S, fresh X /\ (F = exp/skel_val_ty X S)).
 induction on 1. intros. case H1.
 % empty
 case H2.
-% ers_val
+% e2s/val
 case H2.
   % here
   search.
@@ -285,33 +285,33 @@ Theorem member_prune[A] : forall L E, nabla (x : A),
   member (E x) L -> exists F, E = x\ F.
 induction on 1. intros. case H1. search. apply IH to H2. search.
 
-Theorem unique_ctx_ers_val :
+Theorem unique_ctx_e2s/val :
   forall Ctx V Ve1 Ve2, simple_ctx Ctx ->
-  member (ers_val V Ve1) Ctx -> member (ers_val V Ve2) Ctx -> Ve1 = Ve2.
+  member (e2s/val V Ve1) Ctx -> member (e2s/val V Ve2) Ctx -> Ve1 = Ve2.
 induction on 2. intros. case H2.
   case H1. case H3. search.
-  apply member_prune[t/val] to H5. case H1.
-  case H3. apply member_prune[t/val] to H4. apply IH to H5 H4 H6. search.
+  apply member_prune[exp/val] to H5. case H1.
+  case H3. apply member_prune[exp/val] to H4. apply IH to H5 H4 H6. search.
   case H3. apply IH to H5 H4 H6. search.
 
 
 Theorem unique_skel_val_simple_ty :
   (
     forall Ctx Vt S1 S2, simple_ctx Ctx ->
-    {Ctx |- t/skel_val_ty Vt S1} -> {Ctx |- t/skel_val_ty Vt S2} -> S1 = S2
+    {Ctx |- exp/skel_val_ty Vt S1} -> {Ctx |- exp/skel_val_ty Vt S2} -> S1 = S2
   ).
 intros. apply extend_simple_ctx to H1. apply unique_skel_val_ty to H4 H2 H3. search.
 
-Theorem ers_unique :
+Theorem e2s/unique :
   (
     forall Ctx Vt Ve1 Ve2, simple_ctx Ctx ->
-    {Ctx |- ers_val Vt Ve1} -> {Ctx |- ers_val Vt Ve2} -> Ve1 = Ve2
+    {Ctx |- e2s/val Vt Ve1} -> {Ctx |- e2s/val Vt Ve2} -> Ve1 = Ve2
   ) /\ (
     forall Ctx Ht He1 He2, simple_ctx Ctx ->
-    {Ctx |- ers_hand Ht He1} -> {Ctx |- ers_hand Ht He2} -> He1 = He2
+    {Ctx |- e2s/hand Ht He1} -> {Ctx |- e2s/hand Ht He2} -> He1 = He2
   )/\ (
     forall Ctx Ct Ce1 Ce2, simple_ctx Ctx ->
-    {Ctx |- ers_comp Ct Ce1} -> {Ctx |- ers_comp Ct Ce2} -> Ce1 = Ce2
+    {Ctx |- e2s/comp Ct Ce1} -> {Ctx |- e2s/comp Ct Ce2} -> Ce1 = Ce2
   ).
 induction on 2 2 2. split.
 intros. case H2.
@@ -369,7 +369,7 @@ intros. case H2.
     case H4. case H7. case H3.
       apply simple_ctx_member to H1 H10. case H11.
       case H9. case H8. case H13.
-    apply unique_ctx_ers_val to H1 H5 H10. search.
+    apply unique_ctx_e2s/val to H1 H5 H10. search.
     case H9.
     case H4.
 intros. case H2.
@@ -415,18 +415,18 @@ intros. case H2.
   % backchain
   apply simple_ctx_member to H1 H5. case H6. case H4. case H4.
 
-Split ers_unique as unique_ers_val, unique_ers_hand, unique_ers_comp.
+Split e2s/unique as unique_e2s/val, unique_e2s/hand, unique_e2s/comp.
 
 Theorem simple_ctx_val_member :
   forall Ctx F X1 X2, simple_ctx Ctx ->
-  {Ctx, [F] |- ers_val X1 X2} -> member F Ctx ->
+  {Ctx, [F] |- e2s/val X1 X2} -> member F Ctx ->
   fresh X1.
 intros Hctx H Hmem. Hform : apply simple_ctx_member to *Hctx *Hmem.
   case Hform. case H. search. case H.
 
 Theorem simple_ctx_comp_member :
   forall Ctx F X1 X2, simple_ctx Ctx ->
-  {Ctx, [F] |- ers_comp X1 X2} -> member F Ctx ->
+  {Ctx, [F] |- e2s/comp X1 X2} -> member F Ctx ->
   false.
 intros Hctx H Hmem. Hform : apply simple_ctx_member to *Hctx *Hmem.
   case Hform. case H. case H.
@@ -434,10 +434,10 @@ intros Hctx H Hmem. Hform : apply simple_ctx_member to *Hctx *Hmem.
 Theorem strengthen_skel_ty :
   (
     forall Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e A S, ctx3 Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t |- t/skel_val_ty A S} -> {Ctx_t2e |- t/skel_val_ty A S}
+    {Ctx_t |- exp/skel_val_ty A S} -> {Ctx_t2e |- exp/skel_val_ty A S}
   ) /\ (
     forall Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e A S, ctx3 Sig_s Sig_t Ctx_t Ctx_t2e Ctx_e ->
-    {Ctx_t |- t/skel_comp_ty A S} -> {Ctx_t2e |- t/skel_comp_ty A S}
+    {Ctx_t |- exp/skel_comp_ty A S} -> {Ctx_t2e |- exp/skel_comp_ty A S}
   ).
 induction on 2 2. split.
 intros. case H2.
@@ -473,7 +473,7 @@ induction on 2. intros. case H2.
 
 Theorem strengthen_of_op :
   forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Sig O A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-  {Ctx_t |- t/of_op Sig O A1 A2} -> {t/of_op Sig O A1 A2}.
+  {Ctx_t |- exp/of_op Sig O A1 A2} -> {exp/of_op Sig O A1 A2}.
 induction on 2. intros. case H2.
   search.
   apply IH to H1 H3.
@@ -485,9 +485,9 @@ induction on 2. intros. case H2.
     case H3.
     case H3.
 
-Theorem ers_sig_ctxs :
+Theorem e2s/sig_ctxs :
   forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-  {ers_sig Sig_t Sig_e}.
+  {e2s/sig Sig_t Sig_e}.
 induction on 1. intros. case H1.
   search.
   apply IH to H2. search.
@@ -496,10 +496,10 @@ induction on 1. intros. case H1.
   apply IH to H2. search.
   apply IH to H2. search.
 
-Theorem ers_of_closed_op :
+Theorem e2s/of_closed_op :
   forall Sig_t Sig_e O A1 A2,
-  {ers_sig Sig_t Sig_e} -> {t/of_op Sig_t O A1 A2} ->
-  exists T1 T2, {e/of_op Sig_e O T1 T2} /\ {t/skel_val_ty A1 T1} /\ {t/skel_val_ty A2 T2}.
+  {e2s/sig Sig_t Sig_e} -> {exp/of_op Sig_t O A1 A2} ->
+  exists T1 T2, {skel/of_op Sig_e O T1 T2} /\ {exp/skel_val_ty A1 T1} /\ {exp/skel_val_ty A2 T2}.
 induction on 1. intros. case H1.
   case H2.
   case H2.
@@ -507,19 +507,19 @@ induction on 1. intros. case H1.
     apply IH to H5 H6.
     search.
 
-Theorem ers_of_op :
+Theorem e2s/of_op :
   forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e O A1 A2, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-  {Ctx_t |- t/of_op Sig_t O A1 A2} ->
-  exists T1 T2, {e/of_op Sig_e O T1 T2} /\ {t/skel_val_ty A1 T1} /\ {t/skel_val_ty A2 T2}.
+  {Ctx_t |- exp/of_op Sig_t O A1 A2} ->
+  exists T1 T2, {skel/of_op Sig_e O T1 T2} /\ {exp/skel_val_ty A1 T1} /\ {exp/skel_val_ty A2 T2}.
 intros.
 apply strengthen_of_op to H1 H2.
-apply ers_sig_ctxs to H1.
-apply ers_of_closed_op to H4 H3.
+apply e2s/sig_ctxs to H1.
+apply e2s/of_closed_op to H4 H3.
 search.
 
 Theorem good_ctx :
   forall Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e Pi, ctx3 Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e ->
-  {Ctx_t |- t/good_coer_ty Pi} -> nabla x, ctx3 Sig_t Sig_e (t/of_coer x Pi :: Ctx_t) Ctx_t2e Ctx_e.
+  {Ctx_t |- exp/good_coer_ty Pi} -> nabla x, ctx3 Sig_t Sig_e (exp/of_coer x Pi :: Ctx_t) Ctx_t2e Ctx_e.
 intros. case H2.
   search.
   search.
