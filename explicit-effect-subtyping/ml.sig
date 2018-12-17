@@ -35,12 +35,13 @@ type  ml/app_ty_coer           ml/coer -> ml/ty -> ml/coer.
 type  ml/app_coer_coer         ml/coer -> ml/coer -> ml/coer.
 type  ml/comp_ty_coer          ml/coer -> ml/coer.
 type  ml/return_coer           ml/coer -> ml/coer.
+type  ml/unsafe_coer           ml/ty -> ml/coer.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % terms
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-kind  ml/term			       type. % T
+kind  ml/term		       type. % T
 kind  ml/hand                  type. % H
  
 type  ml/unit                  ml/term.

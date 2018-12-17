@@ -100,6 +100,7 @@ ml/of_coer (ml/comp_ty_coer Y) (ml/ty_coer_ty (ml/comp_ty A1) (ml/comp_ty A2)) :
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
 ml/of_coer (ml/return_coer Y) (ml/ty_coer_ty A1 (ml/comp_ty A2)) :-
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
+ml/of_coer (ml/unsafe_coer A) (ml/ty_coer_ty (ml/comp_ty A) A).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/of_term
