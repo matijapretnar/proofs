@@ -1,11 +1,11 @@
 Specification "exp2ml".
 
-Theorem x_of_val :
+Theorem e2m/of_val :
   forall Sig_t Sig_ml Vt Vml A,
-        {x_sig Sig_t Sig_ml} 
-     -> {x_val Vt Vml}
+        {e2m/sig Sig_t Sig_ml} 
+     -> {e2m/val Vt Vml}
      -> {exp/of_val Sig_t Vt A} 
-     -> exists T, {x_val_ty A (T:ml/ty)} /\ {ml/of_term Sig_ml Vml T}.
+     -> exists T, {e2m/val_ty A (T:ml/ty)} /\ {ml/of_term Sig_ml Vml T}.
 induction on 2.
 intros.
 case H2.

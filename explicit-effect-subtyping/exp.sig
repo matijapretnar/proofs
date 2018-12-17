@@ -42,7 +42,7 @@ type  exp/right_coer            exp/coer -> exp/coer.
 %     exp/lam_skel_coer         MISSING
 type  exp/app_skel_coer         exp/coer -> skel -> exp/coer.
 %     exp/lam_ty_coer           MISSING
-type  exp/app_ty_coer       exp/coer -> exp/val_ty -> exp/coer.
+type  exp/app_ty_coer           exp/coer -> exp/val_ty -> exp/coer.
 %     exp/lam_dirt_coer         MISSING
 type  exp/app_dirt_coer         exp/coer -> dirt -> exp/coer.
 %     exp/lam_coer_coer         MISSING
