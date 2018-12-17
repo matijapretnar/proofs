@@ -1,15 +1,22 @@
 Specification "exp2ml".
 
 Theorem e2m/of_val :
-  forall Sig_t Sig_ml Vt Vml A,
+ (forall Sig_t Sig_ml Vt Vml At,
         {e2m/sig Sig_t Sig_ml} 
-     -> {e2m/val Vt Vml}
-     -> {exp/of_val Sig_t Vt A} 
-     -> exists T, {e2m/val_ty A (T:ml/ty)} /\ {ml/of_term Sig_ml Vml T}.
-induction on 2.
+     -> {e2m/val Sig_t Vt At Vml}
+     -> exists T, {e2m/val_ty At (T:ml/ty)} /\ {ml/of_term Sig_ml Vml T})
+ /\
+ (forall Sig_t Sig_ml Ct Cml Dt,
+        {e2m/sig Sig_t Sig_ml} 
+     -> {e2m/comp Sig_t Ct Dt Cml}
+     -> exists T, {e2m/comp_ty Dt (T:ml/ty)} /\ {ml/of_term Sig_ml Cml T})
+ .
+induction on 2 2. split.
+% VALUES
 intros.
 case H2.
-  case H3.
-  exists ml/unit_ty.
-  search.
-
+% UNIT
+exists ml/unit_ty.
+search.
+% FUN
+apply IH1 to H1.

@@ -14,13 +14,15 @@ type  e2m/sig                 exp/sig -> ml/sig -> o.
 
 type e2m/full_dirt            dirt -> o.
 
-type e2m/val_ty		          exp/val_ty -> ml/ty -> o.
-type e2m/comp_ty		      exp/comp_ty -> ml/ty -> o.
+type e2m/val_ty		      exp/val_ty -> ml/ty -> o.
+type e2m/comp_ty	      exp/comp_ty -> ml/ty -> o.
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % erasure of terms
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-type  e2m/val                 exp/val -> ml/term -> o.
-type  e2s/hand                exp/hand -> ml/hand -> o.
-type  e2m/comp		          exp/comp -> ml/term -> o.
+type  e2m/val                 exp/sig -> exp/val -> exp/val_ty -> ml/term -> o.
+type  e2m/hand                exp/hand -> ml/hand -> o.
+type  e2m/comp		      exp/sig -> exp/comp -> exp/comp_ty -> ml/term -> o.
+
+type  e2m/coer		      exp/coer -> exp/coer_ty -> ml/coer -> o.
