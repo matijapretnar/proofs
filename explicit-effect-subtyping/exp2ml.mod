@@ -66,9 +66,12 @@ e2m/val Sig exp/unit exp/unit_ty ml/unit.
 e2m/val Sig (exp/fun A C) (exp/fun_ty A B) (ml/fun Aml Cml) :-
   e2m/val_ty A Aml,
   pi x\ pi x'\ (e2m/val Sig x A x' => e2m/comp Sig (C x) B (Cml x')).
-% % HANDLER
-% e2m/val (exp/hand Ht) (skel/hand He) :-
-%   e2m/hand Ht He.
+% HANDLER
+e2m/val Sig (exp/hand H) (exp/hand_ty (exp/bang A empty) B) Vm :-
+  e2m/hand_empty Sig H A B Vm.
+e2m/val Sig (exp/hand H) (exp/hand_ty (exp/bang A D) B) (ml/hand Hm):-
+  e2m/full_dirt D,
+  e2m/hand Sig H A D B Hm.
 % SKELETON LAMBDA
 e2m/val Sig (exp/lam_skel Vt) (exp/all_skel At) Vm :-
   pi s\ (e2m/val Sig (Vt s) (At s) Vm).
@@ -102,17 +105,20 @@ e2m/val Sig (exp/val_cast Vt Yt) A2 (ml/cast Vm Ym) :-
   e2m/val Sig Vt At1 Vm.
   e2m/coer Yt (exp/val_ty_coer_ty At1 At2) Ym.
  
-% % RETURN CASE
-% e2m/hand (exp/ret_case A Ct) (skel/ret_case T Ce) :-
-%   pi x\ pi x'\ (e2m/val x x' => e2m/comp (Ct x) (Ce x')),
-%   exp/skel_val_ty A T.
-% % OP CASE
-% e2m/hand (exp/op_case O Ct Ht) (skel/op_case O Ce He):-
-%   e2m/hand Ht He,
-%   pi x\ pi x'\ pi k\ pi k'\ (
-%     e2m/val x x' => e2m/val k k' =>
-%     e2m/comp (Ct x k) (Ce x' k')).
-% 
+% RETURN CASE
+e2m/hand_empty Sig (exp/ret_case A1 C) A1 (exp/bang A2 D) (ml/fun A1' C'):-
+  e2m/val_ty A1 A1',
+  pi x\ pi x'\ (e2m/val Sig x A1 x' => e2m/comp Sig (C x) (exp/bang A2 D) (C' x')).
+e2m/hand Sig (exp/ret_case A1 C) A1 D (exp/bang A2 D) (ml/ret_case A1' C'):-
+  e2m/val_ty A1 A1',
+  pi x\ pi x'\ (e2m/val Sig x A1 x' => e2m/comp Sig (C x) (exp/bang A2 D) (C' x')).
+% OP CASE
+e2m/hand Sig (exp/op_case O C H) A (cons O D) B (ml/op_case O C' H') :-
+  e2m/hand Sig H A D B H',
+  exp/of_op Sig O A1 A2,
+  pi x\ pi x'\ pi k\ pi k'\ (e2m/val Sig x A1 x' => e2m/val Sig k (exp/fun_ty A2 B) k' => e2m/comp Sig (C x k) B (C' x' k')),
+  is_op O.
+  
 % APP
 e2m/comp Sig (exp/app Vt1 Vt2) B (ml/app Vm1 Vm2) :-
   e2m/val Sig Vt1 (exp/fun_ty A B) Vm1,
@@ -141,9 +147,13 @@ e2m/comp Sig (exp/do Ct1 Ct2) (exp/bang At2 (cons O D)) (ml/do Cm1 Cm2) :-
   e2m/comp Sig Ct1 (exp/bang At1 (cons O D)) Cm1,
   pi x\ pi x'\ (e2m/val Sig x At1 x' => e2m/comp Sig (Ct2 x) (exp/bang At2 (cons O D)) (Cm2 x')).
 % % HANDLE
-% e2m/comp (exp/with Ct Vt) (skel/with Ce Ve) :-
-%   e2m/comp Ct Ce,
-%   e2m/val Vt Ve.
+e2m/comp Sig (exp/with C V) B2 (ml/app V' C') :-
+  e2m/comp Sig C (exp/bang A1 empty) C',
+  e2m/val Sig V (exp/hand_ty (exp/bang A1 empty) B2) V'.
+e2m/comp Sig (exp/with C V) B2 (ml/with V' C') :-
+  e2m/comp Sig C (exp/bang A1 D1) C',
+  e2m/full_dirt(D1),
+  e2m/val Sig V (exp/hand_ty (exp/bang A1 D1) B2) V'.
 % COMPUTATION COERCION
 e2m/comp Sig (exp/comp_cast Ct Yt) Bt2 (ml/cast Cm Ym) :-
   e2m/comp Sig Ct Bt1 Cm,
