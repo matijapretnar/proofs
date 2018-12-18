@@ -37,6 +37,71 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
 %     Ctx_e
 %     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e.
 
+Theorem from_impure :
+  (
+    forall A D Y D' A1 A2,
+      {from_impure/val A D Y} ->
+      {e2m/full_dirt D'} ->
+      {e2m/val_ty (A D') A1} ->
+      {e2m/val_ty (A D) A2} ->
+      {ml/of_coer Y (ml/ty_coer_ty A1 A2)}
+  ) /\ (
+    forall C D Y D' A1 A2,
+      {from_impure/comp C D Y} ->
+      {e2m/full_dirt D'} ->
+      {e2m/comp_ty (C D') A1} ->
+      {e2m/comp_ty (C D) A2} ->
+      {ml/of_coer Y (ml/ty_coer_ty A1 A2)}
+  ) /\ (
+    forall A D Y D' A1 A2,
+      {to_impure/val A D Y} ->
+      {e2m/full_dirt D'} ->
+      {e2m/val_ty (A D') A1} ->
+      {e2m/val_ty (A D) A2} ->
+      {ml/of_coer Y (ml/ty_coer_ty A2 A1)}
+  ) /\
+  (
+    forall C D Y D' A1 A2,
+      {to_impure/comp C D Y} ->
+      {e2m/full_dirt D'} ->
+      {e2m/comp_ty (C D') A1} ->
+      {e2m/comp_ty (C D) A2} ->
+      {ml/of_coer Y (ml/ty_coer_ty A2 A1)}
+  ).
+induction on 1 1 1 1. split.
+% from_impure/val
+intros. case H1.
+  % unit_ty
+  case H3. case H4. search.
+  % fun_ty
+  case H3. case H4.
+  apply IH2 to H5 H2 H7 H9.
+  apply IH1 to H6 H2 H8 H10.
+  search.
+% from_impure/comp
+intros. case H1.
+  % empty
+  case H3. % see what the full dirt D' is
+    % trivial case
+    case H2.
+    % interesting case
+    case H4.
+      % interesting case
+      apply IH to H5 H2 H7 H8. search.
+      case H8.
+  % non-empty case
+  case H3.
+    case H2.
+    case H4.
+      case H6.
+      apply IH to H5 H2 H8 H10. search.
+% to_impure/val
+skip.
+% to_impure/comp
+skip.
+  
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Strenghtening Lemma
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,7 +163,8 @@ search.
 % SKELETON APPLY
 apply IH to _ H3.
 exists T.
-split.
+split..
 case H4.
 inst H6 with n1 = S.
 search.
+%

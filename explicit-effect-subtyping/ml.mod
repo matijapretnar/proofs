@@ -95,12 +95,13 @@ ml/of_coer (ml/app_ty_coer Y A) (ml/ty_coer_ty (A1 A) (A2 A)) :-
 ml/of_coer (ml/app_coer_coer Y1 Y2) (ml/ty_coer_ty A1 A2) :-
   ml/of_coer Y1 (ml/ty_coer_ty (ml/qual_ty Pi A1) (ml/qual_ty Pi A2)),
   ml/of_coer Y2 Pi.
- 
+
 ml/of_coer (ml/comp_ty_coer Y) (ml/ty_coer_ty (ml/comp_ty A1) (ml/comp_ty A2)) :-
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
 ml/of_coer (ml/return_coer Y) (ml/ty_coer_ty A1 (ml/comp_ty A2)) :-
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
-ml/of_coer (ml/unsafe_coer A) (ml/ty_coer_ty (ml/comp_ty A) A).
+ml/of_coer (ml/unsafe_coer Y) (ml/ty_coer_ty (ml/comp_ty A1) A2) :-
+  ml/of_coer Y (ml/ty_coer_ty A1 A2).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/of_term
@@ -131,7 +132,7 @@ ml/of_hand Sig (ml/op_case O T H) A B :-
   ml/of_op Sig O A1 A2,
   pi x\ pi k\ (ml/of_term Sig x A1 => ml/of_term Sig k (ml/fun_ty A2 B) => ml/of_term Sig (T x k) B),
   is_op O.
- 
+
 ml/of_term Sig (ml/app T1 T2) B :-
   ml/of_term Sig T1 (ml/fun_ty A B),
   ml/of_term Sig T2 A.

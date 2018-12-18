@@ -26,3 +26,8 @@ type  e2m/hand                exp/hand -> ml/hand -> o.
 type  e2m/comp		      exp/sig -> exp/comp -> exp/comp_ty -> ml/term -> o.
 
 type  e2m/coer		      exp/coer -> exp/coer_ty -> ml/coer -> o.
+
+type  from_impure/val      (dirt -> exp/val_ty) -> dirt -> ml/coer -> o.
+type  from_impure/comp     (dirt -> exp/comp_ty) -> dirt -> ml/coer -> o.
+type  to_impure/val        (dirt -> exp/val_ty) -> dirt -> ml/coer -> o.
+type  to_impure/comp       (dirt -> exp/comp_ty) -> dirt -> ml/coer -> o.

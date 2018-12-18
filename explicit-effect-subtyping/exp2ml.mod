@@ -52,9 +52,9 @@ e2m/val_ty (exp/qual_ty (exp/dirt_coer_ty _ _) A) A' :-
 
 e2m/comp_ty (exp/bang A empty) A' :-
   e2m/val_ty A A'.
-e2m/comp_ty (exp/bang A D) A' :-
+e2m/comp_ty (exp/bang A D) (ml/comp_ty A') :-
   e2m/full_dirt D,
-  e2m/val_ty A (ml/comp_ty A').
+  e2m/val_ty A A'.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % e2m/val
@@ -86,11 +86,8 @@ e2m/val Sig (exp/app_ty Vt At1) (At2 At1) Vm :-
 e2m/val Sig (exp/lam_dirt Vt) (exp/all_dirt At) Vm :-
   pi d\ (e2m/full_dirt d => e2m/val Sig (Vt d) (At d) Vm).
 % DIRT APPLY
-e2m/val Sig (exp/app_dirt Vt D) (At D) Vm :-
-  % TODO: do we need to insert coercions because 
-  %       (exp/app_dirt Vt D) may be pure
-  %       while our abstraction assumes Vt is
-  %       impure
+e2m/val Sig (exp/app_dirt Vt D) (At D) (ml/cast Vm Y) :-
+  from_impure/val At D Y,
   e2m/val Sig Vt (exp/all_dirt At) Vm.
 % COERCION LAMBDA
 e2m/val Sig (exp/lam_coer Pi Vt) (exp/qual_ty Pi At) Vm :-
@@ -151,3 +148,26 @@ e2m/comp Sig (exp/do Ct1 Ct2) (exp/bang At2 (cons O D)) (ml/do Cm1 Cm2) :-
 e2m/comp Sig (exp/comp_cast Ct Yt) Bt2 (ml/cast Cm Ym) :-
   e2m/comp Sig Ct Bt1 Cm,
   e2m/coer Yt (exp/comp_ty_coer_ty Bt1 Bt2) Ym.
+
+
+from_impure/val (d\ exp/unit_ty) D (ml/refl_coer ml/unit_ty).
+from_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
+  to_impure/val A D Ya,
+  from_impure/comp C D Yc.
+
+to_impure/val (d\ exp/unit_ty) D (ml/refl_coer ml/unit_ty).
+to_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
+  from_impure/val A D Ya,
+  to_impure/comp C D Yc.
+
+from_impure/comp (d\ exp/bang (A d) d) empty (ml/unsafe_coer Y) :-
+  from_impure/val A empty Y.
+from_impure/comp (d\ exp/bang (A d) d) D (ml/comp_ty_coer Y) :-
+  from_impure/val A D Y,
+  e2m/full_dirt D.
+
+to_impure/comp (d\ exp/bang (A d) d) empty (ml/return_coer Y) :-
+  to_impure/val A empty Y.
+to_impure/comp (d\ exp/bang (A d) d) D (ml/comp_ty_coer Y) :-
+  to_impure/val A D Y,
+  e2m/full_dirt D.
