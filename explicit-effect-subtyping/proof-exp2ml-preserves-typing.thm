@@ -1,3 +1,5 @@
+Set subgoals off.
+
 Specification "exp2ml".
 
 Close ml/ty, ml/term, ml/coer_ty, ml/hand, ml/coer, op.
@@ -6,12 +8,13 @@ Close ml/ty, ml/term, ml/coer_ty, ml/hand, ml/coer, op.
 % Contexts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Define e2m/ctx : exp/sig -> ml/sig -> olist -> prop by
-  e2m/ctx Sig_t Sig_m nil 
+Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
+  e2m/ctx Sig_t Sig_m nil nil
     := {e2m/sig Sig_t Sig_m};
-  nabla x x', e2m/ctx Sig_t Sig_m
-    (e2m/val Sig_t x A_t x' :: Ctx)
-    := e2m/ctx Sig_t Sig_m Ctx.
+  nabla x x', e2m/ctx Sig_e Sig_m
+    (e2m/val Sig_t x A x' :: Ctx_t2m)
+    (ml/of_term Sig_m x' A' :: Ctx_m)
+    := e2m/ctx Sig_t Sig_m Ctx_t2m Ctx_m /\ {Ctx_t2m |- e2m/val_ty A A'}.
 
 %   nabla t, e2m/ctx Sig_t Sig_e
 %     (exp/skel_val_ty t Te :: Ctx_t)
@@ -34,29 +37,43 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> prop by
 %     Ctx_e
 %     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e.
 
-Theorem foo :
-   forall A B Aml T,
-        {e2m/val_ty A Aml}
-     -> {e2m/comp_ty B T}
-     -> {e2m/val_ty (exp/fun_ty A B) (ml/fun_ty Aml T)}.
-intros.
-search.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Strenghtening Lemma
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem ml/ty_strengthen :
+  (
+    forall Sig_t Sig_ml Ctx_t2m Ctx_m A T, 
+         e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m
+      -> {Ctx_t2m, e2m/val Sig_t n1 A n2 |- e2m/val_ty A T} 
+      -> {Ctx_t2m |- e2m/val_ty A T}
+  ) /\ (
+    forall Sig_t Sig_ml Ctx_t2m Ctx_m A C T, 
+         e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m 
+      -> {Ctx_t2m, e2m/val Sig_t n1 A n2 |- e2m/comp_ty C T} 
+      -> {Ctx_t2m |- e2m/comp_ty C T}
+  ).
+skip.
+% induction on 2 2. split.
+
+Split ml/ty_strengthen as ml/strengthen_val_ty, ml/strengthen_comp_ty.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Theorem
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem e2m/of_val :
- (forall Sig_t Sig_ml V_t V_ml A_t Ctx,
-        e2m/ctx Sig_t Sig_ml Ctx
-     -> {Ctx |- e2m/val Sig_t V_t A_t V_ml}
-     -> exists T, {Ctx |- e2m/val_ty A_t (T:ml/ty)} /\ {Ctx |- ml/of_term Sig_ml V_ml T})
+ (forall Sig_t Sig_ml V_t V_ml A_t Ctx_t2m Ctx_m,
+        e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m
+     -> {Ctx_t2m |- e2m/val Sig_t V_t A_t V_ml}
+     -> exists T, {Ctx_t2m |- e2m/val_ty A_t (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml V_ml T})
  /\
- (forall Sig_t Sig_ml C_t C_ml D_t Ctx,
-        e2m/ctx Sig_t Sig_ml Ctx
-     -> {Ctx |- e2m/comp Sig_t C_t D_t C_ml}
-     -> exists T, {Ctx |- e2m/comp_ty D_t (T:ml/ty)} /\ {Ctx |- ml/of_term Sig_ml C_ml T})
+ (forall Sig_t Sig_ml C_t C_ml D_t Ctx_t2m Ctx_m,
+        e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m
+     -> {Ctx_t2m |- e2m/comp Sig_t C_t D_t C_ml}
+     -> exists T, {Ctx_t2m |- e2m/comp_ty D_t (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml C_ml T})
  .
+Set search_depth 7.
 induction on 2 2. split.
 % VALUES
 intros.
@@ -69,7 +86,19 @@ Set witnesses on.
 apply IH1 to _ H4.
 exists (ml/fun_ty Aml T).
 split.
-cut H5.
-unfold.
+apply ml/strengthen_comp_ty to _ H5.
 search.
-
+search.
+% SKELETON LAMBDA
+apply IH to _ H3.
+exists T.
+split.
+search.
+search.
+% SKELETON APPLY
+apply IH to _ H3.
+exists T.
+split.
+case H4.
+inst H6 with n1 = S.
+search.
