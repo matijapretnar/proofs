@@ -27,6 +27,7 @@ type  ml/compose_coer          ml/coer -> ml/coer -> ml/coer.
 type  ml/refl_coer             ml/ty -> ml/coer.
 type  ml/fun_coer              ml/coer -> ml/coer -> ml/coer.
 type  ml/hand_coer             ml/coer -> ml/coer -> ml/coer.
+type  ml/hand2fun_coer         ml/coer -> ml/coer -> ml/coer.
 type  ml/left_coer             ml/coer -> ml/coer.
 type  ml/right_coer            ml/coer -> ml/coer.
 %     ml/lam_ty_coer           MISSING
@@ -36,6 +37,8 @@ type  ml/app_coer_coer         ml/coer -> ml/coer -> ml/coer.
 type  ml/comp_ty_coer          ml/coer -> ml/coer.
 type  ml/return_coer           ml/coer -> ml/coer.
 type  ml/unsafe_coer           ml/coer -> ml/coer.
+type  ml/pure_coer             ml/coer -> ml/coer.
+type  ml/nruter_coer           ml/coer -> ml/coer.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % terms
