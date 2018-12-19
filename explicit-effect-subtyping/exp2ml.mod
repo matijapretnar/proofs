@@ -57,7 +57,7 @@ e2m/comp_ty (exp/bang A D) (ml/comp_ty A') :-
   e2m/val_ty A A'.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% e2m/val
+% e2m/val, e2m/hand e2m/hand_empty, e2m/comp
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
 % UNIT
@@ -159,6 +159,72 @@ e2m/comp Sig (exp/comp_cast Ct Yt) Bt2 (ml/cast Cm Ym) :-
   e2m/comp Sig Ct Bt1 Cm,
   e2m/coer Yt (exp/comp_ty_coer_ty Bt1 Bt2) Ym.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% e2m/coer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+e2m/coer (exp/compose_coer Y1 Y2) (exp/val_ty_coer_ty A1 A3) (ml/compose_coer Y1' Y2') :-
+  e2m/coer Y1 (exp/val_ty_coer_ty A1 A2) Y1',
+  e2m/coer Y2 (exp/val_ty_coer_ty A2 A3) Y2'.
+% e2m/coer (exp/compose_coer Y1 Y2) (exp/dirt_coer_ty D1 D3) :-
+%   e2m/coer Y1 (exp/dirt_coer_ty D1 D2),
+%   e2m/coer Y2 (exp/dirt_coer_ty D2 D3).
+e2m/coer (exp/compose_coer Y1 Y2) (exp/comp_ty_coer_ty B1 B3) (ml/compose_coer Y1' Y2'):-
+  e2m/coer Y1 (exp/comp_ty_coer_ty B1 B2) Y1',
+  e2m/coer Y2 (exp/comp_ty_coer_ty B2 B3) Y2'.
+
+e2m/coer (exp/val_ty_coer A) (exp/val_ty_coer_ty A A) (ml/refl_coer A') :-
+  e2m/val_ty A A'.
+e2m/coer (exp/fun_coer Y1 Y2) (exp/val_ty_coer_ty (exp/fun_ty A1 B1) (exp/fun_ty A2 B2)) (ml/fun_coer Y1' Y2') :-
+  e2m/coer Y1 (exp/val_ty_coer_ty A2 A1) Y1',
+  e2m/coer Y2 (exp/comp_ty_coer_ty B1 B2) Y2'.
+% TODO
+% e2m/coer (exp/hand_coer Y1 Y2) (exp/val_ty_coer_ty (exp/hand_ty B1 B1') (exp/hand_ty B2 B2')) :-
+%   e2m/coer Y1 (exp/comp_ty_coer_ty B2 B1),
+%   e2m/coer Y2 (exp/comp_ty_coer_ty B1' B2').
+
+% TODO
+% e2m/coer (exp/left_coer Y) (exp/val_ty_coer_ty A2 A1) :-
+%   e2m/coer Y (exp/val_ty_coer_ty (exp/fun_ty A1 _) (exp/fun_ty A2 _)).
+% e2m/coer (exp/left_coer Y) (exp/comp_ty_coer_ty B2 B1) :-
+%   e2m/coer Y (exp/val_ty_coer_ty (exp/hand_ty B1 _) (exp/hand_ty B2 _)).
+% e2m/coer (exp/right_coer Y) (exp/comp_ty_coer_ty B1 B2) :-
+%   e2m/coer Y (exp/val_ty_coer_ty (exp/fun_ty _ B1) (exp/fun_ty _ B2)).
+% e2m/coer (exp/right_coer Y) (exp/comp_ty_coer_ty B1 B2) :-
+%   e2m/coer Y (exp/val_ty_coer_ty (exp/hand_ty _ B1) (exp/hand_ty _ B2)).
+
+% TODO
+% e2m/coer (exp/app_skel_coer Y S) (exp/val_ty_coer_ty (A1 S) (A2 S)) Y' :-
+%   e2m/coer Y (exp/val_ty_coer_ty (exp/all_skel A1) (exp/all_skel A2)) Y'.
+% e2m/coer (exp/app_ty_coer Y A) (exp/val_ty_coer_ty (A1 A) (A2 A)) (ml/app_ty_coer Y' A') :-
+%   e2m/coer Y (exp/val_ty_coer_ty (exp/all_ty S A1) (exp/all_ty S A2)) Y',
+%   e2m/val_ty A A',
+%   exp/skel_val_ty A S.
+% e2m/coer (exp/app_dirt_coer Y D) (exp/val_ty_coer_ty (A1 D) (A2 D)) :-
+%   e2m/coer Y (exp/val_ty_coer_ty (exp/all_dirt A1) (exp/all_dirt A2)).
+% e2m/coer (exp/app_coer_coer Y1 Y2) (exp/val_ty_coer_ty A1 A2) :-
+%   e2m/coer Y1 (exp/val_ty_coer_ty (exp/qual_ty Pi A1) (exp/qual_ty Pi A2)),
+%   e2m/coer Y2 Pi.
+
+% TODO
+% e2m/coer (exp/comp_ty_coer Y1 Y2) (exp/comp_ty_coer_ty (exp/bang A1 D1) (exp/bang A2 D2)) :-
+%   e2m/coer Y1 (exp/val_ty_coer_ty A1 A2),
+%   e2m/coer Y2 (exp/dirt_coer_ty D1 D2).
+% e2m/coer (exp/pure_coer Y) (exp/val_ty_coer_ty A1 A2) :-
+%   e2m/coer Y (exp/comp_ty_coer_ty (exp/bang A1 _) (exp/bang A2 _)).
+% e2m/coer (exp/impure_coer Y) (exp/dirt_coer_ty D1 D2) :-
+%   e2m/coer Y (exp/comp_ty_coer_ty (exp/bang _ D1) (exp/bang _ D2)).
+
+% e2m/coer (exp/dirt_coer D) (exp/dirt_coer_ty D D) :-
+%   is_dirt D.
+% e2m/coer (exp/empty_coer D) (exp/dirt_coer_ty empty D).
+% e2m/coer (exp/cons_coer O Y) (exp/dirt_coer_ty (cons O D1) (cons O D2)) :-
+%   e2m/coer Y (exp/dirt_coer_ty D1 D2).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% from_impure/val, to_impure/val from_impure/comp to_impure/comp
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 from_impure/val (d\ exp/unit_ty) D (ml/refl_coer ml/unit_ty).
 from_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
