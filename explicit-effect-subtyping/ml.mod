@@ -1,30 +1,25 @@
 module ml.
 accumulate common.
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/less_val_ty, ml/less_comp_ty
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/less_val_ty ml/unit_ty ml/unit_ty.
-% ml/less_val_ty (ml/fun_ty A1 C1) (ml/fun_ty A2 C2) :-
-%   ml/less_val_ty A2 A1,
-%   ml/less_comp_ty C1 C2.
-% ml/less_val_ty (ml/hand_ty A1 C1) (ml/hand_ty A2 C2) :-
-%   ml/less_comp_ty A2 A1,
-%   ml/less_comp_ty C1 C2.
-% ml/less_val_ty (ml/all_ty S A1) (ml/all_ty S A2) :-
-%   pi a\ ml/less_val_ty (A1 a) (A2 a).
-% ml/less_val_ty (ml/all_dirt A1) (ml/all_dirt A2) :-
-%   pi a\ ml/less_val_ty (A1 a) (A2 a).
-% ml/less_val_ty (ml/all_skel A1) (ml/all_skel A2) :-
-%   pi a\ ml/less_val_ty (A1 a) (A2 a).
-% ml/less_val_ty (ml/qual_ty Pi A1) (ml/qual_ty Pi A2) :-
-%   ml/less_val_ty A1 A2.
-% 
-% ml/less_comp_ty (ml/bang A1 D1) (ml/bang A2 D2) :-
-%   ml/less_val_ty A1 A2,
-%   less_dirt D1 D2.
-% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/less_ty, ml/less_ty
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/less_ty ml/unit_ty ml/unit_ty.
+ml/less_ty (ml/fun_ty A1 C1) (ml/fun_ty A2 C2) :-
+  ml/less_ty A2 A1,
+  ml/less_ty C1 C2.
+ml/less_ty (ml/hand_ty A1 C1) (ml/hand_ty A2 C2) :-
+  ml/less_ty A2 A1,
+  ml/less_ty C1 C2.
+ml/less_ty (ml/all_ty A1) (ml/all_ty A2) :-
+  pi a\ ml/less_ty (A1 a) (A2 a).
+ml/less_ty (ml/qual_ty Pi A1) (ml/qual_ty Pi A2) :-
+  ml/less_ty A1 A2.
+
+ml/less_ty (ml/comp_ty A1) (ml/comp_ty A2) :-
+  ml/less_ty A1 A2.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/of_op
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -146,6 +141,8 @@ ml/of_term Sig (ml/app T1 T2) B :-
 ml/of_term Sig (ml/let T C) B :-
   ml/of_term Sig T A,
   pi x\ (ml/of_term Sig x A => ml/of_term Sig (C x) B).
+ml/of_term Sig (ml/ret V) (ml/comp_ty A) :-
+  ml/of_term Sig V A.
 ml/of_term Sig (ml/op O T A2 C) (ml/comp_ty A) :-
   ml/of_op Sig O A1 A2,
   ml/of_term Sig T A1,
@@ -158,154 +155,129 @@ ml/of_term Sig (ml/with C T) B2 :-
   ml/of_term Sig C (ml/comp_ty B1),
   ml/of_term Sig T (ml/hand_ty B1 B2).
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/term_val
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/term_val ml/unit.
-% ml/term_val (ml/hand H).
-% ml/term_val (ml/fun A M).
-% ml/term_val (ml/lam_ty S M).
-% ml/term_val (ml/lam_skel M).
-% ml/term_val (ml/lam_dirt M).
-% ml/term_val (ml/lam_coer Pi M).
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/result_val
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/result_val T :-
-%   ml/term_val V.
-% ml/result_val (ml/val_cast V Cv) :-
-%   ml/term_val V.
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/result_comp
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/result_comp (ml/ret V) :-
-%   ml/term_val V.
-% ml/result_comp (ml/comp_cast (ml/ret V) Cc) :-
-%   ml/term_val V.
-% ml/result_comp (ml/op O V _ C) :-
-%   ml/result_val V.
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/step_val
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/step_val (ml/val_cast V C) (ml/val_cast V' C) :-
-%     ml/step_val V V'.
-% ml/step_val (ml/val_cast (ml/val_cast V C1) C2) (ml/val_cast V (ml/compose_coer C1 C2)) :-
-%     ml/result_val V.
-% ml/step_val (ml/app_skel V A) (ml/app_skel V' A) :-
-%     ml/step_val V V'.
-% ml/step_val (ml/app_ty V A) (ml/app_ty V' A) :-
-%     ml/step_val V V'.
-% ml/step_val (ml/app_dirt V A) (ml/app_dirt V' A) :-
-%     ml/step_val V V'.
-% ml/step_val (ml/app_coer V A) (ml/app_coer V' A) :-
-%     ml/step_val V V'.
-% ml/step_val (ml/app_skel (ml/val_cast V Y) A) (ml/val_cast (ml/app_skel V A) (ml/app_skel_coer Y A)) :-
-%     ml/term_val V.
-% ml/step_val (ml/app_ty (ml/val_cast V Y) A) (ml/val_cast (ml/app_ty V A) (ml/app_ty_coer Y A)) :-
-%     ml/term_val V.
-% ml/step_val (ml/app_dirt (ml/val_cast V Y) A) (ml/val_cast (ml/app_dirt V A) (ml/app_dirt_coer Y A)) :-
-%     ml/term_val V.
-% ml/step_val (ml/app_coer (ml/val_cast V Y) A) (ml/val_cast (ml/app_coer V A) (ml/app_coer_coer Y A)) :-
-%     ml/term_val V.
-% ml/step_val (ml/app_skel (ml/lam_skel M) S) (M S).
-% ml/step_val (ml/app_ty (ml/lam_ty S M) A) (M A) :-
-%     ml/skel_val_ty A S.
-% ml/step_val (ml/app_dirt (ml/lam_dirt M) A) (M A).
-% ml/step_val (ml/app_coer (ml/lam_coer Pi M) A) (M A).
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/get_ret_case
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/get_ret_case (ml/ret_case _ M) M.
-% ml/get_ret_case (ml/op_case _ _ H) M :-
-%     ml/get_ret_case H M.
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/get_op_case
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/get_op_case (ml/ret_case _ _) O A (x\ k\ ml/op O x A (y\ ml/app k y)).
-% ml/get_op_case (ml/op_case O M H) O _ M :-
-%     is_op O.
-% ml/get_op_case (ml/op_case O' _ H) O A M :-
-%     apart O O',
-%     ml/get_op_case H O A M.
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/step_comp
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/step_comp (ml/comp_cast C Y) (ml/comp_cast C' Y) :-
-%     ml/step_comp C C'.
-% ml/step_comp (ml/comp_cast (ml/comp_cast C Y1) Y2) (ml/comp_cast C (ml/compose_coer Y1 Y2)) :-
-%     ml/result_comp C.
-% ml/step_comp (ml/app V1 V2) (ml/app V1' V2) :-
-%     ml/step_val V1 V1'.
-% ml/step_comp (ml/app (ml/val_cast V1 Vc) V2) (ml/comp_cast (ml/app V1 (ml/val_cast V2 (ml/left_coer Vc))) (ml/right_coer Vc)) :-
-%     ml/term_val V1.
-% ml/step_comp (ml/app V1 V2) (ml/app V1 V2') :-
-%     ml/term_val V1,
-%     ml/step_val V2 V2'.
-% ml/step_comp (ml/app (ml/fun A M) V) (M V) :-
-%     ml/result_val V.
-% ml/step_comp (ml/let V C) (ml/let V' C) :-
-%     ml/step_val V V'.
-% ml/step_comp (ml/let V C) (C V) :-
-%     ml/result_val V.
-% ml/step_comp (ml/ret V) (ml/ret V') :-
-%     ml/step_val V V'.
-% ml/step_comp (ml/ret (ml/val_cast V Y)) (ml/comp_cast (ml/ret V) (ml/comp_ty_coer Y (ml/empty_coer empty))).
-% ml/step_comp (ml/op O V B C) (ml/op O V' B C) :-
-%     ml/step_val V V'.
-% ml/step_comp (ml/comp_cast (ml/op O V B C) Y) (ml/op O V B (y\ ml/comp_cast (C y) Y)) :-
-%     ml/result_val V.
-% ml/step_comp (ml/do C1 C2) (ml/do C1' C2) :-
-%     ml/step_comp C1 C1'.
-% ml/step_comp (ml/do (ml/comp_cast (ml/ret V) Y) C2) (C2 (ml/val_cast V (ml/pure_coer Y))) :-
-%     ml/term_val V.
-% ml/step_comp (ml/do (ml/ret V) C2) (C2 V) :-
-%     ml/term_val V.
-% ml/step_comp (ml/do (ml/op O V B C1) C2) (ml/op O V B (y\ ml/do (C1 y) C2)) :-
-%     ml/result_val V.
-% ml/step_comp (ml/with C V) (ml/with C V') :-
-%     ml/step_val V V'.
-% ml/step_comp (ml/with C (ml/val_cast V Y)) (ml/comp_cast (ml/with (ml/comp_cast C (ml/left_coer Y)) V) (ml/right_coer Y)) :-
-%     ml/term_val V.
-% ml/step_comp (ml/with C V) (ml/with C' V) :-
-%     ml/term_val V,
-%     ml/step_comp C C'.
-% ml/step_comp (ml/with (ml/ret V) (ml/hand H)) (Cr V) :-
-%     ml/term_val V,
-%     ml/get_ret_case H Cr.
-% ml/step_comp (ml/with (ml/comp_cast (ml/ret V) Y) (ml/hand H)) (Cr (ml/val_cast V (ml/pure_coer Y))) :-
-%     ml/term_val V,
-%     ml/get_ret_case H Cr.
-% ml/step_comp (ml/with (ml/op O V B C) (ml/hand H)) (Cop V (ml/fun B (y\ ml/with (C y) (ml/hand H)))) :-
-%     ml/result_val V,
-%     ml/get_op_case H O B Cop.
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/progress_val
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/progress_val V :-
-%     ml/result_val V.
-% ml/progress_val V :-
-%     ml/step_val V V'.
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % ml/progress_comp
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% ml/progress_comp C :-
-%     ml/result_comp C.
-% ml/progress_comp C :-
-%     ml/step_comp C C'.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/val
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/val ml/unit.
+ml/val (ml/hand H).
+ml/val (ml/fun A M).
+ml/val (ml/lam_ty M).
+ml/val (ml/lam_coer Pi M).
+ml/val (ml/op O V _ M).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/result
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/result V :-
+  ml/val V.
+ml/result (ml/cast V Cv) :-
+  ml/val V.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/result (more)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/result (ml/ret V) :-
+  ml/val V.
+ml/result (ml/cast (ml/ret V) Cc) :-
+  ml/val V.
+ml/result (ml/op O V _ C) :-
+  ml/result V.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/step
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/step (ml/cast V C) (ml/cast V' C) :-
+    ml/step V V'.
+ml/step (ml/cast (ml/cast V C1) C2) (ml/cast V (ml/compose_coer C1 C2)) :-
+    ml/result V.
+ml/step (ml/app_ty V A) (ml/app_ty V' A) :-
+    ml/step V V'.
+ml/step (ml/app_coer V A) (ml/app_coer V' A) :-
+    ml/step V V'.
+ml/step (ml/app_ty (ml/cast V Y) A) (ml/cast (ml/app_ty V A) (ml/app_ty_coer Y A)) :-
+    ml/val V.
+ml/step (ml/app_coer (ml/cast V Y) A) (ml/cast (ml/app_coer V A) (ml/app_coer_coer Y A)) :-
+    ml/val V.
+ml/step (ml/app_ty (ml/lam_ty M) A) (M A).
+ml/step (ml/app_coer (ml/lam_coer Pi M) A) (M A).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/get_ret_case
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/get_ret_case (ml/ret_case _ M) M.
+ml/get_ret_case (ml/op_case _ _ H) M :-
+    ml/get_ret_case H M.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/get_op_case
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/get_op_case (ml/ret_case _ _) O A (x\ k\ ml/op O x A (y\ ml/app k y)).
+ml/get_op_case (ml/op_case O M H) O _ M :-
+    is_op O.
+ml/get_op_case (ml/op_case O' _ H) O A M :-
+    apart O O',
+    ml/get_op_case H O A M.
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/step (more)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/step (ml/app V1 V2) (ml/app V1' V2) :-
+    ml/step V1 V1'.
+ml/step (ml/app (ml/cast V1 Vc) V2) (ml/cast (ml/app V1 (ml/cast V2 (ml/left_coer Vc))) (ml/right_coer Vc)) :-
+    ml/val V1.
+ml/step (ml/app V1 V2) (ml/app V1 V2') :-
+    ml/val V1,
+    ml/step V2 V2'.
+ml/step (ml/app (ml/fun A M) V) (M V) :-
+    ml/result V.
+ml/step (ml/let V C) (ml/let V' C) :-
+    ml/step V V'.
+ml/step (ml/let V C) (C V) :-
+    ml/result V.
+ml/step (ml/ret V) (ml/ret V') :-
+    ml/step V V'.
+ml/step (ml/ret (ml/cast V Y)) (ml/cast (ml/ret V) (ml/comp_ty_coer Y)).
+ml/step (ml/op O V B C) (ml/op O V' B C) :-
+    ml/step V V'.
+ml/step (ml/cast (ml/op O V B C) Y) (ml/op O V B (y\ ml/cast (C y) Y)) :-
+    ml/result V.
+ml/step (ml/do C1 C2) (ml/do C1' C2) :-
+    ml/step C1 C1'.
+ml/step (ml/do (ml/cast (ml/ret V) Y) C2) (C2 (ml/cast V (ml/pure_coer Y))) :-
+    ml/val V.
+ml/step (ml/do (ml/ret V) C2) (C2 V) :-
+    ml/val V.
+ml/step (ml/do (ml/op O V B C1) C2) (ml/op O V B (y\ ml/do (C1 y) C2)) :-
+    ml/result V.
+ml/step (ml/with C V) (ml/with C V') :-
+    ml/step V V'.
+ml/step (ml/with C (ml/cast V Y)) (ml/cast (ml/with (ml/cast C (ml/left_coer Y)) V) (ml/right_coer Y)) :-
+    ml/val V.
+ml/step (ml/with C V) (ml/with C' V) :-
+    ml/val V,
+    ml/step C C'.
+ml/step (ml/with (ml/ret V) (ml/hand H)) (Cr V) :-
+    ml/val V,
+    ml/get_ret_case H Cr.
+ml/step (ml/with (ml/cast (ml/ret V) Y) (ml/hand H)) (Cr (ml/cast V (ml/pure_coer Y))) :-
+    ml/val V,
+    ml/get_ret_case H Cr.
+ml/step (ml/with (ml/op O V B C) (ml/hand H)) (Cop V (ml/fun B (y\ ml/with (C y) (ml/hand H)))) :-
+    ml/result V,
+    ml/get_op_case H O B Cop.
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/progress
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/progress V :-
+    ml/result V.
+ml/progress V :-
+    ml/step V V'.

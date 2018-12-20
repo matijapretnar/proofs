@@ -1,0 +1,88 @@
+Specification "ml".
+Import "common".
+
+Close ml/ty, ml/coer_ty.
+
+Set subgoals off.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem ml/of_op_unique : forall Sig O A A' B B',
+  {ml/of_op Sig O A B} -> {ml/of_op Sig O A' B'} -> A = A' /\ B = B'.
+induction on 1. intros. case H1.
+  case H2. search. apply apart_not_reflexive to H4.
+  case H2.
+    apply apart_not_reflexive to H4.
+    apply IH to H3 H5. search.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Theorem ml/less_ty_reflexive:
+  forall A, {ml/less_ty A A}.
+intros.
+unfold.
+...
+
+Theorem ml/less_ty_transitive' :
+  (forall A B C, {ml/less_ty A B} -> {ml/less_ty B C} -> {ml/less_ty A C}) /\
+  (forall A B C, {ml/less_ty B C} -> {ml/less_ty A B} -> {ml/less_ty A C}).
+induction on 1 1. split.
+intros. case H1.
+  search.
+  case H2. apply IH1 to H3 H5. apply IH to H4 H6. search.
+  case H2. apply IH1 to H3 H5. apply IH to H4 H6. search.
+  case H2. apply IH to H3 H4. search.
+  case H2. apply IH to H3 H4. search.
+  case H2. apply IH to H3 H4. search.
+
+intros. case H1.
+  search.
+  case H2. apply IH to H3 H5. apply IH1 to H4 H6. search.
+  case H2. apply IH to H3 H5. apply IH1 to H4 H6. search.
+  case H2. apply IH1 to H3 H4. search.
+  case H2. apply IH1 to H3 H4. search.
+  case H2. apply IH1 to H3 H4. search.
+
+Split ml/less_ty_transitive' as ml/less_ty_transitive, forget.
+
+Theorem exp/coer_less_ty :
+  forall Y A B, {ml/of_coer Y (ml/ty_coer_ty A B)} -> {ml/less_ty A B}.
+induction on 1.
+intros. case H1.
+apply IH to H2. apply IH to H3. apply ml/less_ty_transitive to H4 H5. search.
+apply IH to H2. apply IH to H3. search.
+
+...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Theorem of/valcase : forall Sig H A C M,
+    {ml/of_hand Sig H A C} -> {ml/get_ret_case H M} -> nabla x, {ml/of_term Sig x A |- ml/of_term Sig (M x) C}.
+
+induction on 2. intros. case H2.
+  case H1. search.
+  case H1. apply IH to H4 H3. search.
+
+Theorem of/ml/op_case : forall Sig O A1 A2 H A B M,
+     {ml/of_hand Sig H A (ml/comp_ty B)} ->
+     {ml/get_op_case H O A2 M} ->
+     {ml/of_op Sig O A1 A2} ->
+     {is_op O} ->
+     nabla x, nabla k, {ml/of_term Sig x A1, ml/of_term Sig k (ml/fun_ty A2 (ml/comp_ty B)) |- ml/of_term Sig (M x k) (ml/comp_ty B)}.
+induction on 2. intros. case H2.
+  case H1. search.
+  case H1. apply ml/of_op_unique to H3 H7. search.
+  case H1.  apply IH to H7 H6 H3 H4.search.
+
+Theorem ml/preservation : forall Sig V V' A, {ml/step V V'} -> {ml/of_term Sig V A} -> {ml/of_term Sig V' A}.
+induction on 1. intros. case H1.
+% CAST
+case H2. apply IH to H3 H4. search.
+% COMPOSE
+case H2. case H4. search.
+% APP_TY
+case H2. apply IH to H3 H4. search.
+% APP_COER
+case H2. apply IH to H3 H4. search.
+% coerced APP_TY
+case H2. case H4. % apply exp/coer_less_val_ty to H7. case H8. search.

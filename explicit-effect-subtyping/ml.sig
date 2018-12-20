@@ -61,6 +61,7 @@ type  ml/op_case               op -> (ml/term -> ml/term -> ml/term) -> ml/hand 
  
 type  ml/app                   ml/term -> ml/term -> ml/term.
 type  ml/let                   ml/term -> (ml/term -> ml/term) -> ml/term.
+type  ml/ret                   ml/term -> ml/term.
 type  ml/op                    op -> ml/term -> ml/ty -> (ml/term -> ml/term) -> ml/term.
 type  ml/do                    ml/term -> (ml/term -> ml/term) -> ml/term.
 type  ml/with                  ml/term -> ml/term -> ml/term.
@@ -80,20 +81,20 @@ type  ml/of_op                 ml/sig -> op -> ml/ty -> ml/ty -> o.
 % typing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-type  ml/of_term			   ml/sig -> ml/term -> ml/ty -> o.
+type ml/less_ty                ml/ty -> ml/ty -> o.
+
+type  ml/of_term	       ml/sig -> ml/term -> ml/ty -> o.
 type  ml/of_coer               ml/coer -> ml/coer_ty -> o.
 type  ml/of_hand               ml/sig -> ml/hand -> ml/ty -> ml/ty -> o.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % operational semantics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% type  ml/term_val              ml/val -> o.
-% type  ml/result_val            ml/val -> o.
-% type  ml/result_comp           ml/comp -> o.
-% type  ml/step_val              ml/val -> ml/val -> o.
-% type  ml/get_ret_case          ml/hand -> (ml/val -> ml/comp) -> o.
-% type  ml/get_op_case           ml/hand -> op -> ml/val_ty -> (ml/val -> ml/val -> ml/comp) -> o.
-% type  ml/step_comp             ml/comp -> ml/comp -> o.
-% type  ml/progress_val          ml/val -> o.
-% type  ml/progress_comp         ml/comp -> o.
+ 
+type  ml/val                   ml/term -> o.
+type  ml/step                  ml/term -> ml/term -> o.
+
+type  ml/result                ml/term -> o.
+type  ml/get_ret_case          ml/hand -> (ml/term -> ml/term) -> o.
+type  ml/get_op_case           ml/hand -> op -> ml/ty -> (ml/term -> ml/term -> ml/term) -> o.
+type  ml/progress              ml/term -> o.
