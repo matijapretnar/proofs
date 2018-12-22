@@ -2,6 +2,30 @@ module ml.
 accumulate common.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/wf_ty, ml/wf_coer_ty
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/wf_ty ml/unit_ty.
+ml/wf_ty (ml/fun_ty A B) :-
+  ml/wf_ty A,
+  ml/wf_ty B.
+ml/wf_ty (ml/all_ty A) :-
+  pi x\ (ml/wf_ty (A x)).
+ml/wf_ty (ml/hand_ty A B) :-
+  ml/wf_ty A,
+  ml/wf_ty B.
+ml/wf_ty (ml/qual_ty Pi A) :-
+  ml/wf_coer_ty Pi,
+  ml/wf_ty A.
+ml/wf_ty (ml/comp_ty A) :-
+  ml/wf_ty A.
+
+ml/wf_coer_ty (ml/ty_coer_ty A B) :-
+  ml/wf_ty A,
+  ml/wf_ty B.
+  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/less_ty, ml/less_ty
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -12,12 +36,20 @@ ml/less_ty (ml/fun_ty A1 C1) (ml/fun_ty A2 C2) :-
 ml/less_ty (ml/hand_ty A1 C1) (ml/hand_ty A2 C2) :-
   ml/less_ty A2 A1,
   ml/less_ty C1 C2.
+ml/less_ty (ml/hand_ty A1 C1) (ml/fun_ty A2 C2) :-
+  ml/less_ty A2 A1,
+  ml/less_ty C1 C2.
 ml/less_ty (ml/all_ty A1) (ml/all_ty A2) :-
   pi a\ ml/less_ty (A1 a) (A2 a).
 ml/less_ty (ml/qual_ty Pi A1) (ml/qual_ty Pi A2) :-
   ml/less_ty A1 A2.
 
 ml/less_ty (ml/comp_ty A1) (ml/comp_ty A2) :-
+  ml/less_ty A1 A2.
+
+ml/less_ty A1 (ml/comp_ty A2) :-
+  ml/less_ty A1 A2.
+ml/less_ty (ml/comp_ty A1) A2 :-
   ml/less_ty A1 A2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,48 +93,51 @@ ml/of_op (ml/cons_sig O1 A1 B1 Sig) O2 A2 B2 :-
 % ml/good_coer_ty (ml/dirt_coer_ty D1 D2).
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ml/of_coer
+% ml/of_coer, ml/of_coer'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ml/of_coer (ml/compose_coer Y1 Y2) (ml/ty_coer_ty A1 A3) :-
+ml/of_coer Y Pi :-
+  ml/wf_coer_ty Pi,
+  ml/of_coer' Y Pi.
+
+ml/of_coer' (ml/compose_coer Y1 Y2) (ml/ty_coer_ty A1 A3) :-
   ml/of_coer Y1 (ml/ty_coer_ty A1 A2),
   ml/of_coer Y2 (ml/ty_coer_ty A2 A3).
-
-ml/of_coer (ml/refl_coer A) (ml/ty_coer_ty A A).
-ml/of_coer (ml/fun_coer Y1 Y2) (ml/ty_coer_ty (ml/fun_ty A1 B1) (ml/fun_ty A2 B2)) :-
+ml/of_coer' (ml/refl_coer A) (ml/ty_coer_ty A A).
+ml/of_coer' (ml/fun_coer Y1 Y2) (ml/ty_coer_ty (ml/fun_ty A1 B1) (ml/fun_ty A2 B2)) :-
   ml/of_coer Y1 (ml/ty_coer_ty A2 A1),
   ml/of_coer Y2 (ml/ty_coer_ty B1 B2).
-ml/of_coer (ml/hand_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/hand_ty B2 B2')) :-
+ml/of_coer' (ml/hand_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/hand_ty B2 B2')) :-
   ml/of_coer Y1 (ml/ty_coer_ty B2 B1),
   ml/of_coer Y2 (ml/ty_coer_ty B1' B2').
-ml/of_coer (ml/hand2fun_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/fun_ty B2 B2')) :-
-  ml/of_coer Y1 (ml/ty_coer_ty B2 (ml/comp_ty B1)),
+ml/of_coer' (ml/hand2fun_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/fun_ty B2 B2')) :-
+  ml/of_coer Y1 (ml/ty_coer_ty B2 B1),
   ml/of_coer Y2 (ml/ty_coer_ty B1' B2').
 
-ml/of_coer (ml/left_coer Y) (ml/ty_coer_ty A2 A1) :-
+ml/of_coer' (ml/left_coer Y) (ml/ty_coer_ty A2 A1) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/fun_ty A1 _) (ml/fun_ty A2 _)).
-ml/of_coer (ml/left_coer Y) (ml/ty_coer_ty B2 B1) :-
+ml/of_coer' (ml/left_coer Y) (ml/ty_coer_ty B2 B1) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty B1 _) (ml/hand_ty B2 _)).
-ml/of_coer (ml/right_coer Y) (ml/ty_coer_ty B1 B2) :-
+ml/of_coer' (ml/right_coer Y) (ml/ty_coer_ty B1 B2) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/fun_ty _ B1) (ml/fun_ty _ B2)).
-ml/of_coer (ml/right_coer Y) (ml/ty_coer_ty B1 B2) :-
+ml/of_coer' (ml/right_coer Y) (ml/ty_coer_ty B1 B2) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty _ B1) (ml/hand_ty _ B2)).
 
-ml/of_coer (ml/app_ty_coer Y A) (ml/ty_coer_ty (A1 A) (A2 A)) :-
+ml/of_coer' (ml/app_ty_coer Y A) (ml/ty_coer_ty (A1 A) (A2 A)) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/all_ty A1) (ml/all_ty A2)).
-ml/of_coer (ml/app_coer_coer Y1 Y2) (ml/ty_coer_ty A1 A2) :-
+ml/of_coer' (ml/app_coer_coer Y1 Y2) (ml/ty_coer_ty A1 A2) :-
   ml/of_coer Y1 (ml/ty_coer_ty (ml/qual_ty Pi A1) (ml/qual_ty Pi A2)),
   ml/of_coer Y2 Pi.
 
-ml/of_coer (ml/comp_ty_coer Y) (ml/ty_coer_ty (ml/comp_ty A1) (ml/comp_ty A2)) :-
+ml/of_coer' (ml/comp_ty_coer Y) (ml/ty_coer_ty (ml/comp_ty A1) (ml/comp_ty A2)) :-
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
-ml/of_coer (ml/return_coer Y) (ml/ty_coer_ty A1 (ml/comp_ty A2)) :-
+ml/of_coer' (ml/return_coer Y) (ml/ty_coer_ty A1 (ml/comp_ty A2)) :-
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
-ml/of_coer (ml/unsafe_coer Y) (ml/ty_coer_ty (ml/comp_ty A1) A2) :-
+ml/of_coer' (ml/unsafe_coer Y) (ml/ty_coer_ty (ml/comp_ty A1) A2) :-
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
-ml/of_coer (ml/pure_coer Y) (ml/ty_coer_ty A1 A2) :-
+ml/of_coer' (ml/pure_coer Y) (ml/ty_coer_ty A1 A2) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/comp_ty A1) (ml/comp_ty A2)).
-ml/of_coer (ml/nruter_coer Y) (ml/ty_coer_ty A1 A2) :-
+ml/of_coer' (ml/nruter_coer Y) (ml/ty_coer_ty A1 A2) :-
   ml/of_coer Y (ml/ty_coer_ty A1 (ml/comp_ty A2)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

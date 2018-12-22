@@ -19,41 +19,97 @@ induction on 1. intros. case H1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem ml/less_ty_reflexive:
-  forall A, {ml/less_ty A A}.
-intros.
-unfold.
-...
+  forall A, {ml/wf_ty A} -> {ml/less_ty A A}.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. apply IH to H3. search.
+  apply IH to H2. search.
+  apply IH to H2. apply IH to H3. search.
+  apply IH to H3. search.
+  apply IH to H2. search.
 
 Theorem ml/less_ty_transitive' :
   (forall A B C, {ml/less_ty A B} -> {ml/less_ty B C} -> {ml/less_ty A C}) /\
   (forall A B C, {ml/less_ty B C} -> {ml/less_ty A B} -> {ml/less_ty A C}).
-induction on 1 1. split.
-intros. case H1.
+induction on 1 1. induction on 2 2. split.
+intros. case H1 (keep).
   search.
-  case H2. apply IH1 to H3 H5. apply IH to H4 H6. search.
-  case H2. apply IH1 to H3 H5. apply IH to H4 H6. search.
-  case H2. apply IH to H3 H4. search.
-  case H2. apply IH to H3 H4. search.
-  case H2. apply IH to H3 H4. search.
+  case H2 (keep). 
+    apply IH1 to H3 H5. apply IH to H4 H6. search. 
+    apply IH2 to H1 H5. search.
+  case H2 (keep). 
+    apply IH1 to H3 H5. apply IH to H4 H6. search. 
+    apply IH1 to H3 H5. apply IH to H4 H6. search. 
+    apply IH2 to H1 H5. search.
+  case H2 (keep).
+    apply IH1 to H3 H5. apply IH to H4 H6. search. 
+    apply IH2 to H1 H5. search.
+  case H2 (keep).
+    apply IH to H3 H4. search.
+    apply IH2 to H1 H4. search.
+  case H2 (keep).
+    apply IH to H3 H4. search.
+    apply IH2 to H1 H4. search.
+  case H2 (keep).
+    apply IH to H3 H4. search.
+    apply IH2 to H1 H4. search.
+    apply IH to H3 H4. search.
+  case H2 (keep).
+    apply IH to H3 H4. search.
+    apply IH2 to H1 H4. search.
+    apply IH to H3 H4. search.
+  apply IH to H3 H2. search.
 
-intros. case H1.
+intros. case H1 (keep).
   search.
-  case H2. apply IH to H3 H5. apply IH1 to H4 H6. search.
-  case H2. apply IH to H3 H5. apply IH1 to H4 H6. search.
-  case H2. apply IH1 to H3 H4. search.
-  case H2. apply IH1 to H3 H4. search.
-  case H2. apply IH1 to H3 H4. search.
+  case H2 (keep). 
+    apply IH to H3 H5. apply IH1 to H4 H6. search. 
+    apply IH to H3 H5. apply IH1 to H4 H6. search.
+    apply IH3 to H1 H5. search.
+  case H2 (keep). 
+    apply IH to H3 H5. apply IH1 to H4 H6. search. 
+    apply IH3 to H1 H5. search.
+  case H2 (keep).
+    apply IH to H3 H5. apply IH1 to H4 H6. search. 
+    apply IH3 to H1 H5. search.
+  case H2 (keep).
+   apply IH1 to H3 H4. search.
+   apply IH3 to H1 H4. search.
+  case H2 (keep).
+   apply IH1 to H3 H4. search.
+   apply IH3 to H1 H4. search.
+  case H2 (keep).
+   apply IH1 to H3 H4. search.
+   apply IH1 to H3 H4. search.
+   apply IH3 to H1 H4. search.
+   apply IH1 to H3 H2. search.
+  case H2 (keep).
+   apply IH1 to H3 H4. search.
+   apply IH1 to H3 H4. search.
+   apply IH3 to H1 H4. search.
+   apply IH1 to H3 H2. search.
 
 Split ml/less_ty_transitive' as ml/less_ty_transitive, forget.
 
 Theorem exp/coer_less_ty :
   forall Y A B, {ml/of_coer Y (ml/ty_coer_ty A B)} -> {ml/less_ty A B}.
-induction on 1.
-intros. case H1.
-apply IH to H2. apply IH to H3. apply ml/less_ty_transitive to H4 H5. search.
-apply IH to H2. apply IH to H3. search.
-
 ...
+induction on 1.
+intros. case H1. case H3.
+  apply IH to H4. apply IH to H5. apply ml/less_ty_transitive to H6 H7. search.
+  case H2. apply ml/less_ty_reflexive to H4. search.
+  apply IH to H4. apply IH to H5. search.
+  apply IH to H4. apply IH to H5. search.
+  apply IH to H4. apply IH to H5. search. 
+  apply IH to H4. case H5. search.
+  apply IH to H4. case H5. search.
+  apply IH to H4. case H5. search.
+  apply IH to H4. case H5. search.
+  apply IH to H4. case H5. inst H6 with n1 = A3. search.
+  apply IH to H4. case H6. search.
+  apply IH to H4. search. ...
+  apply IH to H4.
+  ...
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem of/valcase : forall Sig H A C M,

@@ -81,10 +81,14 @@ type  ml/of_op                 ml/sig -> op -> ml/ty -> ml/ty -> o.
 % typing
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+type ml/wf_ty                  ml/ty -> o.
+type ml/wf_coer_ty	       ml/coer_ty -> o.
+
 type ml/less_ty                ml/ty -> ml/ty -> o.
 
 type  ml/of_term	       ml/sig -> ml/term -> ml/ty -> o.
 type  ml/of_coer               ml/coer -> ml/coer_ty -> o.
+type  ml/of_coer'              ml/coer -> ml/coer_ty -> o.
 type  ml/of_hand               ml/sig -> ml/hand -> ml/ty -> ml/ty -> o.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
