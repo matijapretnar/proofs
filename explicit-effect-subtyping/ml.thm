@@ -87,13 +87,25 @@ intros. case H1 (keep).
    apply IH1 to H3 H4. search.
    apply IH1 to H3 H4. search.
    apply IH3 to H1 H4. search.
-   apply IH1 to H3 H2. search.
 
 Split ml/less_ty_transitive' as ml/less_ty_transitive, forget.
 
-Theorem exp/coer_less_ty :
+Theorem ml/less_comp_ty :
+  forall A B, {ml/less_ty (ml/comp_ty A) B} -> {ml/less_ty A B}.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+  search.
+
+Theorem ml/comp_ty_less :
+  forall A B, {ml/less_ty A (ml/comp_ty B)} -> {ml/less_ty A B}.
+induction on 1. intros. case H1.
+  search.
+  search.
+  apply IH to H2. search.
+
+Theorem ml/coer_less_ty :
   forall Y A B, {ml/of_coer Y (ml/ty_coer_ty A B)} -> {ml/less_ty A B}.
-...
 induction on 1.
 intros. case H1. case H3.
   apply IH to H4. apply IH to H5. apply ml/less_ty_transitive to H6 H7. search.
@@ -107,9 +119,14 @@ intros. case H1. case H3.
   apply IH to H4. case H5. search.
   apply IH to H4. case H5. inst H6 with n1 = A3. search.
   apply IH to H4. case H6. search.
-  apply IH to H4. search. ...
-  apply IH to H4.
-  ...
+  apply IH to H4. search. 
+  apply IH to H4. search. 
+  apply IH to H4. search. 
+  apply IH to H4. case H5.
+    search.
+    apply ml/less_comp_ty to H6.  search.
+    apply ml/comp_ty_less to H6. search.
+    apply IH to H4. apply ml/comp_ty_less to H5. search.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem of/valcase : forall Sig H A C M,
