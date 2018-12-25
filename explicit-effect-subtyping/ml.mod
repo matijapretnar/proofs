@@ -143,50 +143,59 @@ ml/of_coer' (ml/nruter_coer Y) (ml/ty_coer_ty A1 A2) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/of_term
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/of_term Sig T A :-
+  ml/wf_ty A,
+  ml/of_term' Sig T A.
  
-ml/of_term Sig ml/unit ml/unit_ty.
-ml/of_term Sig (ml/fun A T) (ml/fun_ty A B) :-
+ml/of_term' Sig ml/unit ml/unit_ty.
+ml/of_term' Sig (ml/fun A T) (ml/fun_ty A B) :-
   pi x\ (ml/of_term Sig x A => ml/of_term Sig (T x) B).
-ml/of_term Sig (ml/lam_ty T) (ml/all_ty A) :-
+ml/of_term' Sig (ml/lam_ty T) (ml/all_ty A) :-
   pi x\ (ml/of_term Sig (T x) (A x)).
-ml/of_term Sig (ml/app_ty T A1) (A2 A1) :-
+ml/of_term' Sig (ml/app_ty T A1) (A2 A1) :-
   ml/of_term Sig T (ml/all_ty A2).
-ml/of_term Sig (ml/cast T Y) A2 :-
+ml/of_term' Sig (ml/cast T Y) A2 :-
   ml/of_term Sig T A1,
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
-ml/of_term Sig (ml/hand H) (ml/hand_ty A B) :-
+ml/of_term' Sig (ml/hand H) (ml/hand_ty A B) :-
   ml/of_hand Sig H A B.
-ml/of_term Sig (ml/lam_coer Pi T) (ml/qual_ty Pi A) :-
+ml/of_term' Sig (ml/lam_coer Pi T) (ml/qual_ty Pi A) :-
   pi w\ (ml/of_coer w Pi => ml/of_term Sig (T w) A).
-ml/of_term Sig (ml/app_coer T Y) A :-
+ml/of_term' Sig (ml/app_coer T Y) A :-
   ml/of_term Sig T (ml/qual_ty Pi A),
   ml/of_coer Y Pi.
 
-ml/of_hand Sig (ml/ret_case A1 T) A1 A2 :-
+ml/of_hand Sig H A B :-
+  ml/wf_ty A,
+  ml/wf_ty B,
+  ml/of_hand' Sig H A B.
+
+ml/of_hand' Sig (ml/ret_case A1 T) A1 A2 :-
   pi x\ (ml/of_term Sig x A1 => ml/of_term Sig (T x) A2).
-ml/of_hand Sig (ml/op_case O T H) A B :-
+ml/of_hand' Sig (ml/op_case O T H) A B :-
   ml/of_hand Sig H A B,
   ml/of_op Sig O A1 A2,
   pi x\ pi k\ (ml/of_term Sig x A1 => ml/of_term Sig k (ml/fun_ty A2 B) => ml/of_term Sig (T x k) B),
   is_op O.
 
-ml/of_term Sig (ml/app T1 T2) B :-
+ml/of_term' Sig (ml/app T1 T2) B :-
   ml/of_term Sig T1 (ml/fun_ty A B),
   ml/of_term Sig T2 A.
-ml/of_term Sig (ml/let T C) B :-
+ml/of_term' Sig (ml/let T C) B :-
   ml/of_term Sig T A,
   pi x\ (ml/of_term Sig x A => ml/of_term Sig (C x) B).
-ml/of_term Sig (ml/ret V) (ml/comp_ty A) :-
+ml/of_term' Sig (ml/ret V) (ml/comp_ty A) :-
   ml/of_term Sig V A.
-ml/of_term Sig (ml/op O T A2 C) (ml/comp_ty A) :-
+ml/of_term' Sig (ml/op O T A2 C) (ml/comp_ty A) :-
   ml/of_op Sig O A1 A2,
   ml/of_term Sig T A1,
   pi x\ (ml/of_term Sig x A2 => ml/of_term Sig (C x) (ml/comp_ty A)),
   is_op O.
-ml/of_term Sig (ml/do C1 C2) (ml/comp_ty A2) :-
+ml/of_term' Sig (ml/do C1 C2) (ml/comp_ty A2) :-
   ml/of_term Sig C1 (ml/comp_ty A1),
   pi x\ (ml/of_term Sig x A1 => ml/of_term Sig (C2 x) (ml/comp_ty A2)).
-ml/of_term Sig (ml/with C T) B2 :-
+ml/of_term' Sig (ml/with C T) B2 :-
   ml/of_term Sig C (ml/comp_ty B1),
   ml/of_term Sig T (ml/hand_ty B1 B2).
 
@@ -227,16 +236,22 @@ ml/result (ml/op O V _ C) :-
 
 ml/step (ml/cast V C) (ml/cast V' C) :-
     ml/step V V'.
-ml/step (ml/cast (ml/cast V C1) C2) (ml/cast V (ml/compose_coer C1 C2)) :-
+ml/step (ml/cast (ml/cast V Y1) Y2) (ml/cast V (ml/compose_coer Y1 Y2)) :-
     ml/result V.
 ml/step (ml/app_ty V A) (ml/app_ty V' A) :-
     ml/step V V'.
-ml/step (ml/app_coer V A) (ml/app_coer V' A) :-
+ml/step (ml/app_coer V Y) (ml/app_coer V' Y) :-
     ml/step V V'.
-ml/step (ml/app_ty (ml/cast V Y) A) (ml/cast (ml/app_ty V A) (ml/app_ty_coer Y A)) :-
-    ml/val V.
-ml/step (ml/app_coer (ml/cast V Y) A) (ml/cast (ml/app_coer V A) (ml/app_coer_coer Y A)) :-
-    ml/val V.
+% BROKEN DUE TO UNSAFE COERCE
+% ml/step (ml/app_ty (ml/cast V Y) A) (ml/cast (ml/app_ty V A) (ml/app_ty_coer Y A)) :-
+%     ml/val V.
+% FIX:
+ml/step (ml/app_ty (ml/cast (ml/lam_ty M) Y) A) (ml/cast (M A) (ml/app_ty_coer Y A)).
+% BROKEN DUE TO UNSAFE COERCE
+% ml/step (ml/app_coer (ml/cast V Y1) Y2) (ml/cast (ml/app_coer V Y2) (ml/app_coer_coer Y1 Y2)) :-
+%     ml/val V.
+% FIX:
+ml/step (ml/app_coer (ml/cast (ml/lam_coer Pi M) Y1) Y2) (ml/cast (M Y2) (ml/app_coer_coer Y1 Y2)).
 ml/step (ml/app_ty (ml/lam_ty M) A) (M A).
 ml/step (ml/app_coer (ml/lam_coer Pi M) A) (M A).
 

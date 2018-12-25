@@ -16,7 +16,6 @@ induction on 1. intros. case H1.
     apply apart_not_reflexive to H4.
     apply IH to H3 H5. search.
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem ml/less_ty_reflexive:
   forall A, {ml/wf_ty A} -> {ml/less_ty A A}.
@@ -128,13 +127,23 @@ intros. case H1. case H3.
     apply ml/comp_ty_less to H6. search.
     apply IH to H4. apply ml/comp_ty_less to H5. search.
 
+
+Theorem ml/unique_pi : forall Pi1 Pi2 Y A1 A2,
+  {ml/of_coer Y (ml/ty_coer_ty (ml/qual_ty Pi1 A1) (ml/qual_ty Pi2 A2))}
+  ->
+  Pi1 = Pi2.
+intros.
+apply ml/coer_less_ty to H1.
+case H2.
+search.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem of/valcase : forall Sig H A C M,
     {ml/of_hand Sig H A C} -> {ml/get_ret_case H M} -> nabla x, {ml/of_term Sig x A |- ml/of_term Sig (M x) C}.
 
-induction on 2. intros. case H2.
-  case H1. search.
-  case H1. apply IH to H4 H3. search.
+induction on 2. intros. case H2 (keep).
+  case H1. case H5. search. 
+  case H1. case H6. apply IH to H7 H3. search.
 
 Theorem of/ml/op_case : forall Sig O A1 A2 H A B M,
      {ml/of_hand Sig H A (ml/comp_ty B)} ->
@@ -142,20 +151,30 @@ Theorem of/ml/op_case : forall Sig O A1 A2 H A B M,
      {ml/of_op Sig O A1 A2} ->
      {is_op O} ->
      nabla x, nabla k, {ml/of_term Sig x A1, ml/of_term Sig k (ml/fun_ty A2 (ml/comp_ty B)) |- ml/of_term Sig (M x k) (ml/comp_ty B)}.
-induction on 2. intros. case H2.
+induction on 2. intros. case H2 (keep).
   case H1. search.
-  case H1. apply ml/of_op_unique to H3 H7. search.
-  case H1.  apply IH to H7 H6 H3 H4.search.
+  case H1. case H8. apply ml/of_op_unique to H3 H10. search.
+  case H1. case H9. apply IH to H10 H6 H3 H4.search.
 
 Theorem ml/preservation : forall Sig V V' A, {ml/step V V'} -> {ml/of_term Sig V A} -> {ml/of_term Sig V' A}.
-induction on 1. intros. case H1.
+induction on 1. intros. case H1 (keep).
 % CAST
-case H2. apply IH to H3 H4. search.
+case H2 (keep). case H5. apply IH to H3 H6. search.
 % COMPOSE
-case H2. case H4. search.
+case H2. case H5. case H6 (keep). case H7 (keep). case H9 (keep). case H13 (keep). case H14. search.
 % APP_TY
-case H2. apply IH to H3 H4. search.
+case H2. case H5. apply IH to H3 H6. search.
 % APP_COER
-case H2. apply IH to H3 H4. search.
+case H2. case H5. apply IH to H3 H6. search.
 % coerced APP_TY
-case H2. case H4. % apply exp/coer_less_val_ty to H7. case H8. search.
+case H2 (keep). case H4. case H5 (keep). case H7. 
+case H8 (keep). case H11. inst H12 with n1 = A1. case H10. inst H14 with n1 = A1. search.
+% coerced APP_COER 
+case H2 (keep). case H4. case H5 (keep). case H8.
+case H9 (keep). case H12. inst H13 with n1 = Y2.
+apply ml/unique_pi to H10. cut H14 with H6.
+case H11.
+search.
+% APP_TY
+case H2 (keep). case H4. case H5. case H7. inst H8 with n1 = A1. search.
+
