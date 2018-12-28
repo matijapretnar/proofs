@@ -146,15 +146,18 @@ induction on 2. intros. case H2 (keep).
   case H1. case H6. apply IH to H7 H3. search.
 
 Theorem of/ml/op_case : forall Sig O A1 A2 H A B M,
-     {ml/of_hand Sig H A (ml/comp_ty B)} ->
+     {ml/of_hand Sig H A B} ->
      {ml/get_op_case H O A2 M} ->
+  ...
      {ml/of_op Sig O A1 A2} ->
      {is_op O} ->
-     nabla x, nabla k, {ml/of_term Sig x A1, ml/of_term Sig k (ml/fun_ty A2 (ml/comp_ty B)) |- ml/of_term Sig (M x k) (ml/comp_ty B)}.
+     nabla x, nabla k, {ml/of_term Sig x A1, ml/of_term Sig k (ml/fun_ty A2 B) |- ml/of_term Sig (M x k) B}.
 induction on 2. intros. case H2 (keep).
-  case H1. search.
   case H1. case H8. apply ml/of_op_unique to H3 H10. search.
   case H1. case H9. apply IH to H10 H6 H3 H4.search.
+  ...
+  case H1 (keep). search.
+  ...
 
 Theorem ml/preservation : forall Sig V V' A, {ml/step V V'} -> {ml/of_term Sig V A} -> {ml/of_term Sig V' A}.
 induction on 1. intros. case H1 (keep).
@@ -177,4 +180,47 @@ case H11.
 search.
 % APP_TY
 case H2 (keep). case H4. case H5. case H7. inst H8 with n1 = A1. search.
-
+% APP_COER
+case H2 (keep). case H4. case H5. case H8. inst H9 with n1 = A1. cut H10 with H6. search.
+% APP_1
+case H2. case H5.  apply IH to H3 H6. search.
+% APP_CAST
+case H2. case H4. case H5. case H8. case H9. case H12. inst H13 with n1 = (ml/cast V2 (ml/left_coer Y)).
+case H7. case H11.
+assert {ml/of_coer (ml/left_coer Y) (ml/ty_coer_ty A2 A1)}.
+assert {ml/of_term Sig (ml/cast V2 (ml/left_coer Y)) A1}.
+cut H14.
+search.
+% APP_2
+case H2. case H6. apply IH to H4 H8. search.
+% APP
+case H2.  case H5. case H6. case H9. inst H10 with n1 = V1. cut H11. search. 
+% LET_1
+case H2. case H5. apply IH to H3 H6. search.
+% LET
+case H2. case H5. inst H7 with n1 = V1. cut H8. search.
+% RET_1
+case H2. case H5. apply IH to H3 H6. search.
+% OP_1
+case H2. case H5. apply IH to H3 H7. search.
+% DO_1
+case H2. case H5. apply IH to H3 H6. search.
+% DO_CAST_RET
+case H2. case H5. case H6. case H8. case H9. case H11. case H14. case H13 (keep). 
+inst H7 with n1 = (ml/cast V1 (ml/pure_coer Y)). cut H17.  search.
+% DO_RET
+case H2. case H5. case H6. case H8. case H9. inst H7 with n1 = V1. cut H12 with H11. search.
+% DO_OP
+case H2. case H5. case H6. case H8. case H9. search.
+% WITH_1
+case H2. case H5. apply IH to H3 H7. search.
+% WITH_2
+case H2. case H6. apply IH to H4 H7. search.
+% WITH RET
+case H2. case H6. case H8. case H10. apply of/valcase to H11 H4. case H7. case H14. inst H12 with n1 = V1. cut H16 with H15. search.
+% WITH OP
+case H2. case H6. case H8. case H10. case H7. case H13. apply of/ml/op_case to H11 H4 H14 H17.
+...
+% SLOW: RET_CAST
+case H2. case H4. case H5. case H7. case H9 (keep) . case H10. 
+search with unfold(ml/of_term, 1, apply H3, unfold(ml/of_term', 5, unfold(ml/of_term, 1, unfold(ml/wf_ty, 6, apply H12), unfold(ml/of_term', 11, apply H8)), unfold(ml/of_coer, 1, unfold(ml/wf_coer_ty, 1, unfold(ml/wf_ty, 6, apply H12), apply H3), unfold(ml/of_coer', 12, apply H9)))).
