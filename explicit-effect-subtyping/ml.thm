@@ -11,7 +11,7 @@ Set subgoals off.
 Theorem ml/of_op_unique : forall Sig O A A' B B',
   {ml/of_op Sig O A B} -> {ml/of_op Sig O A' B'} -> A = A' /\ B = B'.
 induction on 1. intros. case H1.
-  case H2. search. apply apart_not_reflexive to H4.
+  case H2. search. apply apart_not_reflexive to H6.
   case H2.
     apply apart_not_reflexive to H4.
     apply IH to H3 H5. search.
@@ -29,33 +29,37 @@ induction on 1. intros. case H1.
 
 Theorem ml/less_ty_transitive' :
   (forall A B C, {ml/less_ty A B} -> {ml/less_ty B C} -> {ml/less_ty A C}) /\
-  (forall A B C, {ml/less_ty B C} -> {ml/less_ty A B} -> {ml/less_ty A C}).
-induction on 1 1. induction on 2 2. split.
+  (forall A B C, {ml/less_ty B C} -> {ml/less_ty A B} -> {ml/less_ty A C}) /\
+  (forall C1 C2 C3, {ml/less_ty C1 C2} -> {ml/less_ty (ml/comp_ty C2) C3} -> {ml/less_ty (ml/comp_ty C1) C3}) /\
+  (forall C1 C2 C3, {ml/less_ty (ml/comp_ty C2) C3} -> {ml/less_ty C1 C2} -> {ml/less_ty (ml/comp_ty C1) C3}).
+induction on 1 1 1 1.  induction on 2 2 2 2. split.
 intros. case H1 (keep).
   search.
   case H2 (keep). 
     apply IH1 to H3 H5. apply IH to H4 H6. search. 
-    apply IH2 to H1 H5. search.
+    apply IH4 to H1 H5. search.
   case H2 (keep). 
-    apply IH1 to H3 H5. apply IH to H4 H6. search. 
-    apply IH1 to H3 H5. apply IH to H4 H6. search. 
-    apply IH2 to H1 H5. search.
+    apply IH1 to H3 H5. 
+    apply IH to H4 H6. search.
+    apply IH1 to H3 H5. 
+    apply IH2 to H4 H6. search. 
+    apply IH4 to H1 H5. search.
   case H2 (keep).
     apply IH1 to H3 H5. apply IH to H4 H6. search. 
-    apply IH2 to H1 H5. search.
+    apply IH4 to H1 H5. search.
   case H2 (keep).
     apply IH to H3 H4. search.
-    apply IH2 to H1 H4. search.
+    apply IH4 to H1 H4. search.
   case H2 (keep).
     apply IH to H3 H4. search.
-    apply IH2 to H1 H4. search.
+    apply IH4 to H1 H4. search.
   case H2 (keep).
     apply IH to H3 H4. search.
-    apply IH2 to H1 H4. search.
+    apply IH4 to H1 H4. search.
     apply IH to H3 H4. search.
   case H2 (keep).
     apply IH to H3 H4. search.
-    apply IH2 to H1 H4. search.
+    apply IH4 to H1 H4. search.
     apply IH to H3 H4. search.
   apply IH to H3 H2. search.
 
@@ -64,30 +68,101 @@ intros. case H1 (keep).
   case H2 (keep). 
     apply IH to H3 H5. apply IH1 to H4 H6. search. 
     apply IH to H3 H5. apply IH1 to H4 H6. search.
-    apply IH3 to H1 H5. search.
+    apply IH5 to H1 H5. search.
   case H2 (keep). 
     apply IH to H3 H5. apply IH1 to H4 H6. search. 
-    apply IH3 to H1 H5. search.
+    apply IH5 to H1 H5. search.
   case H2 (keep).
-    apply IH to H3 H5. apply IH1 to H4 H6. search. 
-    apply IH3 to H1 H5. search.
-  case H2 (keep).
-   apply IH1 to H3 H4. search.
-   apply IH3 to H1 H4. search.
+    apply IH to H3 H5. apply IH3 to H4 H6. search. 
+    apply IH5 to H1 H5. search.
   case H2 (keep).
    apply IH1 to H3 H4. search.
-   apply IH3 to H1 H4. search.
+   apply IH5 to H1 H4. search.
+  case H2 (keep).
+   apply IH1 to H3 H4. search.
+   apply IH5 to H1 H4. search.
   case H2 (keep).
    apply IH1 to H3 H4. search.
    apply IH1 to H3 H4. search.
-   apply IH3 to H1 H4. search.
+   apply IH5 to H1 H4. search.
    apply IH1 to H3 H2. search.
   case H2 (keep).
    apply IH1 to H3 H4. search.
    apply IH1 to H3 H4. search.
-   apply IH3 to H1 H4. search.
+   apply IH5 to H1 H4. search.
 
-Split ml/less_ty_transitive' as ml/less_ty_transitive, forget.
+intros. case H1 (keep).
+  search.
+  case H2.
+    apply IH4 to H1 H5. search.
+    apply IH6 to H1 H5. search.
+    apply IH4 to H1 H5. search.
+  case H2.
+    apply IH4 to H1 H5. search.
+    apply IH6 to H1 H5. search.
+    apply IH4 to H1 H5. search.
+  case H2.
+    apply IH4 to H1 H5. search.
+    apply IH6 to H1 H5. search.
+    apply IH4 to H1 H5. search.
+  case H2.
+    apply IH4 to H1 H4. search.
+    apply IH6 to H1 H4. search.
+    apply IH4 to H1 H4. search.
+  case H2.
+    apply IH4 to H1 H4. search.
+    apply IH6 to H1 H4. search.
+    apply IH4 to H1 H4. search.
+  case H2.
+    apply IH4 to H1 H4. search.
+    apply IH6 to H1 H4. search.
+    apply IH4 to H1 H4. search.
+  case H2.
+    apply IH4 to H1 H4. search.
+    apply IH6 to H1 H4. search.
+    apply IH4 to H1 H4. search.
+  case H2.
+    apply IH4 to H1 H4. search.
+    apply IH6 to H1 H4. search.
+    apply IH4 to H1 H4. search.
+
+intros. 
+  case H2 (keep).
+    search.
+  case H1 (keep).
+    apply IH1 to H5 H2. search.
+    apply IH3 to H5 H2. search.
+    apply IH1 to H5 H2. search.
+  case H1 (keep).
+    apply IH1 to H5 H2. search.
+    apply IH3 to H5 H2. search.
+    apply IH1 to H5 H2. search.
+  case H1 (keep).
+    apply IH1 to H5 H2. search.
+    apply IH3 to H5 H2. search.
+    apply IH1 to H5 H2. search.
+  case H1 (keep).
+    apply IH1 to H4 H2. search.
+    apply IH3 to H4 H2. search.
+    apply IH1 to H4 H2. search.
+  case H1 (keep).
+    apply IH1 to H4 H2. search.
+    apply IH3 to H4 H2. search.
+    apply IH1 to H4 H2. search.
+  case H1 (keep).
+    apply IH1 to H4 H2. search.
+    apply IH3 to H4 H2. search.
+    apply IH1 to H4 H2. search.
+  case H1 (keep).
+    apply IH1 to H4 H2. search.
+    apply IH3 to H4 H2. search.
+    apply IH1 to H4 H2. search.
+  case H1 (keep).
+    apply IH1 to H4 H2. search.
+    apply IH3 to H4 H2. search.
+    apply IH1 to H4 H2. search.
+
+Split ml/less_ty_transitive' as ml/less_ty_transitive, forget, forget, forget.
 
 Theorem ml/less_comp_ty :
   forall A B, {ml/less_ty (ml/comp_ty A) B} -> {ml/less_ty A B}.
@@ -138,9 +213,8 @@ case H2.
 search.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Theorem of/valcase : forall Sig H A C M,
-    {ml/of_hand Sig H A C} -> {ml/get_ret_case H M} -> nabla x, {ml/of_term Sig x A |- ml/of_term Sig (M x) C}.
-
+Theorem of/val_case : forall Sig H A C M,
+    {ml/of_hand Sig H A C} -> {ml/get_ret_case H M} -> nabla x, {ml/of_term Sig x A |- ml/of_term Sig (M x) (ml/comp_ty C)}.
 induction on 2. intros. case H2 (keep).
   case H1. case H5. search. 
   case H1. case H6. apply IH to H7 H3. search.
@@ -148,16 +222,13 @@ induction on 2. intros. case H2 (keep).
 Theorem of/ml/op_case : forall Sig O A1 A2 H A B M,
      {ml/of_hand Sig H A B} ->
      {ml/get_op_case H O A2 M} ->
-  ...
      {ml/of_op Sig O A1 A2} ->
      {is_op O} ->
-     nabla x, nabla k, {ml/of_term Sig x A1, ml/of_term Sig k (ml/fun_ty A2 B) |- ml/of_term Sig (M x k) B}.
+     nabla x, nabla k, {ml/of_term Sig x A1, ml/of_term Sig k (ml/fun_ty A2 (ml/comp_ty B)) |- ml/of_term Sig (M x k) (ml/comp_ty B)}.
 induction on 2. intros. case H2 (keep).
   case H1. case H8. apply ml/of_op_unique to H3 H10. search.
   case H1. case H9. apply IH to H10 H6 H3 H4.search.
-  ...
   case H1 (keep). search.
-  ...
 
 Theorem ml/preservation : forall Sig V V' A, {ml/step V V'} -> {ml/of_term Sig V A} -> {ml/of_term Sig V' A}.
 induction on 1. intros. case H1 (keep).
@@ -217,10 +288,16 @@ case H2. case H5. apply IH to H3 H7. search.
 % WITH_2
 case H2. case H6. apply IH to H4 H7. search.
 % WITH RET
-case H2. case H6. case H8. case H10. apply of/valcase to H11 H4. case H7. case H14. inst H12 with n1 = V1. cut H16 with H15. search.
+case H2. case H6. case H8. case H10. apply of/val_case to H11 H4. case H7. case H14. inst H12 with n1 = V1. cut H16 with H15. search.
 % WITH OP
-case H2. case H6. case H8. case H10. case H7. case H13. apply of/ml/op_case to H11 H4 H14 H17.
-...
+case H2 (keep). case H6 (keep). case H8 (keep). case H10 (keep). case H7 (keep). case H13. apply of/ml/op_case to H11 H4 H14 H17.
+inst H18 with n1 = V1, n2 = (ml/fun B (y\ml/with (C y) (ml/hand H))).
+cut H19 with H15.
+assert {ml/wf_ty B}. skip.
+assert {ml/wf_ty (ml/fun_ty B (ml/comp_ty B2))}.
+assert (nabla y,{ml/of_term Sig y B |- ml/of_term Sig (ml/with (C y) (ml/hand H)) (ml/comp_ty B2)}).
+assert {ml/of_term Sig (ml/fun B (y\ml/with (C y) (ml/hand H))) (ml/fun_ty B (ml/comp_ty B2))}. 
+cut H20 with H24. search.
 % SLOW: RET_CAST
 case H2. case H4. case H5. case H7. case H9 (keep) . case H10. 
 search with unfold(ml/of_term, 1, apply H3, unfold(ml/of_term', 5, unfold(ml/of_term, 1, unfold(ml/wf_ty, 6, apply H12), unfold(ml/of_term', 11, apply H8)), unfold(ml/of_coer, 1, unfold(ml/wf_coer_ty, 1, unfold(ml/wf_ty, 6, apply H12), apply H3), unfold(ml/of_coer', 12, apply H9)))).
