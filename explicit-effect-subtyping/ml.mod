@@ -111,7 +111,7 @@ ml/of_coer' (ml/fun_coer Y1 Y2) (ml/ty_coer_ty (ml/fun_ty A1 B1) (ml/fun_ty A2 B
   ml/of_coer Y2 (ml/ty_coer_ty B1 B2).
 ml/of_coer' (ml/hand_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/hand_ty B2 B2')) :-
   ml/of_coer Y1 (ml/ty_coer_ty B2 B1),
-  ml/of_coer Y2 (ml/ty_coer_ty B1' B2').
+  ml/of_coer Y2 (ml/ty_coer_ty (ml/comp_ty B1') (ml/comp_ty B2')).
 ml/of_coer' (ml/hand2fun_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/fun_ty B2 B2')) :-
   ml/of_coer Y1 (ml/ty_coer_ty B2 B1),
   ml/of_coer Y2 (ml/ty_coer_ty (ml/comp_ty B1') B2').
@@ -330,7 +330,30 @@ ml/step (ml/with C (ml/cast V Y)) (ml/cast (ml/with (ml/cast C (ml/left_coer Y))
 ml/step (ml/with (ml/cast (ml/ret V) Y) (ml/hand H)) (Cr (ml/cast V (ml/pure_coer Y))) :-
     ml/val V,
     ml/get_ret_case H Cr.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/step_coer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/step_coer (ml/left_coer Y) (ml/left_coer Y') :-
+  ml/step_coer Y Y'.
+ml/step_coer (ml/left_coer (ml/fun_coer Y1 Y2)) Y1.
+ml/step_coer (ml/left_coer (ml/hand_coer Y1 Y2)) Y1.
+
+ml/step_coer (ml/right_coer Y) (ml/right_coer Y') :-
+  ml/step_coer Y Y'.
+ml/step_coer (ml/right_coer (ml/fun_coer Y1 Y2)) Y2.
+ml/step_coer (ml/right_coer (ml/hand_coer Y1 Y2)) Y2.
+
+ml/step_coer (ml/pure_coer Y) (ml/pure_coer Y') :-
+  ml/step_coer Y Y'.
+ml/step_coer (ml/pure_coer (ml/comp_ty_coer Y)) Y.
  
+ml/step_coer (ml/nruter_coer Y) (ml/nruter_coer Y') :-
+  ml/step_coer Y Y'.
+ml/step_coer (ml/nruter_coer (ml/return_coer Y)) Y.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/progress
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -178,6 +178,13 @@ induction on 1. intros. case H1.
   search.
   apply IH to H2. search.
 
+Theorem ml/comp_ty_less_comp_ty :
+  forall A B, {ml/less_ty (ml/comp_ty A) (ml/comp_ty B)} -> {ml/less_ty A B}.
+induction on 1. intros. case H1 (keep).
+  search.
+  apply ml/less_comp_ty to H2. search.
+  apply ml/comp_ty_less to H2. search.
+
 Theorem ml/coer_less_ty :
   forall Y A B, {ml/of_coer Y (ml/ty_coer_ty A B)} -> {ml/less_ty A B}.
 induction on 1.
@@ -185,7 +192,7 @@ intros. case H1. case H3.
   apply IH to H4. apply IH to H5. apply ml/less_ty_transitive to H6 H7. search.
   case H2. apply ml/less_ty_reflexive to H4. search.
   apply IH to H4. apply IH to H5. search.
-  apply IH to H4. apply IH to H5. search.
+  apply IH to H4. apply IH to H5. apply ml/comp_ty_less_comp_ty to H7. search.
   apply IH to H4. apply IH to H5. search. 
   apply IH to H4. case H5. search.
   apply IH to H4. case H5. search.
@@ -229,6 +236,33 @@ induction on 2. intros. case H2 (keep).
   case H1. case H8. apply ml/of_op_unique to H3 H10. search.
   case H1. case H9. apply IH to H10 H6 H3 H4.search.
   case H1 (keep). search.
+
+Theorem ml/preservation_coer : forall Y Y' A B, {ml/step_coer Y Y'} -> {ml/of_coer Y (ml/ty_coer_ty A B)} -> {ml/of_coer Y' (ml/ty_coer_ty A B)}.
+induction on 1. intros. case H1 (keep).
+  case H2 (keep). case H5. 
+     apply IH to H3 H6. search.
+     apply IH to H3 H6. search.
+  case H2 (keep). case H4. 
+     case H5. case H7. search.
+     case H5. case H7. 
+  case H2 (keep). case H4.
+     case H5. case H7.
+     case H5. case H7. search.
+
+  case H2 (keep). case H5. 
+     apply IH to H3 H6. search.
+     apply IH to H3 H6. search.
+  case H2 (keep). case H4. 
+     case H5. case H7. search.
+     case H5. case H7. 
+  case H2 (keep). case H4.
+     case H5. case H7.
+     case H5. case H7. search.
+  case H2 (keep). case H5.
+     apply IH to H3 H6. search.
+  case H2 (keep). case H4. case H5. case H7. search.
+  case H2 (keep). case H5. apply IH to H3 H6. search.
+  case H2 (keep). case H4. case H5. case H7. search.
 
 Theorem ml/preservation : forall Sig V V' A, {ml/step V V'} -> {ml/of_term Sig V A} -> {ml/of_term Sig V' A}.
 induction on 1. intros. case H1 (keep).
