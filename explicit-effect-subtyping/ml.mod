@@ -320,6 +320,21 @@ ml/step (ml/with (ml/op O V B C) (ml/hand H)) (Cop V (ml/fun B (y\ ml/with (C y)
     ml/result V,
     ml/get_op_case H O B Cop.
 
+ml/step (ml/cast V Y) (ml/cast V Y') :-
+  ml/val V,
+  ml/step_coer Y Y'.
+ml/step (ml/cast V (ml/refl_coer A)) V :-
+  ml/val V.
+ml/step (ml/cast (ml/ret V) (ml/comp_ty_coer Y)) (ml/ret (ml/cast V Y)) :-
+  ml/val V.
+ml/step (ml/cast (ml/op O V A M) (ml/comp_ty_coer Y))
+        (ml/op O V A (x\ (ml/cast (M x) (ml/comp_ty_coer Y)))) :-
+  ml/val V.
+ml/step (ml/cast V (ml/return_coer Y)) (ml/ret (ml/cast V Y)) :-
+  ml/val V.
+ml/step (ml/cast (ml/ret V) (ml/unsafe_coer Y)) (ml/cast V Y) :-
+  ml/val V.
+
 % SLOW PROOF SEARCH
 ml/step (ml/ret (ml/cast V Y)) (ml/cast (ml/ret V) (ml/comp_ty_coer Y)).
 % PROBLEMATIC RULES -- TODO:

@@ -332,6 +332,21 @@ assert {ml/wf_ty (ml/fun_ty B (ml/comp_ty B2))}.
 assert (nabla y,{ml/of_term Sig y B |- ml/of_term Sig (ml/with (C y) (ml/hand H)) (ml/comp_ty B2)}).
 assert {ml/of_term Sig (ml/fun B (y\ml/with (C y) (ml/hand H))) (ml/fun_ty B (ml/comp_ty B2))}. 
 cut H20 with H24. search.
+% CAST 2
+case H2. case H6. apply ml/preservation_coer to H4 H8. search.
+% CAST REFL
+case H2. case H5. case H7. case H9. search.
+% CAST RET COMP_TY_COER
+case H2. case H5. case H6. case H9. case H7. case H12. case H8. case H4. search.
+% CAST OP COMP_TY_COER
+case H2. case H5. case H6. case H9. case H7. case H15.
+assert {ml/of_term Sig n1 A1 |- ml/of_term Sig (ml/cast (M n1) (ml/comp_ty_coer Y)) (ml/comp_ty A5)}.
+search.
+% CAST RETURN
+case H2. case H5. case H7. case H9. case H4. search.
+% CAST UNSAFE
+case H2. case H5. case H6. case H9. case H8. case H7. case H13. search.
+...
 % SLOW: RET_CAST
 case H2. case H4. case H5. case H7. case H9 (keep) . case H10. 
 search with unfold(ml/of_term, 1, apply H3, unfold(ml/of_term', 5, unfold(ml/of_term, 1, unfold(ml/wf_ty, 6, apply H12), unfold(ml/of_term', 11, apply H8)), unfold(ml/of_coer, 1, unfold(ml/wf_coer_ty, 1, unfold(ml/wf_ty, 6, apply H12), apply H3), unfold(ml/of_coer', 12, apply H9)))).
