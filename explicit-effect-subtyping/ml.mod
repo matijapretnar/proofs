@@ -133,13 +133,13 @@ ml/of_coer' (ml/left_coer Y) (ml/ty_coer_ty A2 A1) :-
 ml/of_coer' (ml/left_coer Y) (ml/ty_coer_ty (ml/comp_ty B2) (ml/comp_ty B1)) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty B1 _) (ml/hand_ty B2 _)).
 ml/of_coer' (ml/left_coer Y) (ml/ty_coer_ty B2 B1) :-
-  ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty (ml/comp_ty B1) _) (ml/fun_ty B2 _)).
+  ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty B1 _) (ml/fun_ty B2 _)).
 ml/of_coer' (ml/right_coer Y) (ml/ty_coer_ty B1 B2) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/fun_ty _ B1) (ml/fun_ty _ B2)).
 ml/of_coer' (ml/right_coer Y) (ml/ty_coer_ty (ml/comp_ty B1) (ml/comp_ty B2)) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty _ B1) (ml/hand_ty _ B2)).
 ml/of_coer' (ml/right_coer Y) (ml/ty_coer_ty (ml/comp_ty B1) B2) :-
-  ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty _ (ml/comp_ty B1)) (ml/fun_ty _ B2)).
+  ml/of_coer Y (ml/ty_coer_ty (ml/hand_ty _ B1) (ml/fun_ty _ B2)).
 
 ml/of_coer' (ml/app_ty_coer Y A) (ml/ty_coer_ty (A1 A) (A2 A)) :-
   ml/of_coer Y (ml/ty_coer_ty (ml/all_ty A1) (ml/all_ty A2)).
@@ -391,7 +391,7 @@ ml/step_coer (ml/pure_coer (ml/refl_coer (ml/comp_ty A))) (ml/refl_coer A).
 ml/step_coer (ml/pure_coer (ml/comp_ty_coer Y)) Y :-
   ml/val_coer Y.
 ml/step_coer (ml/pure_coer (ml/return_coer (ml/refl_coer (ml/comp_ty A)))) (ml/return_coer (ml/refl_coer A)).
-ml/step_coer (ml/pure_coer (ml/return_coer (ml/comp_ty_coer Y))) (ml/pure_coer Y) :-
+ml/step_coer (ml/pure_coer (ml/return_coer (ml/comp_ty_coer Y))) (ml/return_coer Y) :-
   ml/val_coer Y.
 ml/step_coer (ml/pure_coer (ml/return_coer (ml/return_coer Y))) (ml/return_coer (ml/pure_coer (ml/return_coer Y))) :-
   ml/val_coer Y.
@@ -447,7 +447,7 @@ ml/step_coer (ml/compose_coer (ml/hand_coer Y1 Y2) (ml/hand_coer Y3 Y4)) (ml/han
   ml/val_coer Y2,
   ml/val_coer Y3,
   ml/val_coer Y4.
-ml/step_coer (ml/compose_coer (ml/hand_coer Y1 Y2) (ml/hand2fun_coer Y3 Y4)) (ml/hand2fun_coer (ml/pure_coer (ml/compose_coer Y3 Y1)) (ml/compose_coer Y2 Y4)) :-
+ml/step_coer (ml/compose_coer (ml/hand_coer Y1 Y2) (ml/hand2fun_coer Y3 Y4)) (ml/hand2fun_coer (ml/compose_coer Y3 (ml/pure_coer Y1)) (ml/compose_coer Y2 Y4)) :-
   ml/val_coer Y1,
   ml/val_coer Y2,
   ml/val_coer Y3,
