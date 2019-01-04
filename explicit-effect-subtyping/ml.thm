@@ -289,13 +289,6 @@ case H2 (keep). case H4. case H5. case H7. inst H8 with n1 = A1. search.
 case H2 (keep). case H4. case H5. case H8. inst H9 with n1 = A1. cut H10 with H6. search.
 % APP_1
 case H2. case H5.  apply IH to H3 H6. search.
-% APP_CAST
-case H2. case H4. case H5. case H8. case H9. case H12. inst H13 with n1 = (ml/cast V2 (ml/left_coer Y)).
-case H7. case H11.
-assert {ml/of_coer (ml/left_coer Y) (ml/ty_coer_ty A2 A1)}.
-assert {ml/of_term Sig (ml/cast V2 (ml/left_coer Y)) A1}.
-cut H14.
-search.
 % APP_2
 case H2. case H6. apply IH to H4 H8. search.
 % APP
@@ -346,6 +339,13 @@ search.
 case H2. case H5. case H7. case H9. case H4. search.
 % CAST UNSAFE
 case H2. case H5. case H6. case H9. case H8. case H7. case H13. search.
+% APP_CAST
+case H2. case H4. case H5. case H8. case H9. case H12. inst H13 with n1 = (ml/cast V2 (ml/left_coer Y)).
+case H7. case H11.
+assert {ml/of_coer (ml/left_coer Y) (ml/ty_coer_ty A2 A1)}.
+assert {ml/of_term Sig (ml/cast V2 (ml/left_coer Y)) A1}.
+cut H14.
+search.
 ...
 % SLOW: RET_CAST
 case H2. case H4. case H5. case H7. case H9 (keep) . case H10. 
