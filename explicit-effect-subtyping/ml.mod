@@ -484,7 +484,7 @@ ml/step_coer (ml/compose_coer (ml/return_coer Y) (ml/refl_coer A)) (ml/return_co
 ml/step_coer (ml/compose_coer (ml/return_coer Y1) (ml/comp_ty_coer Y2)) (ml/return_coer (ml/compose_coer Y1 Y2)) :-
   ml/val_coer Y1,
   ml/val_coer Y2.
-ml/step_coer (ml/compose_coer (ml/return_coer Y1) (ml/return_coer Y2)) (ml/return_coer (ml/compose_coer Y1 (ml/return_coer Y2))) :-
+ml/step_coer (ml/compose_coer (ml/return_coer Y1) (ml/return_coer Y2)) (ml/return_coer (ml/compose_coer (ml/return_coer Y1) Y2)) :-
   ml/val_coer Y1,
   ml/val_coer Y2.
 ml/step_coer (ml/compose_coer (ml/return_coer Y1) (ml/unsafe_coer Y2)) (ml/compose_coer Y1 Y2) :-
@@ -499,7 +499,7 @@ ml/step_coer (ml/fun_coer Y1 Y2)       (ml/fun_coer Y1 Y2') :-
   ml/step_coer Y2 Y2'.
 ml/step_coer (ml/hand_coer Y1 Y2)      (ml/hand_coer Y1' Y2) :-
   ml/step_coer Y1 Y1'.
-ml/step_coer (ml/hand_coer Y1 Y2)      (ml/hand_coer Y1' Y2) :-
+ml/step_coer (ml/hand_coer Y1 Y2)      (ml/hand_coer Y1 Y2') :-
   ml/step_coer Y2 Y2'.
 ml/step_coer (ml/hand2fun_coer Y1 Y2)  (ml/hand2fun_coer Y1' Y2) :-
   ml/step_coer Y1 Y1'.

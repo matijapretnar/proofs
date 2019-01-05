@@ -351,31 +351,49 @@ induction on 1. intros. case H1 (keep).
     case H9. case H10. case H12. case H14. case H7. case H11. case H13. case H19. case H20. case H21. case H22. case H23. case H24. search 8.
   case H2 (keep). case H7.
     case H6. case H8. case H9. case H12. case H13. case H14. case H15. case H10. case H11. search 8.
-...
-  case H2 (keep). case H4. 
-     apply IH to H3 H6. search.
-  case H2 (keep). case H4. 
-     case H5. case H7. search.
-     case H5. case H7. 
-  case H2 (keep). case H5. case H9.
-...
-     case H5. case H7.
-     case H5. case H7. search.
-
-  case H2 (keep). case H5. 
-     apply IH to H3 H6. search.
-     apply IH to H3 H6. search.
-  case H2 (keep). case H4. 
-     case H5. case H7. search.
-     case H5. case H7. 
+  case H2 (keep). case H6.
+    case H7. case H8. case H10. case H12. search.
+  case H2 (keep). case H7.
+    case H8. case H11. case H12. case H14. case H16. case H13. case H15. case H21. case H22. case H23. case H24. search.
+  case H2 (keep). case H6.
+    case H7. case H10. case H11. case H13. case H15. case H8. case H9. search 8.
   case H2 (keep). case H4.
-     case H5. case H7.
-     case H5. case H7. search.
+    case H5. case H8. case H9. case H11. case H13. search.
   case H2 (keep). case H5.
-     apply IH to H3 H6. search.
-  case H2 (keep). case H4. case H5. case H7. search.
-  case H2 (keep). case H5. apply IH to H3 H6. search.
-  case H2 (keep). case H4. case H5. case H7. search.
+    case H6. case H9. case H10. case H12. case H14. case H7. case H8. search.
+  case H2 (keep). case H5. 
+    case H6. case H9. case H10. case H12. case H14. case H7. case H8. case H11. case H20. search 7.
+  case H2 (keep). case H5.
+    case H6. case H9. case H10. case H12. case H14. case H7.  search.
+  case H2 (keep). case H4.
+    case H5. case H8. case H9. case H11. case H13. search.
+  case H2 (keep). case H5.
+    case H6. case H9. case H10. case H12. case H14. case H8. search.
+  case H2 (keep). case H5.
+    case H6. case H9. case H10. case H12. case H14. case H8. case H11. case H19. search 7.
+  case H2 (keep). case H5.
+    case H6. case H9. case H10. case H12. case H14. search.
+  case H2 (keep). case H5.
+    case H6. case H9. case H10. case H12. case H7. search.
+  case H2 (keep). case H5. 
+    apply IH to H3 H6. search.
+  case H2 (keep). case H5.
+    apply IH to H3 H7. search.
+  case H2 (keep). case H5. 
+    apply IH to H3 H6. search.
+  case H2 (keep). case H5.
+    apply IH to H3 H7. search.
+  case H2 (keep). case H5. 
+    apply IH to H3 H6. search.
+  case H2 (keep). case H5.
+    apply IH to H3 H7. search.
+  case H2 (keep). case H5.
+    apply IH to H3 H6. search.
+  case H2 (keep). case H5.
+    apply IH to H3 H6. search.
+  case H2 (keep). case H5.
+    apply IH to H3 H6. search.
+% QED
 
 Theorem ml/preservation : forall Sig V V' A, {ml/step V V'} -> {ml/of_term Sig V A} -> {ml/of_term Sig V' A}.
 induction on 1. intros. case H1 (keep).
