@@ -216,6 +216,18 @@ ml/val (ml/fun A M).
 ml/val (ml/lam_ty M).
 ml/val (ml/lam_coer Pi M).
 ml/val (ml/op O V _ M).
+ml/val (ml/cast V (ml/fun_coer Y1 Y2)) :-
+  ml/val V,
+  ml/val_coer Y1,
+  ml/val_coer Y2.
+ml/val (ml/cast V (ml/hand_coer Y1 Y2)) :-
+  ml/val V,
+  ml/val_coer Y1,
+  ml/val_coer Y2.
+ml/val (ml/cast V (ml/hand2fun_coer Y1 Y2)) :-
+  ml/val V,
+  ml/val_coer Y1,
+  ml/val_coer Y2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/result
@@ -223,8 +235,9 @@ ml/val (ml/op O V _ M).
 
 ml/result V :-
   ml/val V.
-ml/result (ml/cast V Cv) :-
-  ml/val V.
+
+% ml/result (ml/cast V Cv) :-
+%   ml/val V.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/result (more)
@@ -241,26 +254,93 @@ ml/result (ml/op O V _ C) :-
 % ml/step
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-ml/step (ml/cast V C) (ml/cast V' C) :-
-    ml/step V V'.
-ml/step (ml/cast (ml/cast V Y1) Y2) (ml/cast V (ml/compose_coer Y1 Y2)) :-
+ml/step (ml/app V1 V2) (ml/app V1' V2) :-
+    ml/step V1 V1'.
+ml/step (ml/app V1 V2) (ml/app V1 V2') :-
+    ml/val V1,
+    ml/step V2 V2'.
+ml/step (ml/app (ml/fun A M) V) (M V) :-
     ml/result V.
+
 ml/step (ml/app_ty V A) (ml/app_ty V' A) :-
     ml/step V V'.
+ml/step (ml/app_ty (ml/lam_ty M) A) (M A).
+
 ml/step (ml/app_coer V Y) (ml/app_coer V' Y) :-
     ml/step V V'.
-% BROKEN DUE TO UNSAFE COERCE
-% ml/step (ml/app_ty (ml/cast V Y) A) (ml/cast (ml/app_ty V A) (ml/app_ty_coer Y A)) :-
-%     ml/val V.
-% FIX:
-ml/step (ml/app_ty (ml/cast (ml/lam_ty M) Y) A) (ml/cast (M A) (ml/app_ty_coer Y A)).
-% BROKEN DUE TO UNSAFE COERCE
-% ml/step (ml/app_coer (ml/cast V Y1) Y2) (ml/cast (ml/app_coer V Y2) (ml/app_coer_coer Y1 Y2)) :-
-%     ml/val V.
-% FIX:
-ml/step (ml/app_coer (ml/cast (ml/lam_coer Pi M) Y1) Y2) (ml/cast (M Y2) (ml/app_coer_coer Y1 Y2)).
-ml/step (ml/app_ty (ml/lam_ty M) A) (M A).
-ml/step (ml/app_coer (ml/lam_coer Pi M) A) (M A).
+ml/step (ml/app_coer V Y) (ml/app_coer V Y') :-
+    ml/step_coer Y Y'.
+ml/step (ml/app_coer (ml/lam_coer Pi M) Y) (M Y).
+
+ml/step (ml/let V M) (ml/let V' M) :-
+    ml/step V V'.
+ml/step (ml/let V M) (M V) :-
+    ml/result V.
+
+ml/step (ml/ret V) (ml/ret V') :-
+    ml/step V V'.
+
+ml/step (ml/op O V B M) (ml/op O V' B M) :-
+    ml/step V V'.
+
+ml/step (ml/do V M) (ml/do V' M) :-
+    ml/step V V'.
+ml/step (ml/do (ml/ret V) M) (M V) :-
+    ml/result V.
+ml/step (ml/do (ml/op O V B M1) M2) (ml/op O V B (y\ ml/do (M1 y) M2)) :-
+    ml/result V.
+
+ml/step (ml/with C V) (ml/with C V') :-
+    ml/step V V'.
+ml/step (ml/with C V) (ml/with C' V) :-
+    ml/val V,
+    ml/step C C'.
+ml/step (ml/with (ml/ret V) (ml/hand H)) (Cr V) :-
+    ml/val V,
+    ml/get_ret_case H Cr.
+ml/step (ml/with (ml/op O V B C) (ml/hand H)) (Cop V (ml/fun B (y\ ml/with (C y) (ml/hand H)))) :-
+    ml/result V,
+    ml/get_op_case H O B Cop.
+
+ml/step (ml/cast V C) (ml/cast V' C) :-
+    ml/step V V'.
+ml/step (ml/cast V Y) (ml/cast V Y') :-
+  ml/val V,
+  ml/step_coer Y Y'.
+
+ml/step (ml/cast V (ml/refl_coer A)) V :-
+  ml/val V. 
+ml/step (ml/cast (ml/ret V) (ml/comp_ty_coer Y)) (ml/ret (ml/cast V Y)) :-
+  ml/val V,
+  ml/val_coer Y.
+ml/step (ml/cast (ml/op O V A M) (ml/comp_ty_coer Y))
+        (ml/op O V A (x\ (ml/cast (M x) (ml/comp_ty_coer Y)))) :-
+  ml/val V,
+  ml/val_coer Y.
+ml/step (ml/cast V (ml/return_coer Y)) (ml/ret (ml/cast V Y)) :-
+  ml/val V,
+  ml/val_coer Y.
+ml/step (ml/cast (ml/ret V) (ml/unsafe_coer Y)) (ml/cast V Y) :-
+  ml/val V,
+  ml/val_coer Y.
+
+ml/step (ml/app (ml/cast V1 (ml/fun_coer Y1 Y2)) V2) (ml/cast (ml/app V1 (ml/cast V2 Y1)) Y2) :-
+  ml/val V1,
+  ml/val V2,
+  ml/val_coer Y1,
+  ml/val_coer Y2.
+
+ml/step (ml/with V1 (ml/cast V2 (ml/hand_coer Y1 Y2))) (ml/cast (ml/with (ml/cast V1 Y1) V2) Y2) :-
+  ml/val V1,
+  ml/val V2,
+  ml/val_coer Y1,
+  ml/val_coer Y2.
+
+ml/step (ml/app (ml/cast V1 (ml/hand2fun_coer Y1 Y2)) V2) (ml/cast (ml/with (ml/ret (ml/cast V2 Y1)) V1) Y2) :-
+  ml/val V1,
+  ml/val V2,
+  ml/val_coer Y1,
+  ml/val_coer Y2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/get_ret_case
@@ -281,78 +361,6 @@ ml/get_op_case (ml/op_case O' _ H) O A M :-
     ml/get_op_case H O A M.
 ml/get_op_case (ml/ret_case _ _) O A (x\ k\ ml/op O x A (y\ ml/app k y)).
  
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ml/step (more)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ml/step (ml/app V1 V2) (ml/app V1' V2) :-
-    ml/step V1 V1'.
-ml/step (ml/app V1 V2) (ml/app V1 V2') :-
-    ml/val V1,
-    ml/step V2 V2'.
-ml/step (ml/app (ml/fun A M) V) (M V) :-
-    ml/result V.
-ml/step (ml/let V C) (ml/let V' C) :-
-    ml/step V V'.
-ml/step (ml/let V C) (C V) :-
-    ml/result V.
-ml/step (ml/ret V) (ml/ret V') :-
-    ml/step V V'.
-ml/step (ml/op O V B C) (ml/op O V' B C) :-
-    ml/step V V'.
-ml/step (ml/do C1 C2) (ml/do C1' C2) :-
-    ml/step C1 C1'.
-ml/step (ml/do (ml/cast (ml/ret V) Y) C2) (C2 (ml/cast V (ml/pure_coer Y))) :-
-    ml/val V.
-ml/step (ml/do (ml/ret V) C2) (C2 V) :-
-    ml/val V.
-ml/step (ml/do (ml/op O V B C1) C2) (ml/op O V B (y\ ml/do (C1 y) C2)) :-
-    ml/result V.
-ml/step (ml/with C V) (ml/with C V') :-
-    ml/step V V'.
-ml/step (ml/with C V) (ml/with C' V) :-
-    ml/val V,
-    ml/step C C'.
-ml/step (ml/with (ml/ret V) (ml/hand H)) (Cr V) :-
-    ml/val V,
-    ml/get_ret_case H Cr.
-ml/step (ml/with (ml/op O V B C) (ml/hand H)) (Cop V (ml/fun B (y\ ml/with (C y) (ml/hand H)))) :-
-    ml/result V,
-    ml/get_op_case H O B Cop.
-
-ml/step (ml/cast V Y) (ml/cast V Y') :-
-  ml/val V,
-  ml/step_coer Y Y'.
-ml/step (ml/cast V (ml/refl_coer A)) V :-
-  ml/val V.
-ml/step (ml/cast (ml/ret V) (ml/comp_ty_coer Y)) (ml/ret (ml/cast V Y)) :-
-  ml/val V.
-ml/step (ml/cast (ml/op O V A M) (ml/comp_ty_coer Y))
-        (ml/op O V A (x\ (ml/cast (M x) (ml/comp_ty_coer Y)))) :-
-  ml/val V.
-ml/step (ml/cast V (ml/return_coer Y)) (ml/ret (ml/cast V Y)) :-
-  ml/val V.
-ml/step (ml/cast (ml/ret V) (ml/unsafe_coer Y)) (ml/cast V Y) :-
-  ml/val V.
-% BROKEN LIKE BEFORE?
-% ml/step (ml/app (ml/cast V1 Vc) V2) (ml/cast (ml/app V1 (ml/cast V2 (ml/left_coer Vc))) (ml/right_coer Vc)) :-
-%     ml/val V1.
-% FIX:
-ml/step (ml/app (ml/cast (ml/fun A M) Y) V2) (ml/cast (M (ml/cast V2 (ml/left_coer Y))) (ml/right_coer Y)).
-
-% SLOW PROOF SEARCH
-ml/step (ml/ret (ml/cast V Y)) (ml/cast (ml/ret V) (ml/comp_ty_coer Y)).
-% PROBLEMATIC RULES -- TODO:
-ml/step (ml/cast (ml/op O V B C) Y) (ml/op O V B (y\ ml/cast (C y) Y)) :-
-    ml/result V.
-ml/step (ml/with C (ml/cast V Y)) (ml/cast (ml/with (ml/cast C (ml/left_coer Y)) V) (ml/right_coer Y)) :-
-    ml/val V.
-ml/step (ml/with (ml/cast (ml/ret V) Y) (ml/hand H)) (Cr (ml/cast V (ml/pure_coer Y))) :-
-    ml/val V,
-    ml/get_ret_case H Cr.
-
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/step_coer
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -513,7 +521,7 @@ ml/step_coer (ml/unsafe_coer Y)        (ml/unsafe_coer Y') :-
   ml/step_coer Y Y'.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ml/progress
+% ml/val_coer
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ml/val_coer (ml/refl_coer _).
@@ -533,12 +541,30 @@ ml/val_coer (ml/return_coer Y) :-
 ml/val_coer (ml/unsafe_coer Y) :-
   ml/val_coer Y.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/progress_coer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 ml/progress_coer Y :-
   ml/val_coer Y.
 ml/progress_coer Y :-
   ml/step_coer Y Y'.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/stuck
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/stuck (ml/cast (ml/op O V B C) (ml/unsafe_coer Y)) :-
+    ml/result V,
+    ml/val_coer Y.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/progress
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 ml/progress V :-
     ml/result V.
 ml/progress V :-
     ml/step V V'.
+ml/progress V :-
+    ml/stuck V.

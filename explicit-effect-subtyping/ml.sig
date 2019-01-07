@@ -107,4 +107,5 @@ type  ml/result                ml/term -> o.
 type  ml/get_ret_case          ml/hand -> (ml/term -> ml/term) -> o.
 type  ml/get_op_case           ml/hand -> op -> ml/ty -> (ml/term -> ml/term -> ml/term) -> o.
 type  ml/progress_coer 	       ml/coer -> o.
+type  ml/stuck		       ml/term -> o.
 type  ml/progress              ml/term -> o.
