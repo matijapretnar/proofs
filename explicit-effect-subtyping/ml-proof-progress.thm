@@ -6,6 +6,33 @@ Close ml/ty, ml/coer_ty.
 Set subgoals off.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Theorem ml/progress_get_ret_case :
+  forall Sig H A B,
+    {ml/of_hand Sig H A B} ->
+    exists M, {ml/get_ret_case H M}.
+induction on 1. intros. case H1 (keep). case H4.
+  exists T. search.
+  apply IH to H5.
+  exists M. search.
+
+Theorem op_comparable : forall O O', {is_op O} -> {is_op O'} -> O = O' \/ {apart O O'}.
+induction on 1. intros.
+case H1.
+  case H2. search. search.
+  case H2. search. apply IH to H3 H4. case H5. search. search.
+
+Theorem ml/progress_get_op_case :
+  forall Sig H A1 A2 B,
+    {ml/of_hand Sig H A1 A2} ->
+    forall O, {is_op O} -> 
+    exists M, {ml/get_op_case H O B M}.
+induction on 1. intros. case H1 (keep). case H5.
+  exists ((x\ k\ ml/op O x B (y\ ml/app k y))). search.
+  apply op_comparable to H2 H9. case H10.
+    exists T. search.
+    apply IH to H6 with B = B. apply H12 to H2. search.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem ml/progress_coer_thm :
   forall Y A B,
@@ -214,5 +241,164 @@ induction on 1. intros. case H1. case H3 (keep).
 % QED
 
 Theorem ml/progress_thm :
-  forall ,
+  forall Sig V A,
     {ml/of_term Sig V A} -> {ml/progress V}.
+induction on 1. intros. case H1 (keep). case H3.
+% UNIT
+search.
+% FUN
+search.
+% LAM_TY
+search.
+% APP_TY
+apply IH to H4. case H5.
+  case H6. 
+    case H4. case H8.
+    case H4. case H8.
+    case H4. case H8.
+    search.
+    case H4. case H8.
+    case H4. case H11. case H13. case H15.
+    case H4. case H11. case H13. case H15.
+    case H4. case H11. case H13. case H15.
+    case H4. case H9.
+    case H4. case H9.
+  search.
+  search.
+% CAST
+apply IH to H4. case H6.
+  apply ml/progress_coer_thm to H5. case H8.
+    case H9.
+      % REFL_COER
+      search.
+      % FUN_COER 
+      search.
+      % HAND_COER 
+      search.
+      % HAND2FUN_COER 
+      search.
+      % COMP_TY_COER
+      case H5. case H12. case H7.
+        case H4. case H15.
+        case H4. case H15.
+        case H4. case H15.
+        case H4. case H15.
+        case H4. case H15.
+        case H4. case H18. case H20. case H22.
+        case H4. case H18. case H20. case H22.
+        case H4. case H18. case H20. case H22.
+        search.
+        search.
+      % RETURN_COER
+      search.
+      case H5. case H12. case H7.
+        case H4. case H15.
+        case H4. case H15.
+        case H4. case H15.
+        case H4. case H15.
+        case H4. case H15.
+        case H4. case H18. case H20. case H22.
+        case H4. case H18. case H20. case H22.
+        case H4. case H18. case H20. case H22.
+        search.
+        search.
+    search.
+  search.
+  search.
+% HAND
+search.
+% LAM_COER
+search.
+% APP_COER
+apply IH to H4. case H6.
+  case H7.
+    case H4. case H9.
+    case H4. case H9.
+    case H4. case H9.
+    case H4. case H9.
+    search.
+    case H4. case H12. case H14. case H16.
+    case H4. case H12. case H14. case H16.
+    case H4. case H12. case H14. case H16.
+    case H4. case H10.
+    case H4. case H10.
+  search.
+  search.
+% APP
+apply IH to H4. case H6.
+  apply IH to H5. case H8.
+    case H7.
+      case H4. case H11.
+      case H4. case H11.
+      search.
+      case H4. case H11.
+      case H4. case H11.
+      search.
+      case H4. case H14. case H16. case H18.
+      search.
+      case H4. case H12.
+      case H4. case H12.
+    search.
+    search.
+  search.
+  search.
+% LET
+apply IH to H4. case H6.
+  search.
+  search.
+  search.
+% RET
+apply IH to H4. case H5.
+  search.
+  search.
+  search.
+% OP
+apply IH to H5. case H8.
+  search.
+  search.
+  search.
+% DO
+apply IH to H4. case H6.
+  case H7.
+    case H4. case H9.
+    case H4. case H9.
+    case H4. case H9.
+    case H4. case H9.
+    case H4. case H9.
+    case H4. case H12. case H14. case H16.
+    case H4. case H12. case H14. case H16.
+    case H4. case H12. case H14. case H16.
+    search.
+    search.
+  search.
+  search.
+% WITH
+apply IH to H5. case H6. 
+  apply IH to H4. case H8.
+    case H7.
+      case H5. case H11.
+      case H9.
+        case H4. case H11.
+        case H4. case H11.
+        case H4. case H11.
+        case H4. case H11.
+        case H4. case H11.
+        case H4. case H14. case H16. case H18.
+        case H4. case H14. case H16. case H18.
+        case H4. case H14. case H16. case H18.
+        case H5. case H12. apply ml/progress_get_ret_case to H13. search.
+        case H5. case H12. case H4. case H15. apply ml/progress_get_op_case to H13 with B = X.
+          apply H20 to H19. search.
+        case H5. case H11.
+        case H5. case H11.
+        case H5. case H11.
+        case H5. case H14. case H16. case H18.
+        search.
+        case H5. case H14. case H16. case H18.
+        case H5. case H12.
+        case H5. case H12.
+     search.
+     search.
+  search.
+  search.
+% QED

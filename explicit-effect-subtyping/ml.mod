@@ -215,7 +215,6 @@ ml/val (ml/hand H).
 ml/val (ml/fun A M).
 ml/val (ml/lam_ty M).
 ml/val (ml/lam_coer Pi M).
-ml/val (ml/op O V _ M).
 ml/val (ml/cast V (ml/fun_coer Y1 Y2)) :-
   ml/val V,
   ml/val_coer Y1,
@@ -229,26 +228,10 @@ ml/val (ml/cast V (ml/hand2fun_coer Y1 Y2)) :-
   ml/val_coer Y1,
   ml/val_coer Y2.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ml/result
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ml/result V :-
+ml/val (ml/ret V) :-
   ml/val V.
-
-% ml/result (ml/cast V Cv) :-
-%   ml/val V.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ml/result (more)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-ml/result (ml/ret V) :-
+ml/val(ml/op O V _ C) :-
   ml/val V.
-ml/result (ml/cast (ml/ret V) Cc) :-
-  ml/val V.
-ml/result (ml/op O V _ C) :-
-  ml/result V.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/step
@@ -260,7 +243,7 @@ ml/step (ml/app V1 V2) (ml/app V1 V2') :-
     ml/val V1,
     ml/step V2 V2'.
 ml/step (ml/app (ml/fun A M) V) (M V) :-
-    ml/result V.
+    ml/val V.
 
 ml/step (ml/app_ty V A) (ml/app_ty V' A) :-
     ml/step V V'.
@@ -275,7 +258,7 @@ ml/step (ml/app_coer (ml/lam_coer Pi M) Y) (M Y).
 ml/step (ml/let V M) (ml/let V' M) :-
     ml/step V V'.
 ml/step (ml/let V M) (M V) :-
-    ml/result V.
+    ml/val V.
 
 ml/step (ml/ret V) (ml/ret V') :-
     ml/step V V'.
@@ -286,9 +269,9 @@ ml/step (ml/op O V B M) (ml/op O V' B M) :-
 ml/step (ml/do V M) (ml/do V' M) :-
     ml/step V V'.
 ml/step (ml/do (ml/ret V) M) (M V) :-
-    ml/result V.
+    ml/val V.
 ml/step (ml/do (ml/op O V B M1) M2) (ml/op O V B (y\ ml/do (M1 y) M2)) :-
-    ml/result V.
+    ml/val V.
 
 ml/step (ml/with C V) (ml/with C V') :-
     ml/step V V'.
@@ -299,7 +282,7 @@ ml/step (ml/with (ml/ret V) (ml/hand H)) (Cr V) :-
     ml/val V,
     ml/get_ret_case H Cr.
 ml/step (ml/with (ml/op O V B C) (ml/hand H)) (Cop V (ml/fun B (y\ ml/with (C y) (ml/hand H)))) :-
-    ml/result V,
+    ml/val V,
     ml/get_op_case H O B Cop.
 
 ml/step (ml/cast V C) (ml/cast V' C) :-
@@ -555,15 +538,39 @@ ml/progress_coer Y :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ml/stuck (ml/cast (ml/op O V B C) (ml/unsafe_coer Y)) :-
-    ml/result V,
+    ml/val V,
     ml/val_coer Y.
+ml/stuck (ml/app_ty V A) :-
+    ml/stuck V.
+ml/stuck (ml/cast V Y) :-
+  ml/stuck V.
+ml/stuck (ml/app_coer V Y) :-
+  ml/stuck V.
+ml/stuck (ml/app V1 V2) :-
+  ml/val V1,
+  ml/stuck V2.
+ml/stuck (ml/app V1 V2) :-
+  ml/stuck V1.
+ml/stuck (ml/let V M) :-
+  ml/stuck V.
+ml/stuck (ml/ret V) :-
+  ml/stuck V.
+ml/stuck (ml/op O V A M) :-
+  ml/stuck V.
+ml/stuck (ml/do V M) :-
+  ml/stuck V.
+ml/stuck (ml/with V1 V2) :-
+  ml/stuck V2.
+ml/stuck (ml/with V1 V2) :-
+  ml/val V2,
+  ml/stuck V1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ml/progress
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ml/progress V :-
-    ml/result V.
+    ml/val V.
 ml/progress V :-
     ml/step V V'.
 ml/progress V :-
