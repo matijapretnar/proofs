@@ -19,12 +19,16 @@ induction on 2. intros. case H2.
   case H1. apply exp/of_op_unique to H3 H8. search.
   case H1. case H4. apply apart_not_reflexive to H6. apply IH to H8 H7 H3 H12 H5. search.
 
+Theorem in_less_dirt :
+  forall O Y D1 D2, {in_dirt O D1} -> {exp/of_coer Y (exp/dirt_coer_ty D1 D2)} -> {in_dirt O D2}.
+induction on 1. intros. case H1.
+ case H2. search. search.
+ case H2. search. apply IH to H3 H4. search.
+
 Theorem exp/val_preservation : forall Sig V V' A, {exp/step_val V V'} -> {exp/of_val Sig V A} -> {exp/of_val Sig V' A}.
 induction on 1. intros. case H1.
 % COERCE
 case H2. apply IH to H3 H4. search.
-% COMPOSE
-case H2. case H4. search.
 % APP_SKEL
 case H2. apply IH to H3 H4. search.
 % APP_TY
@@ -34,13 +38,13 @@ case H2. apply IH to H3 H4. search.
 % APP_COER
 case H2. apply IH to H3 H4. search.
 % coerced APP_SKEL
-case H2. case H4. apply exp/coer_less_val_ty to H6. case H7. search.
+case H2. case H4. case H6. inst H7 with n1 = S. search.
 % coerced APP_TY
-case H2. case H4. apply exp/coer_less_val_ty to H7. case H8. search.
+case H2. case H4. case H7. inst H8 with n1 = A1. cut H9. search.
 % coerced APP_DIRT
-case H2. case H4. apply exp/coer_less_val_ty to H6. case H7. search.
+case H2. case H4. case H6. inst H7 with n1 = D. search.
 % coerced APP_COER
-case H2. case H4. apply exp/coer_less_val_ty to H7. case H8. search.
+case H2. case H4. case H7. search.
 % APP_SKEL reduce
 case H2. case H3. inst H4 with n1 = S. search.
 % APP_TY reduce
@@ -50,16 +54,19 @@ case H2. case H3. inst H4 with n1 = A1. search.
 % APP_COER reduce
 case H2. case H3. inst H5 with n1 = A1. cut H7. search.
 
+Theorem exp/extract_value_preservation : forall Sig C A D V, {exp/of_comp Sig C (exp/bang A D)} -> {exp/extract_value C V} -> {exp/of_val Sig V A}.
+induction on 2. intros. case H2.
+  case H1. case H5. apply IH to H4 H3. search.
+  case H1. search.
+
 Theorem exp/comp_preservation : forall Sig C C' A, {exp/step_comp C C'} -> {exp/of_comp Sig C A} -> {exp/of_comp Sig C' A}.
 induction on 1. intros. case H1.
 % COERCE
 case H2. apply IH to H3 H4. search.
-% COMPOSE
-case H2. case H4. search.
 % APP V1-step
 case H2. apply exp/val_preservation to H3 H4. search.
 % APP V1-exp/coer
-case H2. case H4. apply exp/coer_less_val_ty to H7. case H8. search.
+case H2. case H4. case H7. search.
 % APP V2-step
 case H2. apply exp/val_preservation to H4 H6. search.
 % APP beta
@@ -70,33 +77,25 @@ case H2. apply exp/val_preservation to H3 H4. search.
 case H2. inst H5 with n1 = V. cut H6. search.
 % RETURN V-step
 case H2. apply exp/val_preservation to H3 H4. search.
-% RETURN coerce
-case H2. case H3. search.
 % OP V-step
 case H2. apply exp/val_preservation to H3 H5. search.
 % OP-coerce
-case H2. case H4. apply exp/coer_less_comp_ty to H5. case H11.
-apply in_less_dirt to H9 H13.
+case H2. case H4. case H5. apply in_less_dirt to H9 H12.
 search.
 % DO C1-step
 case H2. apply IH to H3 H4. search.
-% DO cast_ret
-case H2. case H4. apply exp/coer_less_comp_ty to H7. case H8.
-  case H6. inst H5 with n1 = (exp/val_cast V (exp/pure_coer Y)). cut H12. search.
-% DO exp/ret
-case H2. case H4. inst H5 with n1 = V. cut H7. search.
+% DO value
+case H2. apply exp/extract_value_preservation to H4 H3. inst H5 with n1 = V. cut H7. search.
 % DO op
 case H2. case H4. search.
 % HANDLE V-step
 case H2. apply exp/val_preservation to H3 H5. search.
 % HANDLE V-cast
-case H2. case H5. apply exp/coer_less_val_ty to H7. case H8. search.
+case H2. case H5. case H7. search.
 % HANDLE C-step
 case H2. apply IH to H4 H5. search.
-% HANDLE exp/ret
-case H2. case H6. apply of/valcase to H7 H4. inst H8 with n1 = V. case H5. cut H9. search.
-% HANDLE exp/ret-exp/coer
-case H2. case H6. apply of/valcase to H7 H4. inst H8 with n1 = (exp/val_cast V (exp/pure_coer Y)). case H5. case H10. cut H9. search.
+% HANDLE value
+case H2. case H6. apply exp/extract_value_preservation to H5 H3. apply of/valcase to H7 H4. inst H9 with n1 = V. cut H10. search.
 % HANDLE op
 case H2. case H6. case H5. apply of/exp/op_case to H7 H4 H8 H11 H12.
 assert {exp/of_val Sig (exp/fun B (y\exp/with (C1 y) (exp/hand H))) (exp/fun_ty B A)}.

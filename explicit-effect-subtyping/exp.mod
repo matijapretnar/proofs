@@ -2,30 +2,6 @@ module exp.
 accumulate common.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% exp/less_val_ty, exp/less_comp_ty
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-exp/less_val_ty exp/unit_ty exp/unit_ty.
-exp/less_val_ty (exp/fun_ty A1 C1) (exp/fun_ty A2 C2) :-
-  exp/less_val_ty A2 A1,
-  exp/less_comp_ty C1 C2.
-exp/less_val_ty (exp/hand_ty A1 C1) (exp/hand_ty A2 C2) :-
-  exp/less_comp_ty A2 A1,
-  exp/less_comp_ty C1 C2.
-exp/less_val_ty (exp/all_ty S A1) (exp/all_ty S A2) :-
-  pi a\ exp/less_val_ty (A1 a) (A2 a).
-exp/less_val_ty (exp/all_dirt A1) (exp/all_dirt A2) :-
-  pi a\ exp/less_val_ty (A1 a) (A2 a).
-exp/less_val_ty (exp/all_skel A1) (exp/all_skel A2) :-
-  pi a\ exp/less_val_ty (A1 a) (A2 a).
-exp/less_val_ty (exp/qual_ty Pi A1) (exp/qual_ty Pi A2) :-
-  exp/less_val_ty A1 A2.
-
-exp/less_comp_ty (exp/bang A1 D1) (exp/bang A2 D2) :-
-  exp/less_val_ty A1 A2,
-  less_dirt D1 D2.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % exp/of_op
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -69,16 +45,6 @@ exp/good_coer_ty (exp/dirt_coer_ty D1 D2).
 % exp/of_coer
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-exp/of_coer (exp/compose_coer Y1 Y2) (exp/val_ty_coer_ty A1 A3) :-
-  exp/of_coer Y1 (exp/val_ty_coer_ty A1 A2),
-  exp/of_coer Y2 (exp/val_ty_coer_ty A2 A3).
-exp/of_coer (exp/compose_coer Y1 Y2) (exp/dirt_coer_ty D1 D3) :-
-  exp/of_coer Y1 (exp/dirt_coer_ty D1 D2),
-  exp/of_coer Y2 (exp/dirt_coer_ty D2 D3).
-exp/of_coer (exp/compose_coer Y1 Y2) (exp/comp_ty_coer_ty B1 B3) :-
-  exp/of_coer Y1 (exp/comp_ty_coer_ty B1 B2),
-  exp/of_coer Y2 (exp/comp_ty_coer_ty B2 B3).
-
 % exp/of_coer (exp/val_ty_coer A) (exp/val_ty_coer_ty A A).
 exp/of_coer (exp/fun_coer Y1 Y2) (exp/val_ty_coer_ty (exp/fun_ty A1 B1) (exp/fun_ty A2 B2)) :-
   exp/of_coer Y1 (exp/val_ty_coer_ty A2 A1),
@@ -87,33 +53,18 @@ exp/of_coer (exp/hand_coer Y1 Y2) (exp/val_ty_coer_ty (exp/hand_ty B1 B1') (exp/
   exp/of_coer Y1 (exp/comp_ty_coer_ty B2 B1),
   exp/of_coer Y2 (exp/comp_ty_coer_ty B1' B2').
 
-exp/of_coer (exp/left_coer Y) (exp/val_ty_coer_ty A2 A1) :-
-  exp/of_coer Y (exp/val_ty_coer_ty (exp/fun_ty A1 _) (exp/fun_ty A2 _)).
-exp/of_coer (exp/left_coer Y) (exp/comp_ty_coer_ty B2 B1) :-
-  exp/of_coer Y (exp/val_ty_coer_ty (exp/hand_ty B1 _) (exp/hand_ty B2 _)).
-exp/of_coer (exp/right_coer Y) (exp/comp_ty_coer_ty B1 B2) :-
-  exp/of_coer Y (exp/val_ty_coer_ty (exp/fun_ty _ B1) (exp/fun_ty _ B2)).
-exp/of_coer (exp/right_coer Y) (exp/comp_ty_coer_ty B1 B2) :-
-  exp/of_coer Y (exp/val_ty_coer_ty (exp/hand_ty _ B1) (exp/hand_ty _ B2)).
-
-exp/of_coer (exp/app_skel_coer Y S) (exp/val_ty_coer_ty (A1 S) (A2 S)) :-
-  exp/of_coer Y (exp/val_ty_coer_ty (exp/all_skel A1) (exp/all_skel A2)).
-exp/of_coer (exp/app_ty_coer Y A) (exp/val_ty_coer_ty (A1 A) (A2 A)) :-
-  exp/of_coer Y (exp/val_ty_coer_ty (exp/all_ty S A1) (exp/all_ty S A2)),
-  exp/skel_val_ty A S.
-exp/of_coer (exp/app_dirt_coer Y D) (exp/val_ty_coer_ty (A1 D) (A2 D)) :-
-  exp/of_coer Y (exp/val_ty_coer_ty (exp/all_dirt A1) (exp/all_dirt A2)).
-exp/of_coer (exp/app_coer_coer Y1 Y2) (exp/val_ty_coer_ty A1 A2) :-
-  exp/of_coer Y1 (exp/val_ty_coer_ty (exp/qual_ty Pi A1) (exp/qual_ty Pi A2)),
-  exp/of_coer Y2 Pi.
+exp/of_coer (exp/lam_skel_coer Y) (exp/val_ty_coer_ty (exp/all_skel A1) (exp/all_skel A2)) :-
+  pi s\ exp/of_coer (Y s) (exp/val_ty_coer_ty (A1 s) (A2 s)).
+exp/of_coer (exp/lam_ty_coer Y) (exp/val_ty_coer_ty (exp/all_ty S A1) (exp/all_ty S A2)) :-
+  pi a\ exp/skel_val_ty a S => exp/of_coer (Y a) (exp/val_ty_coer_ty (A1 a) (A2 a)).
+exp/of_coer (exp/lam_dirt_coer Y) (exp/val_ty_coer_ty (exp/all_dirt A1) (exp/all_dirt A2)) :-
+  pi d\ exp/of_coer (Y d) (exp/val_ty_coer_ty (A1 d) (A2 d)).
+exp/of_coer (exp/lam_coer_coer Pi Y) (exp/val_ty_coer_ty (exp/qual_ty Pi A1) (exp/qual_ty Pi A2)) :-
+  exp/of_coer Y (exp/val_ty_coer_ty A1 A2).
 
 exp/of_coer (exp/comp_ty_coer Y1 Y2) (exp/comp_ty_coer_ty (exp/bang A1 D1) (exp/bang A2 D2)) :-
   exp/of_coer Y1 (exp/val_ty_coer_ty A1 A2),
   exp/of_coer Y2 (exp/dirt_coer_ty D1 D2).
-exp/of_coer (exp/pure_coer Y) (exp/val_ty_coer_ty A1 A2) :-
-  exp/of_coer Y (exp/comp_ty_coer_ty (exp/bang A1 _) (exp/bang A2 _)).
-exp/of_coer (exp/impure_coer Y) (exp/dirt_coer_ty D1 D2) :-
-  exp/of_coer Y (exp/comp_ty_coer_ty (exp/bang _ D1) (exp/bang _ D2)).
 
 exp/of_coer (exp/dirt_coer D) (exp/dirt_coer_ty D D) :-
   is_dirt D.
@@ -206,17 +157,25 @@ exp/term_val (exp/lam_coer Pi M).
 exp/result_val V :-
   exp/term_val V.
 exp/result_val (exp/val_cast V Cv) :-
-  exp/term_val V.
+  exp/result_val V.
+
+exp/terminal_comp (exp/ret V) :-
+  exp/result_val V.
+exp/terminal_comp (exp/comp_cast C (exp/comp_ty_coer Y1 Y2)) :-
+  exp/terminal_comp C.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % exp/result_comp
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-exp/result_comp (exp/ret V) :-
-  exp/term_val V.
-exp/result_comp (exp/comp_cast (exp/ret V) Cc) :-
-  exp/term_val V.
+exp/result_comp C :-
+  exp/terminal_comp C.
 exp/result_comp (exp/op O V _ C) :-
+  exp/result_val V.
+
+exp/extract_value (exp/comp_cast C (exp/comp_ty_coer Y _)) (exp/val_cast V Y) :-
+  exp/extract_value C V.
+exp/extract_value (exp/ret V) V :-
   exp/result_val V.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,8 +184,6 @@ exp/result_comp (exp/op O V _ C) :-
 
 exp/step_val (exp/val_cast V C) (exp/val_cast V' C) :-
     exp/step_val V V'.
-exp/step_val (exp/val_cast (exp/val_cast V C1) C2) (exp/val_cast V (exp/compose_coer C1 C2)) :-
-    exp/result_val V.
 exp/step_val (exp/app_skel V A) (exp/app_skel V' A) :-
     exp/step_val V V'.
 exp/step_val (exp/app_ty V A) (exp/app_ty V' A) :-
@@ -235,14 +192,14 @@ exp/step_val (exp/app_dirt V A) (exp/app_dirt V' A) :-
     exp/step_val V V'.
 exp/step_val (exp/app_coer V A) (exp/app_coer V' A) :-
     exp/step_val V V'.
-exp/step_val (exp/app_skel (exp/val_cast V Y) A) (exp/val_cast (exp/app_skel V A) (exp/app_skel_coer Y A)) :-
-    exp/term_val V.
-exp/step_val (exp/app_ty (exp/val_cast V Y) A) (exp/val_cast (exp/app_ty V A) (exp/app_ty_coer Y A)) :-
-    exp/term_val V.
-exp/step_val (exp/app_dirt (exp/val_cast V Y) A) (exp/val_cast (exp/app_dirt V A) (exp/app_dirt_coer Y A)) :-
-    exp/term_val V.
-exp/step_val (exp/app_coer (exp/val_cast V Y) A) (exp/val_cast (exp/app_coer V A) (exp/app_coer_coer Y A)) :-
-    exp/term_val V.
+exp/step_val (exp/app_skel (exp/val_cast V (exp/lam_skel_coer Y)) S) (exp/val_cast (exp/app_skel V S) (Y S)) :-
+    exp/result_val V.
+exp/step_val (exp/app_ty (exp/val_cast V (exp/lam_ty_coer Y)) A) (exp/val_cast (exp/app_ty V A) (Y A)) :-
+    exp/result_val V.
+exp/step_val (exp/app_dirt (exp/val_cast V (exp/lam_dirt_coer Y)) D) (exp/val_cast (exp/app_dirt V D) (Y D)) :-
+    exp/result_val V.
+exp/step_val (exp/app_coer (exp/val_cast V (exp/lam_coer_coer _ Y1)) Y2) (exp/val_cast (exp/app_coer V Y2) Y1) :-
+    exp/result_val V.
 exp/step_val (exp/app_skel (exp/lam_skel M) S) (M S).
 exp/step_val (exp/app_ty (exp/lam_ty S M) A) (M A) :-
     exp/skel_val_ty A S.
@@ -274,12 +231,10 @@ exp/get_op_case (exp/op_case O' _ H) O A M :-
 
 exp/step_comp (exp/comp_cast C Y) (exp/comp_cast C' Y) :-
     exp/step_comp C C'.
-exp/step_comp (exp/comp_cast (exp/comp_cast C Y1) Y2) (exp/comp_cast C (exp/compose_coer Y1 Y2)) :-
-    exp/result_comp C.
 exp/step_comp (exp/app V1 V2) (exp/app V1' V2) :-
     exp/step_val V1 V1'.
-exp/step_comp (exp/app (exp/val_cast V1 Vc) V2) (exp/comp_cast (exp/app V1 (exp/val_cast V2 (exp/left_coer Vc))) (exp/right_coer Vc)) :-
-    exp/term_val V1.
+exp/step_comp (exp/app (exp/val_cast V1 (exp/fun_coer Vc1 Vc2)) V2) (exp/comp_cast (exp/app V1 (exp/val_cast V2 Vc1)) Vc2) :-
+    exp/result_val V1.
 exp/step_comp (exp/app V1 V2) (exp/app V1 V2') :-
     exp/term_val V1,
     exp/step_val V2 V2'.
@@ -291,31 +246,25 @@ exp/step_comp (exp/let V C) (C V) :-
     exp/result_val V.
 exp/step_comp (exp/ret V) (exp/ret V') :-
     exp/step_val V V'.
-exp/step_comp (exp/ret (exp/val_cast V Y)) (exp/comp_cast (exp/ret V) (exp/comp_ty_coer Y (exp/empty_coer empty))).
 exp/step_comp (exp/op O V B C) (exp/op O V' B C) :-
     exp/step_val V V'.
 exp/step_comp (exp/comp_cast (exp/op O V B C) Y) (exp/op O V B (y\ exp/comp_cast (C y) Y)) :-
     exp/result_val V.
 exp/step_comp (exp/do C1 C2) (exp/do C1' C2) :-
     exp/step_comp C1 C1'.
-exp/step_comp (exp/do (exp/comp_cast (exp/ret V) Y) C2) (C2 (exp/val_cast V (exp/pure_coer Y))) :-
-    exp/term_val V.
-exp/step_comp (exp/do (exp/ret V) C2) (C2 V) :-
-    exp/term_val V.
+exp/step_comp (exp/do C1 C2) (C2 V) :-
+    exp/extract_value C1 V.
 exp/step_comp (exp/do (exp/op O V B C1) C2) (exp/op O V B (y\ exp/do (C1 y) C2)) :-
     exp/result_val V.
 exp/step_comp (exp/with C V) (exp/with C V') :-
     exp/step_val V V'.
-exp/step_comp (exp/with C (exp/val_cast V Y)) (exp/comp_cast (exp/with (exp/comp_cast C (exp/left_coer Y)) V) (exp/right_coer Y)) :-
-    exp/term_val V.
+exp/step_comp (exp/with C (exp/val_cast V (exp/hand_coer Y1 Y2))) (exp/comp_cast (exp/with (exp/comp_cast C Y1) V) Y2) :-
+    exp/result_val V.
 exp/step_comp (exp/with C V) (exp/with C' V) :-
     exp/term_val V,
     exp/step_comp C C'.
-exp/step_comp (exp/with (exp/ret V) (exp/hand H)) (Cr V) :-
-    exp/term_val V,
-    exp/get_ret_case H Cr.
-exp/step_comp (exp/with (exp/comp_cast (exp/ret V) Y) (exp/hand H)) (Cr (exp/val_cast V (exp/pure_coer Y))) :-
-    exp/term_val V,
+exp/step_comp (exp/with C (exp/hand H)) (Cr V) :-
+    exp/extract_value C V,
     exp/get_ret_case H Cr.
 exp/step_comp (exp/with (exp/op O V B C) (exp/hand H)) (Cop V (exp/fun B (y\ exp/with (C y) (exp/hand H)))) :-
     exp/result_val V,

@@ -24,8 +24,6 @@ type  exp/comp_ty_coer_ty       exp/comp_ty -> exp/comp_ty -> exp/coer_ty.
 type  exp/bang                  exp/val_ty -> dirt -> exp/comp_ty.
 
 type  exp/good_coer_ty          exp/coer_ty -> o.
-type  exp/less_val_ty           exp/val_ty -> exp/val_ty -> o.
-type  exp/less_comp_ty          exp/comp_ty -> exp/comp_ty -> o.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % coercions
@@ -33,24 +31,14 @@ type  exp/less_comp_ty          exp/comp_ty -> exp/comp_ty -> o.
 
 kind  exp/coer                  type. % W
 
-type  exp/compose_coer          exp/coer -> exp/coer -> exp/coer.
 type  exp/val_ty_coer           exp/val_ty -> exp/coer.
 type  exp/fun_coer              exp/coer -> exp/coer -> exp/coer.
 type  exp/hand_coer             exp/coer -> exp/coer -> exp/coer.
-type  exp/left_coer             exp/coer -> exp/coer.
-type  exp/right_coer            exp/coer -> exp/coer.
-%     exp/lam_skel_coer         MISSING
-type  exp/app_skel_coer         exp/coer -> skel -> exp/coer.
-%     exp/lam_ty_coer           MISSING
-type  exp/app_ty_coer           exp/coer -> exp/val_ty -> exp/coer.
-%     exp/lam_dirt_coer         MISSING
-type  exp/app_dirt_coer         exp/coer -> dirt -> exp/coer.
-%     exp/lam_coer_coer         MISSING
-type  exp/app_coer_coer         exp/coer -> exp/coer -> exp/coer.
+type  exp/lam_skel_coer         (skel -> exp/coer) -> exp/coer.
+type  exp/lam_ty_coer           (exp/val_ty -> exp/coer) -> exp/coer.
+type  exp/lam_dirt_coer         (dirt -> exp/coer) -> exp/coer.
+type  exp/lam_coer_coer         exp/coer_ty -> exp/coer -> exp/coer.
 type  exp/comp_ty_coer          exp/coer -> exp/coer -> exp/coer.
-type  exp/dirt_coer             dirt -> exp/coer.
-type  exp/pure_coer             exp/coer -> exp/coer.
-type  exp/impure_coer           exp/coer -> exp/coer.
 type  exp/dirt_coer             dirt -> exp/coer.
 type  exp/empty_coer            dirt -> exp/coer.
 type  exp/cons_coer             op -> exp/coer -> exp/coer.
@@ -121,6 +109,8 @@ type  exp/of_comp               exp/sig -> exp/comp -> exp/comp_ty -> o.
 type  exp/term_val              exp/val -> o.
 type  exp/result_val            exp/val -> o.
 type  exp/result_comp           exp/comp -> o.
+type  exp/terminal_comp         exp/comp -> o.
+type  exp/extract_value         exp/comp -> exp/val -> o.
 type  exp/step_val              exp/val -> exp/val -> o.
 type  exp/get_ret_case          exp/hand -> (exp/val -> exp/comp) -> o.
 type  exp/get_op_case           exp/hand -> op -> exp/val_ty -> (exp/val -> exp/val -> exp/comp) -> o.

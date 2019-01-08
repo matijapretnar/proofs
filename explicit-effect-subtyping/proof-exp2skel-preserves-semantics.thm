@@ -121,8 +121,6 @@ Theorem e2s/val_preservation :
 induction on 1. intros. case H1.
 % COERCE
 case H2. case H3. apply IH to H4 H5 H6. search.
-% COMPOSE
-case H2. case H3. case H5. apply unique_e2s/val to _ H6 H7. search.
 % APP_SKEL
 case H2. case H3. apply IH to H4 H5 H6. unfold 5. exists (v\ skel/app_ty v A). search.
 % APP_TY
@@ -152,6 +150,10 @@ apply unique_e2s/val to _ H3 H6. search.
 case H2. case H4. inst H5 with n1 = A.
 apply unique_e2s/val to _ H3 H6. search.
 
+Theorem e2s/extract_value : forall Ce Cs Ve, {exp/extract_value Ce Ve} -> {e2s/comp Ce Cs} -> exists Vs, Cs = skel/ret Vs /\ {e2s/val Ve Vs}.
+induction on 1. intros. case H1.
+  case H2. apply IH to H3 H4. search.
+  case H2. search.
 
 Theorem e2s/comp_preservation :
   forall Ct1 Ct2 Ce1 Ce2 Sig A,
@@ -161,8 +163,6 @@ Theorem e2s/comp_preservation :
 induction on 2. intros Hof. intros. case H1.
 % COERCE
 case H2. case H3. apply IH to _ H4 H5 H6. search.
-% COMPOSE
-case H2. case H5. case H3. apply unique_e2s/comp to _ H6 H7. search.
 % APP V1-step
 case H2. case H3.
 apply e2s/val_preservation to H4 H5 H7.
@@ -209,8 +209,6 @@ unfold 11. exists Ce. search.
 % RETURN V-step
 case H2. case H3. apply e2s/val_preservation to H4 H5 H6.
 unfold 11. exists (v\ skel/ret v). search.
-% RETURN coerce
-case H2. case H4. case H3. case H6. apply unique_e2s/val to _ H5 H7. search.
 % OP V-step
 case H2. case H3.
 apply e2s/val_preservation to H4 H5 H8.
@@ -230,30 +228,14 @@ apply IH to _ H4 H5 H7.
 apply unique_e2s/comp to _ H6 H8.
 unfold 12. exists (c\ skel/do c Ce5). search.
 % DO cast_ret
-case H2. case H5. case H7.
-Hof: case Hof.
-Hof: case Hof.
-apply val_cong_result to Hof.
-inst H6 with n1 = (exp/val_cast V (exp/pure_coer Y)), n2 = Ve.
-cut H11.
-apply unique_e2s/comp to _ H3 H12.
+case H2. apply e2s/extract_value to H4 H5. inst H6 with n1 = V, n2 = Vs. cut H8.
+apply unique_e2s/comp to _ H3 H9.
+case Hof.
+case H10.
+apply val_cong_result to H12.
 unfold 10. exists (skel/do (skel/ret V') Ce3). split.
 unfold 11. exists (v\ skel/do (skel/ret v) Ce3). search.
-unfold 10. exists (Ce3 V'). split.
-unfold 7. search.
-unfold 11. exists Ce3. search.
-% DO exp/ret
-case H2. case H5.
-Hof: case Hof.
-Hof: case Hof.
-apply val_cong_result to Hof.
-inst H6 with n1 = V, n2 = Ve.
-cut H10 with H7.
-apply unique_e2s/comp to _ H3 H11.
-unfold 10. exists (skel/do (skel/ret V') Ce3). split.
-unfold 11. exists (v\ skel/do (skel/ret v) Ce3). search.
-unfold 10. exists (Ce3 V'). split.
-unfold 7. search.
+unfold 10. exists (Ce3 V'). split. search.
 unfold 11. exists Ce3. search.
 % DO op
 case H2. case H3. case H5. case H9.
@@ -286,24 +268,11 @@ case H2. case H3. apply unique_e2s/val to _ H7 H9.
 Hof: case Hof.
 apply IH to _ H5 H6 H8.
 unfold 12. exists (c\ skel/with c Ve1). search.
-% HANDLE exp/ret
-case H2. case H6. case H7.
+% HANDLE cast_ret
+case H2. apply e2s/extract_value to H4 H6. case H7.
 apply e2s/get_ret_case to H5 H9 H3 H8.
-Hof: case Hof.
-Hof: case Hof.
-apply val_cong_result to Hof.
-unfold 10. exists (skel/with (skel/ret V') (skel/hand He)). split.
-unfold 11. exists (v\ skel/with (skel/ret v) (skel/hand He)). search.
-unfold 10. exists (Ce' V'). split.
-unfold 7. search.
-unfold 11. exists Ce'. search.
-% HANDLE exp/ret-exp/coer
-case H2. case H6. case H8. case H7.
-assert {e2s/val (exp/val_cast V (exp/pure_coer Y)) Ve1}.
-Hof: case Hof.
-Hof: case Hof.
-apply val_cong_result to Hof.
-apply e2s/get_ret_case to H5 H10 H3 H11.
+case Hof. case H11.
+apply val_cong_result to H13.
 unfold 10. exists (skel/with (skel/ret V') (skel/hand He)). split.
 unfold 11. exists (v\ skel/with (skel/ret v) (skel/hand He)). search.
 unfold 10. exists (Ce' V'). split.
