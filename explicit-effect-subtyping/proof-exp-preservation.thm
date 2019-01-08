@@ -25,10 +25,14 @@ induction on 1. intros. case H1.
  case H2. search. search.
  case H2. search. apply IH to H3 H4. search.
 
+Set subgoals off.
+
 Theorem exp/val_preservation : forall Sig V V' A, {exp/step_val V V'} -> {exp/of_val Sig V A} -> {exp/of_val Sig V' A}.
 induction on 1. intros. case H1.
 % COERCE
 case H2. apply IH to H3 H4. search.
+% COERCE UNIT_REFL_COERCE
+case H2. case H5. search.
 % APP_SKEL
 case H2. apply IH to H3 H4. search.
 % APP_TY

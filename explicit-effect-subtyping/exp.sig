@@ -31,7 +31,7 @@ type  exp/good_coer_ty          exp/coer_ty -> o.
 
 kind  exp/coer                  type. % W
 
-type  exp/val_ty_coer           exp/val_ty -> exp/coer.
+type  exp/unit_refl_coer        exp/coer.
 type  exp/fun_coer              exp/coer -> exp/coer -> exp/coer.
 type  exp/hand_coer             exp/coer -> exp/coer -> exp/coer.
 type  exp/lam_skel_coer         (skel -> exp/coer) -> exp/coer.
