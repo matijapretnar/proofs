@@ -11,26 +11,8 @@ Theorem apart_not_reflexive :
 induction on 1. intros. case H1.
   apply IH to H2.
 
-Theorem in_less_dirt :
-  forall O D1 D2, {in_dirt O D1} -> {less_dirt D1 D2} -> {in_dirt O D2}.
-induction on 1. intros. case H1.
-  case H2. search.
-  case H2. apply IH to H3 H5. search.
-
 Theorem less_dirt_cons :
   forall O D1 D2, {less_dirt D1 D2} -> {less_dirt D1 (cons O D2)}.
 induction on 1. intros. case H1.
   search.
   apply IH to H3 with O = O. search.
-
-Theorem less_dirt_reflexive :
-  forall D, {is_dirt D} -> {less_dirt D D}.
-induction on 1. intros. case H1.
-  search.
-  apply IH to H2. apply less_dirt_cons to H3 with O = O. search.
-
-Theorem less_dirt_transitive :
-  forall D1 D2 D3, {less_dirt D1 D2} -> {less_dirt D2 D3} -> {less_dirt D1 D3}.
-induction on 1. intros. case H1.
-  search.
-  apply IH to H4 H2. apply in_less_dirt to H3 H2. search.

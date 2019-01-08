@@ -20,37 +20,18 @@ Theorem e2s/of_coer :
   ).
 induction on 2 2. intros. split.
 intros. case H2.
-  % trans
-  apply IH to H1 H3. apply IH to H1 H4. apply unique_skel_val_ty to H1 H6 H7. search.
   % fun
   apply IH to H1 H3. apply IH1 to H1 H4. search.
   % handler
   apply IH1 to H1 H3. apply IH1 to H1 H4. search.
-  % left fun
-  apply IH to H1 H3. case H4. case H5. search.
-  apply ctx_e2s/member to H1 H9. case H10. case H8. case H8. case H11.
-  apply ctx_e2s/member to H1 H7. case H8. case H6. case H6. case H9.
   % all skel
-  apply IH to H1 H3. case H4. case H5. inst H6 with n1 = S. inst H7 with n1 = S. search.
-  apply ctx_e2s/member to H1 H8. case H9. case H7. case H7. case H10.
-  apply ctx_e2s/member to H1 H7. case H8. case H6. case H6. case H9.
+  apply IH to H1 H3. search.
   % all val ty
-  apply IH to H1 H3. case H5. case H6. inst H7 with n1 = A. inst H8 with n1 = A.
-  apply strengthen_skel_val_ty to H1 H4. cut H9 with H11. cut H10 with H11. search.
-  apply ctx_e2s/member to H1 H9. case H10. case H8. case H8. case H11.
-  apply ctx_e2s/member to H1 H8. case H9. case H7. case H7. case H10.
+  apply IH to _ H3. search.
   % all dirt
-  apply IH to H1 H3. case H4. case H5. inst H6 with n1 = D. inst H7 with n1 = D. search.
-  apply ctx_e2s/member to H1 H8. case H9. case H7. case H7. case H10.
-  apply ctx_e2s/member to H1 H7. case H8. case H6. case H6. case H9.
+  apply IH to H1 H3. search.
   % qual_ty
-  apply IH to H1 H3. case H5. case H6. search.
-  apply ctx_e2s/member to H1 H9. case H10. case H8. case H8. case H11.
-  apply ctx_e2s/member to H1 H8. case H9. case H7. case H7. case H10.
-  % pure
-  apply IH1 to H1 H3. case H4. case H5. search.
-  apply ctx_e2s/member to H1 H8. case H9. case H7. case H7.
-  apply ctx_e2s/member to H1 H7. case H8. case H6. case H6.
+  apply IH to H1 H3. search.
   % backchain
   apply ctx_t_member to H1 H4. case H5. case H3. case H3. case H3.
   apply strengthen_skel_val_ty to H1 H7.
@@ -58,20 +39,6 @@ intros. case H2.
   search. case H3. case H3.
 intros. case H2.
   % bang
-  apply IH1 to H1 H3. apply IH1 to H1 H4. apply unique_skel_comp_ty to H1 H6 H7. search.
-  % left hand
-  apply IH to H1 H3. case H4. case H5. search.
-  apply ctx_e2s/member to H1 H9. case H10. case H8. case H8. case H11.
-  apply ctx_e2s/member to H1 H7. case H8. case H6. case H6. case H9.
-  % right fun
-  apply IH to H1 H3. case H4. case H5. search.
-  apply ctx_e2s/member to H1 H9. case H10. case H8. case H8. case H11.
-  apply ctx_e2s/member to H1 H7. case H8. case H6. case H6. case H9.
-  % right hand
-  apply IH to H1 H3. case H4. case H5. search.
-  apply ctx_e2s/member to H1 H9. case H10. case H8. case H8. case H11.
-  apply ctx_e2s/member to H1 H7. case H8. case H6. case H6. case H9.
-  % impure
   apply IH to H1 H3. search.
   % backchain
   apply ctx_t_member to H1 H4. case H5. case H3. case H3. case H3. case H3.

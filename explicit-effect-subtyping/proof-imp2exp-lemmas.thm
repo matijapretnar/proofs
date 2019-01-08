@@ -330,20 +330,11 @@ Theorem strengthen_of_coer :
 induction on 2. intros. case H2.
   apply IH to H1 H3. apply IH to H1 H4. search.
   apply IH to H1 H3. apply IH to H1 H4. search.
-  apply IH to H1 H3. apply IH to H1 H4. search.
-  apply IH to H1 H3. apply IH to H1 H4. search.
-  apply IH to H1 H3. apply IH to H1 H4. search.
   apply IH to H1 H3. search.
+  apply IH to _ H3. search.
   apply IH to H1 H3. search.
-  apply IH to H1 H3. search.
-  apply IH to H1 H3. search.
-  apply IH to H1 H3. search.
-  apply IH to H1 H3. apply strengthen_skel_val_ty to H1 H4. search.
   apply IH to H1 H3. search.
   apply IH to H1 H3. apply IH to H1 H4. search.
-  apply IH to H1 H3. apply IH to H1 H4. search.
-  apply IH to H1 H3. search.
-  apply IH to H1 H3. search.
   apply strengthen_is_dirt to H1 H3. search.
   search.
   apply IH to H1 H3. search.

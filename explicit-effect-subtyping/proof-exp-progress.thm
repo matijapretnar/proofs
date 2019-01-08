@@ -22,7 +22,6 @@ induction on 1. intros. case H1.
   apply op_comparable to H2 H6.
   case H8. search.
   apply H7 to H2. search.
-
 Theorem exp/progress_val : forall Sig V A, {exp/of_val Sig V A} -> {exp/progress_val V}.
 induction on 1. intros. case H1.
 % UNIT
@@ -34,14 +33,16 @@ induction on 1. intros. case H1.
 % LAM SKEL
  search.
 % APP_SKEL
-  apply IH to H2. case H3. case H4.
+  apply IH to H2.
+  case H3.
+  case H4.
   % V is a terminal value
   case H5.
     case H2. case H2. case H2. case H2.
     search. % interesting case
     case H2. case H2. % boring case
   % V is a cast value
-  search.
+  case H2. case H7. search.
   % V makes a step.
   search.
 % LAM TY
@@ -54,7 +55,7 @@ search.
     search. % interesting case
     case H2. case H2. case H2.% boring cases
   % V is a cast value
-  search.
+  case H2. case H8. search.
   % V makes a step.
   search.
 % LAM DIRT
@@ -67,7 +68,7 @@ search.
     search. % interesting case
     case H2. % boring cases
   % V is a cast value
-  search.
+  case H2. case H7. search.
   % V makes a step.
   search.
 % LAM COER
@@ -79,27 +80,43 @@ search.
     case H2. case H2. case H2. case H2. case H2. case H2.
     search. % interesting case
   % V is a cast value
-  search.
+  case H2. case H8. search.
   % V makes a step.
   search.
 % CAST
- apply IH to H2. case H4. case H5. search. search. search.
+ apply IH to H2.
+ case H4. case H5. search. search.
+ search.
+
+Theorem exp/extract_value : forall M, {exp/terminal_comp M} -> exists V, {exp/extract_value M V} /\ {exp/result_val V}.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+
+Theorem exp/result_comp_cast : forall M Y1 Y2, {exp/result_comp M} -> {exp/progress_comp (exp/comp_cast M (exp/comp_ty_coer Y1 Y2))}.
+intros. case H1.
+  search.
+  search.
+
+
 
 Theorem exp/progress_comp : forall Sig M C, {exp/of_comp Sig M C} -> {exp/progress_comp M}.
 induction on 1. intros. case H1.
 % APP
   apply exp/progress_val to H2. case H4. % V1 progresses
   % V1 is a result
-    apply exp/progress_val to H3. case H6. % V2 progresses
+    case H5.
+    % V1 is a terminal value
+      apply exp/progress_val to H3. case H7. % V2 progresses
       % V2 is a result
-      case H5. case H8.
+      case H6.
         case H2. case H2. % Boring cases
         case H2. search.  % interesting case
-        case H2. case H2. % Boring cases
-        case H2. % Boring cases
-        case H2. search. % coercion case
+        case H2. case H2. case H2. case H2.
       % V2 makes a step
-      case H5. search. search.
+      search.
+    % V1 is a cast value
+      case H2. case H8. search.
   % V1 makes a step
     search.
 % LET
@@ -109,7 +126,13 @@ induction on 1. intros. case H1.
 % OP
   apply exp/progress_val to H3. case H7. search. search.
 % DO
-  apply IH to H2. case H4. case H5. search. search. search. search.
+  apply IH to H2. case H4.
+  % C1 is a result computation
+    case H5.
+      apply exp/extract_value to H6. search.
+      search.
+  % C1 makes a step
+  search.
 % HANDLE
   apply exp/progress_val to H3. case H4. % V progresses
   % V is a result
@@ -126,9 +149,7 @@ induction on 1. intros. case H1.
           % What kind of a result is C?
           case H8.
           % C is a terminal value
-            search.
-          % C is a coerced value
-            search.
+            apply exp/extract_value to H11. search.
           % C is an operation exp/op
             apply get_t/of_op_hand to H9 with B = X.
             case H2. apply H12 to H17.
@@ -138,8 +159,12 @@ induction on 1. intros. case H1.
       % C makes a step
       search.
     % V is a coerced value
+    case H3. case H8.
     search.
   % V makes a step
     search.
 % CAST
-  apply IH to H2. case H4. case H5. search. search. search. search.
+  apply IH to H2.
+  case H4.
+    case H3. apply exp/result_comp_cast to H5 with Y1 = Y1, Y2 = Y2. search.
+    search.
