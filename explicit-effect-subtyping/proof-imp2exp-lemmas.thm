@@ -274,6 +274,8 @@ intros. case H2.
   % in context
   apply i2e/cnstr_member to H1 H4 H5.
 
+Set subgoals off.
+
 Theorem strengthen_skel_ty :
   (
     forall Sig_s Sig_t Ctx_s2t Ctx_t A S, i2e/ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
@@ -328,6 +330,7 @@ Theorem strengthen_of_coer :
   forall Sig_s Sig_t Ctx_s2t Ctx_t Y Pi, i2e/ctxs Sig_s Sig_t Ctx_s2t Ctx_t ->
   {Ctx_s2t |- exp/of_coer Y Pi} -> {Ctx_t |- exp/of_coer Y Pi}.
 induction on 2. intros. case H2.
+  search.
   apply IH to H1 H3. apply IH to H1 H4. search.
   apply IH to H1 H3. apply IH to H1 H4. search.
   apply IH to H1 H3. search.
