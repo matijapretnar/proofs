@@ -17,211 +17,6 @@ induction on 1. intros. case H1.
     apply IH to H3 H5. search.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Theorem ml/less_ty_reflexive:
-  forall A, {ml/wf_ty A} -> {ml/less_ty A A}.
-induction on 1. intros. case H1.
-  search.
-  apply IH to H2. apply IH to H3. search.
-  apply IH to H2. search.
-  apply IH to H2. apply IH to H3. search.
-  apply IH to H3. search.
-  apply IH to H2. search.
-
-Theorem ml/less_ty_transitive' :
-  (forall A B C, {ml/less_ty A B} -> {ml/less_ty B C} -> {ml/less_ty A C}) /\
-  (forall A B C, {ml/less_ty B C} -> {ml/less_ty A B} -> {ml/less_ty A C}) /\
-  (forall C1 C2 C3, {ml/less_ty C1 C2} -> {ml/less_ty (ml/comp_ty C2) C3} -> {ml/less_ty (ml/comp_ty C1) C3}) /\
-  (forall C1 C2 C3, {ml/less_ty (ml/comp_ty C2) C3} -> {ml/less_ty C1 C2} -> {ml/less_ty (ml/comp_ty C1) C3}).
-induction on 1 1 1 1.  induction on 2 2 2 2. split.
-intros. case H1 (keep).
-  search.
-  case H2 (keep). 
-    apply IH1 to H3 H5. apply IH to H4 H6. search. 
-    apply IH4 to H1 H5. search.
-  case H2 (keep). 
-    apply IH1 to H3 H5. 
-    apply IH to H4 H6. search.
-    apply IH1 to H3 H5. 
-    apply IH2 to H4 H6. search. 
-    apply IH4 to H1 H5. search.
-  case H2 (keep).
-    apply IH1 to H3 H5. apply IH to H4 H6. search. 
-    apply IH4 to H1 H5. search.
-  case H2 (keep).
-    apply IH to H3 H4. search.
-    apply IH4 to H1 H4. search.
-  case H2 (keep).
-    apply IH to H3 H4. search.
-    apply IH4 to H1 H4. search.
-  case H2 (keep).
-    apply IH to H3 H4. search.
-    apply IH4 to H1 H4. search.
-    apply IH to H3 H4. search.
-  case H2 (keep).
-    apply IH to H3 H4. search.
-    apply IH4 to H1 H4. search.
-    apply IH to H3 H4. search.
-  apply IH to H3 H2. search.
-
-intros. case H1 (keep).
-  search.
-  case H2 (keep). 
-    apply IH to H3 H5. apply IH1 to H4 H6. search. 
-    apply IH to H3 H5. apply IH1 to H4 H6. search.
-    apply IH5 to H1 H5. search.
-  case H2 (keep). 
-    apply IH to H3 H5. apply IH1 to H4 H6. search. 
-    apply IH5 to H1 H5. search.
-  case H2 (keep).
-    apply IH to H3 H5. apply IH3 to H4 H6. search. 
-    apply IH5 to H1 H5. search.
-  case H2 (keep).
-   apply IH1 to H3 H4. search.
-   apply IH5 to H1 H4. search.
-  case H2 (keep).
-   apply IH1 to H3 H4. search.
-   apply IH5 to H1 H4. search.
-  case H2 (keep).
-   apply IH1 to H3 H4. search.
-   apply IH1 to H3 H4. search.
-   apply IH5 to H1 H4. search.
-   apply IH1 to H3 H2. search.
-  case H2 (keep).
-   apply IH1 to H3 H4. search.
-   apply IH1 to H3 H4. search.
-   apply IH5 to H1 H4. search.
-
-intros. case H1 (keep).
-  search.
-  case H2.
-    apply IH4 to H1 H5. search.
-    apply IH6 to H1 H5. search.
-    apply IH4 to H1 H5. search.
-  case H2.
-    apply IH4 to H1 H5. search.
-    apply IH6 to H1 H5. search.
-    apply IH4 to H1 H5. search.
-  case H2.
-    apply IH4 to H1 H5. search.
-    apply IH6 to H1 H5. search.
-    apply IH4 to H1 H5. search.
-  case H2.
-    apply IH4 to H1 H4. search.
-    apply IH6 to H1 H4. search.
-    apply IH4 to H1 H4. search.
-  case H2.
-    apply IH4 to H1 H4. search.
-    apply IH6 to H1 H4. search.
-    apply IH4 to H1 H4. search.
-  case H2.
-    apply IH4 to H1 H4. search.
-    apply IH6 to H1 H4. search.
-    apply IH4 to H1 H4. search.
-  case H2.
-    apply IH4 to H1 H4. search.
-    apply IH6 to H1 H4. search.
-    apply IH4 to H1 H4. search.
-  case H2.
-    apply IH4 to H1 H4. search.
-    apply IH6 to H1 H4. search.
-    apply IH4 to H1 H4. search.
-
-intros. 
-  case H2 (keep).
-    search.
-  case H1 (keep).
-    apply IH1 to H5 H2. search.
-    apply IH3 to H5 H2. search.
-    apply IH1 to H5 H2. search.
-  case H1 (keep).
-    apply IH1 to H5 H2. search.
-    apply IH3 to H5 H2. search.
-    apply IH1 to H5 H2. search.
-  case H1 (keep).
-    apply IH1 to H5 H2. search.
-    apply IH3 to H5 H2. search.
-    apply IH1 to H5 H2. search.
-  case H1 (keep).
-    apply IH1 to H4 H2. search.
-    apply IH3 to H4 H2. search.
-    apply IH1 to H4 H2. search.
-  case H1 (keep).
-    apply IH1 to H4 H2. search.
-    apply IH3 to H4 H2. search.
-    apply IH1 to H4 H2. search.
-  case H1 (keep).
-    apply IH1 to H4 H2. search.
-    apply IH3 to H4 H2. search.
-    apply IH1 to H4 H2. search.
-  case H1 (keep).
-    apply IH1 to H4 H2. search.
-    apply IH3 to H4 H2. search.
-    apply IH1 to H4 H2. search.
-  case H1 (keep).
-    apply IH1 to H4 H2. search.
-    apply IH3 to H4 H2. search.
-    apply IH1 to H4 H2. search.
-
-Split ml/less_ty_transitive' as ml/less_ty_transitive, forget, forget, forget.
-
-Theorem ml/less_comp_ty :
-  forall A B, {ml/less_ty (ml/comp_ty A) B} -> {ml/less_ty A B}.
-induction on 1. intros. case H1.
-  search.
-  apply IH to H2. search.
-  search.
-
-Theorem ml/comp_ty_less :
-  forall A B, {ml/less_ty A (ml/comp_ty B)} -> {ml/less_ty A B}.
-induction on 1. intros. case H1.
-  search.
-  search.
-  apply IH to H2. search.
-
-Theorem ml/comp_ty_less_comp_ty :
-  forall A B, {ml/less_ty (ml/comp_ty A) (ml/comp_ty B)} -> {ml/less_ty A B}.
-induction on 1. intros. case H1 (keep).
-  search.
-  apply ml/less_comp_ty to H2. search.
-  apply ml/comp_ty_less to H2. search.
-
-Theorem ml/coer_less_ty :
-  forall Y A B, {ml/of_coer Y (ml/ty_coer_ty A B)} -> {ml/less_ty A B}.
-induction on 1.
-intros. case H1 (keep). case H3.
-  apply IH to H4. search.
-  apply IH to H4. search.
-  apply IH to H4. search.
-  apply IH to H4. case H5.
-    search.
-    apply ml/less_comp_ty to H6.  search.
-    apply ml/comp_ty_less to H6. search.
-    apply IH to H4. apply ml/comp_ty_less to H5. search.
-  apply IH to H4. apply IH to H5. apply ml/less_ty_transitive to H6 H7. search.
-  case H2. apply ml/less_ty_reflexive to H4. search.
-  apply IH to H4. apply IH to H5. search.
-  apply IH to H4. apply IH to H5. apply ml/comp_ty_less_comp_ty to H6. apply ml/comp_ty_less_comp_ty to H7. search.
-  apply IH to H4. apply IH to H5. search. 
-  apply IH to H4. case H5. search.
-  apply IH to H4. case H5. search.
-  apply IH to H4. case H5. search.
-  apply IH to H4. case H5. search.
-  apply IH to H4. case H5. search. 
-  apply IH to H4. case H5. search.
-  apply IH to H4. case H5. inst H6 with n1 = A3. search.
-  apply IH to H4. case H6. search.
-% QED
-
-Theorem ml/unique_pi : forall Pi1 Pi2 Y A1 A2,
-  {ml/of_coer Y (ml/ty_coer_ty (ml/qual_ty Pi1 A1) (ml/qual_ty Pi2 A2))}
-  ->
-  Pi1 = Pi2.
-intros.
-apply ml/coer_less_ty to H1.
-case H2.
-search.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem of/val_case : forall Sig H A C M,
     {ml/of_hand Sig H A C} -> {ml/get_ret_case H M} -> nabla x, {ml/of_term Sig x A |- ml/of_term Sig (M x) (ml/comp_ty C)}.
 induction on 2. intros. case H2 (keep).
@@ -239,163 +34,6 @@ induction on 2. intros. case H2 (keep).
   case H1. case H9. apply IH to H10 H6 H3 H4.search.
   case H1 (keep). search.
 
-% Theorem ml/preservation_coer : forall Y Y' A B, {ml/step_coer Y Y'} -> {ml/of_coer Y (ml/ty_coer_ty A B)} -> {ml/of_coer Y' (ml/ty_coer_ty A B)}.
-Theorem ml/preservation_coer : forall Y Y' Pi, {ml/step_coer Y Y'} -> {ml/of_coer Y Pi} -> {ml/of_coer Y' Pi}.
-induction on 1. intros. case H1 (keep).
-
-  case H2 (keep). case H5. 
-     apply IH to H3 H6. search.
-     apply IH to H3 H6. search.
-     apply IH to H3 H6. search.
-  case H2 (keep). case H4. 
-    case H5. case H7. search.
-    case H5. case H7.
-    case H5. case H7.
-  case H2 (keep). case H4. 
-    case H5. case H7. 
-    case H5. case H7. search.
-    case H5. case H7.
-  case H2 (keep). case H6. 
-    case H7. case H9. search.
-    case H7. case H9.
-    case H7. case H9.
-  case H2 (keep). case H6. 
-    case H7. case H9.
-    case H7. case H9. search.
-    case H7. case H9.
-  case H2 (keep). case H6. 
-    case H7. case H9.
-    case H7. case H9. 
-    case H7. case H9. search.
-
-  case H2 (keep). case H5. 
-     apply IH to H3 H6. search.
-     apply IH to H3 H6. search.
-     apply IH to H3 H6. search.
-  case H2 (keep). case H4. 
-    case H5. case H7. search.
-    case H5. case H7.
-    case H5. case H7.
-  case H2 (keep). case H4. 
-    case H5. case H7. 
-    case H5. case H7. search.
-    case H5. case H7.
-  case H2 (keep). case H6. 
-    case H7. case H9. search.
-    case H7. case H9.
-    case H7. case H9.
-  case H2 (keep). case H6. 
-    case H7. case H9.
-    case H7. case H9. search.
-    case H7. case H9.
-  case H2 (keep). case H6. 
-    case H7. case H9.
-    case H7. case H9. 
-    case H7. case H9. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H6. search.
-  case H2 (keep). case H4.
-    case H5. case H7. search.
-  case H2 (keep). case H5.
-    case H6. case H8. search.
-  case H2 (keep). case H4.
-    case H5. case H7. case H8. case H10. case H9. case H11. search.
-  case H2 (keep). case H5.
-    case H6. case H8. case H9. case H11. search.
-  case H2 (keep). case H5.
-    case H6. case H8. case H9. case H11. case H12. case H13. case H15. search 9.
-  case H2 (keep). case H5.
-    case H6. case H8. case H9. case H11. search.
-  case H2 (keep). case H4.
-    case H5. case H7. case H8. case H10. case H9. case H11. search.
-  case H2 (keep). case H5.
-    case H6. case H8. case H9. case H11. search.
-  case H2 (keep). case H5.
-    case H6. case H8. case H9. case H11. search.
-  case H2 (keep). case H5.
-    case H6. case H8. case H9. case H11. case H4. case H13. search 8.
-  case H2 (keep). case H5.
-    apply IH to H3 H6. search.
-  case H2 (keep). case H5.
-    case H6. case H8. search.
-  case H2 (keep). case H4.
-    case H5. case H7. case H3. search.
-  case H2 (keep). case H5.
-    case H6. case H8. search.
-  case H2 (keep). case H5.
-    case H6. case H8. case H4. case H10. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H6. case H4. search.
-  case H2 (keep). case H4.
-    case H3. case H5. case H9. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H6. search.
-  case H2 (keep). case H4.
-    case H5. case H8. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H6. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H7. search.
-  case H2 (keep). case H5.
-    case H6. case H9. search.
-  case H2 (keep). case H5.
-    case H6. case H9. case H10. case H14. search.
-  case H2 (keep). case H6.
-    case H7. case H8. case H10. case H12. case H5. case H9. case H17. case H18. case H19. case H20. search.
-  case H2 (keep). case H7.
-    case H8. case H9. case H11. case H13. case H6. case H10. case H12. case H17. case H18. case H19. case H20. case H21. case H22. search 7. 
-  case H2 (keep). case H6.
-    case H7. case H8. case H10. case H12. case H5. case H9. case H11. search. 
-  case H2 (keep). case H8.
-    case H9. case H10. case H12. case H14. case H7. case H11. case H13. case H19. case H20. case H21. case H22. case H23. case H24. search 7.
-  case H2 (keep). case H8.
-    case H9. case H10. case H12. case H14. case H7. case H11. case H13. case H19. case H20. case H21. case H22. case H23. case H24. search 8.
-  case H2 (keep). case H7.
-    case H6. case H8. case H9. case H12. case H13. case H14. case H15. case H10. case H11. search 8.
-  case H2 (keep). case H6.
-    case H7. case H8. case H10. case H12. search.
-  case H2 (keep). case H7.
-    case H8. case H11. case H12. case H14. case H16. case H13. case H15. case H21. case H22. case H23. case H24. search.
-  case H2 (keep). case H6.
-    case H7. case H10. case H11. case H13. case H15. case H8. case H9. search 8.
-  case H2 (keep). case H4.
-    case H5. case H8. case H9. case H11. case H13. search.
-  case H2 (keep). case H5.
-    case H6. case H9. case H10. case H12. case H14. case H7. case H8. search.
-  case H2 (keep). case H5. 
-    case H6. case H9. case H10. case H12. case H14. case H7. case H8. case H11. case H20. search 7.
-  case H2 (keep). case H5.
-    case H6. case H9. case H10. case H12. case H14. case H7.  search.
-  case H2 (keep). case H4.
-    case H5. case H8. case H9. case H11. case H13. search.
-  case H2 (keep). case H5.
-    case H6. case H9. case H10. case H12. case H14. case H8. search.
-  case H2 (keep). case H5.
-    case H6. case H9. case H10. case H12. case H14. case H8. case H11. case H19. search 7.
-  case H2 (keep). case H5.
-    case H6. case H9. case H10. case H12. case H14. search.
-  case H2 (keep). case H5.
-    case H6. case H9. case H10. case H12. case H7. search.
-  case H2 (keep). case H5. 
-    apply IH to H3 H6. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H7. search.
-  case H2 (keep). case H5. 
-    apply IH to H3 H6. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H7. search.
-  case H2 (keep). case H5. 
-    apply IH to H3 H6. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H7. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H6. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H6. search.
-  case H2 (keep). case H5.
-    apply IH to H3 H6. search.
-% QED
-
 Theorem ml/preservation : forall Sig V V' A, {ml/step V V'} -> {ml/of_term Sig V A} -> {ml/of_term Sig V' A}.
 induction on 1. intros. case H1 (keep).
 % APP 1
@@ -403,7 +41,7 @@ case H2. case H5. apply IH to H3 H6. search.
 % APP 2
 case H2. case H6. apply IH to H4 H8. search.
 % APP FUN
-case H2.  case H5. case H6. case H9. inst H10 with n1 = V1. cut H11. search. 
+case H2. case H5. case H6. case H9. inst H10 with n1 = V1. cut H11. search. 
 
 % APP_TY 1
 case H2. case H5. apply IH to H3 H6. search.
@@ -412,8 +50,6 @@ case H2 (keep). case H4. case H5. case H7. inst H8 with n1 = A1. search.
 
 % APP_COER 1
 case H2. case H5. apply IH to H3 H6. search.
-% APP_COER 2
-case H2. case H5. apply ml/preservation_coer to H3 H7. search.
 % APP_COER LAM_COER
 case H2 (keep). case H4. case H5. case H8. inst H9 with n1 = Y. cut H10 with H6. search.
 
@@ -449,30 +85,37 @@ cut H20 with H24. search.
 
 % CAST 1
 case H2 (keep). case H5. apply IH to H3 H6. search.
-% CAST 2
-case H2. case H6. apply ml/preservation_coer to H4 H8. search.
-% CAST REFL
+% CAST UNIT_REFL
 case H2. case H5. case H7. case H9. search.
 % CAST RET COMP_TY_COER
-case H2. case H6. case H7. case H10. case H8. case H13. case H9. case H5. search.
+case H2. case H5. case H6. case H9. case H10. case H7. case H14. case H4. case H8.  search.
 % CAST OP COMP_TY_COER
-case H2. case H6. case H7. case H10. case H8. case H16.
-assert {ml/of_term Sig n1 A1 |- ml/of_term Sig (ml/cast (M n1) (ml/comp_ty_coer Y)) (ml/comp_ty A5)}.
+case H2. case H5. case H7. case H9. case H6. case H12.
+assert {ml/of_term Sig n1 A1 |- ml/of_term Sig (ml/cast (M n1) (ml/comp_ty_coer Y)) (ml/comp_ty A3)}.
 search.
 % CAST RETURN
-case H2. case H6. case H8. case H10. case H5. search.
+case H2. case H5. case H7. case H9. case H4. search.
 % CAST UNSAFE
-case H2. case H6. case H7. case H10. case H9. case H8. case H14. search.
+case H2. case H5. case H6. case H9.  case H7. case H12. search.
 % APP CAST FUN_COER
-case H2. case H8. case H9. case H12. case H14. case H16. case H15. case H19. case H20. search 7.
+case H2. case H6. case H7. case H10. case H12. case H14. case H15. case H16. case H17. case H19. 
+assert {ml/of_term Sig (ml/cast V2 Y1) A4}. search.
 % APP CAST HAND_COER
-case H2. case H8. case H10. case H12. case H14. case H16. case H11. case H15. case H21. 
+case H2. case H6. case H8. case H10. case H12. case H14. case H9. case H13. case H19. 
 assert {ml/of_term Sig (ml/cast V1 Y1) (ml/comp_ty B4)}.
 assert {ml/of_term Sig (ml/with (ml/cast V1 Y1) V2) (ml/comp_ty B1')}.
 search.
 % APP CAST HAND2FUN_COER
-case H2. case H8. case H9. case H12. case H14. case H16. case H11. case H13. case H21. 
+case H2. case H6. case H7. case H10. case H12. case H14. case H9. case H11. case H19.
 assert {ml/of_term Sig (ml/ret (ml/cast V2 Y1)) (ml/comp_ty B1)}.
 assert {ml/of_term Sig (ml/with (ml/ret (ml/cast V2 Y1)) V1) (ml/comp_ty B1')}.
 search. 
+% APP_TY CAST LAM_TY_COER
+case H2. case H5. case H6. case H8. case H10. case H12. inst H13 with n1 = A1. case H9. case H15. inst H17 with n1 = A1.
+assert {ml/of_term Sig (ml/app_ty V1 A1) (A4 A1)}. 
+search.
+% APP_COER CAST LAM_COER
+case H2. case H5. case H6. case H9. case H11. case H13. case H10. case H15.
+assert {ml/of_term Sig (ml/app_coer V1 Y2) A2}.
+search.
 % QED

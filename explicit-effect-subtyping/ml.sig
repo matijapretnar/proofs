@@ -23,22 +23,15 @@ type  ml/ty_coer_ty            ml/ty -> ml/ty -> ml/coer_ty.
  
 kind  ml/coer                  type. % W
  
-type  ml/compose_coer          ml/coer -> ml/coer -> ml/coer.
-type  ml/refl_coer             ml/ty -> ml/coer.
+type ml/unit_refl_coer         ml/coer.
 type  ml/fun_coer              ml/coer -> ml/coer -> ml/coer.
 type  ml/hand_coer             ml/coer -> ml/coer -> ml/coer.
 type  ml/hand2fun_coer         ml/coer -> ml/coer -> ml/coer.
-type  ml/left_coer             ml/coer -> ml/coer.
-type  ml/right_coer            ml/coer -> ml/coer.
-%     ml/lam_ty_coer           MISSING
-type  ml/app_ty_coer           ml/coer -> ml/ty -> ml/coer.
-%     ml/lam_coer_coer         MISSING
-type  ml/app_coer_coer         ml/coer -> ml/coer -> ml/coer.
+type  ml/lam_ty_coer           (ml/ty -> ml/coer) -> ml/coer.
+type  ml/lam_coer_coer         ml/coer_ty -> ml/coer -> ml/coer.
 type  ml/comp_ty_coer          ml/coer -> ml/coer.
 type  ml/return_coer           ml/coer -> ml/coer.
 type  ml/unsafe_coer           ml/coer -> ml/coer.
-type  ml/pure_coer             ml/coer -> ml/coer.
-type  ml/nruter_coer           ml/coer -> ml/coer.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % terms
@@ -84,8 +77,6 @@ type  ml/of_op                 ml/sig -> op -> ml/ty -> ml/ty -> o.
 type ml/wf_ty                  ml/ty -> o.
 type ml/wf_coer_ty	       ml/coer_ty -> o.
 
-type ml/less_ty                ml/ty -> ml/ty -> o.
-
 type  ml/of_term	       ml/sig -> ml/term -> ml/ty -> o.
 type  ml/of_term'	       ml/sig -> ml/term -> ml/ty -> o.
 type  ml/of_coer               ml/coer -> ml/coer_ty -> o.
@@ -100,12 +91,8 @@ type  ml/of_hand'              ml/sig -> ml/hand -> ml/ty -> ml/ty -> o.
 type  ml/val                   ml/term -> o.
 type  ml/step                  ml/term -> ml/term -> o.
 
-type ml/val_coer	       ml/coer -> o.
-type ml/step_coer	       ml/coer -> ml/coer -> o.
-
 type  ml/result                ml/term -> o.
 type  ml/get_ret_case          ml/hand -> (ml/term -> ml/term) -> o.
 type  ml/get_op_case           ml/hand -> op -> ml/ty -> (ml/term -> ml/term -> ml/term) -> o.
-type  ml/progress_coer 	       ml/coer -> o.
 type  ml/stuck		       ml/term -> o.
 type  ml/progress              ml/term -> o.
