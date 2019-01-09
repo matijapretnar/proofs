@@ -118,9 +118,11 @@ Theorem e2s/val_preservation :
   forall Vt1 Vt2 Ve1 Ve2,
     {exp/step_val Vt1 Vt2} -> {e2s/val Vt1 Ve1} -> {e2s/val Vt2 Ve2} ->
     skel/cong_val Ve1 Ve2.
-induction on 1. intros. case H1.
+induction on 1. intros. case H1 (keep).
 % COERCE
 case H2. case H3. apply IH to H4 H5 H6. search.
+% CAST UNIT_REFL_COER
+case H2. apply unique_e2s/val to _ H3 H5. search.
 % APP_SKEL
 case H2. case H3. apply IH to H4 H5 H6. unfold 5. exists (v\ skel/app_ty v A). search.
 % APP_TY

@@ -20,6 +20,8 @@ Theorem e2s/of_coer :
   ).
 induction on 2 2. intros. split.
 intros. case H2.
+  % unit_refl
+  search.
   % fun
   apply IH to H1 H3. apply IH1 to H1 H4. search.
   % handler
