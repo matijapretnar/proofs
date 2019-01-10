@@ -34,212 +34,6 @@ induction on 1. intros. case H1 (keep). case H5.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Theorem ml/progress_coer_thm :
-  forall Y A B,
-    {ml/of_coer Y (ml/ty_coer_ty A B)} -> {ml/progress_coer Y}.
-induction on 1. intros. case H1. case H3 (keep).
-  % COMP_TY_COER
-  apply IH to H4. case H5.
-    search.
-    search.
-  % RETURN_COER
-  apply IH to H4. case H5.
-    search.
-    search.
-  % UNSAFE_COER
-  apply IH to H4. case H5.
-    search.
-    search.
-  % PURE_COER
-  apply IH to H4. case H5.
-    case H6.
-      case H4. case H8. search.
-      case H4. case H10.
-      case H4. case H10.
-      case H4. case H10.
-      search.
-      case H4. case H9. case H7.
-        case H10. case H12. search.
-        case H10. case H14.
-        case H10. case H14.
-        case H10. case H14.
-        case H10. case H13. search.
-        case H10. case H13. search.
-        case H10. case H13. search.
-      case H4. case H9. case H7.
-        case H10. case H12. search.
-        case H10. case H14.
-        case H10. case H14.
-        case H10. case H14.
-        case H10. case H13. search.
-        case H10. case H13. search.
-        case H10. case H13. search.
-    search.
-  % NRUTER_COER 
-  apply IH to H4. case H5.
-    case H6.
-      case H4. case H8. search.
-      case H4. case H10.
-      case H4. case H10.
-      case H4. case H10.
-      search.
-      search.
-      case H4. case H9. search.
-    search.
-  % COMPOSE_COER
-  apply IH to H4. case H6.
-    apply IH to H5. case H8.
-      case H7.
-        search.
-        case H9. 
-          search.
-          search.
-          case H4. case H5. case H15. case H17.
-          case H4. case H5. case H15. case H17.
-          case H4. case H5. case H14. case H16.
-          search.
-          case H4. case H5. case H14. case H16.
-        case H9. 
-          search.
-          case H4. case H5. case H15. case H17.
-          search.
-          search.
-          case H4. case H5. case H14. case H16.
-          search.
-          case H4. case H5. case H14. case H16.
-        case H9. 
-          search.
-          search.
-          case H4. case H5. case H15. case H17.
-          case H4. case H5. case H15. case H17.
-          case H4. case H5. case H14. case H16.
-          search.
-          case H4. case H5. case H14. case H16.
-        case H9.
-          search.
-          case H4. case H5. case H14. case H16.
-          case H4. case H5. case H14. case H16.
-          case H4. case H5. case H14. case H16.
-          search.
-          search.
-          search.
-        case H9.
-          search.
-          case H4. case H5. case H14. case H16.
-          case H4. case H5. case H14. case H16.
-          case H4. case H5. case H14. case H16.
-          search.
-          search.
-          search.
-        search.
-      search.
-    search.
-  % REFL_COER
-  search.
-  % FUN_COER
-  apply IH to H4. case H6.
-    apply IH to H5. case H8.
-      search.
-      search.
-    search.
-  % HAND_COER
-  apply IH to H4. case H6.
-    apply IH to H5. case H8.
-      search.
-      search.
-    search.
-  % HAND2FUN_COER
-  apply IH to H4. case H6.
-    apply IH to H5. case H8.
-      search.
-      search.
-    search.
-  % LEFT_COER
-  apply IH to H4. case H5.
-    case H6.
-      case H4. case H8. search.
-      search.
-      search.
-      search.
-      case H4. case H9.
-      case H4. case H9.
-      case H4. case H9.
-    search.
-  apply IH to H4. case H5.
-    case H6.
-      case H4. case H8. search.
-      search.
-      search.
-      search.
-      case H4. case H9.
-      case H4. case H9.
-      case H4. case H9.
-    search.
-  apply IH to H4. case H5.
-    case H6.
-      case H4. case H8. 
-      search.
-      search.
-      search.
-      case H4. case H9.
-      case H4. case H9.
-      case H4. case H9.
-    search.
-  % RIGHT_COER
-  apply IH to H4. case H5.
-    case H6.
-      case H4. case H8. search.
-      search.
-      search.
-      search.
-      case H4. case H9.
-      case H4. case H9.
-      case H4. case H9.
-    search.
-  apply IH to H4. case H5.
-    case H6.
-      case H4. case H8. search.
-      search.
-      search.
-      search.
-      case H4. case H9.
-      case H4. case H9.
-      case H4. case H9.
-    search.
-  apply IH to H4. case H5.
-    case H6.
-      case H4. case H8. 
-      search.
-      search.
-      search.
-      case H4. case H9.
-      case H4. case H9.
-      case H4. case H9.
-    search.
-  % APP_TY_COER
-  apply IH to H4. case H5.
-    case H6.
-      case H4. case H8. search.
-      case H4. case H10.
-      case H4. case H10.
-      case H4. case H10.
-      case H4. case H9.
-      case H4. case H9.
-      case H4. case H9.
-    search.
-  % APP_COER_COER
-  apply IH to H4. case H6.
-    case H7.
-      case H4. case H9. search.
-      case H4. case H11.
-      case H4. case H11.
-      case H4. case H11.
-      case H4. case H10.
-      case H4. case H10.
-      case H4. case H10.
-    search.
-% QED
-
 Theorem ml/progress_thm :
   forall Sig V A,
     {ml/of_term Sig V A} -> {ml/progress V}.
@@ -258,53 +52,62 @@ apply IH to H4. case H5.
     case H4. case H8.
     search.
     case H4. case H8.
-    case H4. case H11. case H13. case H15.
-    case H4. case H11. case H13. case H15.
-    case H4. case H11. case H13. case H15.
+    case H4. case H9. case H11. case H13.
+    case H4. case H9. case H11. case H13.
+    case H4. case H9. case H11. case H13.
+    case H4. case H9. search.
+    case H4. case H9. case H11. case H13.
     case H4. case H9.
     case H4. case H9.
   search.
   search.
 % CAST
 apply IH to H4. case H6.
-  apply ml/progress_coer_thm to H5. case H8.
-    case H9.
-      % REFL_COER
-      search.
-      % FUN_COER 
-      search.
-      % HAND_COER 
-      search.
-      % HAND2FUN_COER 
-      search.
-      % COMP_TY_COER
-      case H5. case H12. case H7.
-        case H4. case H15.
-        case H4. case H15.
-        case H4. case H15.
-        case H4. case H15.
-        case H4. case H15.
-        case H4. case H18. case H20. case H22.
-        case H4. case H18. case H20. case H22.
-        case H4. case H18. case H20. case H22.
-        search.
-        search.
-      % RETURN_COER
-      search.
-      case H5. case H12. case H7.
-        case H4. case H15.
-        case H4. case H15.
-        case H4. case H15.
-        case H4. case H15.
-        case H4. case H15.
-        case H4. case H18. case H20. case H22.
-        case H4. case H18. case H20. case H22.
-        case H4. case H18. case H20. case H22.
-        search.
-        search.
+  case H5. case H9.
+  % COMP_TY_COER
+  case H7.
+    case H4. case H12.
+    case H4. case H12.
+    case H4. case H12.
+    case H4. case H12.
+    case H4. case H12.
+    case H4. case H13. case H15. case H17.
+    case H4. case H13. case H15. case H17.
+    case H4. case H13. case H15. case H17.
+    case H4. case H13. case H15. case H17.
+    case H4. case H13. case H15. case H17.
     search.
+    search.
+  % RETURN_COER
   search.
+  % UNSAFE_COER
+  case H7.
+    case H4. case H12.
+    case H4. case H12.
+    case H4. case H12.
+    case H4. case H12.
+    case H4. case H12.
+    case H4. case H13. case H15. case H17.
+    case H4. case H13. case H15. case H17.
+    case H4. case H13. case H15. case H17.
+    case H4. case H13. case H15. case H17.
+    case H4. case H13. case H15. case H17.
+    search.
+    search.
+  % UNIT_REFL_COER
   search.
+  % FUN_COER
+  search.
+  % HAND_COER
+  search.
+  % HAND2FUN_COER
+  search.
+  % LAM_TY_COER
+  search.
+  % LAM_COER_COER
+  search.
+search.
+search.
 % HAND
 search.
 % LAM_COER
@@ -317,13 +120,15 @@ apply IH to H4. case H6.
     case H4. case H9.
     case H4. case H9.
     search.
-    case H4. case H12. case H14. case H16.
-    case H4. case H12. case H14. case H16.
-    case H4. case H12. case H14. case H16.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. case H12. case H14.
+    search.
     case H4. case H10.
     case H4. case H10.
-  search.
-  search.
+ search.
+ search.
 % APP
 apply IH to H4. case H6.
   apply IH to H5. case H8.
@@ -334,8 +139,10 @@ apply IH to H4. case H6.
       case H4. case H11.
       case H4. case H11.
       search.
-      case H4. case H14. case H16. case H18.
+      case H4. case H12. case H14. case H16.
       search.
+      case H4. case H12. case H14. case H16.
+      case H4. case H12. case H14. case H16.
       case H4. case H12.
       case H4. case H12.
     search.
@@ -365,9 +172,11 @@ apply IH to H4. case H6.
     case H4. case H9.
     case H4. case H9.
     case H4. case H9.
-    case H4. case H12. case H14. case H16.
-    case H4. case H12. case H14. case H16.
-    case H4. case H12. case H14. case H16.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. case H12. case H14.
     search.
     search.
   search.
@@ -383,18 +192,22 @@ apply IH to H5. case H6.
         case H4. case H11.
         case H4. case H11.
         case H4. case H11.
-        case H4. case H14. case H16. case H18.
-        case H4. case H14. case H16. case H18.
-        case H4. case H14. case H16. case H18.
+        case H4. case H12. case H14. case H16.
+        case H4. case H12. case H14. case H16.
+        case H4. case H12. case H14. case H16.
+        case H4. case H12. case H14. case H16.
+        case H4. case H12. case H14. case H16.
         case H5. case H12. apply ml/progress_get_ret_case to H13. search.
         case H5. case H12. case H4. case H15. apply ml/progress_get_op_case to H13 with B = X.
           apply H20 to H19. search.
         case H5. case H11.
         case H5. case H11.
         case H5. case H11.
-        case H5. case H14. case H16. case H18.
+        case H5. case H12. case H14. case H16.
         search.
-        case H5. case H14. case H16. case H18.
+        case H5. case H12. case H14. case H16.
+        case H5. case H12. case H14. case H16.
+        case H5. case H12. case H14. case H16.
         case H5. case H12.
         case H5. case H12.
      search.
