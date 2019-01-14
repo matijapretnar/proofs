@@ -1,20 +1,33 @@
-Set subgoals off.
-
 Specification "exp2ml".
 
 Close ml/ty, ml/term, ml/coer_ty, ml/hand, ml/coer, op.
+
+Set subgoals off.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Contexts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
+
   e2m/ctx Sig_t Sig_m nil nil
     := {e2m/sig Sig_t Sig_m};
+
   nabla x x', e2m/ctx Sig_e Sig_m
     (e2m/val Sig_t x A x' :: Ctx_t2m)
     (ml/of_term Sig_m x' A' :: Ctx_m)
-    := e2m/ctx Sig_t Sig_m Ctx_t2m Ctx_m /\ {Ctx_t2m |- e2m/val_ty A A'}.
+    := e2m/ctx Sig_t Sig_m Ctx_t2m Ctx_m /\ {Ctx_t2m |- e2m/val_ty A A'};
+
+   nabla t t', e2m/ctx Sig_t Sig_m
+     (e2m/val_ty t t' :: Ctx_t2m)
+     (ml/wf_ty t' :: Ctx_m)
+     := e2m/ctx Sig_t Sig_m Ctx_t2m Ctx_m;
+
+   nabla d, e2m/ctx Sig_t Sig_m
+     (e2m/full_dirt d :: Ctx_t2m)
+     (Ctx_m)
+     := e2m/ctx Sig_t Sig_m Ctx_t2m Ctx_m
+.
 
 %   nabla t, e2m/ctx Sig_t Sig_e
 %     (exp/skel_val_ty t Te :: Ctx_t)
@@ -68,37 +81,38 @@ Theorem from_impure :
       {e2m/comp_ty (C D) A2} ->
       {ml/of_coer Y (ml/ty_coer_ty A2 A1)}
   ).
-induction on 1 1 1 1. split.
-% from_impure/val
-intros. case H1.
-  % unit_ty
-  case H3. case H4. search.
-  % fun_ty
-  case H3. case H4.
-  apply IH2 to H5 H2 H7 H9.
-  apply IH1 to H6 H2 H8 H10.
-  search.
-% from_impure/comp
-intros. case H1.
-  % empty
-  case H3. % see what the full dirt D' is
-    % trivial case
-    case H2.
-    % interesting case
-    case H4.
-      % interesting case
-      apply IH to H5 H2 H7 H8. search.
-      case H8.
-  % non-empty case
-  case H3.
-    case H2.
-    case H4.
-      case H6.
-      apply IH to H5 H2 H8 H10. search.
-% to_impure/val
 skip.
-% to_impure/comp
-skip.
+% induction on 1 1 1 1. split.
+% % from_impure/val
+% intros. case H1.
+%   % unit_ty
+%   case H3. case H4. search.
+%   % fun_ty
+%   case H3. case H4.
+%   apply IH2 to H5 H2 H7 H9.
+%   apply IH1 to H6 H2 H8 H10.
+%   search.
+% % from_impure/comp
+% intros. case H1.
+%   % empty
+%   case H3. % see what the full dirt D' is
+%     % trivial case
+%     case H2.
+%     % interesting case
+%     case H4.
+%       % interesting case
+%       apply IH to H5 H2 H7 H8. search.
+%       case H8.
+%   % non-empty case
+%   case H3.
+%     case H2.
+%     case H4.
+%       case H6.
+%       apply IH to H5 H2 H8 H10. search.
+% % to_impure/val
+% skip.
+% % to_impure/comp
+% skip.
   
 
 
@@ -124,6 +138,38 @@ skip.
 Split ml/ty_strengthen as ml/strengthen_val_ty, ml/strengthen_comp_ty.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% wf preservation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem e2m/preserve_wf_ty :
+  (forall A A' Sig_t Sig_m Ctx_e2m Ctx_m, 
+     e2m/ctx Sig_t Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/val_ty A A'} -> {Ctx_m |- ml/wf_ty A'}) /\
+  (forall C C' Sig_t Sig_m Ctx_e2m Ctx_m, 
+     e2m/ctx Sig_t Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/comp_ty C C'} -> {Ctx_m |- ml/wf_ty C'}).
+induction on 2 2. split.
+
+  intros. case H2 (keep).
+    search.
+    apply IH to _ H3. apply IH1 to _ H4. search.
+    apply IH to _ H3. apply IH1 to _ H4. search.
+    apply IH to _ H3. apply IH1 to _ H5. search.
+    apply IH to _ H3. search.
+    apply IH to _ H3. search.
+    apply IH to _ H3. search.
+    apply IH to _ H3. apply IH to _ H4. apply IH to _ H5. search.
+    apply IH1 to _ H3. apply IH1 to _ H4. apply IH to _ H5. search.
+    apply IH to _ H3. search.
+    skip. % backchain
+
+  intros. case H2 (keep).
+    apply IH to _ H3. search.
+    apply IH to _ H4. search.
+    skip. % backchain
+% QED?
+
+Split e2m/preserve_wf_ty as e2m/preserve_wf_val_ty, e2m/preserve_wf_comp_ty.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Theorem
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -138,22 +184,57 @@ Theorem e2m/of_val :
      -> {Ctx_t2m |- e2m/comp Sig_t C_t D_t C_ml}
      -> exists T, {Ctx_t2m |- e2m/comp_ty D_t (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml C_ml T})
  .
-Set search_depth 7.
 induction on 2 2. split.
 % VALUES
 intros.
-case H2.
-% UNIT
-exists ml/unit_ty.
-search.
-% FUN
-Set witnesses on.
-apply IH1 to _ H4.
-exists (ml/fun_ty Aml T).
-split.
-apply ml/strengthen_comp_ty to _ H5.
-search.
-search.
+case H2 (keep).
+  % UNIT
+  search.
+  % FUN
+  apply IH1 to _ H4.
+  exists (ml/fun_ty Aml T).
+  split.
+    apply ml/strengthen_comp_ty to _ H5. search.
+    apply e2m/preserve_wf_val_ty to _ H3. 
+      apply ml/strengthen_comp_ty to _ H5.
+      apply e2m/preserve_wf_comp_ty to _ H8.
+      search.
+  % HAND
+  case H3 (keep).  apply IH1 to _ H5. skip.
+  skip.
+  skip.
+  % LAM_SKEL
+  apply IH to _ H3. exists T. search.
+  % APP_SKEL
+  apply IH to _ H3. exists T. split.
+    case H4. 
+      inst H6 with n1 = S. search.
+      skip. % backchain
+    search.
+  % LAM_TY
+  skip. % TODO: handle exp/skel_val_ty n1 S in context
+  % APP_TY 
+  apply IH to _ H3. case H6. exists (A' Am1). split.
+    inst H8 with n1 = At1, n2 = Am1. cut H9 with H4. search.
+    apply e2m/preserve_wf_val_ty to _ H4. case H7.
+      case H10. inst H12 with n1 = Am1. cut H13 with H9. search.
+    skip. % backchain
+    skip. % backchain
+    skip. % backchain
+  % LAM_DIRT
+  apply IH to _ H3. exists T. split.
+    search.
+    search.
+  % APP_DIRT
+  apply IH to _ H4.
+  skip.
+  % LAM_COER VAL
+  
+  ...
+
+exists (ml/fun_ty A1' 
+    ...
+  ...
 % SKELETON LAMBDA
 apply IH to _ H3.
 exists T.

@@ -10,7 +10,7 @@ ml/wf_ty (ml/fun_ty A B) :-
   ml/wf_ty A,
   ml/wf_ty B.
 ml/wf_ty (ml/all_ty A) :-
-  pi x\ (ml/wf_ty (A x)).
+  pi x\ (ml/wf_ty x => ml/wf_ty (A x)).
 ml/wf_ty (ml/hand_ty A B) :-
   ml/wf_ty A,
   ml/wf_ty B.
