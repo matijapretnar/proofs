@@ -1,6 +1,8 @@
 Specification "exp2ml".
+Import "common".
 
-Close ml/ty, ml/term, ml/coer_ty, ml/hand, ml/coer, op.
+Close exp/sig, exp/comp_ty, exp/coer_ty, exp/val_ty.
+Close ml/sig, ml/ty, ml/term, ml/coer_ty, ml/hand, ml/coer, op.
 
 Set subgoals off.
 
@@ -14,9 +16,9 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
     := {e2m/sig Sig_t Sig_m};
 
   nabla x x', e2m/ctx Sig_e Sig_m
-    (e2m/val Sig_t x A x' :: Ctx_t2m)
+    (e2m/val Sig_e x A x' :: Ctx_e2m)
     (ml/of_term Sig_m x' A' :: Ctx_m)
-    := e2m/ctx Sig_t Sig_m Ctx_t2m Ctx_m /\ {Ctx_t2m |- e2m/val_ty A A'};
+    := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/val_ty A A'};
 
    nabla t t', e2m/ctx Sig_t Sig_m
      (e2m/val_ty t t' :: Ctx_t2m)
@@ -28,6 +30,62 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
      (Ctx_m)
      := e2m/ctx Sig_t Sig_m Ctx_t2m Ctx_m
 .
+Theorem ctx_m_member: 
+  forall  Sig_t Sig_m Ctx_e2m Ctx_m F,
+    e2m/ctx Sig_t Sig_m Ctx_e2m Ctx_m ->
+    member F Ctx_m ->
+    (exists X' A',
+       fresh X' /\ (F = ml/of_term Sig_m X' A'))
+    \/
+    (exists T',
+       fresh T' /\ (F = ml/wf_ty T')).
+% PROOF
+induction on 1. intros. case H1 (keep).
+  case H2.
+  case H2. 
+    search.
+    apply IH to H3 H5. search.
+  case H2.
+    search.
+    apply IH to H3 H4. search.
+  apply IH to H3 H2. search.
+% QED
+
+Theorem ctx_t2m_member: 
+  forall Sig_t Sig_m Ctx_e2m Ctx_m F,
+    e2m/ctx Sig_t Sig_m Ctx_e2m Ctx_m ->
+    member F Ctx_e2m ->
+      (exists X A X' A',
+         fresh X /\ fresh X' /\ (F = e2m/val Sig_t X A X') /\ {Ctx_e2m |- e2m/val_ty A A'})
+      \/
+      (exists T T',
+         fresh T /\ fresh T' /\ (F = e2m/val_ty T T') /\ member (ml/wf_ty T') Ctx_m)
+      \/
+      (exists D,
+         fresh D /\ (F = e2m/full_dirt D)).
+% PROOF
+induction on 1. intros. case H1 (keep).
+  case H2.
+  case H2.
+    search.
+    apply IH to H3 H5. case H6.
+      left. left. exists (X n2 n1), A1, (X' n2), A'1. search.
+      left. right. search.
+      right. search.
+  case H2.
+    search.
+    apply IH to H3 H4. case H5. 
+      search. 
+      search.
+      search.
+  case H2.
+    search.
+    apply IH to H3 H4. case H5. 
+      search. 
+      search.
+      search.
+% QED
+      
 
 %   nabla t, e2m/ctx Sig_t Sig_e
 %     (exp/skel_val_ty t Te :: Ctx_t)
@@ -137,6 +195,15 @@ skip.
 
 Split ml/ty_strengthen as ml/strengthen_val_ty, ml/strengthen_comp_ty.
 
+Theorem member_meaning:
+  forall Ctx F,
+    member F Ctx -> {Ctx |- F}.
+% PROOF
+induction on 1. intros. case H1 (keep).
+  search.
+  apply IH to H2. search.
+% QED
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % wf preservation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -152,19 +219,27 @@ induction on 2 2. split.
     search.
     apply IH to _ H3. apply IH1 to _ H4. search.
     apply IH to _ H3. apply IH1 to _ H4. search.
-    apply IH to _ H3. apply IH1 to _ H5. search.
+    apply IH to _ H3. apply IH to _ H5. search.
     apply IH to _ H3. search.
     apply IH to _ H3. search.
     apply IH to _ H3. search.
     apply IH to _ H3. apply IH to _ H4. apply IH to _ H5. search.
     apply IH1 to _ H3. apply IH1 to _ H4. apply IH to _ H5. search.
     apply IH to _ H3. search.
-    skip. % backchain
+    % backchain
+    apply ctx_t2m_member to H1 H4. case H5.
+      case H3.
+      case H3. search.
+      case H3.
 
   intros. case H2 (keep).
     apply IH to _ H3. search.
     apply IH to _ H4. search.
-    skip. % backchain
+     % backchain
+    apply ctx_t2m_member to H1 H4. case H5.
+      case H3.
+      case H3.
+      case H3.
 % QED?
 
 Split e2m/preserve_wf_ty as e2m/preserve_wf_val_ty, e2m/preserve_wf_comp_ty.

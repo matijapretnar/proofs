@@ -29,10 +29,10 @@ e2m/val_ty (exp/fun_ty A C) (ml/fun_ty A' C') :-
 e2m/val_ty (exp/hand_ty (exp/bang A empty) C) (ml/fun_ty A' C') :-
   e2m/val_ty A A',
   e2m/comp_ty C C'.
-e2m/val_ty (exp/hand_ty (exp/bang A D) C) (ml/hand_ty A' C') :-
+e2m/val_ty (exp/hand_ty (exp/bang A D) (exp/bang B _)) (ml/hand_ty A' B') :-
   e2m/val_ty A A',
   e2m/full_dirt D,
-  e2m/comp_ty C C'.
+  e2m/val_ty B B'.
 e2m/val_ty (exp/all_skel A) A' :-
   pi s\ e2m/val_ty (A s) A'.
 e2m/val_ty (exp/all_ty _ A) (ml/all_ty A') :-
@@ -165,14 +165,35 @@ e2m/comp Sig (exp/do Ct1 Ct2) (exp/bang At2 (cons O D)) (ml/do Cm1 Cm2) :-
 e2m/comp Sig (exp/with C V) B2 (ml/app V' C') :-
   e2m/comp Sig C (exp/bang A1 empty) C',
   e2m/val Sig V (exp/hand_ty (exp/bang A1 empty) B2) V'.
-e2m/comp Sig (exp/with C V) B2 (ml/with V' C') :-
+e2m/comp Sig (exp/with C V) (exp/bang B2 empty) (ml/cast (ml/with V' C') (ml/unsafe_coer Y)) :-
   e2m/comp Sig C (exp/bang A1 D1) C',
   e2m/full_dirt(D1),
-  e2m/val Sig V (exp/hand_ty (exp/bang A1 D1) B2) V'.
+  e2m/val Sig V (exp/hand_ty (exp/bang A1 D1) (exp/bang B2 empty)) V',
+  e2m/val_ty B2 B2',
+  e2m/refl_coer B2' Y.
+e2m/comp Sig (exp/with C V) (exp/bang B2 D2) (ml/with V' C') :-
+  e2m/comp Sig C (exp/bang A1 D1) C',
+  e2m/full_dirt(D1),
+  e2m/val Sig V (exp/hand_ty (exp/bang A1 D1) (exp/bang B2 D2)) V',
+  e2m/full_dirt (D2).
 % COMPUTATION COERCION
 e2m/comp Sig (exp/comp_cast Ct Yt) Bt2 (ml/cast Cm Ym) :-
   e2m/comp Sig Ct Bt1 Cm,
   e2m/coer Yt (exp/comp_ty_coer_ty Bt1 Bt2) Ym.
+
+e2m/refl_coer ml/unit_ty       ml/unit_refl_coer.
+e2m/refl_coer (ml/fun_ty A B)  (ml/fun_coer Y1 Y2) :-
+  e2m/refl_coer A Y1,
+  e2m/refl_coer B Y2.
+e2m/refl_coer (ml/all_ty A) (ml/lam_ty_coer Y) :-
+  pi x\ e2m/refl_coer (A x) (Y x).
+e2m/refl_coer (ml/hand_ty A B) (ml/hand_coer Y1 Y2) :-
+  e2m/refl_coer A Y1,
+  e2m/refl_coer B Y2.
+e2m/refl_coer (ml/qual_ty Y A) (ml/lam_coer_coer Y Y1) :-
+  e2m/refl_coer A Y1.
+e2m/refl_coer (ml/comp_ty A) (ml/comp_ty_coer Y) :-
+  e2m/refl_coer A Y.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % e2m/coer
