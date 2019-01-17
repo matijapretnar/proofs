@@ -117,7 +117,7 @@ e2m/val Sig (exp/app_coer Vt Yt) At Vm :-
   exp/of_coer Y (exp/dirt_coer_ty D1 D2).
 % VALUE COERCION
 e2m/val Sig (exp/val_cast Vt Yt) A2 (ml/cast Vm Ym) :-
-  e2m/val Sig Vt At1 Vm.
+  e2m/val Sig Vt At1 Vm,
   e2m/coer Yt (exp/val_ty_coer_ty At1 At2) Ym.
  
 % RETURN CASE
@@ -203,18 +203,31 @@ e2m/coer exp/unit_refl_coer (exp/val_ty_coer_ty exp/unit_ty exp/unit_ty) ml/unit
 e2m/coer (exp/fun_coer Y1 Y2) (exp/val_ty_coer_ty (exp/fun_ty A1 B1) (exp/fun_ty A2 B2)) (ml/fun_coer Y1' Y2') :-
   e2m/coer Y1 (exp/val_ty_coer_ty A2 A1) Y1',
   e2m/coer Y2 (exp/comp_ty_coer_ty B1 B2) Y2'.
-e2m/coer (exp/hand_coer Y1 Y2) (exp/val_ty_coer_ty (exp/hand_ty B1 B1') (exp/hand_ty B2 B2')) (ml/fun_coer Y1' Y2') :-
+e2m/coer (exp/hand_coer Y1 Y2) (exp/val_ty_coer_ty (exp/hand_ty (exp/bang A1 empty) B1') (exp/hand_ty (exp/bang A2 empty) B2')) (ml/fun_coer Y1' Y2') :-
   e2m/coer Y1 (exp/comp_ty_coer_ty (exp/bang A2 empty) (exp/bang A1 empty)) Y1',
   e2m/coer Y2 (exp/comp_ty_coer_ty B1' B2') Y2'.
-e2m/coer (exp/hand_coer Y1 Y2) (exp/val_ty_coer_ty (exp/hand_ty B1 B1') (exp/hand_ty B2 B2')) (ml/hand_coer Y1' Y2') :-
+e2m/coer (exp/hand_coer Y1 (exp/comp_ty_coer Y2 _)) (exp/val_ty_coer_ty (exp/hand_ty (exp/bang A1 D1) (exp/bang B1' _)) (exp/hand_ty (exp/bang A2 D2) (exp/bang B2' _))) (ml/hand_coer Y1' (ml/comp_ty_coer Y2')) :-
   e2m/coer Y1 (exp/comp_ty_coer_ty (exp/bang A2 D2) (exp/bang A1 D1)) Y1',
   e2m/full_dirt D1,
   e2m/full_dirt D2,
-  e2m/coer Y2 (exp/comp_ty_coer_ty B1' B2') Y2'.
-e2m/coer (exp/hand_coer Y1 Y2) (exp/val_ty_coer_ty (exp/hand_ty B1 B1') (exp/hand_ty B2 B2')) (ml/hand2fun_coer Y1' Y2') :-
-  e2m/coer Y1 (exp/comp_ty_coer_ty (exp/bang A2 empty) (exp/bang A1 D1)) Y1',
+  e2m/coer Y2 (exp/val_ty_coer_ty B1' B2') Y2'.
+e2m/coer (exp/hand_coer (exp/comp_ty_coer Y1 _) (exp/comp_ty_coer Y2 _) 
+         (exp/val_ty_coer_ty                                                                                         
+             (exp/hand_ty (exp/bang A1 D1)    (exp/bang A1' empty)) 
+             (exp/hand_ty (exp/bang A2 empty) (exp/bang A2' D2')))                                            
+         (ml/hand2fun_coer Y1' (ml/unsafe_coer Y2')) :-
+  e2m/coer Y1 (exp/val_ty_coer_ty A2 A1) Y1',
   e2m/full_dirt D1,
-  e2m/coer Y2 (exp/comp_ty_coer_ty B1' B2') Y2'.
+  e2m/coer Y2 (exp/comp_ty_coer_ty (exp/bang A1' empty) (exp/bang A2' D2')) Y2'.
+e2m/coer (exp/hand_coer (exp/comp_ty_coer Y1 _) (exp/comp_ty_coer Y2 _) 
+         (exp/val_ty_coer_ty                                                                                         
+             (exp/hand_ty (exp/bang A1 D1)    (exp/bang A1' D1')) 
+             (exp/hand_ty (exp/bang A2 empty) (exp/bang A2' D2')))                                            
+         (ml/hand2fun_coer Y1' Y2') :-
+  e2m/coer Y1 (exp/val_ty_coer_ty A2 A1) Y1',
+  e2m/full_dirt D1,
+  e2m/full_dirt D1',
+  e2m/coer Y2 (exp/comp_ty_coer_ty (exp/bang A1' D1') (exp/bang A2' D2')) Y2'.
 
 e2m/coer (exp/lam_skel_coer Y) (exp/val_ty_coer_ty (exp/all_skel A1) (exp/all_skel A2)) Y' :-
   pi s\ e2m/coer (Y s) (exp/val_ty_coer_ty (A1 s) (A2 s)) Y'.
@@ -243,7 +256,7 @@ e2m/dirt_coer D1 D2 Y (ml/comp_ty_coer Y) :-
   e2m/full_dirt D2.
 e2m/dirt_coer empty D2 Y (ml/return_coer Y) :-
   e2m/full_dirt D2.
-e2m/dirt_coer empty empty Y Y.
+e2m/dirt_coer empty empty Y Y :-
   e2m/full_dirt D2.
 
 

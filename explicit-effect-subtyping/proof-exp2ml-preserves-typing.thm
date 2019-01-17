@@ -3,6 +3,7 @@ Import "common".
 
 Close exp/sig, exp/comp_ty, exp/coer_ty, exp/val_ty.
 Close ml/sig, ml/ty, ml/term, ml/coer_ty, ml/hand, ml/coer, op.
+Close dirt.
 
 Set subgoals off.
 
@@ -205,7 +206,7 @@ induction on 1. intros. case H1 (keep).
 % QED
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% wf preservation
+% wf_ty preservation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem e2m/preserve_wf_ty :
@@ -243,6 +244,60 @@ induction on 2 2. split.
 % QED?
 
 Split e2m/preserve_wf_ty as e2m/preserve_wf_val_ty, e2m/preserve_wf_comp_ty.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% of_coer preservation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem e2m/preserve_ty_coer:
+  (forall Y A B Y',
+    {e2m/coer Y (exp/val_ty_coer_ty A B) Y'} ->
+      (exists A' B',
+         {e2m/val_ty A A'} /\ 
+         {e2m/val_ty B B'} /\   
+         {ml/of_coer Y' (ml/ty_coer_ty A' B')}))
+  /\
+  (forall Y A B Y',
+    {e2m/coer Y (exp/comp_ty_coer_ty A B) Y'} ->
+      (exists A' B',
+         {e2m/comp_ty A A'} /\ 
+         {e2m/comp_ty B B'} /\   
+         {ml/of_coer Y' (ml/ty_coer_ty A' B')})).
+% PROOF
+induction on 1 1. split.
+
+  intros. case H1 (keep).
+    search.
+    apply IH to H2. apply IH1 to H3.
+      exists (ml/fun_ty B' A'1), (ml/fun_ty A' B'1). split.
+        search.
+        search.
+        case H6 (keep). case H9 (keep). case H10. case H12. search.
+    apply IH1 to H2. apply IH1 to H3. 
+      exists (ml/fun_ty B' A'1), (ml/fun_ty A' B'1). split. 
+        case H4. 
+          case H5. 
+            search.
+            case H11. 
+          case H10.
+        case H4. 
+          case H5. 
+            search.
+            case H11. 
+          case H10.
+        case H6 (keep). case H9 (keep). case H10. case H12. search.
+    apply IH1 to H2. apply IH to H5. 
+      case H6. case H4. case H7. case H3.
+        exists (ml/hand_ty A'3 A'1), (ml/hand_ty A'2 B'1). split.
+          search.
+          search.
+          case H8 (keep). case H11 (keep). case H16. case H18. case H20. case H21. search.
+    apply IH1 to H2. apply IH1 to H4.
+        
+        
+
+...
+% QED
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Theorem
