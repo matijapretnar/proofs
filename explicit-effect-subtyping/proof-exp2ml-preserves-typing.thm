@@ -245,6 +245,40 @@ induction on 2 2. split.
 
 Split e2m/preserve_wf_ty as e2m/preserve_wf_val_ty, e2m/preserve_wf_comp_ty.
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Theorem ml/of_coer_unique:
+  forall Y A1 B1 A2 B2,
+    {ml/of_coer Y (ml/ty_coer_ty A1 B1)} ->
+    {ml/of_coer Y (ml/ty_coer_ty A2 B2)} ->
+    A1 = A2 /\ B1 = B2.
+% PROOF
+skip.
+% QED
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% dirt_coer preservation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Theorem e2m/preserve_dirt_coer:
+  forall D1 D2 Y1' Y2' A1 A2 A1' A2',
+    {e2m/dirt_coer D1 D2 Y1' Y2'} ->
+    {ml/of_coer Y1' (ml/ty_coer_ty A1' A2')} ->
+    {e2m/val_ty A1 A1'} ->
+    {e2m/val_ty A2 A2'} ->
+    (exists A3' A4',
+       {ml/of_coer Y2' (ml/ty_coer_ty A3' A4')} /\
+       {e2m/comp_ty (exp/bang A1 D1) A3'} /\ 
+       {e2m/comp_ty (exp/bang A2 D2) A4'}).
+% PROOF
+intros. case H1 (keep).
+  exists (ml/comp_ty A1'), (ml/comp_ty A2'). case H2 (keep). case H7. search.
+  exists A1', (ml/comp_ty A2'). case H2 (keep). case H6. search.
+  exists A1', A2'. search. 
+% QED
+   
+    
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % of_coer preservation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -292,11 +326,32 @@ induction on 1 1. split.
           search.
           search.
           case H8 (keep). case H11 (keep). case H16. case H18. case H20. case H21. search.
-    apply IH1 to H2. apply IH1 to H4.
+    apply IH to H2. apply IH1 to H4. case H8.
+      exists (ml/hand_ty B' A'1), (ml/fun_ty A' B'1). split.
+        search.
+        search.
+        case H10 (keep). case H12. case H7 (keep). case H16. search.
+      case H11.
+    apply IH to H2. apply IH1 to H5.
+      case H8 (keep). case H11 (keep). case H12. case H14.
+      case H9.
+        case H4.
+        exists (ml/hand_ty B' A'2), (ml/fun_ty A' B'1). split.
+          search.
+          search.
+          case H18. search.
+    apply IH to H2. search.
+    skip. % TODO
+    skip. % TODO
+    apply IH to H2. case H7 (keep). case H8. skip. % TODO
+    skip. % TODO
+    apply IH to H2. search.
         
-        
+  intros. case H1 (keep).
+    apply IH to H2. 
+      apply e2m/preserve_dirt_coer to H4 H7 H5 H6.
+      search.
 
-...
 % QED
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -211,7 +211,7 @@ e2m/coer (exp/hand_coer Y1 (exp/comp_ty_coer Y2 _)) (exp/val_ty_coer_ty (exp/han
   e2m/full_dirt D1,
   e2m/full_dirt D2,
   e2m/coer Y2 (exp/val_ty_coer_ty B1' B2') Y2'.
-e2m/coer (exp/hand_coer (exp/comp_ty_coer Y1 _) (exp/comp_ty_coer Y2 _) 
+e2m/coer (exp/hand_coer (exp/comp_ty_coer Y1 _) (exp/comp_ty_coer Y2 _)) 
          (exp/val_ty_coer_ty                                                                                         
              (exp/hand_ty (exp/bang A1 D1)    (exp/bang A1' empty)) 
              (exp/hand_ty (exp/bang A2 empty) (exp/bang A2' D2')))                                            
@@ -219,7 +219,7 @@ e2m/coer (exp/hand_coer (exp/comp_ty_coer Y1 _) (exp/comp_ty_coer Y2 _)
   e2m/coer Y1 (exp/val_ty_coer_ty A2 A1) Y1',
   e2m/full_dirt D1,
   e2m/coer Y2 (exp/comp_ty_coer_ty (exp/bang A1' empty) (exp/bang A2' D2')) Y2'.
-e2m/coer (exp/hand_coer (exp/comp_ty_coer Y1 _) (exp/comp_ty_coer Y2 _) 
+e2m/coer (exp/hand_coer (exp/comp_ty_coer Y1 _) (exp/comp_ty_coer Y2 _)) 
          (exp/val_ty_coer_ty                                                                                         
              (exp/hand_ty (exp/bang A1 D1)    (exp/bang A1' D1')) 
              (exp/hand_ty (exp/bang A2 empty) (exp/bang A2' D2')))                                            
