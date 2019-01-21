@@ -88,27 +88,6 @@ induction on 1. intros. case H1 (keep).
 % QED
       
 
-%   nabla t, e2m/ctx Sig_t Sig_e
-%     (exp/skel_val_ty t Te :: Ctx_t)
-%     (exp/skel_val_ty t Te :: Ctx_t2e)
-%     Ctx_e
-%     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e;
-%   nabla w, e2m/ctx Sig_t Sig_e
-%     (exp/of_coer w (exp/val_ty_coer_ty At1 At2) :: Ctx_t)
-%     Ctx_t2e
-%     Ctx_e
-%     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- exp/skel_val_ty At1 S} /\ {Ctx_t |- exp/skel_val_ty At2 S};
-%   nabla w, e2m/ctx Sig_t Sig_e
-%     (exp/of_coer w (exp/comp_ty_coer_ty At1 At2) :: Ctx_t)
-%     Ctx_t2e
-%     Ctx_e
-%     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e /\ exists S, {Ctx_t |- exp/skel_comp_ty At1 S} /\ {Ctx_t |- exp/skel_comp_ty At2 S};
-%   nabla w, e2m/ctx Sig_t Sig_e
-%     (exp/of_coer w (exp/dirt_coer_ty D1 D2) :: Ctx_t)
-%     Ctx_t2e
-%     Ctx_e
-%     := e2m/ctx Sig_t Sig_e Ctx_t Ctx_t2e Ctx_e.
-
 Theorem from_impure :
   (
     forall A D Y D' A1 A2,
@@ -179,20 +158,46 @@ skip.
 % Strenghtening Lemma
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Theorem ml/full_dirt_strengthen :
+    forall Sig_t Sig_ml Ctx_t2m Ctx_m A D, 
+         e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m
+      -> {Ctx_t2m, e2m/val Sig_t n1 A n2 |- e2m/full_dirt D} 
+      -> {Ctx_t2m |- e2m/full_dirt D}.
+% PROOF
+intros. case H2 (keep).
+  search.
+  case H4.
+    case H3.
+    apply ctx_t2m_member to H1 H5. case H6. 
+      case H3.
+      case H3.
+      case H3. search.
+% QED
+
 Theorem ml/ty_strengthen :
   (
-    forall Sig_t Sig_ml Ctx_t2m Ctx_m A T, 
+    forall Sig_t Sig_ml Ctx_t2m Ctx_m A B T, 
          e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m
-      -> {Ctx_t2m, e2m/val Sig_t n1 A n2 |- e2m/val_ty A T} 
-      -> {Ctx_t2m |- e2m/val_ty A T}
+      -> {Ctx_t2m, e2m/val Sig_t n1 A n2 |- e2m/val_ty B T} 
+      -> {Ctx_t2m |- e2m/val_ty B T}
   ) /\ (
     forall Sig_t Sig_ml Ctx_t2m Ctx_m A C T, 
          e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m 
       -> {Ctx_t2m, e2m/val Sig_t n1 A n2 |- e2m/comp_ty C T} 
       -> {Ctx_t2m |- e2m/comp_ty C T}
   ).
-skip.
-% induction on 2 2. split.
+% PROOF
+induction on 2 2. split.
+  intros. case H2 (keep).
+    search.
+    apply IH to H1 H3. apply IH1 to H1 H4. search.
+    apply IH to H1 H3. apply IH1 to H1 H4. search.
+    apply IH to H1 H3. apply IH to H1 H5. apply ml/full_dirt_strengthen to H1 H4. search.
+    apply IH to H1 H3. search.
+    apply IH to _ H3. search.
+    apply IH to _ H3. search.
+... 
+% QED
 
 Split ml/ty_strengthen as ml/strengthen_val_ty, ml/strengthen_comp_ty.
 
@@ -414,6 +419,24 @@ case H2 (keep).
   apply IH to _ H4.
   skip.
   % LAM_COER VAL
+  skip.
+  % LAM_COER COMP
+  skip.
+  % LAM_COER DIRT
+  skip.
+  % APP_COER VAL
+  skip.
+  % APP_COER COMP
+  skip.
+  % APP_COER DIRT
+  skip.
+  % CAST
+  skip.
+  % backchain
+  skip.
+
+intros.
+case H2 (keep).
   
   ...
 
