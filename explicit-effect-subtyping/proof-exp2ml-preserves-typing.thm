@@ -196,7 +196,24 @@ induction on 2 2. split.
     apply IH to H1 H3. search.
     apply IH to _ H3. search.
     apply IH to _ H3. search.
-... 
+    apply IH to _ H3. apply IH to _ H4. apply IH to _ H5. search.
+    apply IH1 to _ H3. apply IH1 to _ H4. apply IH to _ H5. search.
+    apply IH to _ H3. search.
+    case H4.
+      case H3.
+      apply ctx_e2m_member to H1 H5. case H6.
+        case H3.
+        case H3. search.
+        case H3.
+  intros. case H2 (keep).
+    apply IH to H1 H3. search.
+    apply IH to H1 H4. apply ml/full_dirt_strengthen to H1 H3. search.
+    case H4.
+      case H3.
+      apply ctx_e2m_member to H1 H5. case H6.
+        case H3.
+        case H3.
+        case H3.
 % QED
 
 Split ml/ty_strengthen as ml/strengthen_val_ty, ml/strengthen_comp_ty.
