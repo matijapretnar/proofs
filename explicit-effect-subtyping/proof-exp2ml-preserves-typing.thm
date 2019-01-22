@@ -67,7 +67,7 @@ skip.
 % skip.
 % % to_impure/comp
 % skip.
-  
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dirt_coer preservation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -244,7 +244,15 @@ case H2 (keep).
 
 intros.
 case H2 (keep).
-  
+  % APP
+  apply IH to H1 H3. apply IH to H1 H4.
+  case H5.
+    apply e2m/val_ty_unique to H1 H7 H9. apply e2m/preserve_wf_comp_ty to H1 H10. search.
+    apply ctx_e2m_member to H1 H10. case H11.
+      case H9.
+      case H9. case H12.
+      case H9.
+  % LET
   ...
 
 exists (ml/fun_ty A1' 
