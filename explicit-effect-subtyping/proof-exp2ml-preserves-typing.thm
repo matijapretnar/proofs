@@ -13,27 +13,27 @@ Set subgoals off.
 
 Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
 
-  e2m/ctx Sig_t Sig_m nil nil
-    := {e2m/sig Sig_t Sig_m};
+  e2m/ctx Sig_e Sig_m nil nil
+    := {e2m/sig Sig_e Sig_m};
 
   nabla x x', e2m/ctx Sig_e Sig_m
     (e2m/val Sig_e x A x' :: Ctx_e2m)
     (ml/of_term Sig_m x' A' :: Ctx_m)
     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/val_ty A A'};
 
-   nabla t t', e2m/ctx Sig_t Sig_m
-     (e2m/val_ty t t' :: Ctx_t2m)
+   nabla t t', e2m/ctx Sig_e Sig_m
+     (e2m/val_ty t t' :: Ctx_e2m)
      (ml/wf_ty t' :: Ctx_m)
-     := e2m/ctx Sig_t Sig_m Ctx_t2m Ctx_m;
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m;
 
-   nabla d, e2m/ctx Sig_t Sig_m
-     (e2m/full_dirt d :: Ctx_t2m)
+   nabla d, e2m/ctx Sig_e Sig_m
+     (e2m/full_dirt d :: Ctx_e2m)
      (Ctx_m)
-     := e2m/ctx Sig_t Sig_m Ctx_t2m Ctx_m
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m
 .
 Theorem ctx_m_member: 
-  forall  Sig_t Sig_m Ctx_e2m Ctx_m F,
-    e2m/ctx Sig_t Sig_m Ctx_e2m Ctx_m ->
+  forall  Sig_e Sig_m Ctx_e2m Ctx_m F,
+    e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
     member F Ctx_m ->
     (exists X' A',
        fresh X' /\ (F = ml/of_term Sig_m X' A'))
@@ -52,12 +52,12 @@ induction on 1. intros. case H1 (keep).
   apply IH to H3 H2. search.
 % QED
 
-Theorem ctx_t2m_member: 
-  forall Sig_t Sig_m Ctx_e2m Ctx_m F,
-    e2m/ctx Sig_t Sig_m Ctx_e2m Ctx_m ->
+Theorem ctx_e2m_member: 
+  forall Sig_e Sig_m Ctx_e2m Ctx_m F,
+    e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
     member F Ctx_e2m ->
       (exists X A X' A',
-         fresh X /\ fresh X' /\ (F = e2m/val Sig_t X A X') /\ {Ctx_e2m |- e2m/val_ty A A'})
+         fresh X /\ fresh X' /\ (F = e2m/val Sig_e X A X') /\ {Ctx_e2m |- e2m/val_ty A A'})
       \/
       (exists T T',
          fresh T /\ fresh T' /\ (F = e2m/val_ty T T') /\ member (ml/wf_ty T') Ctx_m)
@@ -159,16 +159,16 @@ skip.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem ml/full_dirt_strengthen :
-    forall Sig_t Sig_ml Ctx_t2m Ctx_m A D, 
-         e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m
-      -> {Ctx_t2m, e2m/val Sig_t n1 A n2 |- e2m/full_dirt D} 
-      -> {Ctx_t2m |- e2m/full_dirt D}.
+    forall Sig_e Sig_ml Ctx_e2m Ctx_m A D, 
+         e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
+      -> {Ctx_e2m, e2m/val Sig_e n1 A n2 |- e2m/full_dirt D} 
+      -> {Ctx_e2m |- e2m/full_dirt D}.
 % PROOF
 intros. case H2 (keep).
   search.
   case H4.
     case H3.
-    apply ctx_t2m_member to H1 H5. case H6. 
+    apply ctx_e2m_member to H1 H5. case H6. 
       case H3.
       case H3.
       case H3. search.
@@ -176,15 +176,15 @@ intros. case H2 (keep).
 
 Theorem ml/ty_strengthen :
   (
-    forall Sig_t Sig_ml Ctx_t2m Ctx_m A B T, 
-         e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m
-      -> {Ctx_t2m, e2m/val Sig_t n1 A n2 |- e2m/val_ty B T} 
-      -> {Ctx_t2m |- e2m/val_ty B T}
+    forall Sig_e Sig_ml Ctx_e2m Ctx_m A B T, 
+         e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
+      -> {Ctx_e2m, e2m/val Sig_e n1 A n2 |- e2m/val_ty B T} 
+      -> {Ctx_e2m |- e2m/val_ty B T}
   ) /\ (
-    forall Sig_t Sig_ml Ctx_t2m Ctx_m A C T, 
-         e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m 
-      -> {Ctx_t2m, e2m/val Sig_t n1 A n2 |- e2m/comp_ty C T} 
-      -> {Ctx_t2m |- e2m/comp_ty C T}
+    forall Sig_e Sig_ml Ctx_e2m Ctx_m A C T, 
+         e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m 
+      -> {Ctx_e2m, e2m/val Sig_e n1 A n2 |- e2m/comp_ty C T} 
+      -> {Ctx_e2m |- e2m/comp_ty C T}
   ).
 % PROOF
 induction on 2 2. split.
@@ -215,10 +215,10 @@ induction on 1. intros. case H1 (keep).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem e2m/preserve_wf_ty :
-  (forall A A' Sig_t Sig_m Ctx_e2m Ctx_m, 
-     e2m/ctx Sig_t Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/val_ty A A'} -> {Ctx_m |- ml/wf_ty A'}) /\
-  (forall C C' Sig_t Sig_m Ctx_e2m Ctx_m, 
-     e2m/ctx Sig_t Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/comp_ty C C'} -> {Ctx_m |- ml/wf_ty C'}).
+  (forall A A' Sig_e Sig_m Ctx_e2m Ctx_m, 
+     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/val_ty A A'} -> {Ctx_m |- ml/wf_ty A'}) /\
+  (forall C C' Sig_e Sig_m Ctx_e2m Ctx_m, 
+     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/comp_ty C C'} -> {Ctx_m |- ml/wf_ty C'}).
 induction on 2 2. split.
 
   intros. case H2 (keep).
@@ -233,7 +233,7 @@ induction on 2 2. split.
     apply IH1 to _ H3. apply IH1 to _ H4. apply IH to _ H5. search.
     apply IH to _ H3. search.
     % backchain
-    apply ctx_t2m_member to H1 H4. case H5.
+    apply ctx_e2m_member to H1 H4. case H5.
       case H3.
       case H3. search.
       case H3.
@@ -242,7 +242,7 @@ induction on 2 2. split.
     apply IH to _ H3. search.
     apply IH to _ H4. search.
      % backchain
-    apply ctx_t2m_member to H1 H4. case H5.
+    apply ctx_e2m_member to H1 H4. case H5.
       case H3.
       case H3.
       case H3.
@@ -364,15 +364,15 @@ induction on 1 1. split.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem e2m/of_val :
- (forall Sig_t Sig_ml V_t V_ml A_t Ctx_t2m Ctx_m,
-        e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m
-     -> {Ctx_t2m |- e2m/val Sig_t V_t A_t V_ml}
-     -> exists T, {Ctx_t2m |- e2m/val_ty A_t (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml V_ml T})
+ (forall Sig_e Sig_ml V_t V_ml A_t Ctx_e2m Ctx_m,
+        e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
+     -> {Ctx_e2m |- e2m/val Sig_e V_t A_t V_ml}
+     -> exists T, {Ctx_e2m |- e2m/val_ty A_t (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml V_ml T})
  /\
- (forall Sig_t Sig_ml C_t C_ml D_t Ctx_t2m Ctx_m,
-        e2m/ctx Sig_t Sig_ml Ctx_t2m Ctx_m
-     -> {Ctx_t2m |- e2m/comp Sig_t C_t D_t C_ml}
-     -> exists T, {Ctx_t2m |- e2m/comp_ty D_t (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml C_ml T})
+ (forall Sig_e Sig_ml C_t C_ml D_t Ctx_e2m Ctx_m,
+        e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
+     -> {Ctx_e2m |- e2m/comp Sig_e C_t D_t C_ml}
+     -> exists T, {Ctx_e2m |- e2m/comp_ty D_t (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml C_ml T})
  .
 induction on 2 2. split.
 % VALUES
