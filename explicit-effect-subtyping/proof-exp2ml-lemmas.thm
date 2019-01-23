@@ -209,7 +209,16 @@ Theorem ml/of_coer_unique:
     {ml/of_coer Y (ml/ty_coer_ty A2 B2)} ->
     A1 = A2 /\ B1 = B2.
 % PROOF
-skip.
+induction on 1. intros. case H1. case H2. case H4 (keep).
+  case H6. apply IH to H7 H8. search.
+  case H6. apply IH to H7 H8. search.
+  case H6. apply IH to H7 H8. search.
+  case H6. search.
+  case H6. apply IH to H7 H9. apply IH to H8 H10. search.
+  case H6. apply IH to H7 H9. apply IH to H8 H10. search.
+  case H6. apply IH to H7 H9. apply IH to H8 H10. search.
+  case H6. apply IH to H7 H8. search.
+  case H6. apply IH to H7 H8. search.
 % QED
 
 
