@@ -80,12 +80,11 @@ e2m/val Sig (exp/app_skel Vt S) (At S) Vm :-
   e2m/val Sig Vt (exp/all_skel At) Vm.
 % VALUE TY LAMBDA
 e2m/val Sig (exp/lam_ty S Vt) (exp/all_ty S At) (ml/lam_ty Vm) :-
-  pi x\ pi x'\ (exp/skel_val_ty x S => e2m/val_ty x x' => e2m/val Sig (Vt x) (At x) (Vm x')).
+  pi x\ pi x'\ (e2m/val_ty x x' => e2m/val Sig (Vt x) (At x) (Vm x')).
 % VALUE TY APPLY
 e2m/val Sig (exp/app_ty Vt At1) (At2 At1) (ml/app_ty Vm Am1) :-
   e2m/val Sig Vt (exp/all_ty S At2) Vm,
-  e2m/val_ty At1 Am1,
-  exp/skel_val_ty At1 S.
+  e2m/val_ty At1 Am1.
 % DIRT LAMBDA
 e2m/val Sig (exp/lam_dirt Vt) (exp/all_dirt At) Vm :-
   pi d\ (e2m/full_dirt d => e2m/val Sig (Vt d) (At d) Vm).
@@ -103,7 +102,7 @@ e2m/val Sig (exp/lam_coer (exp/comp_ty_coer_ty C1 C2) Vt) (exp/qual_ty (exp/comp
   e2m/comp_ty C1 C1',
   e2m/comp_ty C2 C2'.
 e2m/val Sig (exp/lam_coer (exp/dirt_coer_ty D1 D2) Vt) (exp/qual_ty (exp/dirt_coer_ty D1 D2) At) Vm :-
-  pi w\ (exp/of_coer w (exp/dirt_coer_ty D1 D2) => e2m/val Sig (Vt w) At Vm),
+  pi w\ e2m/val Sig (Vt w) At Vm,
   exp/good_coer_ty (exp/dirt_coer_ty D1 D2).
 % COERCION APPLY
 e2m/val Sig (exp/app_coer Vt Yt) At (ml/app_coer Vm Y') :-

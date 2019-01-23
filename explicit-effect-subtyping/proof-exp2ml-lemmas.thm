@@ -31,16 +31,16 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
      (Ctx_m)
      := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m;
 
-   nabla t, e2m/ctx Sig_e Sig_m
-     (exp/skel_val_ty t S :: Ctx_e2m)
-     Ctx_m
-     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m;
+   nabla w w', e2m/ctx Sig_e Sig_m
+     (e2m/coer w (exp/val_ty_coer_ty A1 A2) w' :: Ctx_e2m)
+     (ml/of_coer w' (ml/ty_coer_ty A1' A2') :: Ctx_m)
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/val_ty A1 A1'} /\ {Ctx_e2m |- e2m/val_ty A2 A2'};
 
-   nabla w, e2m/ctx Sig_e Sig_m
-     (exp/of_coer w Pi :: Ctx_e2m)
-     Ctx_m
-     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m
-.
+   nabla w w', e2m/ctx Sig_e Sig_m
+     (e2m/coer w (exp/comp_ty_coer_ty C1 C2) w' :: Ctx_e2m)
+     (ml/of_coer w' (ml/ty_coer_ty C1' C2') :: Ctx_m)
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/comp_ty C1 C1'} /\ {Ctx_e2m |- e2m/comp_ty C2 C2'}.
+
 Theorem ctx_m_member: 
   forall  Sig_e Sig_m Ctx_e2m Ctx_m F,
     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
@@ -49,7 +49,10 @@ Theorem ctx_m_member:
        fresh X' /\ (F = ml/of_term Sig_m X' A'))
     \/
     (exists T',
-       fresh T' /\ (F = ml/wf_ty T')).
+       fresh T' /\ (F = ml/wf_ty T'))
+    \/
+    (exists W T T',
+      fresh W /\ (F = ml/of_coer W (ml/ty_coer_ty T T'))).
 % PROOF
 induction on 1. intros. case H1 (keep).
   case H2.
@@ -60,8 +63,12 @@ induction on 1. intros. case H1 (keep).
     search.
     apply IH to H3 H4. search.
   apply IH to H3 H2. search.
-  apply IH to H3 H2. search.
-  apply IH to H3 H2. search.
+  case H2.
+    search.
+    apply IH to H3 H6. search.
+  case H2.
+    search.
+    apply IH to H3 H6. search.
 % QED
 
 Theorem ctx_e2m_member: 
@@ -77,11 +84,11 @@ Theorem ctx_e2m_member:
       (exists D,
          fresh D /\ (F = e2m/full_dirt D))
       \/
-      (exists T S,
-         fresh T /\ (F = exp/skel_val_ty T S))
+      (exists W W' A1 A2,
+         fresh W /\ fresh W' /\ (F = e2m/coer W (exp/val_ty_coer_ty A1 A2) W'))
       \/
-      (exists W Pi,
-         fresh W /\ (F = exp/of_coer W Pi)).
+      (exists W W' C1 C2,
+         fresh W /\ fresh W' /\ (F = e2m/coer W (exp/comp_ty_coer_ty C1 C2) W')).
 % PROOF
 induction on 1. intros. case H1 (keep).
   case H2.
@@ -111,7 +118,7 @@ induction on 1. intros. case H1 (keep).
       search.
   case H2.
     search.
-    apply IH to H3 H4. case H5. 
+    apply IH to H3 H6. case H7.
       search. 
       search.
       search.
@@ -119,7 +126,7 @@ induction on 1. intros. case H1 (keep).
       search.
   case H2.
     search.
-    apply IH to H3 H4. case H5. 
+    apply IH to H3 H6. case H7. 
       search. 
       search.
       search.
@@ -278,6 +285,15 @@ Theorem e2m/val_ty_unique:
     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
     {Ctx_e2m |- e2m/val_ty A A1} ->
     {Ctx_e2m |- e2m/val_ty A A2} ->
+    A1 = A2.
+% PROOF
+skip.
+
+Theorem e2m/comp_ty_unique:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m A A1 A2,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {Ctx_e2m |- e2m/comp_ty A A1} ->
+    {Ctx_e2m |- e2m/comp_ty A A2} ->
     A1 = A2.
 % PROOF
 skip.

@@ -137,7 +137,7 @@ ml/of_term' Sig ml/unit ml/unit_ty.
 ml/of_term' Sig (ml/fun A T) (ml/fun_ty A B) :-
   pi x\ (ml/of_term Sig x A => ml/of_term Sig (T x) B).
 ml/of_term' Sig (ml/lam_ty T) (ml/all_ty A) :-
-  pi x\ (ml/of_term Sig (T x) (A x)).
+  pi x\ (ml/wf_ty x => ml/of_term Sig (T x) (A x)).
 ml/of_term' Sig (ml/app_ty T A1) (A2 A1) :-
   ml/of_term Sig T (ml/all_ty A2).
 ml/of_term' Sig (ml/cast T Y) A2 :-

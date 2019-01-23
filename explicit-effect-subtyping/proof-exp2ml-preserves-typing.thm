@@ -225,37 +225,69 @@ case H2 (keep).
         case H6. case H6. case H9. case H6. case H6. case H6.
     search.
   % LAM_TY
-  skip. % TODO: handle exp/skel_val_ty n1 S in context
+  apply IH to _ H3.
+  apply e2m/preserve_wf_val_ty to _ H4.
+  search.
   % APP_TY 
-  apply IH to _ H3. case H6. exists (A' Am1). split.
-    inst H8 with n1 = At1, n2 = Am1. cut H9 with H4. search.
-    apply e2m/preserve_wf_val_ty to _ H4. case H7.
-      case H10. inst H12 with n1 = Am1. cut H13 with H9. search.
-    apply ctx_m_member to _ H13. case H14. case H12. case H12. case H15.
-    apply ctx_m_member to _ H11. case H12.
-      case H10.
-        skip. % interesting case for all_ty
-      case H10.
-    apply ctx_e2m_member to _ H9. case H10. case H8. case H8. case H11. case H8. case H8. case H8.
+  apply IH to _ H3. case H5.
+  exists (A' Am1). split.
+    inst H7 with n1 = At1, n2 = Am1. cut H8 with H4. search.
+    apply e2m/preserve_wf_val_ty to _ H4.
+    apply e2m/preserve_wf_val_ty to _ H7.
+    inst H9 with n2 = Am1. cut H10 with H8.
+    search.
+    apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H10. case H7. case H7. case H7.
   % LAM_DIRT
-  apply IH to _ H3. exists T. split.
-    search.
-    search.
+  apply IH to _ H3. search.
   % APP_DIRT
   apply IH to _ H4.
   skip. % from_impure!
   % LAM_COER VAL
-  skip. % e2m/coer ... in Ctx_e2m
+  apply IH to _ H3.
+  assert {Ctx_e2m |- e2m/val_ty At T}. skip. % strengthening
+  apply e2m/preserve_wf_val_ty to _ H4.
+  apply e2m/preserve_wf_val_ty to _ H5.
+  apply e2m/preserve_wf_val_ty to _ H8.
+  search.
   % LAM_COER COMP
-  skip. % e2m/coer ... in Ctx_e2m
+  apply IH to _ H3.
+  assert {Ctx_e2m |- e2m/val_ty At T}. skip. % strengthening
+  apply e2m/preserve_wf_comp_ty to _ H4.
+  apply e2m/preserve_wf_comp_ty to _ H5.
+  apply e2m/preserve_wf_val_ty to _ H8.
+  search.
   % LAM_COER DIRT
-  skip. % e2m/coer ... in Ctx_e2m
+  apply IH to _ H3.
+  apply e2m/preserve_wf_val_ty to _ H5.
+  search.
   % APP_COER VAL
-  skip.
+  apply IH to _ H3.
+  case H5.
+    % interesting case
+    apply e2m/preserve_val_ty_coer to _ H4.
+    apply e2m/preserve_wf_val_ty to _ H9.
+    apply e2m/val_ty_unique to _ H7 H10.
+    apply e2m/val_ty_unique to _ H8 H11.
+    search.
+    % backchain
+    apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H10. case H7. case H7. case H7.
   % APP_COER COMP
-  skip.
+  apply IH to _ H3.
+  case H5.
+    % interesting case
+    apply e2m/preserve_comp_ty_coer to _ H4.
+    apply e2m/preserve_wf_val_ty to _ H9.
+    apply e2m/comp_ty_unique to _ H7 H10.
+    apply e2m/comp_ty_unique to _ H8 H11.
+    search.
+    % backchain
+    apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H10. case H7. case H7. case H7.
   % APP_COER DIRT
-  skip.
+  apply IH to _ H3.
+  case H5.
+    % interesting case
+    search.
+    apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H10. case H7. case H7. case H7.
   % CAST
   apply IH to _ H3.
   apply e2m/preserve_val_ty_coer to _ H4.
@@ -294,8 +326,8 @@ case H2 (keep).
   apply IH1 to _ H7.
   apply ml/strengthen_comp_ty to _ H12.
   apply e2m/preserve_wf_comp_ty to _ H14.
-  assert {Ctx_m |- ml/of_op Sig_ml O Am1 Am2}. skip.
-  assert {Ctx_m |- is_op O}. skip.
+  assert {Ctx_m |- ml/of_op Sig_ml O Am1 Am2}. skip. % strengthening
+  assert {Ctx_m |- is_op O}. skip. % strengthening
   apply e2m/val_ty_unique to _ H4 H10.
   case H14 (keep).
     % what if the dirt is empty?
