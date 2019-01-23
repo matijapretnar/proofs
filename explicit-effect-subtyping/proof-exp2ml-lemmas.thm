@@ -29,6 +29,16 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
    nabla d, e2m/ctx Sig_e Sig_m
      (e2m/full_dirt d :: Ctx_e2m)
      (Ctx_m)
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m;
+
+   nabla t, e2m/ctx Sig_e Sig_m
+     (exp/skel_val_ty t S :: Ctx_e2m)
+     Ctx_m
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m;
+
+   nabla w, e2m/ctx Sig_e Sig_m
+     (exp/of_coer w Pi :: Ctx_e2m)
+     Ctx_m
      := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m
 .
 Theorem ctx_m_member: 
@@ -50,6 +60,8 @@ induction on 1. intros. case H1 (keep).
     search.
     apply IH to H3 H4. search.
   apply IH to H3 H2. search.
+  apply IH to H3 H2. search.
+  apply IH to H3 H2. search.
 % QED
 
 Theorem ctx_e2m_member: 
@@ -63,26 +75,54 @@ Theorem ctx_e2m_member:
          fresh T /\ fresh T' /\ (F = e2m/val_ty T T') /\ member (ml/wf_ty T') Ctx_m)
       \/
       (exists D,
-         fresh D /\ (F = e2m/full_dirt D)).
+         fresh D /\ (F = e2m/full_dirt D))
+      \/
+      (exists T S,
+         fresh T /\ (F = exp/skel_val_ty T S))
+      \/
+      (exists W Pi,
+         fresh W /\ (F = exp/of_coer W Pi)).
 % PROOF
 induction on 1. intros. case H1 (keep).
   case H2.
   case H2.
     search.
     apply IH to H3 H5. case H6.
-      left. left. exists (X n2 n1), A1, (X' n2), A'1. search.
-      left. right. search.
-      right. search.
-  case H2.
-    search.
-    apply IH to H3 H4. case H5. 
-      search. 
+      search.
+      search.
+      search.
       search.
       search.
   case H2.
     search.
     apply IH to H3 H4. case H5. 
       search. 
+      search.
+      search.
+      search.
+      search.
+  case H2.
+    search.
+    apply IH to H3 H4. case H5. 
+      search. 
+      search.
+      search.
+      search.
+      search.
+  case H2.
+    search.
+    apply IH to H3 H4. case H5. 
+      search. 
+      search.
+      search.
+      search.
+      search.
+  case H2.
+    search.
+    apply IH to H3 H4. case H5. 
+      search. 
+      search.
+      search.
       search.
       search.
 % QED
@@ -105,6 +145,8 @@ intros. case H2 (keep).
       case H3.
       case H3.
       case H3. search.
+      case H3.
+      case H3.
 % QED
 
 Theorem ml/ty_strengthen :
@@ -138,12 +180,16 @@ induction on 2 2. split.
         case H3.
         case H3. search.
         case H3.
+        case H3.
+        case H3.
   intros. case H2 (keep).
     apply IH to H1 H3. search.
     apply IH to H1 H4. apply ml/full_dirt_strengthen to H1 H3. search.
     case H4.
       case H3.
       apply ctx_e2m_member to H1 H5. case H6.
+        case H3.
+        case H3.
         case H3.
         case H3.
         case H3.
@@ -188,12 +234,16 @@ induction on 2 2. split.
       case H3.
       case H3. search.
       case H3.
+      case H3.
+      case H3.
 
   intros. case H2 (keep).
     apply IH to _ H3. search.
     apply IH to _ H4. search.
      % backchain
     apply ctx_e2m_member to H1 H4. case H5.
+      case H3.
+      case H3.
       case H3.
       case H3.
       case H3.

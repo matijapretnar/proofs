@@ -222,7 +222,7 @@ case H2 (keep).
     case H4. 
       inst H6 with n1 = S. search.
       apply ctx_e2m_member to _ H7. case H8.
-        case H6. case H6. case H9. case H6.
+        case H6. case H6. case H9. case H6. case H6. case H6.
     search.
   % LAM_TY
   skip. % TODO: handle exp/skel_val_ty n1 S in context
@@ -236,7 +236,7 @@ case H2 (keep).
       case H10.
         skip. % interesting case for all_ty
       case H10.
-    apply ctx_e2m_member to _ H9. case H10. case H8. case H8. case H11. case H8.
+    apply ctx_e2m_member to _ H9. case H10. case H8. case H8. case H11. case H8. case H8. case H8.
   % LAM_DIRT
   apply IH to _ H3. exists T. split.
     search.
@@ -266,7 +266,8 @@ case H2 (keep).
     case H3. skip. % interesting backchain case
     case H3.
     case H3.
-
+    case H3.
+    case H3.
 intros.
 case H2 (keep).
   % APP
@@ -276,6 +277,8 @@ case H2 (keep).
     apply ctx_e2m_member to H1 H10. case H11.
       case H9.
       case H9. case H12.
+      case H9.
+      case H9.
       case H9.
   % LET -> LET
   apply IH to _ H3. apply IH1 to _ H4.
@@ -297,11 +300,11 @@ case H2 (keep).
   case H14 (keep).
     % what if the dirt is empty?
     case H8. % this can't be because the operation couldn't appear in it
-      apply ctx_e2m_member to _ H20. case H21. case H19. case H19. case H19.
+      apply ctx_e2m_member to _ H20. case H21. case H19. case H19. case H19. case H19. case H19.
     % what if the dirt is full?
     search.
   % backchain
-  apply ctx_e2m_member to _ H19. case H20. case H18. case H18. case H18.
+  apply ctx_e2m_member to _ H19. case H20. case H18. case H18. case H18. case H18. case H18.
   % DO -> LET
   apply IH1 to _ H3.
   case H5. % how was the A ! 0 translated?
@@ -311,9 +314,9 @@ case H2 (keep).
     apply e2m/preserve_wf_comp_ty to _ H10. search.
     % 0 was full
     case H7.
-    apply ctx_e2m_member to _ H10. case H11. case H9. case H9. case H9. case H12.
+    apply ctx_e2m_member to _ H10. case H11. case H9. case H9. case H9. case H12. case H9. case H9.
     % it came from the context
-    apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H7.
+    apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H7. case H7. case H7.
   % DO -> DO
   apply IH1 to _ H3.
   case H5. % how was the A ! FullDirt translated?
