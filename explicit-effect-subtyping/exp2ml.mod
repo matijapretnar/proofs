@@ -116,7 +116,7 @@ e2m/val Sig (exp/app_coer Vt Yt) At Vm :-
   e2m/val Sig Vt (exp/qual_ty (exp/dirt_coer_ty D1 D2) At) Vm,
   exp/of_coer Y (exp/dirt_coer_ty D1 D2).
 % VALUE COERCION
-e2m/val Sig (exp/val_cast Vt Yt) A2 (ml/cast Vm Ym) :-
+e2m/val Sig (exp/val_cast Vt Yt) At2 (ml/cast Vm Ym) :-
   e2m/val Sig Vt At1 Vm,
   e2m/coer Yt (exp/val_ty_coer_ty At1 At2) Ym.
  
