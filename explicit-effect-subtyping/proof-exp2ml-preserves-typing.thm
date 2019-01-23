@@ -171,7 +171,7 @@ Theorem e2m/preserve_ty_coer:
 %     apply IH to H2. case H7 (keep). case H8. skip. % TODO
 %     skip. % TODO
 %     apply IH to H2. search.
-
+        
 %   intros. case H1 (keep).
 %     apply IH to H2. 
 %       apply e2m/preserve_dirt_coer to H4 H7 H5 H6.
@@ -221,7 +221,8 @@ case H2 (keep).
   apply IH to _ H3. exists T. split.
     case H4. 
       inst H6 with n1 = S. search.
-      skip. % backchain
+      apply ctx_e2m_member to _ H7. case H8.
+        case H6. case H6. case H9. case H6.
     search.
   % LAM_TY
   skip. % TODO: handle exp/skel_val_ty n1 S in context
@@ -230,22 +231,25 @@ case H2 (keep).
     inst H8 with n1 = At1, n2 = Am1. cut H9 with H4. search.
     apply e2m/preserve_wf_val_ty to _ H4. case H7.
       case H10. inst H12 with n1 = Am1. cut H13 with H9. search.
-    skip. % backchain
-    skip. % backchain
-    skip. % backchain
+    apply ctx_m_member to _ H13. case H14. case H12. case H12. case H15.
+    apply ctx_m_member to _ H11. case H12.
+      case H10.
+        skip. % interesting case for all_ty
+      case H10.
+    apply ctx_e2m_member to _ H9. case H10. case H8. case H8. case H11. case H8.
   % LAM_DIRT
   apply IH to _ H3. exists T. split.
     search.
     search.
   % APP_DIRT
   apply IH to _ H4.
-  skip.
+  skip. % from_impure!
   % LAM_COER VAL
-  skip.
+  skip. % e2m/coer ... in Ctx_e2m
   % LAM_COER COMP
-  skip.
+  skip. % e2m/coer ... in Ctx_e2m
   % LAM_COER DIRT
-  skip.
+  skip. % e2m/coer ... in Ctx_e2m
   % APP_COER VAL
   skip.
   % APP_COER COMP
@@ -253,9 +257,15 @@ case H2 (keep).
   % APP_COER DIRT
   skip.
   % CAST
-  skip.
+  apply IH to _ H3.
+  apply e2m/preserve_val_ty_coer to _ H4.
+  apply e2m/val_ty_unique to _ H5 H7.
+  apply e2m/preserve_wf_val_ty to _ H8. search.
   % backchain
-  skip.
+  apply ctx_e2m_member to H1 H4. case H5.
+    case H3. skip. % interesting backchain case
+    case H3.
+    case H3.
 
 intros.
 case H2 (keep).
@@ -267,23 +277,63 @@ case H2 (keep).
       case H9.
       case H9. case H12.
       case H9.
-  % LET
-  ...
+  % LET -> LET
+  apply IH to _ H3. apply IH1 to _ H4.
+  apply ml/strengthen_comp_ty to _ H7.
+  apply e2m/preserve_wf_comp_ty to _ H9.
+  search.
+  % RETURN
+  apply IH to _ H3.
+  apply e2m/preserve_wf_val_ty to _ H4.
+  search.
+  % OP
+  apply IH to _ H6.
+  apply IH1 to _ H7.
+  apply ml/strengthen_comp_ty to _ H12.
+  apply e2m/preserve_wf_comp_ty to _ H14.
+  assert {Ctx_m |- ml/of_op Sig_ml O Am1 Am2}. skip.
+  assert {Ctx_m |- is_op O}. skip.
+  apply e2m/val_ty_unique to _ H4 H10.
+  case H14 (keep).
+    % what if the dirt is empty?
+    case H8. % this can't be because the operation couldn't appear in it
+      apply ctx_e2m_member to _ H20. case H21. case H19. case H19. case H19.
+    % what if the dirt is full?
+    search.
+  % backchain
+  apply ctx_e2m_member to _ H19. case H20. case H18. case H18. case H18.
+  % DO -> LET
+  apply IH1 to _ H3.
+  case H5. % how was the A ! 0 translated?
+    % it was A' - interesting case
+    apply IH1 to _ H4 with Ctx_m = (ml/of_term Sig_ml n2 T :: Ctx_m).
+    apply ml/strengthen_comp_ty to _ H8.
+    apply e2m/preserve_wf_comp_ty to _ H10. search.
+    % 0 was full
+    case H7.
+    apply ctx_e2m_member to _ H10. case H11. case H9. case H9. case H9. case H12.
+    % it came from the context
+    apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H7.
+  % DO -> DO
+  apply IH1 to _ H3.
+  case H5. % how was the A ! FullDirt translated?
+    % it was comp_ty A' - interesting case
+    apply IH1 to _ H4 with Ctx_m = (ml/of_term Sig_ml n2 T :: Ctx_m), Sig_ml = Sig_ml.
+    .
+  case H5.
 
-exists (ml/fun_ty A1' 
-    ...
-  ...
-% SKELETON LAMBDA
-apply IH to _ H3.
-exists T.
-split.
-search.
-search.
-% SKELETON APPLY
-apply IH to _ H3.
-exists T.
-split..
-case H4.
-inst H6 with n1 = S.
-search.
-%
+%   .
+% % SKELETON LAMBDA
+% apply IH to _ H3.
+% exists T.
+% split.
+% search.
+% search.
+% % SKELETON APPLY
+% apply IH to _ H3.
+% exists T.
+% split..
+% case H4.
+% inst H6 with n1 = S.
+% search.
+% %
