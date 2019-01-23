@@ -164,13 +164,13 @@ e2m/comp Sig (exp/do Ct1 Ct2) (exp/bang At2 (cons O D)) (ml/do Cm1 Cm2) :-
 e2m/comp Sig (exp/with C V) B2 (ml/app V' C') :-
   e2m/comp Sig C (exp/bang A1 empty) C',
   e2m/val Sig V (exp/hand_ty (exp/bang A1 empty) B2) V'.
-e2m/comp Sig (exp/with C V) (exp/bang B2 empty) (ml/cast (ml/with V' C') (ml/unsafe_coer Y)) :-
+e2m/comp Sig (exp/with C V) (exp/bang B2 empty) (ml/cast (ml/with C' V') (ml/unsafe_coer Y)) :-
   e2m/comp Sig C (exp/bang A1 D1) C',
   e2m/full_dirt(D1),
   e2m/val Sig V (exp/hand_ty (exp/bang A1 D1) (exp/bang B2 empty)) V',
   e2m/val_ty B2 B2',
   e2m/refl_coer B2' Y.
-e2m/comp Sig (exp/with C V) (exp/bang B2 D2) (ml/with V' C') :-
+e2m/comp Sig (exp/with C V) (exp/bang B2 D2) (ml/with C' V') :-
   e2m/comp Sig C (exp/bang A1 D1) C',
   e2m/full_dirt(D1),
   e2m/val Sig V (exp/hand_ty (exp/bang A1 D1) (exp/bang B2 D2)) V',
