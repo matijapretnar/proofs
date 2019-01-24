@@ -139,7 +139,8 @@ ml/of_term' Sig (ml/fun A T) (ml/fun_ty A B) :-
 ml/of_term' Sig (ml/lam_ty T) (ml/all_ty A) :-
   pi x\ (ml/wf_ty x => ml/of_term Sig (T x) (A x)).
 ml/of_term' Sig (ml/app_ty T A1) (A2 A1) :-
-  ml/of_term Sig T (ml/all_ty A2).
+  ml/of_term Sig T (ml/all_ty A2),
+  ml/wf_ty A1.
 ml/of_term' Sig (ml/cast T Y) A2 :-
   ml/of_term Sig T A1,
   ml/of_coer Y (ml/ty_coer_ty A1 A2).
