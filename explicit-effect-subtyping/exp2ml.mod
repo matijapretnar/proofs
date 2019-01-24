@@ -186,11 +186,12 @@ e2m/refl_coer (ml/fun_ty A B)  (ml/fun_coer Y1 Y2) :-
   e2m/refl_coer B Y2.
 e2m/refl_coer (ml/all_ty A) (ml/lam_ty_coer Y) :-
   pi x\ e2m/refl_coer (A x) (Y x).
-e2m/refl_coer (ml/hand_ty A B) (ml/hand_coer Y1 Y2) :-
+e2m/refl_coer (ml/hand_ty A B) (ml/hand_coer (ml/comp_ty_coer Y1) (ml/comp_ty_coer Y2)) :-
   e2m/refl_coer A Y1,
   e2m/refl_coer B Y2.
 e2m/refl_coer (ml/qual_ty Y A) (ml/lam_coer_coer Y Y1) :-
-  e2m/refl_coer A Y1.
+  e2m/refl_coer A Y1,
+  ml/wf_coer_ty Y.
 e2m/refl_coer (ml/comp_ty A) (ml/comp_ty_coer Y) :-
   e2m/refl_coer A Y.
 
