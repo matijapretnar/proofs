@@ -19,10 +19,10 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
   nabla x x', e2m/ctx Sig_e Sig_m
     (e2m/val Sig_e x A x' :: Ctx_e2m)
     (ml/of_term Sig_m x' A' :: Ctx_m)
-    := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/val_ty A A'};
+    := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ exists S, {Ctx_e2m |- e2m/val_ty A S A'};
 
    nabla t t', e2m/ctx Sig_e Sig_m
-     (e2m/val_ty t t' :: Ctx_e2m)
+     (e2m/val_ty t S t' :: Ctx_e2m)
      (ml/wf_ty t' :: Ctx_m)
      := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m;
 
@@ -34,12 +34,12 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
    nabla w w', e2m/ctx Sig_e Sig_m
      (e2m/coer w (exp/val_ty_coer_ty A1 A2) w' :: Ctx_e2m)
      (ml/of_coer w' (ml/ty_coer_ty A1' A2') :: Ctx_m)
-     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/val_ty A1 A1'} /\ {Ctx_e2m |- e2m/val_ty A2 A2'};
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ exists S, {Ctx_e2m |- e2m/val_ty A1 S A1'} /\ {Ctx_e2m |- e2m/val_ty A2 S A2'};
 
    nabla w w', e2m/ctx Sig_e Sig_m
      (e2m/coer w (exp/comp_ty_coer_ty C1 C2) w' :: Ctx_e2m)
      (ml/of_coer w' (ml/ty_coer_ty C1' C2') :: Ctx_m)
-     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/comp_ty C1 C1'} /\ {Ctx_e2m |- e2m/comp_ty C2 C2'}.
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ exists S, {Ctx_e2m |- e2m/comp_ty C1 S C1'} /\ {Ctx_e2m |- e2m/comp_ty C2 S C2'}.
 
 Define e2m/ty_ctx : exp/sig -> olist -> olist -> prop by
 
@@ -84,11 +84,11 @@ Theorem ctx_e2m_member:
   forall Sig_e Sig_m Ctx_e2m Ctx_m F,
     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
     member F Ctx_e2m ->
-      (exists X A X' A',
-         fresh X /\ fresh X' /\ (F = e2m/val Sig_e X A X') /\ {Ctx_e2m |- e2m/val_ty A A'})
+      (exists X A X' A' S,
+         fresh X /\ fresh X' /\ (F = e2m/val Sig_e X A X') /\ {Ctx_e2m |- e2m/val_ty A S A'})
       \/
-      (exists T T',
-         fresh T /\ fresh T' /\ (F = e2m/val_ty T T') /\ member (ml/wf_ty T') Ctx_m)
+      (exists T T' S,
+         fresh T /\ fresh T' /\ (F = e2m/val_ty T S T') /\ member (ml/wf_ty T') Ctx_m)
       \/
       (exists D,
          fresh D /\ (F = e2m/full_dirt D))
@@ -167,15 +167,15 @@ intros. case H2 (keep).
 
 Theorem ml/ty_strengthen :
   (
-    forall Sig_e Sig_ml Ctx_e2m Ctx_m A B T, 
+    forall Sig_e Sig_ml Ctx_e2m Ctx_m A B T S, 
          e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
-      -> {Ctx_e2m, e2m/val Sig_e n1 A n2 |- e2m/val_ty B T} 
-      -> {Ctx_e2m |- e2m/val_ty B T}
+      -> {Ctx_e2m, e2m/val Sig_e n1 A n2 |- e2m/val_ty B S T} 
+      -> {Ctx_e2m |- e2m/val_ty B S T}
   ) /\ (
-    forall Sig_e Sig_ml Ctx_e2m Ctx_m A C T, 
+    forall Sig_e Sig_ml Ctx_e2m Ctx_m A C T S,  
          e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m 
-      -> {Ctx_e2m, e2m/val Sig_e n1 A n2 |- e2m/comp_ty C T} 
-      -> {Ctx_e2m |- e2m/comp_ty C T}
+      -> {Ctx_e2m, e2m/val Sig_e n1 A n2 |- e2m/comp_ty C S T} 
+      -> {Ctx_e2m |- e2m/comp_ty C S T}
   ).
 % PROOF
 induction on 2 2. split.
@@ -228,10 +228,10 @@ induction on 1. intros. case H1 (keep).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem e2m/preserve_wf_ty :
-  (forall A A' Sig_e Sig_m Ctx_e2m Ctx_m, 
-     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/val_ty A A'} -> {Ctx_m |- ml/wf_ty A'}) /\
-  (forall C C' Sig_e Sig_m Ctx_e2m Ctx_m, 
-     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/comp_ty C C'} -> {Ctx_m |- ml/wf_ty C'}).
+  (forall A A' Sig_e Sig_m Ctx_e2m Ctx_m S, 
+     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/val_ty A S A'} -> {Ctx_m |- ml/wf_ty A'}) /\
+  (forall C C' Sig_e Sig_m Ctx_e2m Ctx_m S, 
+     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m -> {Ctx_e2m |- e2m/comp_ty C S C'} -> {Ctx_m |- ml/wf_ty C'}).
 induction on 2 2. split.
 
   intros. case H2 (keep).
@@ -288,9 +288,9 @@ induction on 1. intros. case H1. case H2. case H4 (keep).
 % QED
 
 Theorem e2m/comp_ty_member:
-  forall Sig_e Sig_ml Ctx_e2m Ctx_m F A A', 
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m F A A' S, 
     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
-    {Ctx_e2m, [F] |- e2m/comp_ty A A'} ->
+    {Ctx_e2m, [F] |- e2m/comp_ty A S A'} ->
     member F Ctx_e2m ->
     false.
 % PROOF
@@ -326,18 +326,18 @@ induction on 1. intros. case H1.
 % QED
 
 Theorem e2m/val_nominal_absurd: 
-  forall B L, nabla x,
-  member (e2m/val_ty x B) L -> false.
+  forall B L S, nabla x,
+  member (e2m/val_ty x S B) L -> false.
 % PROOF
 induction on 1. intros. case H1. apply IH to H2.
 % QED
 
 Theorem e2m/unique_ctx_of_val:
-  forall Sig_e Sig_ml Ctx_e2m Ctx_m A B1 B2,
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m A B1 B2 S1 S2,
     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-    member (e2m/val_ty A B1) Ctx_e2m ->
-    member (e2m/val_ty A B2) Ctx_e2m ->
-    B1 = B2.
+    member (e2m/val_ty A S1 B1) Ctx_e2m ->
+    member (e2m/val_ty A S2 B2) Ctx_e2m ->
+    B1 = B2 /\ S1 = S2.
 % PROOF
 induction on 2. intros. case H2 (keep).
   case H3.
@@ -356,18 +356,18 @@ induction on 2. intros. case H2 (keep).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem e2m/ty_unique:
   (
-    forall Sig_e Sig_ml Ctx_e2m Ctx_m A A1 A2,
+    forall Sig_e Sig_ml Ctx_e2m Ctx_m A A1 A2 S1 S2,
       e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-      {Ctx_e2m |- e2m/val_ty A A1} ->
-      {Ctx_e2m |- e2m/val_ty A A2} ->
-      A1 = A2
+      {Ctx_e2m |- e2m/val_ty A S1 A1} ->
+      {Ctx_e2m |- e2m/val_ty A S2 A2} ->
+      A1 = A2 /\ S1 = S2
   ) /\
   (
-    forall Sig_e Sig_ml Ctx_e2m Ctx_m A A1 A2,
+    forall Sig_e Sig_ml Ctx_e2m Ctx_m A A1 A2 S1 S2,
       e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-      {Ctx_e2m |- e2m/comp_ty A A1} ->
-      {Ctx_e2m |- e2m/comp_ty A A2} ->
-      A1 = A2
+      {Ctx_e2m |- e2m/comp_ty A S1 A1} ->
+      {Ctx_e2m |- e2m/comp_ty A S2 A2} ->
+      A1 = A2 /\ S1 = S2
   ).
 % PROOF
 induction on 2 2. split.

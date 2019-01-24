@@ -14,10 +14,10 @@ type  e2m/sig                 exp/sig -> ml/sig -> o.
 
 type e2m/full_dirt            dirt -> o.
 
-type e2m/val_ty		      exp/val_ty -> ml/ty -> o.
-type e2m/val_ty_if_full   (dirt -> exp/val_ty) -> ml/ty -> o.
-type e2m/comp_ty	      exp/comp_ty -> ml/ty -> o.
-type e2m/comp_ty_if_full   (dirt -> exp/comp_ty) -> ml/ty -> o.
+type e2m/val_ty		      exp/val_ty -> skel -> ml/ty -> o.
+type e2m/val_ty_if_full   (dirt -> exp/val_ty) -> skel -> ml/ty -> o.
+type e2m/comp_ty	      exp/comp_ty -> skel -> ml/ty -> o.
+type e2m/comp_ty_if_full   (dirt -> exp/comp_ty) -> skel -> ml/ty -> o.
 
 type e2m/refl_coer            ml/ty -> ml/coer -> o.
  

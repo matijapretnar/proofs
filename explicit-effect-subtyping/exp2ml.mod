@@ -7,9 +7,9 @@ accumulate ml.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
 e2m/sig exp/empty_sig ml/empty_sig.
-e2m/sig (exp/cons_sig O A1 A2 Sig_t) (ml/cons_sig O S1 S2 Sig_e) :-
-  e2m/val_ty A1 S1,
-  e2m/val_ty A2 S2,
+e2m/sig (exp/cons_sig O A1 A2 Sig_t) (ml/cons_sig O B1 B2 Sig_e) :-
+  e2m/val_ty A1 _ B1,
+  e2m/val_ty A2 _ B2,
   e2m/sig Sig_t Sig_e.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -22,39 +22,39 @@ e2m/full_dirt (cons _ _).
 % e2m/val_ty, e2m/comp_ty
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-e2m/val_ty exp/unit_ty ml/unit_ty.
-e2m/val_ty (exp/fun_ty A C) (ml/fun_ty A' C') :-
-  e2m/val_ty A A',
-  e2m/comp_ty C C'.
-e2m/val_ty (exp/hand_ty (exp/bang A empty) C) (ml/fun_ty A' C') :-
-  e2m/val_ty A A',
-  e2m/comp_ty C C'.
-e2m/val_ty (exp/hand_ty (exp/bang A D) (exp/bang B _)) (ml/hand_ty A' B') :-
-  e2m/val_ty A A',
+e2m/val_ty exp/unit_ty unit_skel ml/unit_ty.
+e2m/val_ty (exp/fun_ty A C) (fun_skel S1 S2) (ml/fun_ty A' C') :-
+  e2m/val_ty A S1 A',
+  e2m/comp_ty C S2 C'.
+e2m/val_ty (exp/hand_ty (exp/bang A empty) C) (hand_skel S1 S2) (ml/fun_ty A' C') :-
+  e2m/val_ty A S1 A',
+  e2m/comp_ty C S2 C'.
+e2m/val_ty (exp/hand_ty (exp/bang A D) (exp/bang B _)) (hand_skel S1 S2) (ml/hand_ty A' B') :-
+  e2m/val_ty A S1 A',
   e2m/full_dirt D,
-  e2m/val_ty B B'.
-e2m/val_ty (exp/all_skel A) A' :-
-  pi s\ e2m/val_ty (A s) A'.
-e2m/val_ty (exp/all_ty _ A) (ml/all_ty A') :-
-  pi a\ pi a'\ e2m/val_ty a a' => e2m/val_ty (A a) (A' a').
-e2m/val_ty (exp/all_dirt A) A' :-
-  pi d\ e2m/full_dirt d => e2m/val_ty (A d) A'.
-e2m/val_ty (exp/qual_ty (exp/val_ty_coer_ty A1 A2) A) (ml/qual_ty (ml/ty_coer_ty A1' A2') A') :-
-  e2m/val_ty A1 A1',
-  e2m/val_ty A2 A2',
-  e2m/val_ty A A'.
-e2m/val_ty (exp/qual_ty (exp/comp_ty_coer_ty C1 C2) A) (ml/qual_ty (ml/ty_coer_ty C1' C2') A') :-
-  e2m/comp_ty C1 C1',
-  e2m/comp_ty C2 C2',
-  e2m/val_ty A A'.
-e2m/val_ty (exp/qual_ty (exp/dirt_coer_ty _ _) A) A' :-
-  e2m/val_ty A A'.
+  e2m/val_ty B S2 B'.
+e2m/val_ty (exp/all_skel A) (all_skel S) A' :-
+  pi s\ e2m/val_ty (A s) (S s) A'.
+e2m/val_ty (exp/all_ty S A) T (ml/all_ty A') :-
+  pi a\ pi a'\ e2m/val_ty a S a' => e2m/val_ty (A a) T (A' a').
+e2m/val_ty (exp/all_dirt A) S A' :-
+  pi d\ e2m/full_dirt d => e2m/val_ty (A d) S A'.
+e2m/val_ty (exp/qual_ty (exp/val_ty_coer_ty A1 A2) A) S (ml/qual_ty (ml/ty_coer_ty A1' A2') A') :-
+  e2m/val_ty A1 T A1',
+  e2m/val_ty A2 T A2',
+  e2m/val_ty A S A'.
+e2m/val_ty (exp/qual_ty (exp/comp_ty_coer_ty C1 C2) A) S (ml/qual_ty (ml/ty_coer_ty C1' C2') A') :-
+  e2m/comp_ty C1 T C1',
+  e2m/comp_ty C2 T C2',
+  e2m/val_ty A S A'.
+e2m/val_ty (exp/qual_ty (exp/dirt_coer_ty _ _) A) S A' :-
+  e2m/val_ty A S A'.
 
-e2m/comp_ty (exp/bang A empty) A' :-
-  e2m/val_ty A A'.
-e2m/comp_ty (exp/bang A D) (ml/comp_ty A') :-
+e2m/comp_ty (exp/bang A empty) S A' :-
+  e2m/val_ty A S A'.
+e2m/comp_ty (exp/bang A D) S (ml/comp_ty A') :-
   e2m/full_dirt D,
-  e2m/val_ty A A'.
+  e2m/val_ty A S A'.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % e2m/val, e2m/hand e2m/hand_empty, e2m/comp
@@ -64,7 +64,7 @@ e2m/comp_ty (exp/bang A D) (ml/comp_ty A') :-
 e2m/val Sig exp/unit exp/unit_ty ml/unit.
 % FUN
 e2m/val Sig (exp/fun A C) (exp/fun_ty A B) (ml/fun Aml Cml) :-
-  e2m/val_ty A Aml,
+  e2m/val_ty A _ Aml,
   pi x\ pi x'\ (e2m/val Sig x A x' => e2m/comp Sig (C x) B (Cml x')).
 % HANDLER
 e2m/val Sig (exp/hand H) (exp/hand_ty (exp/bang A empty) B) Vm :-
@@ -80,11 +80,11 @@ e2m/val Sig (exp/app_skel Vt S) (At S) Vm :-
   e2m/val Sig Vt (exp/all_skel At) Vm.
 % VALUE TY LAMBDA
 e2m/val Sig (exp/lam_ty S Vt) (exp/all_ty S At) (ml/lam_ty Vm) :-
-  pi x\ pi x'\ (e2m/val_ty x x' => e2m/val Sig (Vt x) (At x) (Vm x')).
+  pi x\ pi x'\ (e2m/val_ty x S x' => e2m/val Sig (Vt x) (At x) (Vm x')).
 % VALUE TY APPLY
 e2m/val Sig (exp/app_ty Vt At1) (At2 At1) (ml/app_ty Vm Am1) :-
   e2m/val Sig Vt (exp/all_ty S At2) Vm,
-  e2m/val_ty At1 Am1.
+  e2m/val_ty At1 S Am1.
 % DIRT LAMBDA
 e2m/val Sig (exp/lam_dirt Vt) (exp/all_dirt At) Vm :-
   pi d\ (e2m/full_dirt d => e2m/val Sig (Vt d) (At d) Vm).
@@ -95,12 +95,12 @@ e2m/val Sig (exp/app_dirt Vt D) (At D) (ml/cast Vm Y) :-
 % COERCION LAMBDA
 e2m/val Sig (exp/lam_coer (exp/val_ty_coer_ty A1 A2) Vt) (exp/qual_ty (exp/val_ty_coer_ty A1 A2) At) (ml/lam_coer (ml/ty_coer_ty A1' A2') Vm) :-
   pi w\ pi w'\ (e2m/coer w (exp/val_ty_coer_ty A1 A2) w' => e2m/val Sig (Vt w) At (Vm w')),
-  e2m/val_ty A1 A1',
-  e2m/val_ty A2 A2'.
+  e2m/val_ty A1 T A1',
+  e2m/val_ty A2 T A2'.
 e2m/val Sig (exp/lam_coer (exp/comp_ty_coer_ty C1 C2) Vt) (exp/qual_ty (exp/comp_ty_coer_ty C1 C2) At) (ml/lam_coer (ml/ty_coer_ty C1' C2')  Vm) :-
   pi w\ pi w'\ (e2m/coer w (exp/comp_ty_coer_ty C1 C2) w' => e2m/val Sig (Vt w) At (Vm w')),
-  e2m/comp_ty C1 C1',
-  e2m/comp_ty C2 C2'.
+  e2m/comp_ty C1 T C1',
+  e2m/comp_ty C2 T C2'.
 e2m/val Sig (exp/lam_coer (exp/dirt_coer_ty D1 D2) Vt) (exp/qual_ty (exp/dirt_coer_ty D1 D2) At) Vm :-
   pi w\ e2m/val Sig (Vt w) At Vm,
   exp/good_coer_ty (exp/dirt_coer_ty D1 D2).
@@ -121,10 +121,10 @@ e2m/val Sig (exp/val_cast Vt Yt) At2 (ml/cast Vm Ym) :-
  
 % RETURN CASE
 e2m/hand_empty Sig (exp/ret_case A1 C) A1 (exp/bang A2 D) (ml/fun A1' C'):-
-  e2m/val_ty A1 A1',
+  e2m/val_ty A1 _ A1',
   pi x\ pi x'\ (e2m/val Sig x A1 x' => e2m/comp Sig (C x) (exp/bang A2 D) (C' x')).
 e2m/hand Sig (exp/ret_case A1 C) A1 D (exp/bang A2 D) (ml/ret_case A1' C'):-
-  e2m/val_ty A1 A1',
+  e2m/val_ty A1 _ A1',
   pi x\ pi x'\ (e2m/val Sig x A1 x' => e2m/comp Sig (C x) (exp/bang A2 D) (C' x')).
 % OP CASE
 e2m/hand Sig (exp/op_case O C H) A (cons O D) B (ml/op_case O C' H') :-
@@ -147,8 +147,8 @@ e2m/comp Sig (exp/ret Vt) (exp/bang A empty) Vm :-
 % % OP
 e2m/comp Sig (exp/op O Vt At2 Ct) (exp/bang At D) (ml/op O Vm Am2 Cm) :-
   exp/of_op Sig O At1 At2,
-  e2m/val_ty At1 Am1,
-  e2m/val_ty At2 Am2,
+  e2m/val_ty At1 _ Am1,
+  e2m/val_ty At2 _ Am2,
   e2m/val Sig Vt At1 Vm,
   pi x\ pi x'\ (e2m/val Sig x At2 x' => e2m/comp Sig (Ct x) (exp/bang At D) (Cm x')),
   in_dirt O D,
@@ -168,7 +168,7 @@ e2m/comp Sig (exp/with C V) (exp/bang B2 empty) (ml/cast (ml/with C' V') (ml/uns
   e2m/comp Sig C (exp/bang A1 D1) C',
   e2m/full_dirt(D1),
   e2m/val Sig V (exp/hand_ty (exp/bang A1 D1) (exp/bang B2 empty)) V',
-  e2m/val_ty B2 B2',
+  e2m/val_ty B2 _ B2',
   e2m/refl_coer B2' Y.
 e2m/comp Sig (exp/with C V) (exp/bang B2 D2) (ml/with C' V') :-
   e2m/comp Sig C (exp/bang A1 D1) C',
@@ -231,17 +231,17 @@ e2m/coer (exp/hand_coer (exp/comp_ty_coer Y1 _) (exp/comp_ty_coer Y2 _))
 e2m/coer (exp/lam_skel_coer Y) (exp/val_ty_coer_ty (exp/all_skel A1) (exp/all_skel A2)) Y' :-
   pi s\ e2m/coer (Y s) (exp/val_ty_coer_ty (A1 s) (A2 s)) Y'.
 e2m/coer (exp/lam_ty_coer Y) (exp/val_ty_coer_ty (exp/all_ty S A1) (exp/all_ty S A2)) (ml/lam_ty_coer Y') :-
-  pi a\ pi a'\ e2m/val_ty a a' => exp/skel_val_ty a S => e2m/coer (Y a) (exp/val_ty_coer_ty (A1 a) (A2 a)) (Y' a').
+  pi a\ pi a'\ e2m/val_ty a S a' => e2m/coer (Y a) (exp/val_ty_coer_ty (A1 a) (A2 a)) (Y' a').
 e2m/coer (exp/lam_dirt_coer Y) (exp/val_ty_coer_ty (exp/all_dirt A1) (exp/all_dirt A2)) Y' :-
   pi d\ e2m/full_dirt d => e2m/coer (Y d) (exp/val_ty_coer_ty (A1 d) (A2 d)) Y'.
 e2m/coer (exp/lam_coer_coer (exp/val_ty_coer_ty A3 A4) Y) (exp/val_ty_coer_ty (exp/qual_ty (exp/val_ty_coer_ty A3 A4) A1) (exp/qual_ty (exp/val_ty_coer_ty A3 A4) A2)) (ml/lam_coer_coer (ml/ty_coer_ty A3' A4') Y') :-
   e2m/coer Y (exp/val_ty_coer_ty A1 A2) Y',
-  e2m/val_ty A3 A3',
-  e2m/val_ty A4 A4'.
+  e2m/val_ty A3 T A3',
+  e2m/val_ty A4 T A4'.
 e2m/coer (exp/lam_coer_coer (exp/comp_ty_coer_ty C1 C2) Y) (exp/val_ty_coer_ty (exp/qual_ty (exp/comp_ty_coer_ty C1 C2) A1) (exp/qual_ty (exp/comp_ty_coer_ty C1 C2) A2))  (ml/lam_coer_coer (ml/ty_coer_ty C1' C2') Y') :-
   e2m/coer Y (exp/val_ty_coer_ty A1 A2) Y',
-  e2m/comp_ty C1 C1',
-  e2m/comp_ty C2 C2'.
+  e2m/comp_ty C1 T C1',
+  e2m/comp_ty C2 T C2'.
 e2m/coer (exp/lam_coer_coer (exp/dirt_coer_ty D1 D2) Y) (exp/val_ty_coer_ty (exp/qual_ty (exp/dirt_coer_ty D1 D2) A1) (exp/qual_ty (exp/dirt_coer_ty D1 D2) A2))  Y' :-
   e2m/coer Y (exp/val_ty_coer_ty A1 A2) Y'.
 
@@ -285,7 +285,7 @@ to_impure/comp (d\ exp/bang (A d) d) D (ml/comp_ty_coer Y) :-
   to_impure/val A D Y,
   e2m/full_dirt D.
 
-e2m/val_ty_if_full A A' :-
-  pi d\ e2m/full_dirt d => e2m/val_ty (A d) A'.
-e2m/comp_ty_if_full A A' :-
-  pi d\ e2m/full_dirt d => e2m/comp_ty (A d) A'.
+e2m/val_ty_if_full A S A' :-
+  pi d\ e2m/full_dirt d => e2m/val_ty (A d) S A'.
+e2m/comp_ty_if_full A S A' :-
+  pi d\ e2m/full_dirt d => e2m/comp_ty (A d) S A'.
