@@ -287,23 +287,163 @@ induction on 1. intros. case H1. case H2. case H4 (keep).
   case H6. apply IH to H7 H8. search.
 % QED
 
+Theorem e2m/comp_ty_member:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m F A A', 
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
+    {Ctx_e2m, [F] |- e2m/comp_ty A A'} ->
+    member F Ctx_e2m ->
+    false.
+% PROOF
+intros. apply ctx_e2m_member to H1 H3. case H4.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+% QED
+
+Theorem e2m/full_dirt_empty_member:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m F, 
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
+    {Ctx_e2m, [F] |- e2m/full_dirt empty} ->
+    member F Ctx_e2m ->
+    false.
+% PROOF
+intros. apply ctx_e2m_member to H1 H3. case H4.
+  case H2.
+  case H2.
+  case H2. case H5.
+  case H2.
+  case H2.
+% QED
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Theorem e2m/val_ty_unique:
-  forall Sig_e Sig_ml Ctx_e2m Ctx_m A A1 A2,
-    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-    {Ctx_e2m |- e2m/val_ty A A1} ->
-    {Ctx_e2m |- e2m/val_ty A A2} ->
-    A1 = A2.
+Theorem e2m/ty_unique:
+  (
+    forall Sig_e Sig_ml Ctx_e2m Ctx_m A A1 A2,
+      e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+      {Ctx_e2m |- e2m/val_ty A A1} ->
+      {Ctx_e2m |- e2m/val_ty A A2} ->
+      A1 = A2
+  ) /\
+  (
+    forall Sig_e Sig_ml Ctx_e2m Ctx_m A A1 A2,
+      e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+      {Ctx_e2m |- e2m/comp_ty A A1} ->
+      {Ctx_e2m |- e2m/comp_ty A A2} ->
+      A1 = A2
+  ).
 % PROOF
-skip.
+induction on 2 2. split.
+  intros. case H2 (keep).
+    case H3. 
+      search.
+      apply ctx_e2m_member to H1 H5. case H6.
+        case H4.
+        case H4. case H7.
+        case H4.
+        case H4.
+        case H4.
+    case H3.
+      apply IH to _ H4 H6. apply IH1 to _ H5 H7. search.
+      apply ctx_e2m_member to H1 H7. case H8.
+        case H6.
+        case H6. case H9.
+        case H6.
+        case H6.
+        case H6.
+    case H3.
+      apply IH to _ H4 H6. apply IH1 to _ H5 H7. search.
+      case H7.
+      apply ctx_e2m_member to H1 H10. case H11.
+        case H9.
+        case H9.
+        case H9. case H12.
+        case H9.
+        case H9.
+      apply ctx_e2m_member to H1 H7. case H8.
+        case H6.
+        case H6. case H9.
+        case H6.
+        case H6.
+        case H6.
+    case H3.
+      case H5.
+      apply ctx_e2m_member to H1 H10. case H11.
+        case H9.
+        case H9.
+        case H9. case H12.
+        case H9.
+        case H9.
+      apply IH to _ H4 H7. apply IH to _ H6 H9. search.
+      apply ctx_e2m_member to H1 H8. case H9.
+        case H7.
+        case H7. case H10.
+        case H7.
+        case H7.
+        case H7.
+    case H3.
+      apply IH to _ H4 H5. search.
+      apply ctx_e2m_member to H1 H6. case H7.
+        case H5. 
+        case H5. case H8.
+        case H5. 
+        case H5. 
+        case H5. 
+    case H3.
+      apply IH to _ H4 H5. search.
+      apply ctx_e2m_member to H1 H6. case H7.
+        case H5. 
+        case H5. case H8.
+        case H5. 
+        case H5. 
+        case H5. 
+    case H3.
+      apply IH to _ H4 H5. search.
+      apply ctx_e2m_member to H1 H6. case H7.
+        case H5. 
+        case H5. case H8.
+        case H5. 
+        case H5. 
+        case H5. 
+    case H3.
+      apply IH to _ H4 H7. apply IH to _ H5 H8. apply IH to _ H6 H9. search.
+      apply ctx_e2m_member to H1 H8. case H9.
+        case H7.
+        case H7. case H10.
+        case H7.
+        case H7.
+        case H7.
+    case H3.
+      apply IH1 to _ H4 H7. apply IH1 to _ H5 H8. apply IH to _ H6 H9. search.
+      apply ctx_e2m_member to H1 H8. case H9.
+        case H7.
+        case H7. case H10.
+        case H7.
+        case H7.
+        case H7.
+    case H3.
+      apply IH to _ H4 H5. search.
+      apply ctx_e2m_member to H1 H6. case H7.
+        case H5. 
+        case H5. case H8.
+        case H5. 
+        case H5. 
+        case H5. 
+    .skip. % backtrace.
 
-Theorem e2m/comp_ty_unique:
-  forall Sig_e Sig_ml Ctx_e2m Ctx_m A A1 A2,
-    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-    {Ctx_e2m |- e2m/comp_ty A A1} ->
-    {Ctx_e2m |- e2m/comp_ty A A2} ->
-    A1 = A2.
-% PROOF
-skip.
+  intros. case H2 (keep).
+    case H3.
+      apply IH to _ H4 H5. search.
+      case H5.
+        apply e2m/full_dirt_empty_member to H1 H7 H8.
+        apply e2m/comp_ty_member to H1 H5 H6.
+    case H3.
+      case H4.
+      apply e2m/full_dirt_empty_member to H1 H7 H8.
+      apply IH to _ H5 H7. search.
+      apply e2m/comp_ty_member to H1 H6 H7. 
+      apply e2m/comp_ty_member to H1 H4 H5.
 % QED
+
+Split e2m/ty_unique as e2m/val_ty_unique, e2m/comp_ty_unique.
