@@ -180,6 +180,18 @@ Theorem big_lemma_1 : (
     skip.
 Split big_lemma_1 as big_lemma_1a, big_lemma_1b, big_lemma_1c, big_lemma_1d.
 
+Theorem big_lemma_2 : (
+    forall Sig_e Ctx_e2m Ctx_t V V' A1 A2 D Y Yi1 Yi2 YF,
+    e2m/ty_ctx Sig_e Ctx_e2m Ctx_t ->
+    {Ctx_e2m |- e2m/val Sig_e V (exp/all_dirt A1) V'} ->
+    {Ctx_t |- from_impure/val A1 D Yi1} ->
+    {Ctx_t |- from_impure/val A2 D Yi2} ->
+    nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/coer (Y d) (exp/val_ty_coer_ty (A1 d) (A2 d)) YF} ->
+    exists YD, {Ctx_e2m |- e2m/coer (Y D) (exp/val_ty_coer_ty (A1 D) (A2 D)) YD} /\
+    ml/cong (ml/cast (ml/cast V' YF) Yi2) (ml/cast (ml/cast V' Yi1) YD)
+).
+skip.
+
 Theorem e2m/val_preservation :
   forall Sig_e V1 V2 A T1,
     {exp/step_val V1 V2} -> {e2m/val Sig_e V1 A T1} ->
@@ -223,7 +235,13 @@ inst H7 with n1 = S. search.
 % coerced APP_TY
 skip. % congruent to a value
 % coerced APP_DIRT
-skip. % congruent to a value
+case H2. case H5. case H7.
+assert exists Y, {from_impure/val A1 D Y}.
+  skip.
+case H9.
+apply big_lemma_2 to _ H6 H10 H4 with Sig_e = Sig_e, Ctx_e2m = nil, Ctx_t = nil, V = V, V' = Vm1, A1 = A1, A2 = At, D = D, Y = Y, Yi1 = Y2, Yi2 = Y1, YF = Ym.
+apply H11 to H8.
+search.
 % coerced APP_COER
 skip. % congruent to a value
 % APP_SKEL reduce
