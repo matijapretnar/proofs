@@ -34,12 +34,12 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
    nabla w w', e2m/ctx Sig_e Sig_m
      (e2m/coer w (exp/val_ty_coer_ty A1 A2) w' :: Ctx_e2m)
      (ml/of_coer w' (ml/ty_coer_ty A1' A2') :: Ctx_m)
-     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/val_ty A1 A1'} /\ {Ctx_e2m |- e2m/val_ty A2 A2'};
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/val_ty A1 A1'} /\ {Ctx_e2m |- e2m/val_ty A2 A2'} /\ {Ctx_m |- ml/wf_ty A1'} /\ {Ctx_m |- ml/wf_ty A2'};
 
    nabla w w', e2m/ctx Sig_e Sig_m
      (e2m/coer w (exp/comp_ty_coer_ty C1 C2) w' :: Ctx_e2m)
      (ml/of_coer w' (ml/ty_coer_ty C1' C2') :: Ctx_m)
-     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/comp_ty C1 C1'} /\ {Ctx_e2m |- e2m/comp_ty C2 C2'}.
+     := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/comp_ty C1 C1'} /\ {Ctx_e2m |- e2m/comp_ty C2 C2'} /\ {Ctx_m |- ml/wf_ty C1'} /\ {Ctx_m |- ml/wf_ty C2'}.
 
 Define e2m/ty_ctx : exp/sig -> olist -> olist -> prop by
 
@@ -61,23 +61,35 @@ Theorem ctx_m_member:
        fresh T' /\ (F = ml/wf_ty T'))
     \/
     (exists W T T',
-      fresh W /\ (F = ml/of_coer W (ml/ty_coer_ty T T'))).
+      fresh W /\ (F = ml/of_coer W (ml/ty_coer_ty T T')) /\ {Ctx_m |- ml/wf_ty T} /\ {Ctx_m |- ml/wf_ty T'}).
 % PROOF
 induction on 1. intros. case H1 (keep).
   case H2.
   case H2. 
     search.
-    apply IH to H3 H5. search.
+    apply IH to H3 H5. case H6.
+      search.
+      search.
+      search.
   case H2.
     search.
-    apply IH to H3 H4. search.
-  apply IH to H3 H2. search.
+    apply IH to H3 H4. case H5.
+      search.
+      search.
+      search.
+    apply IH to H3 H2. search.
   case H2.
     search.
-    apply IH to H3 H6. search.
+    apply IH to H3 H8. case H9.
+      search.
+      search.
+      search.
   case H2.
     search.
-    apply IH to H3 H6. search.
+    apply IH to H3 H8. case H9.
+      search.
+      search.
+      search.
 % QED
 
 Theorem ctx_e2m_member: 
@@ -127,7 +139,7 @@ induction on 1. intros. case H1 (keep).
       search.
   case H2.
     search.
-    apply IH to H3 H6. case H7.
+    apply IH to H3 H8. case H9.
       search. 
       search.
       search.
@@ -135,7 +147,7 @@ induction on 1. intros. case H1 (keep).
       search.
   case H2.
     search.
-    apply IH to H3 H6. case H7. 
+    apply IH to H3 H8. case H9. 
       search. 
       search.
       search.
@@ -352,6 +364,40 @@ induction on 2. intros. case H2 (keep).
       apply IH to _ H4 H5. search.
       apply IH to _ H4 H5. search.
 % QED
+
+Theorem e2m/empty_dirt_is_not_full:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m,
+  e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+  {Ctx_e2m |- e2m/full_dirt empty} -> false.
+intros. case H2. apply e2m/full_dirt_empty_member to _ _ _.
+
+Theorem e2m/wf_of_coer:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m Y A1 A2, 
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
+    {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A1 A2)} ->
+    {Ctx_m |- ml/wf_ty A1} /\ {Ctx_m |- ml/wf_ty A2}.
+% PROOF
+intros. case H2. case H3. search.
+apply ctx_m_member to H1 H6. case H7. case H5. case H5. case H5.
+apply ctx_m_member to H1 H4. case H5. case H3. case H3. case H3.
+search.
+% QED
+
+Theorem e2m/of_refl_coer:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m A Y,
+  e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+  {Ctx_e2m |- e2m/refl_coer A Y} ->
+  {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A A)}.
+induction on 2. intros. case H2.
+  search.
+  apply IH to _ H3. apply IH to _ H4. apply e2m/wf_of_coer to _ H5. apply e2m/wf_of_coer to _ H6. search.
+  apply IH to _ H3. apply e2m/wf_of_coer to _ H4. search.
+  apply IH to _ H3. apply IH to _ H4. apply e2m/wf_of_coer to _ H5. apply e2m/wf_of_coer to _ H6. search.
+  apply IH to _ H3. apply e2m/wf_of_coer to _ H5. skip.
+  skip.
+  skip.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem e2m/ty_unique:

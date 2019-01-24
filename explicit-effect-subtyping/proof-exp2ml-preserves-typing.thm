@@ -255,18 +255,18 @@ case H2 (keep).
     % backchain
     apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H10. case H7. case H7. case H7.
   % LAM_COER VAL
-  apply IH to _ H3.
-  assert {Ctx_e2m |- e2m/val_ty At T}. skip. % strengthening
   apply e2m/preserve_wf_val_ty to _ H4.
   apply e2m/preserve_wf_val_ty to _ H5.
-  apply e2m/preserve_wf_val_ty to _ H8.
-  search.
-  % LAM_COER COMP
   apply IH to _ H3.
   assert {Ctx_e2m |- e2m/val_ty At T}. skip. % strengthening
+  apply e2m/preserve_wf_val_ty to _ H10.
+  search.
+  % LAM_COER COMP
   apply e2m/preserve_wf_comp_ty to _ H4.
   apply e2m/preserve_wf_comp_ty to _ H5.
-  apply e2m/preserve_wf_val_ty to _ H8.
+  apply IH to _ H3.
+  assert {Ctx_e2m |- e2m/val_ty At T}. skip. % strengthening
+  apply e2m/preserve_wf_val_ty to _ H10.
   search.
   % LAM_COER DIRT
   apply IH to _ H3.
@@ -388,16 +388,35 @@ case H2 (keep).
       apply e2m/val_ty_unique to _ H9 H11.
       search.
       % no, the empty dirt was full
-      case H11.
-      apply ctx_e2m_member to _ H14. case H15. case H13. case H13. case H13. case H16. case H13. case H13.
+      apply e2m/empty_dirt_is_not_full to _ H11.
       % from the context
       apply ctx_e2m_member to _ H12. case H13. case H11. case H11. case H11. case H11. case H11.
     % into a handler type even though we had an empty dirt
-    case H10. apply ctx_e2m_member to _ H13. case H14. case H12. case H12. case H12. case H15. case H12. case H12.
+    apply e2m/empty_dirt_is_not_full to _ H10.
     % from the context
     apply ctx_e2m_member to _ H10. case H11. case H9. case H9. case H12. case H9. case H9. case H9.
   % HANDLE -> HANDLE & UNSAFE
-  skip.
+  apply IH1 to _ H3.
+  apply IH to _ H5.
+  exists B2'. split.
+    search.
+    % how does the handler type translation look like?
+    case H10.
+    % it's a function - not what we expected as we have a full empty dirt
+    apply e2m/empty_dirt_is_not_full to _ H4.
+    % it's a proper handler as expected
+    % how does the computation type translation look like?
+    case H8.
+    % again someone thinks empty dirts are full.
+    apply e2m/empty_dirt_is_not_full to _ H13.
+    % now the interesting case
+    apply e2m/val_ty_unique to _ H6 H14.
+    apply e2m/val_ty_unique to _ H12 H16.
+    apply e2m/preserve_wf_val_ty to _ H14.
+    apply e2m/of_refl_coer to _ H7.
+    search.
+    apply ctx_e2m_member to _ H16. case H17. case H15. case H15. case H15. case H15. case H15.
+    apply ctx_e2m_member to _ H13. case H14. case H12. case H12. case H15. case H12. case H12. case H12.
   % HANDLE -> HANDLE
   apply IH1 to _ H3.
   apply IH to _ H5.
