@@ -107,13 +107,13 @@ e2m/val Sig (exp/lam_coer (exp/dirt_coer_ty D1 D2) Vt) (exp/qual_ty (exp/dirt_co
 % COERCION APPLY
 e2m/val Sig (exp/app_coer Vt Yt) At (ml/app_coer Vm Y') :-
   e2m/val Sig Vt (exp/qual_ty (exp/val_ty_coer_ty A1 A2) At) Vm,
-  e2m/coer Y (exp/val_ty_coer_ty A1 A2) Y'.
+  e2m/coer Yt (exp/val_ty_coer_ty A1 A2) Y'.
 e2m/val Sig (exp/app_coer Vt Yt) At (ml/app_coer Vm Y') :-
   e2m/val Sig Vt (exp/qual_ty (exp/comp_ty_coer_ty C1 C2) At) Vm,
-  e2m/coer Y (exp/comp_ty_coer_ty C1 C2) Y'.
+  e2m/coer Yt (exp/comp_ty_coer_ty C1 C2) Y'.
 e2m/val Sig (exp/app_coer Vt Yt) At Vm :-
   e2m/val Sig Vt (exp/qual_ty (exp/dirt_coer_ty D1 D2) At) Vm,
-  exp/of_coer Y (exp/dirt_coer_ty D1 D2).
+  exp/of_coer Yt (exp/dirt_coer_ty D1 D2).
 % VALUE COERCION
 e2m/val Sig (exp/val_cast Vt Yt) At2 (ml/cast Vm Ym) :-
   e2m/val Sig Vt At1 Vm,
