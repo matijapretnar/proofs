@@ -41,6 +41,15 @@ Define e2m/ctx : exp/sig -> ml/sig -> olist -> olist -> prop by
      (ml/of_coer w' (ml/ty_coer_ty C1' C2') :: Ctx_m)
      := e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m /\ {Ctx_e2m |- e2m/comp_ty C1 C1'} /\ {Ctx_e2m |- e2m/comp_ty C2 C2'}.
 
+Define e2m/ty_ctx : exp/sig -> olist -> olist -> prop by
+
+  e2m/ty_ctx Sig_e nil nil;
+
+  nabla x x', e2m/ty_ctx Sig_e
+    (e2m/val Sig_e x (A Df) x' :: Ctx_e2m)
+    Ctx_t
+    := e2m/ty_ctx Sig_e Ctx_e2m Ctx_t /\ {Ctx_e2m |- e2m/full_dirt Df}.
+
 Theorem ctx_m_member: 
   forall  Sig_e Sig_m Ctx_e2m Ctx_m F,
     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->

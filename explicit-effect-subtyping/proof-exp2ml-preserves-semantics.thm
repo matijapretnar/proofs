@@ -67,7 +67,8 @@ Define ml/cong : ml/term -> ml/term -> prop by
 
 Theorem result_val_val :
   forall Sig_e V A T, {exp/result_val V} -> {e2m/val Sig_e V A T} -> exists T', {ml/val T'} /\ ml/cong T T'.
-skip.
+  skip.
+% induction on 1. intros. case H1.
 % induction on 1. intros. case H1.
 %   case H3.
 %     case H2. search.
@@ -117,6 +118,68 @@ skip.
 %   case H2.
 %     apply IH to H8 H9 H3 H4 H5 H6. search.
 
+Theorem big_lemma_1 : (
+    forall Sig_e Ctx_e2m Ctx_t V A T1 D Y,
+    e2m/ty_ctx Sig_e Ctx_e2m Ctx_t ->
+    {Ctx_t |- from_impure/val A D Y} ->
+    nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/val Sig_e (V d) (A d) T1} ->
+    exists T2, {Ctx_e2m |- e2m/val Sig_e (V D) (A D) T2} /\ ml/cong (ml/cast T1 Y) T2
+) /\ (
+    forall Sig_e Ctx_e2m Ctx_t V A T1 D Y,
+    e2m/ty_ctx Sig_e Ctx_e2m Ctx_t ->
+    {Ctx_t |- to_impure/val A D Y} ->
+    nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/val Sig_e (V d) (A d) T1} ->
+    exists T2, {Ctx_e2m |- e2m/val Sig_e (V D) (A D) T2} /\ ml/cong (ml/cast T2 Y) T1
+) /\ (
+    forall Sig_e Ctx_e2m Ctx_t C A T1 D Y,
+    e2m/ty_ctx Sig_e Ctx_e2m Ctx_t ->
+    {Ctx_t |- from_impure/comp A D Y} ->
+    nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/comp Sig_e (C d) (A d) T1} ->
+    exists T2, {Ctx_e2m |- e2m/comp Sig_e (C D) (A D) T2} /\ ml/cong (ml/cast T1 Y) T2
+) /\ (
+    forall Sig_e Ctx_e2m Ctx_t C A T1 D Y,
+    e2m/ty_ctx Sig_e Ctx_e2m Ctx_t ->
+    {Ctx_t |- to_impure/comp A D Y} ->
+    nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/comp Sig_e (C d) (A d) T1} ->
+    exists T2, {Ctx_e2m |- e2m/comp Sig_e (C D) (A D) T2} /\ ml/cong (ml/cast T2 Y) T1
+).
+% induction on 3 3 3 3. split.
+
+% % from_impure/val
+% intros Hctx. case H2.
+%   % unit
+%   skip.
+%   % functions
+%   case H1.
+%   monotone H4 with e2m/full_dirt n1 :: e2m/val Sig_e n2 (A1 n1) n3 :: Ctx_e2m.
+%     skip.
+%     apply IH2 to _ H6.
+%   .case H3.. case H4. case H2.
+%         intros. case H10. search. case H11. search. search.
+%     apply IH2 to _ H10 H9 with A = (z\ A3 n1 z), C = (z\ V2 z n1 n2).
+%       skip. % ctx
+%       exists (ml/fun ())
+%       split.
+%         search.
+
+      
+%     .
+%   case H3. case H4. case H2.
+%     % interesting case
+%     assert (e2m/ty_ctx (Sig_e n1) (e2m/full_dirt n1 :: e2m/val (Sig_e n1) n2 (A2 n1 n1) n3 :: Ctx_e2m n1) (Ctx_t n1)). skip.
+%     apply IH2 to H11 H10 H9.
+% skip.
+% induction on 2. intros. case H2.
+%   % unit
+%   case H4. case H5. case H3. case H1. case H6.
+%     search.
+%     case H8. case H7. case H9.
+%   % fun
+%   case H4. case H5. case H3. case H1. case H11.
+%     apply IH
+    skip.
+Split big_lemma_1 as big_lemma_1a, big_lemma_1b, big_lemma_1c, big_lemma_1d.
+
 Theorem e2m/val_preservation :
   forall Sig_e V1 V2 A T1,
     {exp/step_val V1 V2} -> {e2m/val Sig_e V1 A T1} ->
@@ -136,7 +199,11 @@ case H2. apply IH to H3 H4. exists (ml/app_ty T2 Am1). split.
     search.
     unfold 5. exists (t\ ml/app_ty t Am1). search.
 % APP_DIRT
-skip. % from_impure
+case H2.
+apply IH to H3 H5.
+exists (ml/cast T2 Y). split.
+  search.
+  unfold 5. exists (t\ ml/cast t Y). search.
 % APP_COER
 case H2.
     % val coer
@@ -150,7 +217,9 @@ case H2.
     % dirt coer
     apply IH to H3 H4. exists T2. search.
 % coerced APP_SKEL
-skip. % congruent to a value
+case H2. case H4.
+case H6.
+inst H7 with n1 = S. search.
 % coerced APP_TY
 skip. % congruent to a value
 % coerced APP_DIRT
@@ -162,7 +231,10 @@ case H2. case H3. inst H4 with n1 = S. search.
 % APP_TY reduce
 case H2. case H4. inst H6 with n1 = A1, n2 = Am1. cut H7. search.
 % APP_DIRT reduce
-skip. % from_impure
+case H2. case H4.
+apply big_lemma_1a to _ H3 with Sig_e = Sig_e, Ctx_e2m = nil, Ctx_t = nil, V = M, A = At, T1 = Vm, D = A1.
+apply H6 to H5.
+search.
 % APP_COER reduce
 case H2.
     % val coer
