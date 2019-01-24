@@ -142,7 +142,7 @@ e2m/comp Sig (exp/let Vt Ct) B (ml/let Vm Cm) :-
   e2m/val Sig Vt A Vm,
   pi x\ pi x'\ (e2m/val Sig x A x' => e2m/comp Sig (Ct x) B (Cm x')).
 % % RETURN
-e2m/comp Sig (exp/ret V) (exp/bang A empty) Vm :-
+e2m/comp Sig (exp/ret Vt) (exp/bang A empty) Vm :-
   e2m/val Sig Vt A Vm.
 % % OP
 e2m/comp Sig (exp/op O Vt At2 Ct) (exp/bang At D) (ml/op O Vm Am2 Cm) :-
