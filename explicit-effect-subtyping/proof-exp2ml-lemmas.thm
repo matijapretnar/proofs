@@ -317,6 +317,42 @@ intros. apply ctx_e2m_member to H1 H3. case H4.
   case H2.
 % QED
 
+Theorem absurdity[A]:
+  forall L E, nabla (x:A), member (E x) L -> exists F, x\ F = E.
+% PROOF
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+% QED
+
+Theorem e2m/val_nominal_absurd: 
+  forall B L, nabla x,
+  member (e2m/val_ty x B) L -> false.
+% PROOF
+induction on 1. intros. case H1. apply IH to H2.
+% QED
+
+Theorem e2m/unique_ctx_of_val:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m A B1 B2,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    member (e2m/val_ty A B1) Ctx_e2m ->
+    member (e2m/val_ty A B2) Ctx_e2m ->
+    B1 = B2.
+% PROOF
+induction on 2. intros. case H2 (keep).
+  case H3.
+    search.
+    case H1. apply e2m/val_nominal_absurd to H4.
+  case H3.
+    case H1. apply e2m/val_nominal_absurd to H4.
+    case H1.
+      apply IH to _ H4 H5. search.
+      apply IH to _ H4 H5. search.
+      apply IH to _ H4 H5. search.
+      apply IH to _ H4 H5. search.
+      apply IH to _ H4 H5. search.
+% QED
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem e2m/ty_unique:
   (
@@ -430,7 +466,18 @@ induction on 2 2. split.
         case H5. 
         case H5. 
         case H5. 
-    .skip. % backtrace.
+    apply ctx_e2m_member to H1 H5. case H6.
+      case H4.
+      case H4. case H7. case H8. case H3.
+        apply ctx_e2m_member to H1 H11. case H12. 
+        case H10.
+        case H10. apply e2m/unique_ctx_of_val to _ H5 H11. search.
+        case H10.
+        case H10.
+        case H10.
+      case H4.
+      case H4.
+      case H4.
 
   intros. case H2 (keep).
     case H3.
