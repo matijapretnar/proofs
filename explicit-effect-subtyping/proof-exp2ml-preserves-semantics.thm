@@ -1,0 +1,313 @@
+Specification "exp2ml".
+Import "common".
+Import "proof-exp2ml-lemmas".
+Set subgoals off.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Theorem step_normal : forall V V' A,
+%   {ml/step_val V V'} -> {ml/normal V' A} -> {ml/normal V A}.
+% induction on 2. intros. case H2.
+%   search.
+%   search.
+%   search.
+%   assert {ml/converges V}.
+%   assert {ml/step_val (ml/app_ty V n1) (ml/app_ty V' n1)}.
+%   apply IH to H6 H4. search.
+
+% Theorem val_normal : forall Sig V A,
+%     {ml/of_val Sig V A} -> {ml/normal V A}.
+% induction on 1. intros. case H1.
+%   search.
+%   search.
+%   search.
+%   apply IH to H2.
+%   assert {pi t\ ml/normal (ml/app_ty (ml/lam_ty V1) t) (T t)}.
+%     assert {ml/step_val (ml/app_ty (ml/lam_ty V1) n1) (V1 n1)}.
+%     apply step_normal to H4 H3. search.
+%   search.
+%   apply IH to H2.
+%     case H3. inst H5 with n1 = T2. search.
+
+% Theorem normal_converges : forall V A,
+%   {ml/normal V A} -> {ml/converges V}.
+% intros. case H1.
+%   search.
+%   search.
+%   search.
+%   search.
+
+Define ml/cong : ml/term -> ml/term -> prop by
+    % 1
+    ml/cong T1 T2 := {ml/step T1 T2};
+    % 2
+    ml/cong T T;
+    % 3
+    ml/cong T1 T2 := ml/cong T2 T1;
+    % 4
+    ml/cong T1 T3 := exists T2, ml/cong T1 T2 /\ ml/cong T2 T3;
+    % 5
+    ml/cong T1 T2 := exists T T1' T2', T1 = T T1' /\ T2 = T T2' /\ ml/cong T1' T2'.
+
+% Theorem converges_cong_result :
+%   forall V, {ml/converges V} -> exists V', {ml/result_val V'} /\ ml/cong V V'.
+% induction on 1. intros. case H1.
+%   search.
+%   apply IH to H3. search.  
+
+% Theorem val_cong_result :
+%   forall Sig V S,
+%     {ml/of_term Sig V S} -> exists V', {ml/val V'} /\ ml/cong V V'.
+% skip.
+% intros.
+%   apply val_normal to H1.
+%   apply normal_converges to H2.
+%   apply converges_cong_result to H3.
+%   search.
+
+Theorem result_val_val :
+  forall Sig_e V A T, {exp/result_val V} -> {e2m/val Sig_e V A T} -> exists T', {ml/val T'} /\ ml/cong T T'.
+skip.
+% induction on 1. intros. case H1.
+%   case H3.
+%     case H2. search.
+%     case H2.
+%       case H4. search. search.
+%     case H2. search.
+%     case H2. search.
+%     .case H2..
+%     case H2. search..
+%     case H2. search..
+%     case H2. search.
+%     case H2. search.
+
+% Theorem e2m/get_ret_case :
+%   forall Ht Ct Vt He Ce Vm,
+%     {exp/get_ret_case Ht Ct} -> {e2m/hand Ht He} -> {e2m/comp (Ct Vt) Ce} -> {e2m/val Vt Vm} ->
+%     exists Ce', {ml/get_ret_case He Ce'} /\ Ce = Ce' Vm.
+% induction on 1. intros. case H1.
+%   case H2.
+%     exists Ce1. inst H5 with n1 = Vt, n2 = Vm. cut H7 with H4.
+%     apply unique_e2m/comp to _ H3 H8. search.
+%   case H2.
+%     apply IH to H5 H6 H3 H4.
+%     search.
+
+% Theorem e2m/get_op_case :
+%   forall Ht O At Ct Vt Kt He Ae Ce Vm Ke,
+%     {exp/get_op_case Ht O At Ct} -> {e2m/hand Ht He} -> {e2m/comp (Ct Vt Kt) Ce} -> {e2m/val Vt Vm} ->
+%     {exp/skel_val_ty At Ae} -> {e2m/val Kt Ke} ->
+%     exists Ce', {ml/get_op_case He O Ae Ce'} /\ Ce = Ce' Vm Ke.
+% induction on 1. intros. case H1.
+%   case H2.
+%     case H3.
+%     exists (x\ k\ ml/op O x Ae (y\ ml/app k y)).
+%     apply unique_e2m/val to _ H4 H9.
+%     apply unique_skel_val_ty to _ H5 H10.
+%     case H11.
+%     monotone H6 with e2m/val n1 n2 :: nil.
+%     apply unique_e2m/val to _ H12 H14.
+%     assert {e2m/val n1 n2 |- e2m/val n1 n2}.
+%     apply unique_e2m/val to _ H13 H15. search.
+%     case H13. case H12. case H14.
+%   case H2.
+%     inst H9 with n1 = Vt, n2 = Vm, n3 = Kt, n4 = Ke.
+%     cut H10 with H4. cut H11 with H6.
+%     apply unique_e2m/comp to _ H3 H12. search.
+%   case H2.
+%     apply IH to H8 H9 H3 H4 H5 H6. search.
+
+Theorem e2m/val_preservation :
+  forall Sig_e V1 V2 A T1,
+    {exp/step_val V1 V2} -> {e2m/val Sig_e V1 A T1} ->
+    exists T2, {e2m/val Sig_e V2 A T2} /\ ml/cong T1 T2.
+induction on 1. intros. case H1 (keep).
+% COERCE
+case H2. apply IH to H3 H4. exists (ml/cast T2 Ym). split.
+    search.
+    unfold 5. exists (t\ ml/cast t Ym). search.
+% CAST UNIT_REFL_COER
+case H2. case H5.
+    skip. % Vm is congruent to a value
+% APP_SKEL
+case H2. apply IH to H3 H4. search.
+% APP_TY
+case H2. apply IH to H3 H4. exists (ml/app_ty T2 Am1). split.
+    search.
+    unfold 5. exists (t\ ml/app_ty t Am1). search.
+% APP_DIRT
+skip. % from_impure
+% APP_COER
+case H2.
+    % val coer
+    apply IH to H3 H4. exists (ml/app_coer T2 Y'). split.
+        search.
+        unfold 5. exists (t\ ml/app_coer t Y'). search.
+    % comp coer
+    apply IH to H3 H4. exists (ml/app_coer T2 Y'). split.
+        search.
+        unfold 5. exists (t\ ml/app_coer t Y'). search.
+    % dirt coer
+    apply IH to H3 H4. exists T2. search.
+% coerced APP_SKEL
+skip. % congruent to a value
+% coerced APP_TY
+skip. % congruent to a value
+% coerced APP_DIRT
+skip. % congruent to a value
+% coerced APP_COER
+skip. % congruent to a value
+% APP_SKEL reduce
+case H2. case H3. inst H4 with n1 = S. search.
+% APP_TY reduce
+case H2. case H4. inst H6 with n1 = A1, n2 = Am1. cut H7. search.
+% APP_DIRT reduce
+skip. % from_impure
+% APP_COER reduce
+case H2.
+    % val coer
+    case H3. inst H5 with n1 = A1, n2 = Y'. cut H8. search.
+    % comp coer
+    case H3. inst H5 with n1 = A1, n2 = Y'. cut H8. search.
+    % dirt coer
+    case H3. inst H5 with n1 = A1. search.
+
+% Theorem e2m/extract_value : forall Ce Cs Vm, {exp/extract_value Ce Vm} -> {e2m/comp Ce Cs} -> exists Vs, Cs = ml/ret Vs /\ {e2m/val Vm Vs}.
+% induction on 1. intros. case H1.
+%   case H2. apply IH to H3 H4. search.
+%   case H2. search.
+
+Theorem e2m/comp_preservation :
+  forall Sig_e C1 C2 B T1,
+    {exp/step_comp C1 C2} -> {e2m/comp Sig_e C1 B T1} ->
+    exists T2, {e2m/comp Sig_e C2 B T2} /\ ml/cong T1 T2.
+induction on 1. intros. case H1.
+% COERCE
+case H2. apply IH to H3 H4. exists (ml/cast T2 Ym). split.
+    search.
+    unfold 5. exists (t\ ml/cast t Ym). search.
+% APP V1-step
+case H2. apply e2m/val_preservation to H3 H4. exists (ml/app T2 Vm2). split.
+  search.
+  unfold 5. exists (t\ ml/app t Vm2). search.
+% APP V1-exp/coer
+skip. % don't know
+% APP V2-step
+case H2. apply e2m/val_preservation to H4 H6. exists (ml/app Vm1 T2). split.
+  search.
+  unfold 5. exists (t\ ml/app Vm1 t). search.
+% APP beta
+case H2.
+case H4.
+apply result_val_val to H3 H5.
+inst H7 with n1 = V, n2 = Vm2.
+cut H10.
+exists Cml Vm2. split.
+    search.
+    unfold 4. exists (ml/app (ml/fun Aml Cml) T'). split.
+    unfold 5. exists (ml/app (ml/fun Aml Cml)). search.
+    unfold 4. exists (Cml T'). split.
+    unfold 1. search.
+    unfold 5. exists Cml. search.
+% LET V-step
+case H2.
+apply e2m/val_preservation to H3 H4.
+exists (ml/let T2 Cm). split.
+    search.
+    unfold 5. exists (t\ ml/let t Cm). search.
+% LET beta
+case H2.
+apply result_val_val to H3 H4.
+inst H5 with n1 = V, n2 = Vm. cut H8.
+exists (Cm Vm). split.
+    search.
+    unfold 4. exists (ml/let T' Cm). split.
+    unfold 5. exists (t\ ml/let t Cm). search.
+    unfold 4. exists (Cm T'). split.
+    unfold 1. search.
+    unfold 5. exists Cm. search.
+% RETURN V-step
+case H2. apply e2m/val_preservation to H3 H4. search.
+% OP V-step
+case H2. apply e2m/val_preservation to H3 H7. exists (ml/op O T2 Am2 Cm). split.
+  search.
+  unfold 5. exists (t\ ml/op O t Am2 Cm). search.
+% OP-coerce
+case H2. case H4.
+apply result_val_val to H3 H9. case H5. exists (ml/op O Vm Am2 (y\ ml/cast (Cm1 y) Y1')). split.
+  search..
+  skip.
+  unfold 5. exists (t\ ml/cast (ml/op O t Am2 Cm1) Ym). search..
+case H2. case H3. case H5.
+apply unique_e2m/val to _ H6 H9.
+apply unique_skel_val_ty to _ H7 H10.
+case H8. apply unique_e2m/comp to _ H11 H12. search.
+case H13. case H12. case H14.
+% DO C1-step
+case H2. case H3.
+Hof : case Hof.
+apply IH to _ H4 H5 H7.
+apply unique_e2m/comp to _ H6 H8.
+unfold 12. exists (c\ ml/do c Ce5). search.
+% DO cast_ret
+case H2. apply e2m/extract_value to H4 H5. inst H6 with n1 = V, n2 = Vs. cut H8.
+apply unique_e2m/comp to _ H3 H9.
+case Hof.
+case H10.
+apply val_cong_result to H12.
+unfold 10. exists (ml/do (ml/ret V') Ce3). split.
+unfold 11. exists (v\ ml/do (ml/ret v) Ce3). search.
+unfold 10. exists (Ce3 V'). split. search.
+unfold 11. exists Ce3. search.
+% DO op
+case H2. case H3. case H5. case H9.
+Hof: case Hof.
+Hof: case Hof.
+apply val_cong_result to Hof2.
+apply unique_e2m/val to _ H7 *H10.
+apply unique_skel_val_ty to _ *H8 *H11.
+apply unique_e2m/comp to _ *H12 *H13.
+inst *H6 with n1 = n3, n2 = n4.
+monotone *H17 with (e2m/val n3 n4 :: e2m/val n1 n2 :: nil).
+apply unique_e2m/comp to _ *H14 *H18.
+unfold 10. exists (ml/do (ml/op O V' Ae1 Ce8) Ce3). split.
+unfold 11. exists (v\ ml/do (ml/op O v Ae1 Ce8) Ce3). search.
+unfold 10. exists (ml/op O V' Ae1 (z\ ml/do (Ce8 z) Ce3)). split.
+unfold 7. search.
+unfold 11. exists (v\ ml/op O v Ae1 (z\ ml/do (Ce8 z) Ce3)). search.
+case H14. case H13. case H15.
+% HANDLE V-step
+case H2. case H3. apply unique_e2m/comp to _ H5 H7.
+apply e2m/val_preservation to H4 H6 H8.
+unfold 11. exists (v\ ml/with Ce3 v). search.
+% HANDLE V-cast
+case H2. case H3. case H6. case H7. case H9.
+apply unique_e2m/comp to _ H5 H11.
+apply unique_e2m/val to _ H8 H10.
+search.
+% HANDLE C-step
+case H2. case H3. apply unique_e2m/val to _ H7 H9.
+Hof: case Hof.
+apply IH to _ H5 H6 H8.
+unfold 12. exists (c\ ml/with c Vm1). search.
+% HANDLE cast_ret
+case H2. apply e2m/extract_value to H4 H6. case H7.
+apply e2m/get_ret_case to H5 H9 H3 H8.
+case Hof. case H11.
+apply val_cong_result to H13.
+unfold 10. exists (ml/with (ml/ret V') (ml/hand He)). split.
+unfold 11. exists (v\ ml/with (ml/ret v) (ml/hand He)). search.
+unfold 10. exists (Ce' V'). split.
+unfold 7. search.
+unfold 11. exists Ce'. search.
+% HANDLE op
+case H2. case H6. case H7.
+Hof: case Hof.
+Hof: case Hof.
+apply val_cong_result to Hof2.
+apply e2m/get_op_case to H5 H11 H3 H8 H9 _.
+unfold 10. exists (ml/with (ml/op O V' Ae Ce3) (ml/hand He)). split.
+unfold 11. exists (v\ ml/with (ml/op O v Ae Ce3) (ml/hand He)). search.
+unfold 10. exists (Ce' V' (ml/fun Ae (z1\ml/with (Ce3 z1) (ml/hand He)))). split.
+unfold 7. search.
+unfold 11. exists (v\ Ce' v (ml/fun Ae (z1\ml/with (Ce3 z1) (ml/hand He)))). search.
