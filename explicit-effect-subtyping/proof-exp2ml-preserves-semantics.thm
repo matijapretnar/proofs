@@ -250,42 +250,49 @@ Theorem big_lemma_2 : (
 ).
 skip.
 
+
+Theorem still_congruence :
+  forall T1 T2 T,
+  ml/cong T1 T2 ->
+  ml/cong (T T1) (T T2).
+% PROOF
+intros.
+unfold 5. exists T. search.
+% QED
+
+
 Theorem e2m/val_preservation :
   forall Sig_e V1 V2 A T1,
     {exp/step_val V1 V2} -> {e2m/val Sig_e V1 A T1} ->
     exists T2, {e2m/val Sig_e V2 A T2} /\ ml/cong T1 T2.
 induction on 1. intros. case H1 (keep).
 % COERCE
-case H2. apply IH to H3 H4. exists (ml/cast T2 Ym). split.
-    search.
-    unfold 5. exists (t\ ml/cast t Ym). search.
+case H2. apply IH to H3 H4.
+apply still_congruence to _ with T = (t\ ml/cast t Ym). search.
 % CAST UNIT_REFL_COER
 case H2. case H5.
     skip. % Vm is congruent to a value
 % APP_SKEL
 case H2. apply IH to H3 H4. search.
 % APP_TY
-case H2. apply IH to H3 H4. exists (ml/app_ty T2 Am1). split.
-    search.
-    unfold 5. exists (t\ ml/app_ty t Am1). search.
+case H2. apply IH to H3 H4.
+apply still_congruence to _ with T = (t\ ml/app_ty t Am1). search.
 % APP_DIRT
 case H2.
 apply IH to H3 H5.
-exists (ml/cast T2 Y). split.
-  search.
-  unfold 5. exists (t\ ml/cast t Y). search.
+apply still_congruence to _ with T = (t\ ml/cast t Y). search.
 % APP_COER
 case H2.
     % val coer
-    apply IH to H3 H4. exists (ml/app_coer T2 Y'). split.
-        search.
-        unfold 5. exists (t\ ml/app_coer t Y'). search.
+    apply IH to H3 H4.
+    apply still_congruence to _ with T =  (t\ ml/app_coer t Y').
+    search.
     % comp coer
-    apply IH to H3 H4. exists (ml/app_coer T2 Y'). split.
-        search.
-        unfold 5. exists (t\ ml/app_coer t Y'). search.
+    apply IH to H3 H4.
+    apply still_congruence to _ with T =  (t\ ml/app_coer t Y').
+    search.
     % dirt coer
-    apply IH to H3 H4. exists T2. search.
+    apply IH to H3 H4. search.
 % coerced APP_SKEL
 case H2. case H4.
 case H6.
@@ -331,6 +338,57 @@ induction on 1. intros. case H1.
  case H2. search. search.
  case H2. search. apply IH to H3 H4. search.
 
+Theorem step_congruence :
+  forall T1 T2 T T',
+  ml/cong T1 T2 ->
+  {ml/step (T T2) (T' T2)} ->
+  ml/cong (T T1) (T' T1).
+% PROOF
+intros.
+unfold 4. exists T T2. split.
+unfold 5. exists T. search.
+unfold 4. exists T' T2. split.
+unfold 1. search.
+unfold 5. exists T'. search.
+% QED
+
+Theorem e2m/extract_value :
+    forall Sig_e C V A T,
+    {exp/extract_value C V} ->
+    {e2m/comp Sig_e C (exp/bang A empty) T} ->
+    {e2m/val Sig_e V A T}.
+% PROOF
+skip.
+% QED
+
+Theorem e2m/extract_impure_value :
+    forall Sig_e C V A D T,
+    {exp/extract_value C V} ->
+    {e2m/comp Sig_e C (exp/bang A D) T} ->
+    {e2m/full_dirt D} ->
+    exists V', {e2m/val Sig_e V A V'} /\ ml/cong T (ml/ret V').
+% PROOF
+induction on 1. intros. case H1.
+  case H2. case H6. case H9.
+    % full -> full
+    apply IH to H4 H5 H10.
+    exists (ml/cast V' Y1'). split.
+        search.
+        unfold 4. exists (ml/cast (ml/ret V') (ml/comp_ty_coer Y1')). split.
+        unfold 5. exists (t\ ml/cast t (ml/comp_ty_coer Y1')). search.
+        assert {ml/val V'}. skip.
+        unfold 1. search.
+    % empty -> full
+    apply e2m/extract_value to H4 H5.
+    exists (ml/cast Cm Y1'). split.
+        search.
+        assert {ml/val Cm}. skip.
+        unfold 1. search.
+    % empty -> empty
+    case H3.
+  case H2. case H3.
+% QED
+
 Theorem e2m/comp_preservation :
   forall Sig_e Sig_m C1 C2 B T1,
     {e2m/sig Sig_e Sig_m} ->
@@ -338,137 +396,149 @@ Theorem e2m/comp_preservation :
     exists T2, {e2m/comp Sig_e C2 B T2} /\ ml/cong T1 T2.
 induction on 2. intros Hsig. case H1.
 % COERCE
-case H2. apply IH to _ H3 H4. exists (ml/cast T2 Ym). split.
-    search.
-    unfold 5. exists (t\ ml/cast t Ym). search.
+case H2. apply IH to _ H3 H4.
+apply still_congruence to _ with T =  (t\ ml/cast t Ym).
+search.
 % APP V1-step
-case H2. apply e2m/val_preservation to H3 H4. exists (ml/app T2 Vm2). split.
-  search.
-  unfold 5. exists (t\ ml/app t Vm2). search.
+case H2. apply e2m/val_preservation to H3 H4.
+apply still_congruence to _ with T =  (t\ ml/app t Vm2).
+search.
 % APP V1-exp/coer
-skip. % don't know
+case H2. case H4. case H7.
+apply result_val_val to _ H3 H6.
+skip.
+% apply step_congruence to _ _ with
+%     T = (t\ ml/app (ml/cast Vm (ml/fun_coer Y1' Y2')) t),
+%     T' = (t\ ml/cast (ml/app Vm (ml/cast t Y1')) Y2').
 % APP V2-step
-case H2. apply e2m/val_preservation to H4 H6. exists (ml/app Vm1 T2). split.
-  search.
-  unfold 5. exists (t\ ml/app Vm1 t). search.
+case H2. apply e2m/val_preservation to H4 H6.
+apply still_congruence to _ with T =  (t\ ml/app Vm1 t). search.
 % APP beta
 case H2.
 case H4.
 apply result_val_val to _ H3 H5.
 inst H7 with n1 = V, n2 = Vm2.
 cut H10.
-exists Cml Vm2. split.
-    search.
-    unfold 4. exists (ml/app (ml/fun Aml Cml) T'). split.
-    unfold 5. exists (ml/app (ml/fun Aml Cml)). search.
-    unfold 4. exists (Cml T'). split.
-    unfold 1. search.
-    unfold 5. exists Cml. search.
+apply step_congruence to _ _ with
+    T = (t\ ml/app (ml/fun Aml Cml) t),
+    T' = Cml.
+search.
 % LET V-step
 case H2.
 apply e2m/val_preservation to H3 H4.
-exists (ml/let T2 Cm). split.
-    search.
-    unfold 5. exists (t\ ml/let t Cm). search.
+apply still_congruence to _ with T = (t\ ml/let t Cm). search.
 % LET beta
 case H2.
 apply result_val_val to _ H3 H4.
 inst H5 with n1 = V, n2 = Vm. cut H8.
-exists (Cm Vm). split.
-    search.
-    unfold 4. exists (ml/let T' Cm). split.
-    unfold 5. exists (t\ ml/let t Cm). search.
-    unfold 4. exists (Cm T'). split.
-    unfold 1. search.
-    unfold 5. exists Cm. search.
+apply step_congruence to _ _ with
+    T = (t\ ml/let t Cm),
+    T' = Cm.
+search.
 % RETURN V-step
 case H2. apply e2m/val_preservation to H3 H4. search.
 % OP V-step
-case H2. apply e2m/val_preservation to H3 H7. exists (ml/op O T2 Am2 Cm). split.
-  search.
-  unfold 5. exists (t\ ml/op O t Am2 Cm). search.
+case H2. apply e2m/val_preservation to H3 H7.
+apply still_congruence to _ with T = (t\ ml/op O t Am2 Cm). search.
 % OP-coerce
 case H2. case H4. case H5.
 case H15. % what does the dirt coercion look like?
     % it works on computations as expected.
     apply result_val_val to _ H3 H9.
     apply in_less_dirt to H11 H14.
-    exists (ml/op O Vm Am2 (y\ ml/cast (Cm1 y) (ml/comp_ty_coer Y1'))). split.
-        search.
-        unfold 4. exists (ml/cast (ml/op O T' Am2 Cm1) (ml/comp_ty_coer Y1')). split.
-        unfold 5. exists (t\ ml/cast (ml/op O t Am2 Cm1) (ml/comp_ty_coer Y1')). search.
-        unfold 4. exists (ml/op O T' Am2 (y\ml/cast (Cm1 y) (ml/comp_ty_coer Y1'))). split.
-        unfold 1. search.
-        unfold 5. exists (t\ ml/op O t Am2 (y\ml/cast (Cm1 y) (ml/comp_ty_coer Y1'))). search.
+    apply step_congruence to _ _ with
+        T = (t\ ml/cast (ml/op O t Am2 Cm1) (ml/comp_ty_coer Y1')),
+        T' = (t\ ml/op O t Am2 (y\ml/cast (Cm1 y) (ml/comp_ty_coer Y1'))).
+    search.
     % it is between pure and full dirt - wrong because we have an operation in here
     case H11.
     % it is between pure and pure dirt - wrong because we have an operation in here
     case H11.
 % DO C1-step
-case H2.. case H3.
-Hof : case Hof.
-apply IH to _ H4 H5 H7.
-apply unique_e2m/comp to _ H6 H8.
-unfold 12. exists (c\ ml/do c Ce5). search.
-% DO cast_ret
-case H2. apply e2m/extract_value to H4 H5. inst H6 with n1 = V, n2 = Vs. cut H8.
-apply unique_e2m/comp to _ H3 H9.
-case Hof.
-case H10.
-apply val_cong_result to H12.
-unfold 10. exists (ml/do (ml/ret V') Ce3). split.
-unfold 11. exists (v\ ml/do (ml/ret v) Ce3). search.
-unfold 10. exists (Ce3 V'). split. search.
-unfold 11. exists Ce3. search.
+case H2.
+    % DO ~> LET
+    apply IH to _ H3 H4.
+    apply still_congruence to _ with T = (t\ ml/let t Cm2). search.
+    % DO ~> DO
+    apply IH to _ H3 H4.
+    apply still_congruence to _ with T = (t\ ml/do t Cm2). search.
+% DO ret
+case H2.
+    % DO ~> LET
+    apply e2m/extract_value to H3 H5. inst H6 with n1 = V, n2 = Cm1.
+    cut H8.
+    apply result_val_val to _ H4 H7.
+    apply step_congruence to _ _ with
+        T = (t\ ml/let t Cm2),
+        T' = Cm2.
+    search.
+    % DO ~> DO
+    apply e2m/extract_impure_value to H3 H5 _.
+    inst H6 with n1 = V, n2 = V'.
+    cut H9.
+    apply result_val_val to _ H4 H7.
+    exists (Cm2 V'). split.
+        search.
+    apply step_congruence to _ _ with
+        T = (t\ ml/do (ml/ret t) Cm2),
+        T' = Cm2.
+    unfold 4. exists (ml/do (ml/ret V') Cm2). split.
+    unfold 5. exists (t\ ml/do t Cm2). search.
+    search.
 % DO op
-case H2. case H3. case H5. case H9.
-Hof: case Hof.
-Hof: case Hof.
-apply val_cong_result to Hof2.
-apply unique_e2m/val to _ H7 *H10.
-apply unique_skel_val_ty to _ *H8 *H11.
-apply unique_e2m/comp to _ *H12 *H13.
-inst *H6 with n1 = n3, n2 = n4.
-monotone *H17 with (e2m/val n3 n4 :: e2m/val n1 n2 :: nil).
-apply unique_e2m/comp to _ *H14 *H18.
-unfold 10. exists (ml/do (ml/op O V' Ae1 Ce8) Ce3). split.
-unfold 11. exists (v\ ml/do (ml/op O v Ae1 Ce8) Ce3). search.
-unfold 10. exists (ml/op O V' Ae1 (z\ ml/do (Ce8 z) Ce3)). split.
-unfold 7. search.
-unfold 11. exists (v\ ml/op O v Ae1 (z\ ml/do (Ce8 z) Ce3)). search.
-case H14. case H13. case H15.
-% HANDLE V-step
-case H2. case H3. apply unique_e2m/comp to _ H5 H7.
-apply e2m/val_preservation to H4 H6 H8.
-unfold 11. exists (v\ ml/with Ce3 v). search.
-% HANDLE V-cast
-case H2. case H3. case H6. case H7. case H9.
-apply unique_e2m/comp to _ H5 H11.
-apply unique_e2m/val to _ H8 H10.
-search.
-% HANDLE C-step
-case H2. case H3. apply unique_e2m/val to _ H7 H9.
-Hof: case Hof.
-apply IH to _ H5 H6 H8.
-unfold 12. exists (c\ ml/with c Vm1). search.
-% HANDLE cast_ret
-case H2. apply e2m/extract_value to H4 H6. case H7.
-apply e2m/get_ret_case to H5 H9 H3 H8.
-case Hof. case H11.
-apply val_cong_result to H13.
-unfold 10. exists (ml/with (ml/ret V') (ml/hand He)). split.
-unfold 11. exists (v\ ml/with (ml/ret v) (ml/hand He)). search.
-unfold 10. exists (Ce' V'). split.
-unfold 7. search.
-unfold 11. exists Ce'. search.
-% HANDLE op
-case H2. case H6. case H7.
-Hof: case Hof.
-Hof: case Hof.
-apply val_cong_result to Hof2.
-apply e2m/get_op_case to H5 H11 H3 H8 H9 _.
-unfold 10. exists (ml/with (ml/op O V' Ae Ce3) (ml/hand He)). split.
-unfold 11. exists (v\ ml/with (ml/op O v Ae Ce3) (ml/hand He)). search.
-unfold 10. exists (Ce' V' (ml/fun Ae (z1\ml/with (Ce3 z1) (ml/hand He)))). split.
-unfold 7. search.
-unfold 11. exists (v\ Ce' v (ml/fun Ae (z1\ml/with (Ce3 z1) (ml/hand He)))). search.
+case H2.
+    % DO ~> LET (not possible because we have an operation)
+    case H4. case H11.
+    % DO ~> DO
+    case H4.
+    apply result_val_val to _ H3 H9.
+    apply step_congruence to _ _ with
+        T = (t\ ml/do (ml/op O t Am2 Cm) Cm2),
+        T' = (t\ ml/op O t Am2 (y\ml/do (Cm y) Cm2)).
+    search.
+% WITH val-step
+case H2.
+    % WITH ~> APP
+    skip.
+    % WITH ~> UNSAFE WITH
+    skip.
+    % WITH ~> WITH
+    skip.
+% WITH handler cast
+case H2.
+    % WITH ~> APP
+    skip.
+    % WITH ~> UNSAFE WITH
+    skip.
+    % WITH ~> WITH
+    skip.
+% WITH C step
+case H2.
+    % WITH ~> APP
+    apply IH to _ H4 H5.
+    apply still_congruence to _ with T = (t\ ml/app V' t).
+    search.
+    % WITH ~> UNSAFE WITH
+    apply IH to _ H4 H5.
+    apply still_congruence to _ with T = (t\ ml/cast (ml/with t V') (ml/unsafe_coer Y)).
+    search.
+    % WITH ~> WITH
+    apply IH to _ H4 H5.
+    apply still_congruence to _ with T = (t\ ml/with t V').
+    search.
+% WITH return
+case H2.
+    % WITH ~> APP
+    skip.
+    % WITH ~> UNSAFE WITH
+    skip.
+    % WITH ~> WITH
+    skip.
+% WITH op
+case H2.
+    % WITH ~> APP
+    skip.
+    % WITH ~> UNSAFE WITH
+    skip.
+    % WITH ~> WITH
+    skip.
