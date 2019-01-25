@@ -285,8 +285,3 @@ to_impure/comp (d\ exp/bang (A d) d) empty (ml/return_coer Y) :-
 to_impure/comp (d\ exp/bang (A d) d) D (ml/comp_ty_coer Y) :-
   to_impure/val A D Y,
   e2m/full_dirt D.
-
-e2m/val_ty_if_full A S A' :-
-  pi d\ e2m/full_dirt d => e2m/val_ty (A d) S A'.
-e2m/comp_ty_if_full A S A' :-
-  pi d\ e2m/full_dirt d => e2m/comp_ty (A d) S A'.

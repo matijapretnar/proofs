@@ -9,21 +9,21 @@ Theorem e2m/from_impure :
     forall Sig_e Sig_m Ctx_e2m Ctx_m A D Y A1,
       e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
       {Ctx_e2m |- from_impure/val A D Y} ->
-      {Ctx_e2m |- e2m/val_ty_if_full A A1} ->
+      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/val_ty (A d) A1} ->
       exists A2, {Ctx_e2m |- e2m/val_ty (A D) A2} /\
       {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A1 A2)}
   ) /\ (
     forall Sig_e Sig_m Ctx_e2m Ctx_m C D Y A1,
       e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
       {Ctx_e2m |- from_impure/comp C D Y} ->
-      {Ctx_e2m |- e2m/comp_ty_if_full C A1} ->
+      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/comp_ty (A d) A1} ->
       exists A2, {Ctx_e2m |- e2m/comp_ty (C D) A2} /\
       {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A1 A2)}
   ) /\ (
     forall Sig_e Sig_m Ctx_e2m Ctx_m A D Y A1,
       e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
       {Ctx_e2m |- to_impure/val A D Y} ->
-      {Ctx_e2m |- e2m/val_ty_if_full A A1} ->
+      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/val_ty (A d) A1} ->
       exists A2, {Ctx_e2m |- e2m/val_ty (A D) A2} /\
       {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A2 A1)}
   ) /\
@@ -31,7 +31,7 @@ Theorem e2m/from_impure :
     forall Sig_e Sig_m Ctx_e2m Ctx_m C D Y A1,
       e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
       {Ctx_e2m |- to_impure/comp C D Y} ->
-      {Ctx_e2m |- e2m/comp_ty_if_full C A1} ->
+      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/comp_ty (A d) A1} ->
       exists A2, {Ctx_e2m |- e2m/comp_ty (C D) A2} /\
       {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A2 A1)}
   ).
