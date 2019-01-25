@@ -20,7 +20,7 @@ induction on 3. intros Hctx. case H2.
   assert {Ctx_m |- ml/converges V}.
   assert {Ctx_m |- ml/step (ml/app_coer V n1) (ml/app_coer V' n1)}.
   apply IH to _ H6 H4. search.
-  skip. % ctx_m member without ctx_e2m
+  apply m_ctx_m_member to Hctx H4. case H5. case H3. case H3. case H3.
 
 Theorem normal_converges : forall V A,
   {ml/normal V A} -> {ml/converges V}.
