@@ -111,38 +111,34 @@ Define ml/cong : ml/term -> ml/term -> prop by
     % 5
     ml/cong T1 T2 := exists T T1' T2', T1 = T T1' /\ T2 = T T2' /\ ml/cong T1' T2'.
 
-% Theorem converges_cong_result :
-%   forall V, {ml/converges V} -> exists V', {ml/result_val V'} /\ ml/cong V V'.
-% induction on 1. intros. case H1.
-%   search.
-%   apply IH to H3. search.  
+Theorem converges_cong_result :
+  forall V, {ml/converges V} -> exists V', {ml/val V'} /\ ml/cong V V'.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H3. search.
 
-% Theorem val_cong_result :
-%   forall Sig V S,
-%     {ml/of_term Sig V S} -> exists V', {ml/val V'} /\ ml/cong V V'.
-% skip.
-% intros.
-%   apply val_normal to H1.
-%   apply normal_converges to H2.
-%   apply converges_cong_result to H3.
-%   search.
+Theorem val_cong_result :
+  forall Sig_e Sig_m V A V' A',
+    {e2m/sig Sig_e Sig_m} ->
+    {e2m/val Sig_e V A V'} ->
+    {ml/of_term Sig_m V' A'} ->
+    exists V'', {ml/val V''} /\ ml/cong V' V''.
+intros.
+  apply e2m/val_normal to _ H2 H3.
+  apply normal_converges to H4.
+  apply converges_cong_result to H5.
+  search.
 
 Theorem result_val_val :
-  forall Sig_e V A T, {exp/result_val V} -> {e2m/val Sig_e V A T} -> exists T', {ml/val T'} /\ ml/cong T T'.
-  skip.
-% induction on 1. intros. case H1.
-% induction on 1. intros. case H1.
-%   case H3.
-%     case H2. search.
-%     case H2.
-%       case H4. search. search.
-%     case H2. search.
-%     case H2. search.
-%     .case H2..
-%     case H2. search..
-%     case H2. search..
-%     case H2. search.
-%     case H2. search.
+  forall Sig_e Sig_m V A T, {e2m/sig Sig_e Sig_m} -> {exp/result_val V} -> {e2m/val Sig_e V A T} -> exists T', {ml/val T'} /\ ml/cong T T'.
+intros.
+e2m/of_val : assert (forall Sig_e Sig_ml V_t V_ml A_t Ctx_e2m Ctx_m,
+        e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
+     -> {Ctx_e2m |- e2m/val Sig_e V_t A_t V_ml}
+     -> exists S T, {Ctx_e2m |- e2m/val_ty A_t S (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml V_ml T}). skip. % will get rid of this once we fix type preservation
+apply e2m/of_val to _ H3.
+apply val_cong_result to _ H3 H5.
+search.
 
 % Theorem e2m/get_ret_case :
 %   forall Ht Ct Vt He Ce Vm,
@@ -330,12 +326,13 @@ case H2.
 %   case H2. search.
 
 Theorem e2m/comp_preservation :
-  forall Sig_e C1 C2 B T1,
+  forall Sig_e Sig_m C1 C2 B T1,
+    {e2m/sig Sig_e Sig_m} ->
     {exp/step_comp C1 C2} -> {e2m/comp Sig_e C1 B T1} ->
     exists T2, {e2m/comp Sig_e C2 B T2} /\ ml/cong T1 T2.
-induction on 1. intros. case H1.
+induction on 2. intros Hsig. case H1.
 % COERCE
-case H2. apply IH to H3 H4. exists (ml/cast T2 Ym). split.
+case H2. apply IH to _ H3 H4. exists (ml/cast T2 Ym). split.
     search.
     unfold 5. exists (t\ ml/cast t Ym). search.
 % APP V1-step
@@ -351,7 +348,7 @@ case H2. apply e2m/val_preservation to H4 H6. exists (ml/app Vm1 T2). split.
 % APP beta
 case H2.
 case H4.
-apply result_val_val to H3 H5.
+apply result_val_val to _ H3 H5.
 inst H7 with n1 = V, n2 = Vm2.
 cut H10.
 exists Cml Vm2. split.
@@ -369,7 +366,7 @@ exists (ml/let T2 Cm). split.
     unfold 5. exists (t\ ml/let t Cm). search.
 % LET beta
 case H2.
-apply result_val_val to H3 H4.
+apply result_val_val to _ H3 H4.
 inst H5 with n1 = V, n2 = Vm. cut H8.
 exists (Cm Vm). split.
     search.
@@ -386,7 +383,7 @@ case H2. apply e2m/val_preservation to H3 H7. exists (ml/op O T2 Am2 Cm). split.
   unfold 5. exists (t\ ml/op O t Am2 Cm). search.
 % OP-coerce
 case H2. case H4.
-apply result_val_val to H3 H9. case H5. exists (ml/op O Vm Am2 (y\ ml/cast (Cm1 y) Y1')). split.
+apply result_val_val to _ H3 H9. case H5. exists (ml/op O Vm Am2 (y\ ml/cast (Cm1 y) Y1')). split.
   search..
   skip.
   unfold 5. exists (t\ ml/cast (ml/op O t Am2 Cm1) Ym). search..
