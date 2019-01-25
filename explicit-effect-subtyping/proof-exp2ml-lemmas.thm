@@ -67,23 +67,6 @@ Define e2m/ty_ctx : exp/sig -> olist -> olist -> prop by
     Ctx_t
     := e2m/ty_ctx Sig_e Ctx_e2m Ctx_t /\ {Ctx_e2m |- e2m/full_dirt Df}.
 
-Theorem e2m_to_m_context :
-  forall Sig_e Sig_m Ctx_e2m Ctx_m,
-  e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
-  m/ctx Sig_m Ctx_m.
-skip.
-
-
-Theorem lemma_of_coer_wf_ty_1':
-  forall Y A B,
-    {ml/of_coer Y (ml/ty_coer_ty A B)} -> {ml/wf_ty A}.
-intros. case H1. case H2. search.
-
-Theorem lemma_of_coer_wf_ty_1:
-  forall Y A B,
-    {ml/of_coer Y (ml/ty_coer_ty A B) |- ml/wf_ty A}.
-skip.
-
 Theorem ctx_e2m_member: 
   forall Sig_e Sig_m Ctx_e2m Ctx_m F,
     e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
@@ -190,6 +173,18 @@ induction on 2 2. split.
 % QED?
 
 Split e2m/preserve_wf_ty as e2m/preserve_wf_val_ty, e2m/preserve_wf_comp_ty.
+
+Theorem e2m_to_m_context :
+  forall Sig_e Sig_m Ctx_e2m Ctx_m,
+  e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
+  m/ctx Sig_m Ctx_m.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. apply e2m/preserve_wf_val_ty to _ H3. search.
+  apply IH to H2. search.
+  apply IH to H2. search.
+  apply IH to H2. apply e2m/preserve_wf_val_ty to _ H3. apply e2m/preserve_wf_val_ty to _ H4. search.
+  apply IH to H2. apply e2m/preserve_wf_comp_ty to _ H3. apply e2m/preserve_wf_comp_ty to _ H4. search.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CTX_M_MEMBER
