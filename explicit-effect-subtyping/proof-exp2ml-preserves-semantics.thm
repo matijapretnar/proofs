@@ -5,37 +5,99 @@ Set subgoals off.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Theorem step_normal : forall V V' A,
-%   {ml/step_val V V'} -> {ml/normal V' A} -> {ml/normal V A}.
-% induction on 2. intros. case H2.
-%   search.
-%   search.
-%   search.
-%   assert {ml/converges V}.
-%   assert {ml/step_val (ml/app_ty V n1) (ml/app_ty V' n1)}.
-%   apply IH to H6 H4. search.
+Theorem step_normal :
+  forall Sig_m Ctx_m V V' A,
+  m/ctx Sig_m Ctx_m ->
+  {Ctx_m |- ml/step V V'} -> {Ctx_m |- ml/normal V' A} -> {Ctx_m |- ml/normal V A}.
+induction on 3. intros Hctx. case H2.
+  search.
+  search.
+  search.
+  search.
+  assert {Ctx_m |- ml/converges V}.
+  assert {Ctx_m |- ml/step (ml/app_ty V n1) (ml/app_ty V' n1)}.
+  apply IH to _ H6 H4. search.
+  assert {Ctx_m |- ml/converges V}.
+  assert {Ctx_m |- ml/step (ml/app_coer V n1) (ml/app_coer V' n1)}.
+  apply IH to _ H6 H4. search.
+  skip. % ctx_m member without ctx_e2m
 
-% Theorem val_normal : forall Sig V A,
-%     {ml/of_val Sig V A} -> {ml/normal V A}.
-% induction on 1. intros. case H1.
-%   search.
-%   search.
-%   search.
-%   apply IH to H2.
-%   assert {pi t\ ml/normal (ml/app_ty (ml/lam_ty V1) t) (T t)}.
-%     assert {ml/step_val (ml/app_ty (ml/lam_ty V1) n1) (V1 n1)}.
-%     apply step_normal to H4 H3. search.
-%   search.
-%   apply IH to H2.
-%     case H3. inst H5 with n1 = T2. search.
+Theorem normal_converges : forall V A,
+  {ml/normal V A} -> {ml/converges V}.
+intros. case H1.
+  search.
+  search.
+  search.
+  search.
+  search.
+  search.
 
-% Theorem normal_converges : forall V A,
-%   {ml/normal V A} -> {ml/converges V}.
-% intros. case H1.
-%   search.
-%   search.
-%   search.
-%   search.
+Theorem e2m/val_normal : 
+    forall Sig_e Sig_m Ctx_e2m Ctx_m V A V' A',
+    e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
+    {Ctx_e2m |- e2m/val Sig_e V A V'} ->
+    {Ctx_m |- ml/of_term Sig_m V' A'} ->
+    {Ctx_m |- ml/normal V' A'}.
+induction on 2. intros Hctx.
+    % A small lemma before we proceed.
+    member_lemma :
+        assert forall F T' A', {Ctx_m, [F] |- ml/of_term' Sig_m T' A'} -> member F Ctx_m -> false.
+        intros. apply ctx_m_member to Hctx H4. case H5.
+        case H3. case H3. case H3.
+    % QED
+    case H2 (keep).
+    case H1.
+    % UNIT
+    case H4. search. apply member_lemma to H5 H6.
+    % FUN
+    case H4. search. apply member_lemma to H7 H8.
+    % HANDLER
+    case H5.
+        case H4. search. apply member_lemma to H8 H9.
+        apply ctx_e2m_member to Hctx H7. case H8. case H6. case H6. case H6. case H6. case H6.
+        case H4. search. apply member_lemma to H7 H8.
+    % SKELETON LAMBDA
+    apply IH to Hctx H5 H2. search.
+    % SKELETON APPLY
+    apply IH to Hctx H5 H2. search.
+    % VALUE TY LAMBDA
+    case H4.
+        inst H6 with n1 = n2.
+        apply IH to _ H5 H7.
+        assert {Ctx_m, ml/wf_ty n2 |- ml/step (ml/app_ty (ml/lam_ty Vm) n2) (Vm n2)}.
+        apply e2m_to_m_context to Hctx.
+        apply step_normal to _ H9 H8.
+        search.
+    apply member_lemma to H6 H7.
+    % VALUE TY APPLY
+    case H4.
+        apply IH to _ H5 H7.
+        case H9.
+        inst H11 with n1 = Am1.
+        cut H12.
+        search.
+    apply ctx_m_member to _ H11. case H12.
+        case H10. case H10. case H10.
+    apply member_lemma to H7 H8.
+    % DIRT LAMBDA
+    apply IH to _ H5 H2. search.
+    % DIRT APPLY
+    skip. % from_impure.
+    % COERCION LAMBDA
+    skip.
+    skip.
+    skip.
+    % COERCION APPLY
+    skip.
+    skip.
+    skip.
+    % VALUE COERCION
+    case H4.
+        skip. % if V is normal, so is cast V
+        apply member_lemma to H7 H8.
+    % VARIABLE CASE
+    skip. % variables are normal
+    skip. % variables are normal
 
 Define ml/cong : ml/term -> ml/term -> prop by
     % 1
