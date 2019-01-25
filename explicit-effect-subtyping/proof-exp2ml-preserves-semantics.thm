@@ -325,6 +325,12 @@ case H2.
 %   case H2. apply IH to H3 H4. search.
 %   case H2. search.
 
+Theorem in_less_dirt :
+  forall O Y D1 D2, {in_dirt O D1} -> {exp/of_coer Y (exp/dirt_coer_ty D1 D2)} -> {in_dirt O D2}.
+induction on 1. intros. case H1.
+ case H2. search. search.
+ case H2. search. apply IH to H3 H4. search.
+
 Theorem e2m/comp_preservation :
   forall Sig_e Sig_m C1 C2 B T1,
     {e2m/sig Sig_e Sig_m} ->
@@ -382,18 +388,24 @@ case H2. apply e2m/val_preservation to H3 H7. exists (ml/op O T2 Am2 Cm). split.
   search.
   unfold 5. exists (t\ ml/op O t Am2 Cm). search.
 % OP-coerce
-case H2. case H4.
-apply result_val_val to _ H3 H9. case H5. exists (ml/op O Vm Am2 (y\ ml/cast (Cm1 y) Y1')). split.
-  search..
-  skip.
-  unfold 5. exists (t\ ml/cast (ml/op O t Am2 Cm1) Ym). search..
-case H2. case H3. case H5.
-apply unique_e2m/val to _ H6 H9.
-apply unique_skel_val_ty to _ H7 H10.
-case H8. apply unique_e2m/comp to _ H11 H12. search.
-case H13. case H12. case H14.
+case H2. case H4. case H5.
+case H15. % what does the dirt coercion look like?
+    % it works on computations as expected.
+    apply result_val_val to _ H3 H9.
+    apply in_less_dirt to H11 H14.
+    exists (ml/op O Vm Am2 (y\ ml/cast (Cm1 y) (ml/comp_ty_coer Y1'))). split.
+        search.
+        unfold 4. exists (ml/cast (ml/op O T' Am2 Cm1) (ml/comp_ty_coer Y1')). split.
+        unfold 5. exists (t\ ml/cast (ml/op O t Am2 Cm1) (ml/comp_ty_coer Y1')). search.
+        unfold 4. exists (ml/op O T' Am2 (y\ml/cast (Cm1 y) (ml/comp_ty_coer Y1'))). split.
+        unfold 1. search.
+        unfold 5. exists (t\ ml/op O t Am2 (y\ml/cast (Cm1 y) (ml/comp_ty_coer Y1'))). search.
+    % it is between pure and full dirt - wrong because we have an operation in here
+    case H11.
+    % it is between pure and pure dirt - wrong because we have an operation in here
+    case H11.
 % DO C1-step
-case H2. case H3.
+case H2.. case H3.
 Hof : case Hof.
 apply IH to _ H4 H5 H7.
 apply unique_e2m/comp to _ H6 H8.
