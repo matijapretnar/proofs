@@ -96,7 +96,7 @@ case H2. case H5. case H7. case H9. case H4. search.
 % CAST UNSAFE
 case H2. case H5. case H6. case H9.  case H7. case H12. search.
 % APP CAST FUN_COER
-case H2. case H6. case H7. case H10. case H12. case H14. case H15. case H16. case H17. case H19. 
+case H2. case H5. case H6. case H9. case H11. case H13. case H14. case H15. case H16. case H18.
 assert {ml/of_term Sig (ml/cast V2 Y1) A4}. search.
 % APP CAST HAND_COER
 case H2. case H6. case H8. case H10. case H12. case H14. case H9. case H13. case H19. 

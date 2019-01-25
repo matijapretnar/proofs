@@ -276,8 +276,7 @@ ml/step (ml/cast (ml/ret V) (ml/unsafe_coer Y)) (ml/cast V Y) :-
   ml/val V.
 
 ml/step (ml/app (ml/cast V1 (ml/fun_coer Y1 Y2)) V2) (ml/cast (ml/app V1 (ml/cast V2 Y1)) Y2) :-
-  ml/val V1,
-  ml/val V2.
+  ml/val V1.
 
 ml/step (ml/with V1 (ml/cast V2 (ml/hand_coer Y1 Y2))) (ml/cast (ml/with (ml/cast V1 Y1) V2) Y2) :-
   ml/val V1,
