@@ -265,7 +265,8 @@ exp/step_comp (exp/comp_cast (exp/op O V B C) Y) (exp/op O V B (y\ exp/comp_cast
 exp/step_comp (exp/do C1 C2) (exp/do C1' C2) :-
     exp/step_comp C1 C1'.
 exp/step_comp (exp/do C1 C2) (C2 V) :-
-    exp/extract_value C1 V.
+    exp/extract_value C1 V,
+    exp/result_val V.
 exp/step_comp (exp/do (exp/op O V B C1) C2) (exp/op O V B (y\ exp/do (C1 y) C2)) :-
     exp/result_val V.
 exp/step_comp (exp/with C V) (exp/with C V') :-
@@ -277,7 +278,8 @@ exp/step_comp (exp/with C V) (exp/with C' V) :-
     exp/step_comp C C'.
 exp/step_comp (exp/with C (exp/hand H)) (Cr V) :-
     exp/extract_value C V,
-    exp/get_ret_case H Cr.
+    exp/get_ret_case H Cr,
+    exp/result_val V.
 exp/step_comp (exp/with (exp/op O V B C) (exp/hand H)) (Cop V (exp/fun B (y\ exp/with (C y) (exp/hand H)))) :-
     exp/result_val V,
     exp/get_op_case H O B Cop.

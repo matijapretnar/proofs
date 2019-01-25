@@ -230,11 +230,12 @@ apply IH to _ H4 H5 H7.
 apply unique_e2s/comp to _ H6 H8.
 unfold 12. exists (c\ skel/do c Ce5). search.
 % DO cast_ret
-case H2. apply e2s/extract_value to H4 H5. inst H6 with n1 = V, n2 = Vs. cut H8.
-apply unique_e2s/comp to _ H3 H9.
+case H2. apply e2s/extract_value to H4 H6.
+inst H7 with n1 = V, n2 = Vs. cut H9.
+apply unique_e2s/comp to _ H3 H10.
 case Hof.
-case H10.
-apply val_cong_result to H12.
+case H11.
+apply val_cong_result to H13.
 unfold 10. exists (skel/do (skel/ret V') Ce3). split.
 unfold 11. exists (v\ skel/do (skel/ret v) Ce3). search.
 unfold 10. exists (Ce3 V'). split. search.
@@ -271,10 +272,10 @@ Hof: case Hof.
 apply IH to _ H5 H6 H8.
 unfold 12. exists (c\ skel/with c Ve1). search.
 % HANDLE cast_ret
-case H2. apply e2s/extract_value to H4 H6. case H7.
-apply e2s/get_ret_case to H5 H9 H3 H8.
-case Hof. case H11.
-apply val_cong_result to H13.
+case H2. apply e2s/extract_value to H4 H7. case H8.
+apply e2s/get_ret_case to H5 H10 H3 H9.
+case Hof. case H12.
+apply val_cong_result to H14.
 unfold 10. exists (skel/with (skel/ret V') (skel/hand He)). split.
 unfold 11. exists (v\ skel/with (skel/ret v) (skel/hand He)). search.
 unfold 10. exists (Ce' V'). split.
