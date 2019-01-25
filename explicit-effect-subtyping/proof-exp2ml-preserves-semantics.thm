@@ -15,11 +15,11 @@ induction on 3. intros Hctx. case H2.
   search.
   search.
   assert {Ctx_m |- ml/converges V}.
-  assert {Ctx_m |- ml/step (ml/app_ty V n1) (ml/app_ty V' n1)}.
+  assert {Ctx_m, ml/wf_ty n1 |- ml/step (ml/app_ty V n1) (ml/app_ty V' n1)}.
   apply IH to _ H6 H4. search.
   assert {Ctx_m |- ml/converges V}.
-  assert {Ctx_m |- ml/step (ml/app_coer V n1) (ml/app_coer V' n1)}.
-  apply IH to _ H6 H4. search.
+  assert {Ctx_m, ml/of_coer n1 (ml/ty_coer_ty A3 A2) |- ml/step (ml/app_coer V n1) (ml/app_coer V' n1)}.
+  apply IH to _ H8 H6. search.
   apply m_ctx_m_member to Hctx H4. case H5. case H3. case H3. case H3.
 
 Theorem normal_converges : forall V A,
@@ -84,9 +84,30 @@ induction on 2. intros Hctx.
     % DIRT APPLY
     skip. % from_impure.
     % COERCION LAMBDA
-    skip.
-    skip.
-    skip.
+        % val
+        case H4.
+        inst H8 with n1 = n2.
+        apply IH to _ H5 H9.
+        assert {Ctx_m, ml/of_coer n2 (ml/ty_coer_ty A1' A2') |- ml/step (ml/app_coer (ml/lam_coer (ml/ty_coer_ty A1' A2') Vm) n2) (Vm n2)}.
+        apply e2m_to_m_context to Hctx.
+        apply e2m/preserve_wf_val_ty to _ H6.
+        apply e2m/preserve_wf_val_ty to _ H7.
+        apply step_normal to _ H11 H10.
+        search.
+        apply member_lemma to H8 H9.
+        % comp
+        case H4.
+        inst H8 with n1 = n2.
+        apply IH to _ H5 H9.
+        assert {Ctx_m, ml/of_coer n2 (ml/ty_coer_ty C1' C2') |- ml/step (ml/app_coer (ml/lam_coer (ml/ty_coer_ty C1' C2') Vm) n2) (Vm n2)}.
+        apply e2m_to_m_context to Hctx.
+        apply e2m/preserve_wf_comp_ty to _ H6.
+        apply e2m/preserve_wf_comp_ty to _ H7.
+        apply step_normal to _ H11 H10.
+        search.
+        apply member_lemma to H8 H9.
+        % dirt
+        apply IH to _ H5 H2. search.
     % COERCION APPLY
     skip.
     skip.

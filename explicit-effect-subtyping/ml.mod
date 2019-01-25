@@ -375,6 +375,8 @@ ml/normal V (ml/comp_ty _) :-
 ml/normal V (ml/all_ty A) :-
     ml/converges V,
     pi t\ ml/wf_ty t => ml/normal (ml/app_ty V t) (A t).
-ml/normal V (ml/qual_ty _ A) :-
+ml/normal V (ml/qual_ty (ml/ty_coer_ty A1 A2) A) :-
     ml/converges V,
-    pi w\ ml/normal (ml/app_coer V w) A.
+    ml/wf_ty A1,
+    ml/wf_ty A2,
+    pi w\ ml/of_coer w (ml/ty_coer_ty A1 A2) => ml/normal (ml/app_coer V w) A.
