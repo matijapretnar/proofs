@@ -96,3 +96,6 @@ type  ml/get_ret_case          ml/hand -> (ml/term -> ml/term) -> o.
 type  ml/get_op_case           ml/hand -> op -> ml/ty -> (ml/term -> ml/term -> ml/term) -> o.
 type  ml/stuck		       ml/term -> o.
 type  ml/progress              ml/term -> o.
+
+type  ml/converges             ml/term -> o.
+type  ml/normal                ml/term -> ml/ty -> o.

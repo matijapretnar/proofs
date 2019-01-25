@@ -353,3 +353,29 @@ ml/progress V :-
     ml/step V V'.
 ml/progress V :-
     ml/stuck V.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ml/converges, ml/normal
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/converges V :-
+  ml/val V.
+ml/converges V :-
+  ml/step V V',
+  ml/converges V'.
+
+ml/normal V ml/unit_ty :-
+    ml/converges V.
+ml/normal V (ml/fun_ty _ _) :-
+    ml/converges V.
+ml/normal V (ml/hand_ty _ _) :-
+    ml/converges V.
+ml/normal V (ml/comp_ty _) :-
+    ml/converges V.
+ml/normal V (ml/all_ty A) :-
+    ml/converges V,
+    pi t\ ml/normal (ml/app_ty V t) (A t).
+ml/normal V (ml/qual_ty _ A) :-
+    ml/converges V,
+    pi w\ ml/normal (ml/app_coer V w) A.

@@ -6,6 +6,31 @@ Close ml/ty, ml/coer_ty.
 Set subgoals off.
 
 
+
+Theorem step_normal : forall V V' A,
+  {ml/step V V'} -> {ml/normal V' A} -> {ml/normal V A}.
+induction on 2. intros. case H2.
+  search.
+  search.
+  search.
+  search.
+  assert {ml/converges V}.
+  assert {ml/step (ml/app_ty V n1) (ml/app_ty V' n1)}.
+  apply IH to H6 H4. search.
+  assert {ml/converges V}.
+  assert {ml/step (ml/app_coer V n1) (ml/app_coer V' n1)}.
+  apply IH to H6 H4. search.
+
+Theorem normal_converges : forall V A,
+  {ml/normal V A} -> {ml/converges V}.
+intros. case H1.
+  search.
+  search.
+  search.
+  search.
+  search.
+  search.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem ml/of_op_unique : forall Sig O A A' B B',
