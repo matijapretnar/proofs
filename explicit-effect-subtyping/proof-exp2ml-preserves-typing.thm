@@ -264,40 +264,52 @@ Theorem e2m/preserve_ty_coer:
          {Ctx_e2m |- e2m/comp_ty B S B'} /\   
          {Ctx_m |- ml/of_coer Y' (ml/ty_coer_ty A' B')})).
 % PROOF
-% induction on 2 2. split.
+induction on 2 2. split.
+% val_ty
+intros Hctx. case H1 (keep).
+  % unit_refl_coer 
+  search.
+  % fun_coer
+  apply IH to _ H2. apply IH1 to _ H3.
+    exists (ml/fun_ty B' A'1), (ml/fun_ty A' B'1), (fun_skel S S1). split.
+      search.
+      search.
+      apply lemma_27 to _ H6. apply lemma_27 to _ H9. search.
+  % hand_coer ~> fun_coer
+  apply IH1 to _ H2. apply IH1 to _ H3.
+    exists (ml/fun_ty B' A'1), (ml/fun_ty A' B'1), (hand_skel S S1). 
+      case H4.
+        case H5.
+          split.
+            % a)
+            search.
+            % b)
+            search.
+            % c)
+            apply lemma_27 to _ H6. apply lemma_27 to _ H9.  search.
+          apply e2m/empty_dirt_is_not_full to _ _.
+        apply e2m/comp_ty_member to _ _ _.
+      apply e2m/empty_dirt_is_not_full to _ _.
+    apply e2m/comp_ty_member to _ _ _.
+  % hand_coer ~> fun_coer
+  apply IH1 to _ H2. apply IH to _ H5.
+    case H6.
+      apply e2m/empty_dirt_is_not_full to _ _.
+      case H7.
+        apply e2m/empty_dirt_is_not_full to _ _.
+        exists (ml/hand_ty A'3 A'1), (ml/hand_ty A'2 B'1), (hand_skel S S1).  split.
+          % a)
+          search.
+          % b)
+          search.
+          % c)
+          apply lemma_27 to _ H8. apply lemma_27 to _ H11. 
+            apply ml/ctx_wf_ty_comp to _ H16.
+            apply ml/ctx_wf_ty_comp to _ H17. search.
 
-%   intros Hctx. case H1 (keep).
-%     search.
-%     apply IH to _ H2. apply IH1 to _ H3.
-%       exists (ml/fun_ty B' A'1), (ml/fun_ty A' B'1). split.
-%         search.
-%         search.
-%         case H6 (keep).
-%           case H9 (keep).
-%             case H10.
-%               case H12.
-%                 search.
-%                 apply ctx_m_member to _ H17. case H18. case H16. case H16.
-%               apply ctx_m_member to _ H15. case H16. case H14. case H14.
-%             apply ctx_m_member to _ H13. case H14. case H12. case H12.
-%           apply ctx_m_member to _ H11. case H12. case H10. case H10.
-%           .
-%     apply IH1 to _ H2. apply IH1 to _ H3.
-%       exists (ml/fun_ty B' A'1), (ml/fun_ty A' B'1). split. 
-%         case H4. 
-%           case H5. 
-%             search.
-%             case H11. 
-%           case H10.
-%         case H4. 
-%           case H5. 
-%             search.
-%             case H11. 
-%           case H10.
-%         case H6 (keep). case H9 (keep). case H10. case H12. search.
-%     apply IH1 to _ H2. apply IH to _ H5. 
-%       case H6. case H4. case H7. case H3.
-%         exists (ml/hand_ty A'3 A'1), (ml/hand_ty A'2 B'1). split.
+.
+% comp_ty
+
 %           search.
 %           search.
 %           case H8 (keep). case H11 (keep). case H16. case H18. case H20. case H21. search.
@@ -328,7 +340,7 @@ Theorem e2m/preserve_ty_coer:
 %     apply IH to H2. 
 %       apply e2m/preserve_dirt_coer to H4 H7 H5 H6.
 %       search.
-skip.
+.
 % QED
 
 Split e2m/preserve_ty_coer as e2m/preserve_val_ty_coer, e2m/preserve_comp_ty_coer.

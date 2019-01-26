@@ -679,3 +679,17 @@ induction on 2 2. split.
 % QED
 
 Split e2m/ty_unique as e2m/val_ty_unique, e2m/comp_ty_unique.
+
+Theorem ml/ctx_wf_ty_comp:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m A,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {Ctx_m |- ml/wf_ty (ml/comp_ty A)} ->
+    {Ctx_m |- ml/wf_ty A}.
+% PROOF
+intros. case H2.
+  search.
+  apply ctx_m_member to _ _. case H5.
+    case H3.
+    case H3. case H6.
+    case H3.
+% QED.
