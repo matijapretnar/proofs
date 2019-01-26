@@ -4,73 +4,220 @@ Import "proof-exp2ml-lemmas".
 
 Set subgoals off.
 
+Theorem lemma_26:
+  forall Sig_e Sig_m Ctx_e2m Ctx_m A B,
+    e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
+    {Ctx_m |- ml/wf_coer_ty (ml/ty_coer_ty A B)} ->
+    {Ctx_m |- ml/wf_ty A} /\ {Ctx_m |- ml/wf_ty B}.
+% PROOF
+induction on 2. intros. case H2 (keep).
+  search.
+  apply ctx_m_member to _ H4. case H5.
+    case H3.
+    case H3.
+    case H3.
+% QED
+
+Theorem lemma_27:
+  forall Sig_e Sig_m Ctx_e2m Ctx_m Y A B,
+    e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
+    {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A B)} ->
+    {Ctx_m |- ml/wf_ty A} /\ {Ctx_m |- ml/wf_ty B}.
+% PROOF
+induction on 2. intros. case H2 (keep).
+  apply lemma_26 to _ H3. search.
+  apply ctx_m_member to _ H4. case H5.
+    case H3.
+    case H3.
+    case H3. search.
+% QED
+
 Theorem e2m/from_impure :
   (
-    forall Sig_e Sig_m Ctx_e2m Ctx_m A D Y A1,
+    forall Sig_e Sig_m Ctx_e2m Ctx_m A D Y A1 S,
       e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
       {Ctx_e2m |- from_impure/val A D Y} ->
-      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/val_ty (A d) A1} ->
-      exists A2, {Ctx_e2m |- e2m/val_ty (A D) A2} /\
+      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/val_ty (A d) S A1} ->
+      exists A2, {Ctx_e2m |- e2m/val_ty (A D) S A2} /\
       {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A1 A2)}
   ) /\ (
-    forall Sig_e Sig_m Ctx_e2m Ctx_m C D Y A1,
+    forall Sig_e Sig_m Ctx_e2m Ctx_m C D Y A1 S,
       e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
       {Ctx_e2m |- from_impure/comp C D Y} ->
-      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/comp_ty (A d) A1} ->
-      exists A2, {Ctx_e2m |- e2m/comp_ty (C D) A2} /\
+      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/comp_ty (C d) S A1} ->
+      exists A2, {Ctx_e2m |- e2m/comp_ty (C D) S A2} /\
       {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A1 A2)}
   ) /\ (
-    forall Sig_e Sig_m Ctx_e2m Ctx_m A D Y A1,
+    forall Sig_e Sig_m Ctx_e2m Ctx_m A D Y A1 S,
       e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
       {Ctx_e2m |- to_impure/val A D Y} ->
-      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/val_ty (A d) A1} ->
-      exists A2, {Ctx_e2m |- e2m/val_ty (A D) A2} /\
+      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/val_ty (A d) S A1} ->
+      exists A2, {Ctx_e2m |- e2m/val_ty (A D) S A2} /\
       {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A2 A1)}
   ) /\
   (
-    forall Sig_e Sig_m Ctx_e2m Ctx_m C D Y A1,
+    forall Sig_e Sig_m Ctx_e2m Ctx_m C D Y A1 S,
       e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
       {Ctx_e2m |- to_impure/comp C D Y} ->
-      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/comp_ty (A d) A1} ->
-      exists A2, {Ctx_e2m |- e2m/comp_ty (C D) A2} /\
+      nabla d, {Ctx_e2m, e2m/full_dirt d |- e2m/comp_ty (C d) S A1} ->
+      exists A2, {Ctx_e2m |- e2m/comp_ty (C D) S A2} /\
       {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A2 A1)}
   ).
 induction on 2 2 2 2. split.
 % from_impure/val
-intros Hctx.
-case H2.
-case H1.
-  % unit_ty
-  case H3.
-    % interesting case
-    search.
-    % backchain case
-    case H5. case H4.
-    apply ctx_e2m_member to _ H6. case H7. case H4. case H4. case H8. case H4. case H4. case H4.
-  % fun_ty
-  case H3.
-    % interesting case
-    apply IH2 to _ H4 _.
-    apply IH1 to _ H5 _.
-    apply e2m/preserve_wf_val_ty to _ H6.
-    apply e2m/preserve_wf_val_ty to _ H8.
-    apply e2m/preserve_wf_comp_ty to _ H7.
-    apply e2m/preserve_wf_comp_ty to _ H10.
-    search.
-    % backchain case
-    case H7. case H6.
-    apply ctx_e2m_member to _ H8. case H9. case H6. case H6. case H10. case H6. case H6. case H6.
-  % backchain case
-  skip.
-  % backchain case
-  skip.
-  
+intros Hctx. case H2.
+    % unit_ty
+    case H1.
+      % interesting case
+      search.
+      % backchain case
+      apply e2m/from_impure_val_member to _ _ _.
+    % fun_ty
+    case H1.
+      % interesting case
+      apply IH2 to _ H5 with A = A2, D = D, Y = Ya, A1 = A', S = S1.
+      apply H7 to H3.
+      apply IH1 to _ H6 with Y = Yc, A1 = C', S = S2.
+      apply H10 to H4.
+      apply e2m/preserve_wf_val_ty to _ H3.
+      apply e2m/preserve_wf_val_ty to _ H8.
+      apply e2m/preserve_wf_comp_ty to _ H4.
+      apply e2m/preserve_wf_comp_ty to _ H11.
+      search.
+      % backchain case
+      apply e2m/from_impure_val_member to _ _ _.
+    % hand_ty
+    case H1.
+      apply e2m/from_impure_val_member to _ _ _.
+    case H1.
+      apply e2m/from_impure_val_member to _ _ _.
+    % all_skel
+    case H1.
+      apply e2m/from_impure_val_member to _ _ _.
+    % all_ty
+    case H1.
+      apply e2m/from_impure_val_member to _ _ _.
+    % all_dirt
+    case H1.
+      apply e2m/from_impure_val_member to _ _ _.
+    % qual_ty ty
+    case H1.
+      apply e2m/from_impure_val_member to _ _ _.
+    % qual_ty comp
+    case H1.
+      apply e2m/from_impure_val_member to _ _ _.
+    % qual_ty dirt
+    case H1.
+      apply e2m/from_impure_val_member to _ _ _.
+    % backchain 
+    case H1.
+      apply ctx_e2m_member to _ H4. case H5.
+        case H3.
+        case H3. case H6.
+        case H3.
+        case H3.
+        case H3.
+      apply ctx_e2m_member to _ H4. case H7.
+        case H3.
+        case H3. case H8.
+        case H3.
+        case H3.
+        case H3.
+      apply e2m/from_impure_val_member to _ _ _.
+
 % from_impure/comp
-skip.
+intros Hctx. case H2.
+  % bang empty.
+  case H1.
+    apply e2m/from_impure_comp_member to _ _ _.
+  % bang full dirt
+  case H1.
+    % interesting case
+    apply IH to _ H5 with A1 = A', S = S. apply H6 to _. 
+      apply lemma_27 to _ _. search.
+    apply IH to _ H5 with A1 = A', S = S. apply H7 to _. 
+      apply lemma_27 to _ _. search.
+    % backchain case
+    apply e2m/from_impure_comp_member to _ _ _.
+  % backchain case
+  apply e2m/comp_ty_member to _ H3 H4.
+  
 % to_impure/val
-skip.
+intros Hctx. case H2.
+    % unit_ty
+    case H1.
+      % interesting case
+      search.
+      % backchain case
+      apply e2m/to_impure_val_member to _ _ _.
+    % fun_ty
+    case H1.
+      % interesting case
+      apply IH to _ H5 with A = A2, D = D, Y = Ya, A1 = A', S = S1.
+      apply H7 to H3.
+      apply IH3 to _ H6 with Y = Yc, A1 = C', S = S2.
+      apply H10 to H4.
+      apply e2m/preserve_wf_val_ty to _ H3.
+      apply e2m/preserve_wf_val_ty to _ H8.
+      apply e2m/preserve_wf_comp_ty to _ H4.
+      apply e2m/preserve_wf_comp_ty to _ H11.
+      search.
+      % backchain case
+      apply e2m/to_impure_val_member to _ _ _.
+    % hand_ty
+    case H1.
+      apply e2m/to_impure_val_member to _ _ _.
+    case H1.
+      apply e2m/to_impure_val_member to _ _ _.
+    % all_skel
+    case H1.
+      apply e2m/to_impure_val_member to _ _ _.
+    % all_ty
+    case H1.
+      apply e2m/to_impure_val_member to _ _ _.
+    % all_dirt
+    case H1.
+      apply e2m/to_impure_val_member to _ _ _.
+    % qual_ty ty
+    case H1.
+      apply e2m/to_impure_val_member to _ _ _.
+    % qual_ty comp
+    case H1.
+      apply e2m/to_impure_val_member to _ _ _.
+    % qual_ty dirt
+    case H1.
+      apply e2m/to_impure_val_member to _ _ _.
+    % backchain 
+    case H1.
+      apply ctx_e2m_member to _ H4. case H5.
+        case H3.
+        case H3. case H6.
+        case H3.
+        case H3.
+        case H3.
+      apply ctx_e2m_member to _ H4. case H7.
+        case H3.
+        case H3. case H8.
+        case H3.
+        case H3.
+        case H3.
+      apply e2m/to_impure_val_member to _ _ _.
+
 % to_impure/comp
-skip.
+intros Hctx. case H2.
+  % bang empty
+  case H1.
+    apply e2m/to_impure_comp_member to _ _ _.
+  % bang full dirt
+  case H1.
+    apply IH2 to _ H5 with A1 = A', S = S. apply H6 to _.
+      apply lemma_27 to _ _. search.
+    apply IH2 to _ H5 with A1 = A', S = S. apply H7 to _.
+      apply lemma_27 to _ _. search.
+    apply e2m/to_impure_comp_member to _ _ _.
+    apply e2m/comp_ty_member to _ H3 H4. 
+% QED
+
 Split e2m/from_impure as e2m/from_impure_val, e2m/from_impure_comp, e2m/to_impure_val, e2m/to_impure_comp.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,15 +225,15 @@ Split e2m/from_impure as e2m/from_impure_val, e2m/from_impure_comp, e2m/to_impur
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem e2m/preserve_dirt_coer:
-  forall D1 D2 Y1' Y2' A1 A2 A1' A2',
+  forall D1 D2 Y1' Y2' A1 A2 A1' A2' S,
     {e2m/dirt_coer D1 D2 Y1' Y2'} ->
     {ml/of_coer Y1' (ml/ty_coer_ty A1' A2')} ->
-    {e2m/val_ty A1 A1'} ->
-    {e2m/val_ty A2 A2'} ->
+    {e2m/val_ty A1 S A1'} ->
+    {e2m/val_ty A2 S A2'} ->
     (exists A3' A4',
        {ml/of_coer Y2' (ml/ty_coer_ty A3' A4')} /\
-       {e2m/comp_ty (exp/bang A1 D1) A3'} /\ 
-       {e2m/comp_ty (exp/bang A2 D2) A4'}).
+       {e2m/comp_ty (exp/bang A1 D1) S A3'} /\ 
+       {e2m/comp_ty (exp/bang A2 D2) S A4'}).
 % PROOF
 intros. case H1 (keep).
   exists (ml/comp_ty A1'), (ml/comp_ty A2'). case H2 (keep). case H7. search.
@@ -104,17 +251,17 @@ Theorem e2m/preserve_ty_coer:
   (forall Sig_e Sig_ml Ctx_e2m Ctx_m Y A B Y',
     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->  
     {Ctx_e2m |- e2m/coer Y (exp/val_ty_coer_ty A B) Y'} ->
-      (exists A' B',
-         {Ctx_e2m |- e2m/val_ty A A'} /\ 
-         {Ctx_e2m |- e2m/val_ty B B'} /\   
+      (exists A' B' S,
+         {Ctx_e2m |- e2m/val_ty A S A'} /\ 
+         {Ctx_e2m |- e2m/val_ty B S B'} /\   
          {Ctx_m |- ml/of_coer Y' (ml/ty_coer_ty A' B')}))
   /\
   (forall Sig_e Sig_ml Ctx_e2m Ctx_m Y A B Y',
     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
     {Ctx_e2m |- e2m/coer Y (exp/comp_ty_coer_ty A B) Y'} ->
-      (exists A' B',
-         {Ctx_e2m |- e2m/comp_ty A A'} /\ 
-         {Ctx_e2m |- e2m/comp_ty B B'} /\   
+      (exists A' B' S,
+         {Ctx_e2m |- e2m/comp_ty A S A'} /\ 
+         {Ctx_e2m |- e2m/comp_ty B S B'} /\   
          {Ctx_m |- ml/of_coer Y' (ml/ty_coer_ty A' B')})).
 % PROOF
 % induction on 2 2. split.
@@ -194,12 +341,12 @@ Theorem e2m/of_val :
  (forall Sig_e Sig_ml V_t V_ml A_t Ctx_e2m Ctx_m,
         e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
      -> {Ctx_e2m |- e2m/val Sig_e V_t A_t V_ml}
-     -> exists T, {Ctx_e2m |- e2m/val_ty A_t (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml V_ml T})
+     -> exists T S, {Ctx_e2m |- e2m/val_ty A_t S (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml V_ml T})
  /\
  (forall Sig_e Sig_ml C_t C_ml D_t Ctx_e2m Ctx_m,
         e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
      -> {Ctx_e2m |- e2m/comp Sig_e C_t D_t C_ml}
-     -> exists T, {Ctx_e2m |- e2m/comp_ty D_t (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml C_ml T})
+     -> exists T S, {Ctx_e2m |- e2m/comp_ty D_t S (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml C_ml T})
  .
 induction on 2 2. split.
 % VALUES

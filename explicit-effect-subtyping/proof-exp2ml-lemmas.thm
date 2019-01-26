@@ -351,6 +351,66 @@ intros. apply ctx_e2m_member to H1 H3. case H4.
   case H2.
 % QED
 
+Theorem e2m/from_impure_val_member:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m F A D Y, 
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
+    {Ctx_e2m, [F] |- from_impure/val A D Y} ->
+    member F Ctx_e2m ->
+    false.
+% PROOF
+intros. apply ctx_e2m_member to H1 H3. case H4.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+% QED
+
+Theorem e2m/to_impure_val_member:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m F A D Y, 
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
+    {Ctx_e2m, [F] |- to_impure/val A D Y} ->
+    member F Ctx_e2m ->
+    false.
+% PROOF
+intros. apply ctx_e2m_member to H1 H3. case H4.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+% QED
+
+Theorem e2m/from_impure_comp_member:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m F C D Y, 
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
+    {Ctx_e2m, [F] |- from_impure/comp C D Y} ->
+    member F Ctx_e2m ->
+    false.
+% PROOF
+intros. apply ctx_e2m_member to H1 H3. case H4.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+% QED
+
+Theorem e2m/to_impure_comp_member:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m F C D Y, 
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
+    {Ctx_e2m, [F] |- to_impure/comp C D Y} ->
+    member F Ctx_e2m ->
+    false.
+% PROOF
+intros. apply ctx_e2m_member to H1 H3. case H4.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+  case H2.
+% QED
+
 Theorem e2m/full_dirt_empty_member:
   forall Sig_e Sig_ml Ctx_e2m Ctx_m F, 
     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
@@ -366,6 +426,21 @@ intros. apply ctx_e2m_member to H1 H3. case H4.
   case H2.
 % QED
 
+% Theorem e2m/comp_ty_if_full_member:
+%   forall Sig_e Sig_ml Ctx_e2m Ctx_m F C S A, 
+%     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m -> 
+%     {Ctx_e2m, [F] |- e2m/comp_ty_if_full C S A} ->
+%     member F Ctx_e2m ->
+%     false.
+
+% intros. apply ctx_e2m_member to H1 H3. case H4.
+%   case H2.
+%   case H2.
+%   case H2. case H5.
+%   case H2.
+%   case H2.
+% % QED
+
 Theorem absurdity[A]:
   forall L E, nabla (x:A), member (E x) L -> exists F, x\ F = E.
 % PROOF
@@ -374,9 +449,23 @@ induction on 1. intros. case H1.
   apply IH to H2. search.
 % QED
 
+Theorem ml/coer_nominal_absurd: 
+  forall L Pi, nabla x,
+  member (ml/of_coer x Pi) L -> false.
+% PROOF
+induction on 1. intros. case H1. apply IH to H2.
+% QED
+
 Theorem e2m/val_nominal_absurd: 
   forall B L S, nabla x,
   member (e2m/val_ty x S B) L -> false.
+% PROOF
+induction on 1. intros. case H1. apply IH to H2.
+% QED
+
+Theorem e2m/wf_ty_nominal_absurd: 
+  forall L, nabla x,
+  member (ml/wf_ty x) L -> false.
 % PROOF
 induction on 1. intros. case H1. apply IH to H2.
 % QED
@@ -407,6 +496,19 @@ Theorem e2m/empty_dirt_is_not_full:
   e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
   {Ctx_e2m |- e2m/full_dirt empty} -> false.
 intros. case H2. apply e2m/full_dirt_empty_member to _ _ _.
+
+Theorem e2m/empty_dirt_is_not_full_2:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m F,
+  e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+  member F Ctx_e2m ->
+  {Ctx_e2m, [F] |- e2m/full_dirt empty} -> false.
+intros. 
+  apply ctx_e2m_member to _ H2. case H4.
+    case H3.
+    case H3.
+    case H3. case H5.
+    case H3.
+    case H3.
 
 Theorem e2m/wf_of_coer:
   forall Sig_e Sig_ml Ctx_e2m Ctx_m Y A1 A2, 
