@@ -247,6 +247,15 @@ intros. case H1 (keep).
 % of_coer preservation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+Theorem lemma_28:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m A S A',
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {Ctx_e2m |- e2m/comp_ty (exp/bang A empty) S A'} ->
+    {Ctx_e2m |- e2m/val_ty A S A'}.
+%PROOF
+skip.
+%QED
+
 Theorem e2m/preserve_ty_coer:
   (forall Sig_e Sig_ml Ctx_e2m Ctx_m Y A B Y',
     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->  
@@ -308,9 +317,20 @@ apply lemma_27 to _ H8. apply lemma_27 to _ H11.
       apply e2m/comp_ty_member to _ _ _.
     apply e2m/comp_ty_member to _ _ _.
   % hand_coer ~> hand2fun_coer unsafe_coer
-  skip.
+  apply IH to _ H2. apply IH1 to _ H4. apply lemma_28 to _ H8.
+  exists (ml/hand_ty B' A'1), (ml/fun_ty A' B'1), (hand_skel S S1). split.
+    search.
+    search.
+    apply lemma_27 to _ H7. apply lemma_27 to _ H10. search.
   % hand_coer ~> hand2fun_coer
-  skip.
+  apply IH to _ H2. apply IH1 to _ H5.
+    case H9.
+      apply e2m/empty_dirt_is_not_full to _ _.
+      exists (ml/hand_ty B' A'2), (ml/fun_ty A' B'1), (hand_skel S S1). split.
+        search.
+        search.
+        apply lemma_27 to _ H8. apply lemma_27 to _ H11. apply ml/ctx_wf_ty_comp to _ H16.  search.
+      apply e2m/comp_ty_member to _ H12 _.
   % lam_skel_coer
   apply IH to _ H2. exists A', B', (all_skel S).  search.
   % lam_ty_coer
