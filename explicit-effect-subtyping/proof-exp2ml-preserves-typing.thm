@@ -291,7 +291,7 @@ intros Hctx. case H1 (keep).
         apply e2m/comp_ty_member to _ _ _.
       apply e2m/empty_dirt_is_not_full to _ _.
     apply e2m/comp_ty_member to _ _ _.
-  % hand_coer ~> fun_coer
+  % hand_coer ~> hand_coer
   apply IH1 to _ H2. apply IH to _ H5.
     case H6.
       apply e2m/empty_dirt_is_not_full to _ _.
@@ -301,45 +301,68 @@ intros Hctx. case H1 (keep).
           % a)
           search.
           % b)
-          search.
-          % c)
-          apply lemma_27 to _ H8. apply lemma_27 to _ H11. 
+          search.          % c)
+apply lemma_27 to _ H8. apply lemma_27 to _ H11. 
             apply ml/ctx_wf_ty_comp to _ H16.
             apply ml/ctx_wf_ty_comp to _ H17. search.
+      apply e2m/comp_ty_member to _ _ _.
+    apply e2m/comp_ty_member to _ _ _.
+  % hand_coer ~> hand2fun_coer unsafe_coer
+  skip.
+  % hand_coer ~> hand2fun_coer
+  skip.
+  % lam_skel_coer
+  apply IH to _ H2. exists A', B', (all_skel S).  search.
+  % lam_ty_coer
+  apply IH to _ H2. exists (ml/all_ty A'), (ml/all_ty B'), S1. split.
+    search.
+    search.
+    assert (e2m/ctx Sig_e Sig_ml (e2m/val_ty n1 S n2 :: Ctx_e2m) (ml/wf_ty n2 :: Ctx_m)).
+    apply lemma_27 to H6 H5. search.
+  % lam_dirt_coer
+  apply IH to _ H2. search.
+  % lam_coer_coer val
+  apply IH to _ H2. apply lemma_27 to _ H7. 
+  exists (ml/qual_ty (ml/ty_coer_ty A3' A4') A'), (ml/qual_ty (ml/ty_coer_ty A3' A4') B'), S. split.
+    search.
+    search.
+    apply e2m/preserve_wf_val_ty to _ H3. apply e2m/preserve_wf_val_ty to _ H4. search.
+  % lam_coer_coer comp
+  apply IH to _ H2. apply lemma_27 to _ H7. 
+  exists (ml/qual_ty (ml/ty_coer_ty C1' C2') A'), (ml/qual_ty (ml/ty_coer_ty C1' C2') B'), S. split.
+    search.
+    search.
+    apply e2m/preserve_wf_comp_ty to _ H3. apply e2m/preserve_wf_comp_ty to _ H4. search.
+  % lam_coer_coer dirt
+  apply IH to _ H2. apply lemma_27 to _ H5. search.
+  % backchain
+  apply ctx_e2m_member to _ _. case H4.
+    case H2.
+    case H2.
+    case H2.
+    case H2. skip.
+    case H2. 
 
-.
 % comp_ty
-
-%           search.
-%           search.
-%           case H8 (keep). case H11 (keep). case H16. case H18. case H20. case H21. search.
-%     apply IH to _ H2. apply IH1 to _ H4. case H8.
-%       exists (ml/hand_ty B' A'1), (ml/fun_ty A' B'1). split.
-%         search.
-%         search.
-%         case H10 (keep). case H12. case H7 (keep). case H16. search.
-%       case H11.
-%     apply IH to _ H2. apply IH1 to _ H5.
-%       case H8 (keep). case H11 (keep). case H12. case H14.
-%       case H9.
-%         case H4.
-%         exists (ml/hand_ty B' A'2), (ml/fun_ty A' B'1). split.
-%           search.
-%           search.
-%           case H18. search.
-%     apply IH to H2. search.
-%     apply IH to H2.
-%     .
-%     skip. % TODO
-%     skip. % TODO
-%     apply IH to H2. case H7 (keep). case H8. skip. % TODO
-%     skip. % TODO
-%     apply IH to H2. search.
-        
-%   intros. case H1 (keep).
-%     apply IH to H2. 
-%       apply e2m/preserve_dirt_coer to H4 H7 H5 H6.
-%       search.
+intros Hctx. case H1 (keep).
+  % comp_ty_coer
+  apply IH to _ H2. case H4.
+    exists (ml/comp_ty A'), (ml/comp_ty B'), S. apply lemma_27 to _ H7. search.
+    exists A', (ml/comp_ty B'), S. apply lemma_27 to _ H7. search.
+    exists A', B', S. apply lemma_27 to _ H7. search.
+    apply ctx_e2m_member to _ _. case H10.
+      case H8.
+      case H8.
+      case H8.
+      case H8.
+      case H8.
+  % backchain
+  apply ctx_e2m_member to _ _. case H4.
+    case H2.
+    case H2.
+    case H2.
+    case H2. skip.
+    case H2. 
 .
 % QED
 

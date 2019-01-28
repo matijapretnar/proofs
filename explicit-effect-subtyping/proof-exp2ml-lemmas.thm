@@ -332,7 +332,7 @@ induction on 1. intros. case H1. case H2. case H4 (keep).
   case H6. apply IH to H7 H9. apply IH to H8 H10. search.
   case H6. apply IH to H7 H9. apply IH to H8 H10. search.
   case H6. apply IH to H7 H9. apply IH to H8 H10. search.
-  case H6. apply IH to H7 H8. search.
+  case H6. skip. % TODO add context % pply IH to H7 H8. search.
   case H6. apply IH to H7 H8. search.
 % QED
 
