@@ -253,7 +253,10 @@ Theorem lemma_28:
     {Ctx_e2m |- e2m/comp_ty (exp/bang A empty) S A'} ->
     {Ctx_e2m |- e2m/val_ty A S A'}.
 %PROOF
-skip.
+intros. case H2.
+  search.
+  apply e2m/empty_dirt_is_not_full to _ _.
+  apply e2m/comp_ty_member to _ _ _.
 %QED
 
 Theorem e2m/preserve_ty_coer:
