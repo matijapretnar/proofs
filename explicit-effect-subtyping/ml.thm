@@ -110,8 +110,7 @@ assert {ml/of_term Sig (ml/with (ml/ret (ml/cast V2 Y1)) V1) (ml/comp_ty B1')}.
 search. 
 % APP_TY CAST LAM_TY_COER
 case H2. case H5. case H6. case H9. case H11. case H13. inst H14 with n1 = A1. case H10. case H16. inst H18 with n1 = A1. cut H19.
-assert {ml/of_term Sig (ml/app_ty V1 A1) (A4 A1)}. 
-search.
+assert {ml/of_term Sig (ml/app_ty V1 A1) (A4 A1)}. cut H15 with H7. search.
 % APP_COER CAST LAM_COER
 case H2. case H5. case H6. case H9. case H11. case H13. case H10. case H15.
 assert {ml/of_term Sig (ml/app_coer V1 Y2) A2}.

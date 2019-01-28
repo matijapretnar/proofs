@@ -45,20 +45,20 @@ search.
 % LAM_TY
 search.
 % APP_TY
-apply IH to H4. case H5.
-  case H6. 
-    case H4. case H8.
-    case H4. case H8.
-    case H4. case H8.
+apply IH to H4. case H6.
+  case H7. 
+    case H4. case H9.
+    case H4. case H9.
+    case H4. case H9.
     search.
-    case H4. case H8.
-    case H4. case H9. case H11. case H13.
-    case H4. case H9. case H11. case H13.
-    case H4. case H9. case H11. case H13.
-    case H4. case H9. search.
-    case H4. case H9. case H11. case H13.
     case H4. case H9.
-    case H4. case H9.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10. search.
+    case H4. case H10. case H12. case H14.
+    case H4. case H10.
+    case H4. case H10.
   search.
   search.
 % CAST

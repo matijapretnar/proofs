@@ -121,7 +121,7 @@ ml/of_coer' (ml/hand2fun_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/fun_
   ml/of_coer Y2 (ml/ty_coer_ty (ml/comp_ty B1') B2').
 
 ml/of_coer' (ml/lam_ty_coer Y) (ml/ty_coer_ty (ml/all_ty A) (ml/all_ty B)) :-
-  pi x\ ml/of_coer (Y x) (ml/ty_coer_ty (A x) (B x)).
+  pi x\ (ml/wf_ty x => ml/of_coer (Y x) (ml/ty_coer_ty (A x) (B x))).
 ml/of_coer' (ml/lam_coer_coer Pi Y) (ml/ty_coer_ty (ml/qual_ty Pi A) (ml/qual_ty Pi B)) :-
   ml/of_coer Y (ml/ty_coer_ty A B).
 
