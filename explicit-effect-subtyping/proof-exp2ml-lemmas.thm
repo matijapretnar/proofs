@@ -583,6 +583,35 @@ induction on 2. intros. case H2.
     case H3.
     case H3.
 
+Theorem e2m/of_refl_coer':
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m A Y,
+  e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+  {Ctx_m |- e2m/refl_coer A Y} ->
+  {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A A)}.
+induction on 2. intros. case H2.
+  search.
+  apply IH to _ H3. apply IH to _ H4. apply e2m/wf_of_coer to _ H5. apply e2m/wf_of_coer to _ H6. search.
+  apply IH to _ H3. apply e2m/wf_of_coer to _ H4. search.
+  apply IH to _ H3. apply IH to _ H4. apply e2m/wf_of_coer to _ H5. apply e2m/wf_of_coer to _ H6. search.
+  apply IH to _ H3. apply e2m/wf_of_coer to _ H5. search.
+  apply IH to _ H3. apply e2m/wf_of_coer to _ H4. search.
+  apply ctx_m_member to _ _. case H5.
+    case H3.
+    case H3.
+    case H3.
+
+% Theorem e2m/transplant_refl_coer:
+%   forall Sig_e Sig_ml Ctx_e2m Ctx_m A Y,
+%     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+%     {Ctx_e2m |- e2m/refl_coer A Y} ->
+%     {Ctx_m |- e2m/refl_coer A Y}.
+% induction on 2. intros. case H2 (keep).
+%   search.
+%   apply IH to _ H3. apply IH to _ H4. search.
+%   apply IH to _ H3. search.
+%   apply IH to _ H3. apply IH to _ H4. search.
+%   apply IH to _ H3. search.
+% .
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem e2m/ty_unique:
