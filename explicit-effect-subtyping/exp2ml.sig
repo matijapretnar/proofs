@@ -18,6 +18,8 @@ type e2m/val_ty		          exp/val_ty -> skel -> ml/ty -> o.
 type e2m/comp_ty	          exp/comp_ty -> skel -> ml/ty -> o.
 
 type e2m/refl_coer            ml/ty -> ml/coer -> o.
+type e2m/val_refl_coer        exp/val_ty -> skel -> ml/coer -> o.
+type e2m/comp_refl_coer       exp/comp_ty -> skel -> ml/coer -> o.    
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % erasure of terms

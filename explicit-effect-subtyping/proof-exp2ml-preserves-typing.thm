@@ -613,25 +613,26 @@ case H2 (keep).
   % HANDLE -> HANDLE & UNSAFE
   apply IH1 to _ H3.
   apply IH to _ H5.
-  exists B2', X. split.
+  apply e2m/of_val_refl_coer2 to _ H6.
+  exists A', X. split.
     search.
     % how does the handler type translation look like?
-    case H10.
+    case H9.
     % it's a function - not what we expected as we have a full empty dirt
     apply e2m/empty_dirt_is_not_full to _ H4.
     % it's a proper handler as expected
     % how does the computation type translation look like?
-    case H8.
+    case H7.
     % again someone thinks empty dirts are full.
-    apply e2m/empty_dirt_is_not_full to _ H13.
+    apply e2m/empty_dirt_is_not_full to _ H14.
     % now the interesting case
-    apply e2m/val_ty_unique to _ H6 H14.
-    apply e2m/val_ty_unique to _ H12 H16.
-    apply e2m/preserve_wf_val_ty to _ H14.
-    apply e2m/of_refl_coer to _ H7.
+    apply e2m/val_ty_unique to _ H11 H15.
+    apply e2m/val_ty_unique to _ H13 H17.
+    apply e2m/preserve_wf_val_ty to _ H11.
+    %apply e2m/of_refl_coer to _ H7.
     search.
-    apply ctx_e2m_member to _ H16. case H17. case H15. case H15. case H15. case H15. case H15.
-    apply ctx_e2m_member to _ H13. case H14. case H12. case H12. case H15. case H12. case H12. case H12.
+    apply ctx_e2m_member to _ H17. case H18. case H16. case H16. case H16. case H16. case H16.
+    apply ctx_e2m_member to _ H14. case H15. case H13. case H13. case H16. case H13. case H13. case H13. 
   % HANDLE -> HANDLE
   apply IH1 to _ H3.
   apply IH to _ H5.

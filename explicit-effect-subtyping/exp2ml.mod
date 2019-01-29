@@ -168,8 +168,9 @@ e2m/comp Sig (exp/with C V) (exp/bang B2 empty) (ml/cast (ml/with C' V') (ml/uns
   e2m/comp Sig C (exp/bang A1 D1) C',
   e2m/full_dirt(D1),
   e2m/val Sig V (exp/hand_ty (exp/bang A1 D1) (exp/bang B2 empty)) V',
-  e2m/val_ty B2 _ B2',
-  e2m/refl_coer B2' Y.
+  e2m/val_refl_coer B2 _ Y.
+  % e2m/val_ty B2 _ B2',
+  % e2m/refl_coer B2' Y.
 e2m/comp Sig (exp/with C V) (exp/bang B2 D2) (ml/with C' V') :-
   e2m/comp Sig C (exp/bang A1 D1) C',
   e2m/full_dirt(D1),
@@ -179,6 +180,46 @@ e2m/comp Sig (exp/with C V) (exp/bang B2 D2) (ml/with C' V') :-
 e2m/comp Sig (exp/comp_cast Ct Yt) Bt2 (ml/cast Cm Ym) :-
   e2m/comp Sig Ct Bt1 Cm,
   e2m/coer Yt (exp/comp_ty_coer_ty Bt1 Bt2) Ym.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% e2m/val_refl_coer, comp_refl_coer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+e2m/val_refl_coer exp/unit_ty unit_skel ml/unit_refl_coer.
+e2m/val_refl_coer (exp/fun_ty A C) (fun_skel S1 S2) (ml/fun_coer Ya Yc) :-
+  e2m/val_refl_coer A S1 Ya,
+  e2m/comp_refl_coer C S2 Yc.
+e2m/val_refl_coer (exp/hand_ty (exp/bang A empty) C) (hand_skel S1 S2) (ml/fun_coer Ya Yc) :-
+  e2m/val_refl_coer A S1 Ya,
+  e2m/comp_refl_coer C S2 Yc.
+e2m/val_refl_coer (exp/hand_ty (exp/bang A D) (exp/bang B _)) (hand_skel S1 S2) (ml/hand_coer (ml/comp_ty_coer Ya) (ml/comp_ty_coer Yc)) :-
+  e2m/val_refl_coer A S1 Ya,
+  e2m/full_dirt D,
+  e2m/val_refl_coer B S2 Yc.
+e2m/val_refl_coer (exp/all_skel A) (all_skel S) Y :-
+  pi s\ e2m/val_refl_coer (A s) (S s) Y.
+e2m/val_refl_coer (exp/all_ty S A) T (ml/lam_ty_coer Y) :-
+  pi a\ pi a'\ e2m/val_ty a S a' => e2m/val_refl_coer (A a) T (Y a').
+e2m/val_refl_coer (exp/all_dirt A) S Y :-
+  pi d\ e2m/full_dirt d => e2m/val_refl_coer (A d) S Y.
+e2m/val_refl_coer (exp/qual_ty (exp/val_ty_coer_ty A1 A2) A) S (ml/lam_coer_coer (ml/ty_coer_ty A1' A2') Y) :-
+  e2m/val_ty A1 T A1',
+  e2m/val_ty A2 T A2',
+  e2m/val_refl_coer A S Y.
+e2m/val_refl_coer (exp/qual_ty (exp/comp_ty_coer_ty C1 C2) A) S (ml/lam_coer_coer (ml/ty_coer_ty C1' C2') Y) :-
+  e2m/comp_ty C1 T C1',
+  e2m/comp_ty C2 T C2',
+  e2m/val_refl_coer A S Y.
+e2m/val_refl_coer (exp/qual_ty (exp/dirt_coer_ty _ _) A) S Y :-
+  e2m/val_refl_coer A S Y.
+
+e2m/comp_refl_coer (exp/bang A empty) S Y :-
+  e2m/val_refl_coer A S Y.
+e2m/comp_refl_coer (exp/bang A D) S (ml/comp_ty_coer Y) :-
+  e2m/full_dirt D,
+  e2m/val_refl_coer A S Y.
+
+%%%%
 
 e2m/refl_coer ml/unit_ty       ml/unit_refl_coer.
 e2m/refl_coer (ml/fun_ty A B)  (ml/fun_coer Y1 Y2) :-

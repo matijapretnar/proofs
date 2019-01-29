@@ -522,96 +522,73 @@ apply ctx_m_member to H1 H4. case H5. case H3. case H3. case H3.
 search.
 % QED
 
-Theorem e2m/transplant_wf:
-  (
-    forall Sig_e Sig_ml Ctx_e2m Ctx_m A,
-      e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-      {Ctx_e2m |- ml/wf_ty A} ->
-      {Ctx_m |- ml/wf_ty A}
-  ) /\
-  (
-    forall Sig_e Sig_ml Ctx_e2m Ctx_m Pi,
-      e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-      {Ctx_e2m |- ml/wf_coer_ty Pi} ->
-      {Ctx_m |- ml/wf_coer_ty Pi}
-  ).
-% PROOF
+Theorem e2m/of_refl_coer2:
+(
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m A S Y,
+  e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+  {Ctx_e2m |- e2m/val_refl_coer A S Y} ->
+  exists A', 
+    {Ctx_e2m |- e2m/val_ty A S A'} /\
+    {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A' A')}
+) /\
+(
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m C S Y,
+  e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+  {Ctx_e2m |- e2m/comp_refl_coer C S Y} ->
+  exists C',
+    {Ctx_e2m |- e2m/comp_ty C S C'} /\
+    {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty C' C')}
+).
 induction on 2 2. split.
 
-intros. case H2 (keep).
-  search.
-  apply IH to _ H3. apply IH to _ H4. search.
-  skip. % apply IH to _ H3.
-  apply IH to _ H3. apply IH to _ H4. search.
-  apply IH1 to _ H3. apply IH to _ H4. search.
-  apply IH to _ H3. search.
-  apply ctx_e2m_member to _ H4. case H5. 
-    case H3.
-    case H3.
-    case H3.
-    case H3.
-    case H3.
+  intros. case H2 (keep).
+    search.
+    apply IH to _ H3. apply IH1 to _ H4. exists (ml/fun_ty A' C'). split.
+      search.
+      apply e2m/preserve_wf_val_ty to _ H5. apply e2m/preserve_wf_comp_ty to _ H7. search.
+    apply IH to _ H3. apply IH1 to _ H4. exists (ml/fun_ty A' C'). split.
+      search.
+      apply e2m/preserve_wf_val_ty to _ H5. apply e2m/preserve_wf_comp_ty to _ H7. search.
+    apply IH to _ H3. apply IH to _ H5. exists (ml/hand_ty A' A'1). split.
+      search.
+      apply e2m/preserve_wf_val_ty to _ H6. apply e2m/preserve_wf_val_ty to _ H8. search.
+    apply IH to _ H3. exists A'. search.
+    apply IH to _ H3. exists (ml/all_ty A'). split.
+      search.
+      apply e2m/preserve_wf_val_ty to _ H4. search.
+    apply IH to _ H3. search.
+    apply IH to _ H5. exists (ml/qual_ty (ml/ty_coer_ty A1' A2') A'). split.
+      search.
+      apply e2m/preserve_wf_val_ty to _ H6. 
+      apply e2m/preserve_wf_val_ty to _ H3.
+      apply e2m/preserve_wf_val_ty to _ H4. search.
+    apply IH to _ H5. exists (ml/qual_ty (ml/ty_coer_ty C1' C2') A'). split.
+      search.
+      apply e2m/preserve_wf_val_ty to _ H6. 
+      apply e2m/preserve_wf_comp_ty to _ H3.
+      apply e2m/preserve_wf_comp_ty to _ H4. search.
+    apply IH to _ H3. search.
+    apply ctx_e2m_member to _ _. case H5.
+      case H3.
+      case H3.
+      case H3.
+      case H3.
+      case H3.
 
-intros. case H2 (keep).
-  apply IH to _ H3. apply IH to _ H4. search.
-  apply ctx_e2m_member to _ H4. case H5.
-    case H3.
-    case H3.
-    case H3.
-    case H3.
-    case H3.
+  intros. case H2 (keep).
+    apply IH to _ H3. search.
+    apply IH to _ H4. exists (ml/comp_ty A'). split.
+      search.
+      apply e2m/preserve_wf_val_ty to _ H5. search.
+    apply ctx_e2m_member to _ _. case H5.
+      case H3.
+      case H3.
+      case H3.
+      case H3.
+      case H3.
 % QED
 
-Split e2m/transplant_wf as e2m/transplant_wf_ty, e2m/transplant_wf_coer_ty.
-
-Theorem e2m/of_refl_coer:
-  forall Sig_e Sig_ml Ctx_e2m Ctx_m A Y,
-  e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-  {Ctx_e2m |- e2m/refl_coer A Y} ->
-  {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A A)}.
-induction on 2. intros. case H2.
-  search.
-  apply IH to _ H3. apply IH to _ H4. apply e2m/wf_of_coer to _ H5. apply e2m/wf_of_coer to _ H6. search.
-  apply IH to _ H3. apply e2m/wf_of_coer to _ H4. search.
-  apply IH to _ H3. apply IH to _ H4. apply e2m/wf_of_coer to _ H5. apply e2m/wf_of_coer to _ H6. search.
-  apply IH to _ H3. apply e2m/wf_of_coer to _ H5. apply e2m/transplant_wf_coer_ty to _ H4. search.
-  apply IH to _ H3. apply e2m/wf_of_coer to _ H4. search.
-  apply ctx_e2m_member to _ _. case H5.
-    case H3.
-    case H3.
-    case H3.
-    case H3.
-    case H3.
-
-Theorem e2m/of_refl_coer':
-  forall Sig_e Sig_ml Ctx_e2m Ctx_m A Y,
-  e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-  {Ctx_m |- e2m/refl_coer A Y} ->
-  {Ctx_m |- ml/of_coer Y (ml/ty_coer_ty A A)}.
-induction on 2. intros. case H2.
-  search.
-  apply IH to _ H3. apply IH to _ H4. apply e2m/wf_of_coer to _ H5. apply e2m/wf_of_coer to _ H6. search.
-  apply IH to _ H3. apply e2m/wf_of_coer to _ H4. search.
-  apply IH to _ H3. apply IH to _ H4. apply e2m/wf_of_coer to _ H5. apply e2m/wf_of_coer to _ H6. search.
-  apply IH to _ H3. apply e2m/wf_of_coer to _ H5. search.
-  apply IH to _ H3. apply e2m/wf_of_coer to _ H4. search.
-  apply ctx_m_member to _ _. case H5.
-    case H3.
-    case H3.
-    case H3.
-
-% Theorem e2m/transplant_refl_coer:
-%   forall Sig_e Sig_ml Ctx_e2m Ctx_m A Y,
-%     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
-%     {Ctx_e2m |- e2m/refl_coer A Y} ->
-%     {Ctx_m |- e2m/refl_coer A Y}.
-% induction on 2. intros. case H2 (keep).
-%   search.
-%   apply IH to _ H3. apply IH to _ H4. search.
-%   apply IH to _ H3. search.
-%   apply IH to _ H3. apply IH to _ H4. search.
-%   apply IH to _ H3. search.
-% .
+Split e2m/of_refl_coer2 as e2m/of_val_refl_coer2, e2m/of_comp_refl_coer2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem e2m/ty_unique:
