@@ -384,9 +384,8 @@ intros Hctx. case H1 (keep).
     case H2.
     case H2.
     case H2.
-    case H2. skip.
-    case H2. 
-.
+    case H2.  
+    skip.
 % QED
 
 Split e2m/preserve_ty_coer as e2m/preserve_val_ty_coer, e2m/preserve_comp_ty_coer.
@@ -414,7 +413,7 @@ case H2 (keep).
   search.
   % FUN
   apply IH1 to _ H4.
-  exists (ml/fun_ty Aml T).
+  exists (ml/fun_ty Aml T), (fun_skel X S).
   split.
     apply ml/strengthen_comp_ty to _ H5. search.
     apply e2m/preserve_wf_val_ty to _ H3. 
@@ -426,13 +425,23 @@ case H2 (keep).
   skip.
   skip.
   % LAM_SKEL
-  apply IH to _ H3. exists T. search.
+  apply IH to _ H3. exists T, (all_skel S). search.
   % APP_SKEL
-  apply IH to _ H3. exists T. split.
+  apply IH to _ H3. 
+  assert (exists S', S1 = all_skel S'). case H4.
+    search.
+    apply ctx_e2m_member to _ H7. case H8.
+    case H6.
+    case H6. case H9.
+    case H6.
+    case H6.
+    case H6.
+  case H6. 
+  exists T, (S' S). split.
     case H4. 
-      inst H6 with n1 = S. search.
-      apply ctx_e2m_member to _ H7. case H8.
-        case H6. case H6. case H9. case H6. case H6. case H6.
+      inst H7 with n1 = S. search.
+      apply ctx_e2m_member to _ H8. case H9.
+        case H7. case H7. case H10. case H7. case H7. case H7.
     search.
   % LAM_TY
   apply IH to _ H3.
@@ -440,7 +449,7 @@ case H2 (keep).
   search.
   % APP_TY 
   apply IH to _ H3. case H5.
-  exists (A' Am1). split.
+  exists (A' Am1), S1. split.
     inst H7 with n1 = At1, n2 = Am1. cut H8 with H4. search.
     apply e2m/preserve_wf_val_ty to _ H4.
     apply e2m/preserve_wf_val_ty to _ H7.
@@ -454,8 +463,9 @@ case H2 (keep).
   % Where did we get the translation of forall from?
   case H5.
     % interesting case
-    apply e2m/from_impure_val to _ H3 _.
-    apply e2m/preserve_wf_val_ty to _ H8.
+    apply e2m/from_impure_val to _ H3 with A1 = T, S = S.
+    apply H8 to _.
+    apply e2m/preserve_wf_val_ty to _ H9.
     search.
     % backchain
     apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H10. case H7. case H7. case H7.
@@ -463,14 +473,14 @@ case H2 (keep).
   apply e2m/preserve_wf_val_ty to _ H4.
   apply e2m/preserve_wf_val_ty to _ H5.
   apply IH to _ H3.
-  assert {Ctx_e2m |- e2m/val_ty At T}. skip. % strengthening
+  assert {Ctx_e2m |- e2m/val_ty At S T1}. skip. % strengthening
   apply e2m/preserve_wf_val_ty to _ H10.
   search.
   % LAM_COER COMP
   apply e2m/preserve_wf_comp_ty to _ H4.
   apply e2m/preserve_wf_comp_ty to _ H5.
   apply IH to _ H3.
-  assert {Ctx_e2m |- e2m/val_ty At T}. skip. % strengthening
+  assert {Ctx_e2m |- e2m/val_ty At S T1}. skip. % strengthening
   apply e2m/preserve_wf_val_ty to _ H10.
   search.
   % LAM_COER DIRT
@@ -603,7 +613,7 @@ case H2 (keep).
   % HANDLE -> HANDLE & UNSAFE
   apply IH1 to _ H3.
   apply IH to _ H5.
-  exists B2'. split.
+  exists B2', X. split.
     search.
     % how does the handler type translation look like?
     case H10.
