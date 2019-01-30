@@ -1,6 +1,7 @@
 Specification "exp2ml".
 Import "common".
 Import "proof-exp2ml-lemmas".
+Import "proof-exp2ml-preserves-typing".
 Set subgoals off.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -109,15 +110,37 @@ induction on 2. intros Hctx.
         % dirt
         apply IH to _ H5 H2. search.
     % COERCION APPLY
-    skip.
-    skip.
-    skip.
+    % val
+    case H4.
+        apply IH to Hctx H5 H7.
+        case H9. inst H13 with n1 = Y'.
+        cut H14.
+        search.
+        % bakchain
+        apply ctx_m_member to _ H11. case H12. case H10. case H10. case H10.
+    apply member_lemma to H7 H8.
+    % comp
+    case H4.
+        apply IH to Hctx H5 H7.
+        case H9. inst H13 with n1 = Y'.
+        cut H14.
+        search.
+        % bakchain
+        apply ctx_m_member to _ H11. case H12. case H10. case H10. case H10.
+    apply member_lemma to H7 H8.
+    % dirt
+    apply IH to Hctx H5 H2. search.
     % VALUE COERCION
     case H4.
         skip. % if V is normal, so is cast V
         apply member_lemma to H7 H8.
     % VARIABLE CASE
-    skip. % variables are normal
+    apply ctx_e2m_member to Hctx H6. case H7.
+        case H5. case H9. case H4. apply member_lemma to H11 H12.
+        case H5.
+        case H5.
+        case H5.
+        case H5.
     skip. % variables are normal
 
 Define ml/cong : ml/term -> ml/term -> prop by
@@ -153,10 +176,6 @@ intros.
 Theorem result_val_val :
   forall Sig_e Sig_m V A T, {e2m/sig Sig_e Sig_m} -> {exp/result_val V} -> {e2m/val Sig_e V A T} -> exists T', {ml/val T'} /\ ml/cong T T'.
 intros.
-e2m/of_val : assert (forall Sig_e Sig_ml V_t V_ml A_t Ctx_e2m Ctx_m,
-        e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
-     -> {Ctx_e2m |- e2m/val Sig_e V_t A_t V_ml}
-     -> exists S T, {Ctx_e2m |- e2m/val_ty A_t S (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml V_ml T}). skip. % will get rid of this once we fix type preservation
 apply e2m/of_val to _ H3.
 apply val_cong_result to _ H3 H5.
 search.

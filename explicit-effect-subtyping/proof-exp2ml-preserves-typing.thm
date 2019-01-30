@@ -430,7 +430,7 @@ intros. search.
 % Main Theorem
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Theorem e2m/of_val :
+Theorem e2m/of :
  (forall Sig_e Sig_ml V_t V_ml A_t Ctx_e2m Ctx_m,
         e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
      -> {Ctx_e2m |- e2m/val Sig_e V_t A_t V_ml}
@@ -705,3 +705,5 @@ case H2 (keep).
     case H3.
     case H3.
     case H3.
+
+Split e2m/of as e2m/of_val, e2m/of_comp.
