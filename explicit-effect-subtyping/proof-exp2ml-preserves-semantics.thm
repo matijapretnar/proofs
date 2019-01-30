@@ -300,45 +300,71 @@ intros.
 unfold 5. exists T. search.
 % QED
 
+Theorem step_congruence :
+  forall T1 T2 T T',
+  ml/cong T1 T2 ->
+  {ml/step (T T2) (T' T2)} ->
+  ml/cong (T T1) (T' T1).
+% PROOF
+intros.
+unfold 4. exists T T2. split.
+unfold 5. exists T. search.
+unfold 4. exists T' T2. split.
+unfold 1. search.
+unfold 5. exists T'. search.
+% QED
+
 
 Theorem e2m/val_preservation :
-  forall Sig_e V1 V2 A T1,
+  forall Sig_e Sig_m V1 V2 A T1,
+    {e2m/sig Sig_e Sig_m} -> 
     {exp/step_val V1 V2} -> {e2m/val Sig_e V1 A T1} ->
     exists T2, {e2m/val Sig_e V2 A T2} /\ ml/cong T1 T2.
-induction on 1. intros. case H1 (keep).
+induction on 2. intros Hsig. case H1 (keep).
 % COERCE
-case H2. apply IH to H3 H4.
+case H2. apply IH to Hsig H3 H4.
 apply still_congruence to _ with T = (t\ ml/cast t Ym). search.
 % CAST UNIT_REFL_COER
-case H2. case H5.
-    skip. % Vm is congruent to a value
+case H2. case H5. apply result_val_val to _ H3 H4.
+    apply step_congruence to H7 _ with
+        T = (t\ ml/cast t ml/unit_refl_coer),
+        T' = (t\ t).
+    search.
 % APP_SKEL
-case H2. apply IH to H3 H4. search.
+case H2. apply IH to Hsig H3 H4. search.
 % APP_TY
-case H2. apply IH to H3 H4.
+case H2. apply IH to Hsig H3 H4.
 apply still_congruence to _ with T = (t\ ml/app_ty t Am1). search.
 % APP_DIRT
 case H2.
-apply IH to H3 H5.
+apply IH to Hsig H3 H5.
 apply still_congruence to _ with T = (t\ ml/cast t Y). search.
 % APP_COER
 case H2.
     % val coer
-    apply IH to H3 H4.
+    apply IH to Hsig H3 H4.
     apply still_congruence to _ with T =  (t\ ml/app_coer t Y').
     search.
     % comp coer
-    apply IH to H3 H4.
+    apply IH to Hsig H3 H4.
     apply still_congruence to _ with T =  (t\ ml/app_coer t Y').
     search.
     % dirt coer
-    apply IH to H3 H4. search.
+    apply IH to Hsig H3 H4. search.
 % coerced APP_SKEL
 case H2. case H4.
 case H6.
 inst H7 with n1 = S. search.
 % coerced APP_TY
-skip. % congruent to a value
+case H2. case H4. case H7.
+apply result_val_val to _ H3 H6.
+apply step_congruence to H10 _ with
+    T = (t\ ml/app_ty (ml/cast t (ml/lam_ty_coer Y')) Am1),
+    T' = (t\ ml/cast (ml/app_ty t Am1) (Y' Am1)).
+inst H8 with n1 = A1, n2 = Am1.
+cut H12.
+exists (ml/cast (ml/app_ty Vm1 Am1) (Y' Am1)).
+search.
 % coerced APP_DIRT
 case H2. case H5. case H7.
 assert exists Y, {from_impure/val A1 D Y}.
@@ -348,7 +374,27 @@ apply big_lemma_2 to _ H6 H10 H4 with Sig_e = Sig_e, Ctx_e2m = nil, Ctx_t = nil,
 apply H11 to H8.
 search.
 % coerced APP_COER
-skip. % congruent to a value
+case H2.
+% val
+case H4.
+apply result_val_val to _ H3 H6.
+case H7.
+apply step_congruence to H9 _ with
+    T = (t\ ml/app_coer (ml/cast t (ml/lam_coer_coer (ml/ty_coer_ty A3' A4') Y'1)) Y'),
+    T' = (t\ ml/cast (ml/app_coer t Y') Y'1).
+    search.
+% comp
+case H4.
+apply result_val_val to _ H3 H6.
+case H7.
+apply step_congruence to H9 _ with
+    T = (t\ ml/app_coer (ml/cast t (ml/lam_coer_coer (ml/ty_coer_ty C1' C2') Y'1)) Y'),
+    T' = (t\ ml/cast (ml/app_coer t Y') Y'1).
+    search.
+% dirt
+case H4.
+case H7.
+search.
 % APP_SKEL reduce
 case H2. case H3. inst H4 with n1 = S. search.
 % APP_TY reduce
@@ -378,27 +424,15 @@ induction on 1. intros. case H1.
  case H2. search. search.
  case H2. search. apply IH to H3 H4. search.
 
-Theorem step_congruence :
-  forall T1 T2 T T',
-  ml/cong T1 T2 ->
-  {ml/step (T T2) (T' T2)} ->
-  ml/cong (T T1) (T' T1).
-% PROOF
-intros.
-unfold 4. exists T T2. split.
-unfold 5. exists T. search.
-unfold 4. exists T' T2. split.
-unfold 1. search.
-unfold 5. exists T'. search.
-% QED
-
 Theorem e2m/extract_value :
     forall Sig_e C V A T,
     {exp/extract_value C V} ->
     {e2m/comp Sig_e C (exp/bang A empty) T} ->
     {e2m/val Sig_e V A T}.
 % PROOF
-skip.
+induction on 1. intros. case H1.
+    case H2. case H5. case H8. case H10. case H9. apply IH to H3 H4. search.
+    case H2. search.
 % QED
 
 Theorem e2m/extract_impure_value :
@@ -440,18 +474,18 @@ case H2. apply IH to _ H3 H4.
 apply still_congruence to _ with T =  (t\ ml/cast t Ym).
 search.
 % APP V1-step
-case H2. apply e2m/val_preservation to H3 H4.
+case H2. apply e2m/val_preservation to Hsig H3 H4.
 apply still_congruence to _ with T =  (t\ ml/app t Vm2).
 search.
 % APP V1-exp/coer
 case H2. case H4. case H7.
 apply result_val_val to _ H3 H6.
-skip.
-% apply step_congruence to _ _ with
-%     T = (t\ ml/app (ml/cast Vm (ml/fun_coer Y1' Y2')) t),
-%     T' = (t\ ml/cast (ml/app Vm (ml/cast t Y1')) Y2').
+apply step_congruence to H11 _ with
+    T = (t\ ml/app (ml/cast t (ml/fun_coer Y1' Y2')) Vm2),
+    T' = (t\ ml/cast (ml/app t (ml/cast Vm2 Y1')) Y2').
+search.
 % APP V2-step
-case H2. apply e2m/val_preservation to H4 H6.
+case H2. apply e2m/val_preservation to Hsig H4 H6.
 apply still_congruence to _ with T =  (t\ ml/app Vm1 t). search.
 % APP beta
 case H2.
@@ -465,7 +499,7 @@ apply step_congruence to _ _ with
 search.
 % LET V-step
 case H2.
-apply e2m/val_preservation to H3 H4.
+apply e2m/val_preservation to Hsig H3 H4.
 apply still_congruence to _ with T = (t\ ml/let t Cm). search.
 % LET beta
 case H2.
@@ -476,9 +510,9 @@ apply step_congruence to _ _ with
     T' = Cm.
 search.
 % RETURN V-step
-case H2. apply e2m/val_preservation to H3 H4. search.
+case H2. apply e2m/val_preservation to Hsig H3 H4. search.
 % OP V-step
-case H2. apply e2m/val_preservation to H3 H7.
+case H2. apply e2m/val_preservation to Hsig H3 H7.
 apply still_congruence to _ with T = (t\ ml/op O t Am2 Cm). search.
 % OP-coerce
 case H2. case H4. case H5.
