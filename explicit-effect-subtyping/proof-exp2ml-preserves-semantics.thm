@@ -594,19 +594,53 @@ case H2.
 % WITH val-step
 case H2.
     % WITH ~> APP
-    skip.
+    apply e2m/val_preservation to Hsig H3 H5.
+    apply still_congruence to _ with T = (t\ ml/app t C').
+    search.
     % WITH ~> UNSAFE WITH
-    skip.
+    apply e2m/val_preservation to Hsig H3 H6.
+    apply still_congruence to _ with T = (t\ ml/cast (ml/with C' t) (ml/unsafe_coer Y)).
+    search.
     % WITH ~> WITH
-    skip.
+    apply e2m/val_preservation to Hsig H3 H6.
+    apply still_congruence to _ with T = (t\ ml/with C' t).
+    search.
 % WITH handler cast
 case H2.
     % WITH ~> APP
+    case H5. case H7.
+        % compatible coercion (handler translated as function)
+        apply result_val_val to _ H3 H6.
+        apply step_congruence to H11 _ with
+            T = (t\ ml/app (ml/cast t (ml/fun_coer Y1' Y2')) C'),
+            T' = (t\ ml/cast (ml/app t (ml/cast C' Y1')) Y2').
+        search.
+        % incompatible coercion
+        case H10.
+        % compatible coercion
+        skip.
+        % compatible coercion
     skip.
     % WITH ~> UNSAFE WITH
+    case H6. case H9.
+        % incompatible coercion
+        case H5.
+        % compatible coercion
     skip.
+        % incompatible coercion
+        case H5.
+        % incompatible coercion
+        case H5.
     % WITH ~> WITH
+    case H6. case H9.
+        % incompatible coercion
+        case H5.
+        % compatible coercion
     skip.
+        % incompatible coercion
+        case H5.
+        % incompatible coercion
+        case H5.
 % WITH C step
 case H2.
     % WITH ~> APP
