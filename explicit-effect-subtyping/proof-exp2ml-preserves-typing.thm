@@ -390,6 +390,42 @@ intros Hctx. case H1 (keep).
 
 Split e2m/preserve_ty_coer as e2m/preserve_val_ty_coer, e2m/preserve_comp_ty_coer.
 
+
+Theorem e2m/strengthen_coer_val_ty:
+  forall  Sig_e Sig_ml Ctx_e2m Ctx_m Y Pi Y' A S A',
+     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+     {Ctx_e2m, e2m/coer Y Pi Y' |- e2m/val_ty A S A'} ->
+     {Ctx_e2m |- e2m/val_ty A S A'}.
+% PROOF
+skip.
+% QED
+
+Theorem e2m/member_val_of_term:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m  V_t A_t V_ml,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    member (e2m/val Sig_e V_t A_t V_ml) Ctx_e2m ->
+    exists S A', {Ctx_e2m |- e2m/val_ty A_t S A'} /\
+    member (ml/of_term Sig_ml V_ml A') Ctx_m.
+% PROOF
+induction on 2. intros. case H2 (keep).
+  case H1. exists S, A'. search.
+  case H1.
+    apply IH to _ H3. exists S1, A'1. search.
+    apply IH to _ H3. exists S1, (A' n2). search.
+    apply IH to _ H3. exists S, A'. search.
+    apply IH to _ H3. exists S1, A'. search.
+    apply IH to _ H3. exists S1, A'. search.
+% QED
+
+Theorem ml/of_term_member_entails:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m  V_ml A',
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    member (ml/of_term Sig_ml V_ml A') Ctx_m ->
+    { Ctx_m |- ml/of_term Sig_ml V_ml A'}.
+% PROOF
+intros. search.
+% QED
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Main Theorem
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -473,14 +509,14 @@ case H2 (keep).
   apply e2m/preserve_wf_val_ty to _ H4.
   apply e2m/preserve_wf_val_ty to _ H5.
   apply IH to _ H3.
-  assert {Ctx_e2m |- e2m/val_ty At S T1}. skip. % strengthening
+  apply e2m/strengthen_coer_val_ty to _ H8.
   apply e2m/preserve_wf_val_ty to _ H10.
   search.
   % LAM_COER COMP
   apply e2m/preserve_wf_comp_ty to _ H4.
   apply e2m/preserve_wf_comp_ty to _ H5.
   apply IH to _ H3.
-  assert {Ctx_e2m |- e2m/val_ty At S T1}. skip. % strengthening
+  apply e2m/strengthen_coer_val_ty to _ H8.
   apply e2m/preserve_wf_val_ty to _ H10.
   search.
   % LAM_COER DIRT
@@ -522,7 +558,10 @@ case H2 (keep).
   apply e2m/preserve_wf_val_ty to _ H8. search.
   % backchain
   apply ctx_e2m_member to H1 H4. case H5.
-    case H3. skip. % interesting backchain case
+    case H3. exists A', S. split.
+      search.
+      apply e2m/member_val_of_term to _ H4. 
+      apply e2m/val_ty_unique to _ H8 H9. search.
     case H3.
     case H3.
     case H3.
@@ -554,7 +593,7 @@ case H2 (keep).
   apply IH1 to _ H7.
   apply ml/strengthen_comp_ty to _ H12.
   apply e2m/preserve_wf_comp_ty to _ H14.
-  assert {Ctx_m |- ml/of_op Sig_ml O Am1 Am2}. skip. % strengthening
+  .assert {Ctx_m |- ml/of_op Sig_ml O Am1 Am2}. skip. % strengthening
   assert {Ctx_m |- is_op O}. skip. % strengthening
   apply e2m/val_ty_unique to _ H4 H10.
   case H14 (keep).
