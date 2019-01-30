@@ -435,32 +435,53 @@ induction on 1. intros. case H1.
     case H2. search.
 % QED
 
+Theorem exp/result_val_cast :
+    forall V Y, {exp/result_val (exp/val_cast V Y)} -> {exp/result_val V}.
+% PROOF
+induction on 1. intros. case H1.
+    case H2.
+    search.
+    search.
+    search.
+    search.
+    search.
+    search.
+% QED
+
 Theorem e2m/extract_impure_value :
-    forall Sig_e C V A D T,
+    forall Sig_e Sig_m C V A D T,
+    {e2m/sig Sig_e Sig_m} ->
+    {exp/result_val V} ->
     {exp/extract_value C V} ->
     {e2m/comp Sig_e C (exp/bang A D) T} ->
     {e2m/full_dirt D} ->
     exists V', {e2m/val Sig_e V A V'} /\ ml/cong T (ml/ret V').
 % PROOF
-induction on 1. intros. case H1.
-  case H2. case H6. case H9.
+induction on 3. intros Hsig. case H2.
+  case H3. case H7. case H10.
     % full -> full
-    apply IH to H4 H5 H10.
+    apply exp/result_val_cast to H1.
+    apply IH to _ H13 H5 H6 H11.
+    apply result_val_val to _ H13 H14.
     exists (ml/cast V' Y1'). split.
         search.
         unfold 4. exists (ml/cast (ml/ret V') (ml/comp_ty_coer Y1')). split.
         unfold 5. exists (t\ ml/cast t (ml/comp_ty_coer Y1')). search.
-        assert {ml/val V'}. skip.
-        unfold 1. search.
-    % empty -> full
-    apply e2m/extract_value to H4 H5.
-    exists (ml/cast Cm Y1'). split.
+        apply step_congruence to H17 _ with
+            T = (t\ ml/cast (ml/ret t) (ml/comp_ty_coer Y1')),
+            T' = (t\ ml/ret (ml/cast t Y1')).
         search.
-        assert {ml/val Cm}. skip.
-        unfold 1. search.
+    % empty -> full
+    apply exp/result_val_cast to H1.
+    apply e2m/extract_value to H5 H6.
+    apply result_val_val to _ H12 H13.
+    apply step_congruence to H15 _ with
+        T = (t\ ml/cast t (ml/return_coer Y1')),
+        T' = (t\ ml/ret (ml/cast t Y1')).
+        search.
     % empty -> empty
-    case H3.
-  case H2. case H3.
+    case H4.
+  case H3. case H4.
 % QED
 
 Theorem e2m/comp_preservation :
@@ -547,7 +568,7 @@ case H2.
         T' = Cm2.
     search.
     % DO ~> DO
-    apply e2m/extract_impure_value to H3 H5 _.
+    apply e2m/extract_impure_value to _ _ H3 H5 _.
     inst H6 with n1 = V, n2 = V'.
     cut H9.
     apply result_val_val to _ H4 H7.
