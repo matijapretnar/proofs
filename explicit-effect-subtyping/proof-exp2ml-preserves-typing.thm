@@ -391,14 +391,80 @@ intros Hctx. case H1 (keep).
 Split e2m/preserve_ty_coer as e2m/preserve_val_ty_coer, e2m/preserve_comp_ty_coer.
 
 
-Theorem e2m/strengthen_coer_val_ty:
-  forall  Sig_e Sig_ml Ctx_e2m Ctx_m Y Pi Y' A S A',
+Theorem e2m/strengthen_coer_ty:
+(
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m Y Pi Y' A S A',
      e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
      {Ctx_e2m, e2m/coer Y Pi Y' |- e2m/val_ty A S A'} ->
-     {Ctx_e2m |- e2m/val_ty A S A'}.
+     {Ctx_e2m |- e2m/val_ty A S A'}
+) /\
+(
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m Y Pi Y' C S C',
+     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+     {Ctx_e2m, e2m/coer Y Pi Y' |- e2m/comp_ty C S C'} ->
+     {Ctx_e2m |- e2m/comp_ty C S C'}
+) /\ 
+(
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m Y Pi Y' D,
+     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+     {Ctx_e2m, e2m/coer Y Pi Y' |- e2m/full_dirt D} ->
+     {Ctx_e2m |- e2m/full_dirt D}
+).
 % PROOF
-skip.
+induction on 2 2 2. split.
+
+intros. case H2 (keep).
+  search.
+  apply IH to _ H3. apply IH1 to _ H4. search.
+  apply IH to _ H3. apply IH1 to _ H4. search.
+  apply IH to _ H3. apply IH2 to _ H4. apply IH  to _ H5. search.
+  apply IH to _ H3. search.
+  apply IH to _ H3. search.
+  monotone H3 with (e2m/coer Y Pi Y' :: e2m/full_dirt n1 :: Ctx_e2m).
+    intros. case H4.
+      search.
+      case H5.
+        search.
+        search.
+    apply IH to _ H4. search.
+  apply IH to _ H3. apply IH to _ H4. apply IH to _ H5. search.
+  apply IH1 to _ H3. apply IH1 to _ H4. apply IH to _ H5. search.
+  apply IH to _ H3. search.
+  case H4. 
+    case H3.
+    apply ctx_e2m_member to _ H5. case H6. 
+      case H3.
+      case H3. search.
+      case H3.
+      case H3.
+      case H3.
+
+intros. case H2 (keep).
+  apply IH to _ H3. search.
+  apply IH2 to _ H3. apply IH to _ H4. search. 
+  case H4. 
+    case H3.
+    apply ctx_e2m_member to _ H5. case H6. 
+      case H3.
+      case H3.
+      case H3.
+      case H3.
+      case H3.
+ 
+intros. case H2 (keep).
+  search.
+  case H4.
+    case H3.
+    apply ctx_e2m_member to _ H5. case H6.
+      case H3.
+      case H3.
+      case H3. search.
+      case H3.
+      case H3.
 % QED
+
+Split e2m/strengthen_coer_ty as e2m/strengthen_coer_val_ty, e2m/strengthen_coer_comp_ty.
+
 
 Theorem e2m/member_val_of_term:
   forall Sig_e Sig_ml Ctx_e2m Ctx_m  V_t A_t V_ml,
