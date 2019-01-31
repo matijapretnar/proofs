@@ -180,17 +180,17 @@ apply e2m/of_val to _ H3.
 apply val_cong_result to _ H3 H5.
 search.
 
-% Theorem e2m/get_ret_case :
-%   forall Ht Ct Vt He Ce Vm,
-%     {exp/get_ret_case Ht Ct} -> {e2m/hand Ht He} -> {e2m/comp (Ct Vt) Ce} -> {e2m/val Vt Vm} ->
-%     exists Ce', {ml/get_ret_case He Ce'} /\ Ce = Ce' Vm.
-% induction on 1. intros. case H1.
-%   case H2.
-%     exists Ce1. inst H5 with n1 = Vt, n2 = Vm. cut H7 with H4.
-%     apply unique_e2m/comp to _ H3 H8. search.
-%   case H2.
-%     apply IH to H5 H6 H3 H4.
-%     search.
+Theorem e2m/get_ret_case :
+  forall Sig_e A D B He Ce Hm,
+    {exp/get_ret_case He Ce} ->
+    {e2m/hand Sig_e He A D B Hm} ->
+    exists Cm,
+        {ml/get_ret_case Hm Cm} /\
+        {pi x\ pi x'\ e2m/val Sig_e x A x' => e2m/comp Sig_e (Ce x) B (Cm x')}.
+induction on 1. intros. case H1.
+  case H2. search.
+  case H2.
+    apply IH to H3 H4. exists Cm n2. search.
 
 % Theorem e2m/get_op_case :
 %   forall Ht O At Ct Vt Kt He Ae Ce Vm Ke,
@@ -658,16 +658,56 @@ case H2.
 % WITH return
 case H2.
     % WITH ~> APP
-    skip.
+    case H7.
+        % interesting case
+        case H8. case H4.
+        apply e2m/extract_value to H3 H6.
+        inst H10 with n1 = V, n2 = C'. cut H12.
+        apply result_val_val to _ H5 H11. 
+        apply step_congruence to H15 _ with
+            T = (t\ ml/app (ml/fun A1' C'1) t),
+            T' = C'1.
+        search.
+        % absurd case
+        case H8.
     % WITH ~> UNSAFE WITH
+    case H8.
+        % absurd case
+        case H7.
+        % interesting case
     skip.
     % WITH ~> WITH
-    skip.
+    case H8.
+        % absurd case
+        case H7.
+        % interesting case
+        apply e2m/extract_impure_value to _ H5 H3 H6 H7.
+        apply e2m/get_ret_case to H4 H11.
+        inst H15 with n1 = V, n2 = V'1.
+        cut H16.
+        inst H14 with n2 = V'1.
+        apply result_val_val to _ H5 H12.
+        exists (Cm V'1 V'1). split.
+            search.
+        unfold 4. exists (ml/with (ml/ret V'1) (ml/hand Hm)). split.
+        unfold 5. exists (t\ ml/with t (ml/hand Hm)). search.
+        apply step_congruence to H20 _ with
+            T = (t\ ml/with (ml/ret t) (ml/hand Hm)),
+            T' = (t\ Cm V'1 t).
+        search.
 % WITH op
 case H2.
-    % WITH ~> APP
-    skip.
+    % WITH ~> APP (can't happen)
+    case H5. case H12.
     % WITH ~> UNSAFE WITH
+    case H7.
+        % absurd case
+        case H6.
+        % interesting case
     skip.
     % WITH ~> WITH
+    case H7.
+        % absurd case
+        case H6.
+        % interesting case
     skip.
