@@ -662,8 +662,17 @@ Theorem e2m/of :
         e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
      -> {Ctx_e2m |- e2m/comp Sig_e C_t D_t C_ml}
      -> exists T S, {Ctx_e2m |- e2m/comp_ty D_t S (T:ml/ty)} /\ {Ctx_m |- ml/of_term Sig_ml C_ml T})
+ /\
+ (forall Sig_e Sig_ml Ctx_e2m Ctx_m H A D1 C H',
+        e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m
+     -> {Ctx_e2m |- e2m/hand Sig_e H A D1 C H'}
+     -> exists A' S1 B D2 B' S2, 
+         {Ctx_e2m |- e2m/val_ty A S1 A'} /\ 
+         C = (exp/bang B D2) /\ {Ctx_e2m |- e2m/val_ty B S2 B'} /\ 
+         {Ctx_m |- ml/of_hand Sig_ml H' A' B'}
+ )
  .
-induction on 2 2. split.
+induction on 2 2 2. split.
 % VALUES
 intros.
 case H2 (keep).
@@ -679,9 +688,18 @@ case H2 (keep).
       apply e2m/preserve_wf_comp_ty to _ H8.
       search.
   % HAND
-  case H3 (keep).  apply IH1 to _ H5. skip.
-  skip.
-  skip.
+  case H3 (keep).  apply IH1 to _ H5. 
+    exists (ml/fun_ty A1' T), (hand_skel X S). apply ml/strengthen_comp_ty to H1 H6. split.
+      search.
+      apply e2m/preserve_wf_val_ty to _ H4. apply e2m/preserve_wf_comp_ty to _ H8. search.
+      apply ctx_e2m_member to _ H5. case H6.
+        case H4.
+        case H4.
+        case H4.
+        case H4.
+        case H4.
+  apply IH2 to _ H4. exists (ml/hand_ty A' B'), (hand_skel S1 S2). 
+    apply e2m/preserve_wf_val_ty to _ H5. apply e2m/preserve_wf_val_ty to _ H6. search.
   % LAM_SKEL
   apply IH to _ H3. exists T, (all_skel S). search.
   % APP_SKEL
@@ -928,4 +946,42 @@ case H2 (keep).
     case H3.
     case H3.
 
-Split e2m/of as e2m/of_val, e2m/of_comp.
+intros.
+case H2 (keep).
+  apply IH1 to _ H4.
+    apply ml/strengthen_comp_ty to _ H5.
+    case H7.
+      exists A1', X, A2, empty, T, S. split.
+        search.
+        search.
+        search.
+        apply e2m/preserve_wf_val_ty to _ H3. 
+        apply e2m/preserve_wf_val_ty to _ H8. search.
+      apply e2m/empty_dirt_is_not_full to _ H8.
+      apply e2m/comp_ty_member to _ _ _.
+  apply IH1 to _ H5.
+    apply ml/strengthen_comp_ty to _ H6.
+    case H8.
+      apply e2m/empty_dirt_is_not_full to _ H3.
+      exists A1', X, A2, D1, A', S. split.
+        search.
+        search.
+        search.
+        apply e2m/preserve_wf_val_ty to _ H4.
+        apply e2m/preserve_wf_val_ty to _ H10. search.
+      apply e2m/comp_ty_member to _ _ _.
+  apply IH2 to _ H3. % apply IH1 to _ H5.
+    exists A', S1, B1, empty, B', S2. split.
+      search.
+      search.
+      search.
+      skip.
+  skip.
+  apply ctx_e2m_member to _ H4. case H5.
+    case H3.
+    case H3.
+    case H3.
+    case H3.
+    case H3.
+
+Split e2m/of as e2m/of_val, e2m/of_comp, e2m/of_hand.
