@@ -390,6 +390,162 @@ intros Hctx. case H1 (keep).
 
 Split e2m/preserve_ty_coer as e2m/preserve_val_ty_coer, e2m/preserve_comp_ty_coer.
 
+Theorem e2m/transport_is_op:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m O,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {Ctx_e2m |- is_op O} ->
+    {Ctx_m |- is_op O}.
+% PROOF
+induction on 2. intros. case H2 (keep).
+  search.
+  apply IH to _ H3. search.
+  apply ctx_e2m_member to _ H4. case H5.
+    case H3.
+    case H3.
+    case H3.
+    case H3.
+    case H3.
+% QED
+
+Theorem e2m/ctx_entail_sig:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {e2m/sig Sig_e Sig_ml}.
+% PROOF
+induction on 1. intros. case H1 (keep).
+  search.
+  apply IH to H2. search.
+  apply IH to H2. search.
+  apply IH to H2. search.
+  apply IH to H2. search.
+  apply IH to H2. search.
+% QED
+
+
+Define exp/sig_suffix : exp/sig -> exp/sig -> prop by
+
+  exp/sig_suffix Sig Sig;
+
+  exp/sig_suffix (exp/cons_sig O  A  B Sig) Sig'
+   := exp/sig_suffix Sig Sig'.
+
+Theorem exp/suffix_of_suffix:
+  forall Sig1 Sig2 Sig3,
+    exp/sig_suffix Sig1 Sig2 ->
+    exp/sig_suffix Sig2 Sig3 ->
+    exp/sig_suffix Sig1 Sig3. 
+% PROOF
+induction on 1. intros. case H1 (keep).
+  search.
+  apply IH to H3 H2. search.
+% QED
+
+Define ml/sig_suffix : ml/sig -> ml/sig -> prop by
+
+  ml/sig_suffix Sig Sig;
+
+  ml/sig_suffix (ml/cons_sig O  A  B Sig) Sig'
+   := ml/sig_suffix Sig Sig'.
+
+Theorem ml/suffix_of_suffix:
+  forall Sig1 Sig2 Sig3,
+    ml/sig_suffix Sig1 Sig2 ->
+    ml/sig_suffix Sig2 Sig3 ->
+    ml/sig_suffix Sig1 Sig3. 
+% PROOF
+induction on 1. intros. case H1 (keep).
+  search.
+  apply IH to H3 H2. search.
+% QED
+
+Theorem e2m/strengthen_apart:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m O1 O2, 
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {Ctx_e2m |- apart O1 O2} ->
+    {apart O1 O2}.
+% PROOF
+induction on 2. intros. case H2 (keep).
+  search.
+  search.
+  apply IH to _ H3. search.
+  apply ctx_e2m_member to _ H4. case H5.
+    case H3.
+    case H3.
+    case H3.
+    case H3.
+    case H3.
+% QED
+
+Theorem e2m/strengthen_of_op:
+  forall Sig_e Sig_e' Sig_ml Ctx_e2m Ctx_m O A B,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    exp/sig_suffix Sig_e Sig_e' -> 
+    {Ctx_e2m |- exp/of_op Sig_e' O A B} ->
+    {exp/of_op Sig_e' O A B}.
+% PROOF
+induction on 3. intros. case H3 (keep).
+  search.
+  assert (exp/sig_suffix Sig_e Sig).
+    assert (exp/sig_suffix (exp/cons_sig O1 A1 B1 Sig) Sig).
+    apply exp/suffix_of_suffix to H2 _. search.
+  apply IH to H1 H6 H4.
+  apply e2m/strengthen_apart to _ H5. search.
+  apply ctx_e2m_member to _ H5. case H6.
+    case H4.
+    case H4.
+    case H4.
+    case H4.
+    case H4.
+% QED
+
+Theorem e2m/transport_of_op':
+  forall Sig_e Sig_e' Sig_ml Sig_ml' Ctx_e2m Ctx_m O A S1 A' B S2 B',
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {exp/of_op Sig_e' O A B} ->
+    {Ctx_e2m |- e2m/val_ty A S1 A'} ->
+    {Ctx_e2m |- e2m/val_ty B S2 B'} ->
+    {e2m/sig Sig_e' Sig_ml'} ->
+    (exp/sig_suffix Sig_e Sig_e') ->
+    (ml/sig_suffix Sig_ml Sig_ml') ->
+    {ml/of_op Sig_ml' O A' B'}.
+% PROOF
+induction on 2. intros. 
+  case H2 (keep).
+    case H5.
+      assert {Ctx_e2m |- e2m/val_ty A X B1}.
+      assert {Ctx_e2m |- e2m/val_ty B X1 B2}.
+      apply e2m/val_ty_unique to _ H3 H11.
+      apply e2m/val_ty_unique to _ H4 H12.
+      assert (e2m/ctx Sig_e Sig_ml nil nil).
+        apply e2m/ctx_entail_sig to H1. search.
+      apply e2m/preserve_wf_val_ty to H13 H8.
+      apply e2m/preserve_wf_val_ty to H13 H9.
+      search.
+    case H5.
+      apply IH to H1 H8 H3 H4 H12 _ _.
+        assert (ml/sig_suffix (ml/cons_sig O1 B3 B2 Sig_e1) Sig_e1).
+        apply ml/suffix_of_suffix to H7 H13. search.
+        assert (exp/sig_suffix (exp/cons_sig O1 A1 B1 Sig) Sig).
+        apply exp/suffix_of_suffix to H6 H13. search.
+      search.
+% QED
+
+Theorem e2m/transport_of_op:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m O A S1 A' B S2 B',
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {Ctx_e2m |- exp/of_op Sig_e O A B} ->
+    {Ctx_e2m |- e2m/val_ty A S1 A'} ->
+    {Ctx_e2m |- e2m/val_ty B S2 B'} ->
+    {Ctx_m |- ml/of_op Sig_ml O A' B'}.
+% PROOF
+intros.
+apply e2m/ctx_entail_sig to H1.
+assert (exp/sig_suffix Sig_e Sig_e).
+assert (ml/sig_suffix Sig_ml Sig_ml).
+apply e2m/strengthen_of_op to H1 H6 H2.
+apply e2m/transport_of_op' to H1 H8 H3 H4 H5 H6 H7.
+search.
+% QED
 
 Theorem e2m/strengthen_coer_ty:
 (
@@ -659,8 +815,8 @@ case H2 (keep).
   apply IH1 to _ H7.
   apply ml/strengthen_comp_ty to _ H12.
   apply e2m/preserve_wf_comp_ty to _ H14.
-  .assert {Ctx_m |- ml/of_op Sig_ml O Am1 Am2}. skip. % strengthening
-  assert {Ctx_m |- is_op O}. skip. % strengthening
+  apply e2m/transport_of_op to H1 H3 H4 H5.  
+  apply e2m/transport_is_op to _ H9.
   apply e2m/val_ty_unique to _ H4 H10.
   case H14 (keep).
     % what if the dirt is empty?
