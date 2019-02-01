@@ -1010,7 +1010,7 @@ case H2 (keep).
         apply e2m/preserve_wf_val_ty to _ H4.
         apply e2m/preserve_wf_val_ty to _ H10. search.
       apply e2m/comp_ty_member to _ _ _.
-  apply IH2 to _ H3. % apply IH1 to _ H5.
+  apply IH2 to _ H3.
     exists A', S1, B1, empty, B', S2. split.
       search.
       search.
@@ -1035,12 +1035,32 @@ case H2 (keep).
       inst H19 with n4 = (ml/cast n5 (ml/fun_coer Y1 (ml/unsafe_coer Y2))).
       cut H28 with H27.
       case H18.
-      apply ml/strengthen_val_ty to _ H30.
-      assert {Ctx_e2m, e2m/val Sig_e n3 (exp/fun_ty A2 (exp/bang B1 empty)) n4 |-
-               e2m/val_ty B1 X1 A'3}.
-      apply e2m/val_ty_unique to _ H31 H32.
-      search.
-  skip.
+        apply ml/strengthen_val_ty to _ H30.
+          assert {Ctx_e2m, e2m/val Sig_e n3 (exp/fun_ty A2 (exp/bang B1 empty)) n4 |-
+                   e2m/val_ty B1 X1 A'3}.
+          apply e2m/val_ty_unique to _ H31 H32.
+          search.
+        apply e2m/empty_dirt_is_not_full to _ H30.
+        apply e2m/comp_ty_member to _ H30 _.
+  apply IH2 to _ H4.
+      apply e2m/transport_is_op to _ _.
+      apply e2m/transport_of_op2 to H1 H5.
+      apply IH1 to _ H6.
+      exists A', S1, B1, D2, B', S2. split.
+        search.
+        search.
+        search.
+        apply e2m/preserve_wf_val_ty to _ H8.
+        apply e2m/preserve_wf_val_ty to _ H9.
+        apply e2m/preserve_wf_val_ty to _ H12.
+        apply e2m/preserve_wf_val_ty to _ H13.
+        case H15.
+          apply e2m/empty_dirt_is_not_full to _ H3.
+          assert {Ctx_e2m, e2m/val Sig_e n1 A1 n2, e2m/val Sig_e n3 (exp/fun_ty A2 (exp/bang B1 D2)) n4 |-
+            e2m/val_ty B1 S2 B'}.
+            apply e2m/val_ty_unique to _ H22 H23.
+            search.
+          apply e2m/comp_ty_member to _ H21 _.
   apply ctx_e2m_member to _ H4. case H5.
     case H3.
     case H3.
