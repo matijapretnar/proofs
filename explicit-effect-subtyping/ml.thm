@@ -33,6 +33,12 @@ induction on 2. intros. case H2 (keep).
   case H1. case H9. apply IH to H10 H6 H3 H4.search.
   case H1 (keep). search.
 
+Theorem ml/of_op_wf :
+  forall Sig O A B, {ml/of_op Sig O A B} -> {ml/wf_ty A} /\ {ml/wf_ty B}.
+induction on 1. intros. case H1.
+  search.
+  apply IH to H2. search.
+
 Theorem ml/preservation : forall Sig V V' A, {ml/step V V'} -> {ml/of_term Sig V A} -> {ml/of_term Sig V' A}.
 induction on 1. intros. case H1 (keep).
 % APP 1
@@ -75,11 +81,8 @@ case H2. case H6. case H8. case H10. apply of/val_case to H11 H4. case H7. case 
 case H2 (keep). case H6 (keep). case H8 (keep). case H10 (keep). case H7 (keep). case H13. apply of/ml/op_case to H11 H4 H14 H17.
 inst H18 with n1 = V1, n2 = (ml/fun B (y\ml/with (C y) (ml/hand H))).
 cut H19 with H15.
-assert {ml/wf_ty B}. skip.
-assert {ml/wf_ty (ml/fun_ty B (ml/comp_ty B2))}.
-assert (nabla y,{ml/of_term Sig y B |- ml/of_term Sig (ml/with (C y) (ml/hand H)) (ml/comp_ty B2)}).
-assert {ml/of_term Sig (ml/fun B (y\ml/with (C y) (ml/hand H))) (ml/fun_ty B (ml/comp_ty B2))}. 
-cut H20 with H24. search.
+apply ml/of_op_wf to H14.
+cut H20. search.
 
 % CAST 1
 case H2 (keep). case H5. apply IH to H3 H6. search.

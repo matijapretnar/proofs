@@ -186,6 +186,41 @@ induction on 1. intros. case H1.
   apply IH to H2. apply e2m/preserve_wf_val_ty to _ H3. apply e2m/preserve_wf_val_ty to _ H4. search.
   apply IH to H2. apply e2m/preserve_wf_comp_ty to _ H3. apply e2m/preserve_wf_comp_ty to _ H4. search.
 
+Theorem e2m/val_ty_coer_member :
+  forall Sig_e Sig_m Ctx_e2m Ctx_m Y Y' A1 A2,
+    e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
+    member (e2m/coer Y (exp/val_ty_coer_ty A1 A2) Y') Ctx_e2m ->
+    exists S A1' A2',
+      member (ml/of_coer Y' (ml/ty_coer_ty A1' A2')) Ctx_m /\
+      {Ctx_e2m |- e2m/val_ty A1 S A1'} /\
+      {Ctx_e2m |- e2m/val_ty A2 S A2'}.
+induction on 2. intros. case H2.
+  case H1. search.
+  case H1.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+
+Theorem e2m/comp_ty_coer_member :
+  forall Sig_e Sig_m Ctx_e2m Ctx_m Y Y' A1 A2,
+    e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
+    member (e2m/coer Y (exp/comp_ty_coer_ty A1 A2) Y') Ctx_e2m ->
+    exists S A1' A2',
+      member (ml/of_coer Y' (ml/ty_coer_ty A1' A2')) Ctx_m /\
+      {Ctx_e2m |- e2m/comp_ty A1 S A1'} /\
+      {Ctx_e2m |- e2m/comp_ty A2 S A2'}.
+induction on 2. intros. case H2.
+  case H1. search.
+  case H1.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CTX_M_MEMBER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -316,106 +351,58 @@ induction on 1. intros. case H1 (keep).
 % QED
 
 
+Define wf_ty_ctx : olist -> prop by
+  wf_ty_ctx nil;
+  nabla t, wf_ty_ctx (ml/wf_ty t :: Ctx) := wf_ty_ctx Ctx.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-Define ml/ctx_unique : olist -> prop by
-
-  ml/ctx_unique nil;
-  
-  nabla x, ml/ctx_unique (ml/wf_ty x :: Env)
-   := ml/ctx_unique Env.
-
-Theorem ctx_unique_member:
-  forall Ctx F,
-     ml/ctx_unique Ctx ->
-     member F Ctx ->
-     (exists X, fresh X /\ F = (ml/wf_ty X)).
-% PROOF
-induction on 1. intros. case H1 (keep).
+Theorem wf_ty_ctx_member :
+  forall Ctx F, wf_ty_ctx Ctx -> member F Ctx -> exists A, F = ml/wf_ty A.
+induction on 1. intros. case H1.
   case H2.
   case H2.
     search.
-    apply IH to H3 H4.
-      search.
-% QED
+    apply IH to H3 H4. search.
 
-Theorem ctx_unique_of_coer':
-  forall Ctx Y Pi F,
-     ml/ctx_unique Ctx ->
-     {Ctx, [F] |- ml/of_coer' Y Pi} ->
-     member F Ctx ->
-     false.
-% PROOF
-intros.
-apply ctx_unique_member to H1 H3. case H4.
-  case H2.
-% QED
-
-Theorem ctx_unique_of_coer:
-  forall Ctx Y Pi F,
-     ml/ctx_unique Ctx ->
-     {Ctx, [F] |- ml/of_coer Y Pi} ->
-     member F Ctx ->
-     false.
-% PROOF
-intros.
-apply ctx_unique_member to H1 H3. case H4.
-  case H2.
-% QED
-
-Theorem ml/of_coer_unique':
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Theorem ml/of_coer_unique:
   forall Ctx Y A1 B1 A2 B2,
-    ml/ctx_unique Ctx ->
+    wf_ty_ctx Ctx ->
     {Ctx |- ml/of_coer Y (ml/ty_coer_ty A1 B1)} ->
     {Ctx |- ml/of_coer Y (ml/ty_coer_ty A2 B2)} ->
     A1 = A2 /\ B1 = B2.
 % PROOF
-induction on 2. intros. 
-  case H2. 
-    case H3. 
-      case H5 (keep).
-        case H7. 
-          apply IH to _ H8 H9. search.
-          apply ctx_unique_of_coer' to _ _ _.
-        case H7. 
-          apply IH to _ H8 H9. search.
-          apply ctx_unique_of_coer' to _ _ _.
-        case H7. 
-          apply IH to _ H8 H9. search.
-          apply ctx_unique_of_coer' to _ _ _.
-        case H7.
-          search.
-          apply ctx_unique_of_coer' to _ _ _.
-        case H7. 
-          apply IH to _ H8 H10. apply IH to _ H9 H11. search.
-          apply ctx_unique_of_coer' to _ _ _.
-        case H7. 
-          apply IH to _ H8 H10. apply IH to _ H9 H11. search.
-          apply ctx_unique_of_coer' to _ _ _.
-        case H7. 
-          apply IH to _ H8 H10. apply IH to _ H9 H11. search.
-          apply ctx_unique_of_coer' to _ _ _.
-        case H7.
-          apply IH to _ H8 H9. search.
-          apply ctx_unique_of_coer' to _ _ _.
-         case H7.
-          apply IH to _ H8 H9. search.
-          apply ctx_unique_of_coer' to _ _ _.
-       apply ctx_unique_of_coer' to _ _ _.
-     apply ctx_unique_of_coer to _ _ _.
-   apply ctx_unique_of_coer to _ _ _.
-% QED
-
-Theorem ml/of_coer_unique':
-  forall Y A1 B1 A2 B2,
-    {ml/of_coer Y (ml/ty_coer_ty A1 B1)} ->
-    {ml/of_coer Y (ml/ty_coer_ty A2 B2)} ->
-    A1 = A2 /\ B1 = B2.
-% PROOF
-intros.
-   apply ml/of_coer_unique' to _ H1 H2. search.
+induction on 2. intros Hctx.
+  case H1. case H2. case H4 (keep).
+    case H6.
+      apply IH to Hctx H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+    case H6.
+      apply IH to Hctx H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+    case H6.
+      apply IH to Hctx H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+    case H6.
+      search.
+      apply wf_ty_ctx_member to Hctx H8. case H7.
+    case H6.
+      apply IH to Hctx H7 H9. apply IH to Hctx H8 H10. search.
+      apply wf_ty_ctx_member to Hctx H10. case H9.
+    case H6.
+      apply IH to Hctx H7 H9. apply IH to Hctx H8 H10. search.
+      apply wf_ty_ctx_member to Hctx H10. case H9.
+    case H6.
+      apply IH to Hctx H7 H9. apply IH to Hctx H8 H10. search.
+      apply wf_ty_ctx_member to Hctx H10. case H9.
+    case H6.
+      apply IH to _ H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+    case H6.
+      apply IH to Hctx H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+  apply wf_ty_ctx_member to Hctx H8. case H7.
+  apply wf_ty_ctx_member to Hctx H6. case H5.
+  apply wf_ty_ctx_member to Hctx H4. case H3.
 % QED
 
 Theorem e2m/comp_ty_member:
