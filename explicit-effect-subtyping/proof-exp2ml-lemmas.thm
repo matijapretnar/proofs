@@ -316,24 +316,58 @@ induction on 1. intros. case H1 (keep).
 % QED
 
 
+Define wf_ty_ctx : olist -> prop by
+  wf_ty_ctx nil;
+  nabla t, wf_ty_ctx (ml/wf_ty t :: Ctx) := wf_ty_ctx Ctx.
+
+Theorem wf_ty_ctx_member :
+  forall Ctx F, wf_ty_ctx Ctx -> member F Ctx -> exists A, F = ml/wf_ty A.
+induction on 1. intros. case H1.
+  case H2.
+  case H2.
+    search.
+    apply IH to H3 H4. search.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem ml/of_coer_unique:
-  forall Y A1 B1 A2 B2,
-    {ml/of_coer Y (ml/ty_coer_ty A1 B1)} ->
-    {ml/of_coer Y (ml/ty_coer_ty A2 B2)} ->
+  forall Ctx Y A1 B1 A2 B2,
+    wf_ty_ctx Ctx ->
+    {Ctx |- ml/of_coer Y (ml/ty_coer_ty A1 B1)} ->
+    {Ctx |- ml/of_coer Y (ml/ty_coer_ty A2 B2)} ->
     A1 = A2 /\ B1 = B2.
 % PROOF
-induction on 1. intros. case H1. case H2. case H4 (keep).
-  case H6. apply IH to H7 H8. search.
-  case H6. apply IH to H7 H8. search.
-  case H6. apply IH to H7 H8. search.
-  case H6. search.
-  case H6. apply IH to H7 H9. apply IH to H8 H10. search.
-  case H6. apply IH to H7 H9. apply IH to H8 H10. search.
-  case H6. apply IH to H7 H9. apply IH to H8 H10. search.
-  case H6. skip. % TODO add context % pply IH to H7 H8. search.
-  case H6. apply IH to H7 H8. search.
+induction on 2. intros Hctx.
+  case H1. case H2. case H4 (keep).
+    case H6.
+      apply IH to Hctx H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+    case H6.
+      apply IH to Hctx H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+    case H6.
+      apply IH to Hctx H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+    case H6.
+      search.
+      apply wf_ty_ctx_member to Hctx H8. case H7.
+    case H6.
+      apply IH to Hctx H7 H9. apply IH to Hctx H8 H10. search.
+      apply wf_ty_ctx_member to Hctx H10. case H9.
+    case H6.
+      apply IH to Hctx H7 H9. apply IH to Hctx H8 H10. search.
+      apply wf_ty_ctx_member to Hctx H10. case H9.
+    case H6.
+      apply IH to Hctx H7 H9. apply IH to Hctx H8 H10. search.
+      apply wf_ty_ctx_member to Hctx H10. case H9.
+    case H6.
+      apply IH to _ H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+    case H6.
+      apply IH to Hctx H7 H8. search.
+      apply wf_ty_ctx_member to Hctx H9. case H8.
+  apply wf_ty_ctx_member to Hctx H8. case H7.
+  apply wf_ty_ctx_member to Hctx H6. case H5.
+  apply wf_ty_ctx_member to Hctx H4. case H3.
 % QED
 
 Theorem e2m/comp_ty_member:
