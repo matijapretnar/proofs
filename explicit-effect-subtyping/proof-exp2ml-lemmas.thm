@@ -186,6 +186,24 @@ induction on 1. intros. case H1.
   apply IH to H2. apply e2m/preserve_wf_val_ty to _ H3. apply e2m/preserve_wf_val_ty to _ H4. search.
   apply IH to H2. apply e2m/preserve_wf_comp_ty to _ H3. apply e2m/preserve_wf_comp_ty to _ H4. search.
 
+Theorem e2m/val_ty_coer_member :
+  forall Sig_e Sig_m Ctx_e2m Ctx_m Y Y' A1 A2,
+    e2m/ctx Sig_e Sig_m Ctx_e2m Ctx_m ->
+    member (e2m/coer Y (exp/val_ty_coer_ty A1 A2) Y') Ctx_e2m ->
+    exists S A1' A2',
+      member (ml/of_coer Y' (ml/ty_coer_ty A1' A2')) Ctx_m /\
+      {Ctx_e2m |- e2m/val_ty A1 S A1'} /\
+      {Ctx_e2m |- e2m/val_ty A2 S A2'}.
+induction on 2. intros. case H2.
+  case H1. search.
+  case H1.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+    apply IH to H4 H3. search.
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % CTX_M_MEMBER
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

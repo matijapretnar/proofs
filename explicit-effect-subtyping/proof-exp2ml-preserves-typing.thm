@@ -363,8 +363,8 @@ apply lemma_27 to _ H8. apply lemma_27 to _ H11.
     case H2.
     case H2.
     case H2.
-    case H2. skip.
-    case H2. 
+    case H2. apply e2m/val_ty_coer_member to Hctx H3. search.
+    case H2.
 
 % comp_ty
 intros Hctx. case H1 (keep).
