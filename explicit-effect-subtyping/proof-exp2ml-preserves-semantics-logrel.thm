@@ -1,17 +1,125 @@
 Specification "exp2ml".
 Import "common".
-Import "proof-exp2ml-lemmas".
-Import "proof-exp2ml-preserves-typing".
+
+Define ctx : ml/sig -> olist -> prop by
+  ctx Sig nil;
+  nabla x x', ctx Sig (ml/lr_val Sig A x x' :: Ctx) :=
+    ctx Sig Ctx.
+
+Theorem ctx_member :
+  forall Sig Ctx F,
+    ctx Sig Ctx ->
+    member F Ctx ->
+    exists A X X', fresh X /\ fresh X' /\ F = ml/lr_val Sig A X X'.
+% PROOF
+  induction on 1.
+  intros.
+  case H1.
+    case H2.
+    case H2.
+      search.
+      apply IH to H3 H4. search.
+% QED
+
+Theorem ml/steps_transitive :
+  forall Sig Ctx T1 T2 T3,
+    ctx Sig Ctx ->
+    {Ctx |- ml/steps T1 T2} ->
+    {Ctx |- ml/steps T2 T3} ->
+    {Ctx |- ml/steps T1 T3}.
+% PROOF
+  induction on 2.
+  intros Hctx.
+  case H1.
+    search.
+    apply IH to Hctx H4 H2. search.
+    apply ctx_member to Hctx H4. case H3.
+% QED
+
+Theorem steps_app1 :
+  forall Sig Ctx T1 T1' T2,
+    ctx Sig Ctx ->
+    {Ctx |- ml/steps T1 T1'} ->
+    {Ctx |- ml/steps (ml/app T1 T2) (ml/app T1' T2)}.
+% PROOF
+  induction on 2.
+  intros Hctx.
+  case H1.
+    search.
+    apply IH to Hctx H3 with T2 = T2. search. 
+    apply ctx_member to Hctx H3. case H2.
+% QED
+
+Theorem steps_app2 :
+  forall Sig Ctx V1 T2 T2',
+    ctx Sig Ctx ->
+    {Ctx |- ml/val V1} ->
+    {Ctx |- ml/steps T2 T2'} ->
+    {Ctx |- ml/steps (ml/app V1 T2) (ml/app V1 T2')}.
+% PROOF
+  induction on 3.
+  intros Hctx.
+  case H2.
+    search.
+    apply IH to Hctx H1 H4. search. 
+    apply ctx_member to Hctx H4. case H3.
+% QED
+
+Theorem step_backward :
+  forall Sig Ctx A T1 T1' T2 T2',
+    ctx Sig Ctx ->
+    {Ctx |- ml/lr_exp Sig A T1' T2'} ->
+    {Ctx |- ml/of_term Sig T1 A} ->
+    {Ctx |- ml/of_term Sig T2 A} ->
+    {Ctx |- ml/steps T1 T1'} ->
+    {Ctx |- ml/steps T2 T2'} ->
+    {Ctx |- ml/lr_exp Sig A T1 T2}.
+% PROOF
+  intros Hctx.
+  case H1.
+    % proper case
+    apply ml/steps_transitive to Hctx H4 H8.
+    apply ml/steps_transitive to Hctx H5 H9.
+    search.
+    % context case
+    apply ctx_member to Hctx H7. case H6.
+% QED
+
+Define ctxs : exp/sig -> ml/sig -> olist -> olist -> prop by
+  ctxs Sig_e Sig_m nil nil.
+
+
+Theorem e2m/refl :
+  (
+    forall Sig_e Sig_m Ctx_e2m Ctx V A T S A',
+      ctxs Sig_e Sig_m Ctx_e2m Ctx ->
+      {Ctx_e2m |- e2m/val Sig_e V A T} ->
+      {Ctx_e2m |- e2m/val_ty A S A'} ->
+      {Ctx |- ml/lr_exp Sig_m A' T T}
+  ) /\ (
+    forall Sig_e Sig_m Ctx_e2m Ctx C B T S B',
+      ctxs Sig_e Sig_m Ctx_e2m Ctx ->
+      {Ctx_e2m |- e2m/comp Sig_e C B T} ->
+      {Ctx_e2m |- e2m/comp_ty B S B'} ->
+      {Ctx |- ml/lr_exp Sig_m B' T T}
+  ).
+% PROOF
+  skip.
+% QED
+Split e2m/refl as e2m/val_refl, e2m/comp_refl.
+
 
 Theorem e2m/val_preservation :
-  forall Sig_e Sig_m V1 V2 A T1 S A',
-    {e2m/sig Sig_e Sig_m} ->
+  forall Sig_e Sig_m Ctx_e2m Ctx V1 V2 A T1 S A',
+    ctxs Sig_e Sig_m Ctx_e2m Ctx ->
     {exp/step_val V1 V2} ->
-    {e2m/val Sig_e V1 A T1} ->
-    {e2m/val_ty A S A'} ->
-    exists T2, {e2m/val Sig_e V2 A T2} /\ {ml/lr_exp Sig_m A' T1 T2}.
+    {Ctx_e2m |- e2m/val Sig_e V1 A T1} ->
+    {Ctx_e2m |- e2m/val_ty A S A'} ->
+    exists T2,
+      {Ctx_e2m |- e2m/val Sig_e V2 A T2} /\
+      {Ctx |- ml/lr_exp Sig_m A' T1 T2}.
 % PROOF
-induction on 2. intros Hsig Hstep Hval Hty. case Hstep (keep).
+induction on 2. intros Hctx Hstep Hval Hty. case Hstep.
     % {exp/step_val (exp/val_cast V C) (exp/val_cast V' C)}
     skip.
     % {exp/step_val (exp/val_cast V2 exp/unit_refl_coer) V2}
@@ -43,18 +151,61 @@ induction on 2. intros Hsig Hstep Hval Hty. case Hstep (keep).
 % QED
 
 Theorem e2m/comp_preservation :
-  forall Sig_e Sig_m C1 C2 B T1 S B',
-    {e2m/sig Sig_e Sig_m} ->
+  forall Sig_e Sig_m Ctx_e2m Ctx C1 C2 B T1 S B',
+    ctxs Sig_e Sig_m Ctx_e2m Ctx ->
     {exp/step_comp C1 C2} ->
-    {e2m/comp Sig_e C1 B T1} ->
-    {e2m/comp_ty B S B'} ->
-    exists T2, {e2m/comp Sig_e C2 B T2} /\ {ml/lr_exp Sig_m B' T1 T2}.
+    {Ctx_e2m |- e2m/comp Sig_e C1 B T1} ->
+    {Ctx_e2m |- e2m/comp_ty B S B'} ->
+    exists T2,
+      {Ctx_e2m |- e2m/comp Sig_e C2 B T2} /\
+      {Ctx |- ml/lr_exp Sig_m B' T1 T2}.
 % PROOF
-induction on 2. intros Hsig Hstep Hval Hty. case Hstep (keep).
+  induction on 2.
+  intros Hctxs Hstep Hcomp Hty.
+  Hctx: assert (ctx Sig_m Ctx). skip.
+  case Hstep.
     % {exp/step_comp (exp/comp_cast C Y) (exp/comp_cast C' Y)}
     skip.
     % {exp/step_comp (exp/app V1 V2) (exp/app V1' V2)}
-    skip.
+    case Hcomp.
+      % proper case
+      assert (exists S' A', {Ctx_e2m |- e2m/val_ty A S' A'}). skip. case H4.
+      apply e2m/val_preservation to _ H1 H2 _.
+      case H7.
+        % proper case
+        apply e2m/val_refl to _ H3 _.
+        case H12.
+          % proper case
+          case H13.
+            % proper case
+            case H18.
+              % proper case
+              exists (ml/app T2 Vm2). split. search.
+              inst H24 with n1 = V6, n2 = V5.
+              cut H25.
+              assert {Ctx |- ml/steps (ml/app Vm1 Vm2) (ml/app V4 V6)}.
+                apply steps_app1 to Hctx H10 with T2 = Vm2.
+                apply steps_app2 to Hctx H14 H21.
+                apply ml/steps_transitive to Hctx H27 H28.
+                search.
+              assert {Ctx |- ml/steps (ml/app T2 Vm2) (ml/app V3 V5)}.
+                apply steps_app1 to Hctx H11 with T2 = Vm2.
+                apply steps_app2 to Hctx H15 H22.
+                apply ml/steps_transitive to Hctx H28 H29.
+                search.
+              backchain step_backward.
+              assert {Ctx |- ml/wf_ty B'}. skip. search.
+              assert {Ctx |- ml/wf_ty B'}. skip. search.
+              % context case
+              apply ctx_member to _ H25. case H24.
+            % context case
+            apply ctx_member to _ H20. case H19.
+          % context case
+          skip. % ??? What if we got a variable from the induction hypothesis?
+        % context case
+        apply ctx_member to _ H9. case H8.
+      % context case
+      skip. % member F Ctx_e2m
     % {exp/step_comp (exp/app (exp/val_cast V1 (exp/fun_coer Vc1 Vc2)) V2) (exp/comp_cast (exp/app V1 (exp/val_cast V2 Vc1)) Vc2)}
     skip.
     % {exp/step_comp (exp/app V1 V2) (exp/app V1 V2')}
