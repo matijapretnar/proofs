@@ -180,17 +180,37 @@ apply e2m/of_val to _ H3.
 apply val_cong_result to _ H3 H5.
 search.
 
-Theorem e2m/get_ret_case :
-  forall Sig_e A D B He Ce Hm,
+Theorem e2m/get_pure_ret_case :
+  forall Sig_e A1 D1 A2 He Ce Hm,
     {exp/get_ret_case He Ce} ->
-    {e2m/hand Sig_e He A D B Hm} ->
+    {e2m/hand Sig_e He A1 D1 (exp/bang A2 empty) Hm} ->
     exists Cm,
-        {ml/get_ret_case Hm Cm} /\
-        {pi x\ pi x'\ e2m/val Sig_e x A x' => e2m/comp Sig_e (Ce x) B (Cm x')}.
+        {ml/get_ret_case Hm (z\ ml/ret (Cm z))} /\
+        {pi x\ pi x'\ e2m/val Sig_e x A1 x' => e2m/comp Sig_e (Ce x) (exp/bang A2 empty) (Cm x')}.
 induction on 1. intros. case H1.
-  case H2. search.
+  case H2.
+    search.
+    case H3.
   case H2.
     apply IH to H3 H4. exists Cm n2. search.
+    case H4.
+
+
+Theorem e2m/get_impure_ret_case :
+  forall Sig_e A1 D1 A2 D2 He Ce Hm,
+    {exp/get_ret_case He Ce} ->
+    {e2m/hand Sig_e He A1 D1 (exp/bang A2 D2) Hm} ->
+    {e2m/full_dirt D2} ->
+    exists Cm,
+        {ml/get_ret_case Hm Cm} /\
+        {pi x\ pi x'\ e2m/val Sig_e x A1 x' => e2m/comp Sig_e (Ce x) (exp/bang A2 D2) (Cm x')}.
+induction on 1. intros. case H1.
+  case H2.
+    case H3.
+    search.
+  case H2.
+    case H3.
+    apply IH to H4 H6 H3. exists Cm n2. search.
 
 % Theorem e2m/get_op_case :
 %   forall Ht O At Ct Vt Kt He Ae Ce Vm Ke,
@@ -675,14 +695,30 @@ case H2.
         % absurd case
         case H7.
         % interesting case
-    skip.
+        apply e2m/extract_impure_value to _ H5 H3 H6 H7.
+        apply e2m/get_pure_ret_case to H4 H11.
+        inst H15 with n1 = V, n2 = V'1.
+        cut H16.
+        inst H14 with n2 = V'1.
+        apply result_val_val to _ H5 H12.
+        exists (Cm V'1 V'1). split.
+            search.
+        unfold 4. exists (ml/cast (ml/with (ml/ret V'1) (ml/hand Hm)) (ml/unsafe_coer Y)). split.
+        unfold 5. exists (t\ ml/cast (ml/with t (ml/hand Hm)) (ml/unsafe_coer Y)). search.
+        unfold 4. exists (ml/cast (ml/ret (Cm V'1 V'1)) (ml/unsafe_coer Y)). split.
+        assert {ml/step (ml/with (ml/ret T') (ml/hand Hm)) (ml/ret (Cm V'1 T'))}.
+        apply step_congruence to H20 H21 with
+            T = (t\ ml/with (ml/ret t) (ml/hand Hm)),
+            T' = (t\ ml/ret (Cm V'1 t)).
+        unfold 5. exists (t\ ml/cast t (ml/unsafe_coer Y)). search.
+        skip. % T ~ ret T |> unsafe_coer refl_coer
     % WITH ~> WITH
     case H8.
         % absurd case
         case H7.
         % interesting case
         apply e2m/extract_impure_value to _ H5 H3 H6 H7.
-        apply e2m/get_ret_case to H4 H11.
+        apply e2m/get_impure_ret_case to H4 H11 H9.
         inst H15 with n1 = V, n2 = V'1.
         cut H16.
         inst H14 with n2 = V'1.
