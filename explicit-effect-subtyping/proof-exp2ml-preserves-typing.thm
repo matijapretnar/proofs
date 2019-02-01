@@ -498,6 +498,46 @@ induction on 3. intros. case H3 (keep).
     case H4.
 % QED
 
+Theorem e2m/transport_of_op'':
+  forall Sig_e Sig_ml O A B,
+    {exp/of_op Sig_e O A B} ->
+    {e2m/sig Sig_e Sig_ml} ->
+    exists A' S1 B' S2,
+      {e2m/val_ty A S1 A'} /\
+      {e2m/val_ty B S2 B'} /\
+      {ml/of_op Sig_ml O A' B'}.
+% PROOF
+induction on 1. intros. case H1 (keep).
+  case H2. exists B1, X, B2, X1. split. 
+    search.
+    search.
+    apply e2m/preserve_wf_val_ty to _ H3.
+    apply e2m/preserve_wf_val_ty to _ H4. search.
+  case H2. apply IH to H3 H7. exists A', S1, B', S2. split.
+    search.
+    search.
+    search.
+% QED
+
+Theorem e2m/transport_of_op2:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m O A B,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {Ctx_e2m |- exp/of_op Sig_e O A B} ->
+    exists A' S1 B' S2,
+      {Ctx_e2m |- e2m/val_ty A S1 A'} /\
+      {Ctx_e2m |- e2m/val_ty B S2 B'} /\
+      {Ctx_m |- ml/of_op Sig_ml O A' B'}.
+% PROOF
+intros.
+  apply e2m/strengthen_of_op to _ _ H2.
+  apply e2m/ctx_entail_sig to H1.
+  apply e2m/transport_of_op'' to H3 H4.
+  assert {Ctx_m |- e2m/val_ty A S1 A'}.
+  assert {Ctx_m |- e2m/val_ty B S2 B'}.
+  assert {Ctx_m |- ml/of_op Sig_ml O A' B'}.
+  search.
+% QED
+
 Theorem e2m/transport_of_op':
   forall Sig_e Sig_e' Sig_ml Sig_ml' Ctx_e2m Ctx_m O A S1 A' B S2 B',
     e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
@@ -975,7 +1015,31 @@ case H2 (keep).
       search.
       search.
       search.
-      skip.
+      apply e2m/transport_is_op to _ _.
+      apply e2m/transport_of_op2 to H1 H4.
+      apply e2m/preserve_wf_val_ty to _ H9.
+      apply e2m/preserve_wf_val_ty to _ H10.
+      apply IH1 to _ H5.
+      apply e2m/of_val_refl_coer2 to _ H7.
+      apply e2m/of_val_refl_coer2 to _ H8.
+      apply e2m/val_ty_unique to _ H14 H20.
+      apply e2m/val_ty_unique to _ H10 H22.
+      apply e2m/preserve_wf_val_ty to _ H20.
+      assert {Ctx_m |- ml/of_coer (ml/fun_coer Y1 (ml/unsafe_coer Y2)) 
+               (ml/ty_coer_ty (ml/fun_ty A'2 (ml/comp_ty A'3))
+                              (ml/fun_ty A'2 A'3))}.
+      assert {Ctx_m,  ml/of_term Sig_ml n5 (ml/fun_ty A'2 (ml/comp_ty A'3)) |- ml/of_term Sig_ml n5 (ml/fun_ty A'2 (ml/comp_ty A'3))}.
+      assert {Ctx_m,  ml/of_term Sig_ml n5 (ml/fun_ty A'2 (ml/comp_ty A'3)) |- 
+        ml/of_term Sig_ml (ml/cast n5 (ml/fun_coer Y1 (ml/unsafe_coer Y2))) 
+          (ml/fun_ty A'2 A'3)}.
+      inst H19 with n4 = (ml/cast n5 (ml/fun_coer Y1 (ml/unsafe_coer Y2))).
+      cut H28 with H27.
+      case H18.
+      apply ml/strengthen_val_ty to _ H30.
+      assert {Ctx_e2m, e2m/val Sig_e n3 (exp/fun_ty A2 (exp/bang B1 empty)) n4 |-
+               e2m/val_ty B1 X1 A'3}.
+      apply e2m/val_ty_unique to _ H31 H32.
+      search.
   skip.
   apply ctx_e2m_member to _ H4. case H5.
     case H3.

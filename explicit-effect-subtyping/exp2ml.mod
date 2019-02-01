@@ -131,11 +131,13 @@ e2m/hand Sig (exp/ret_case A1 C) A1 D (exp/bang A2 D) (ml/ret_case A1' C'):-
   e2m/val_ty A1 _ A1',
   pi x\ pi x'\ (e2m/val Sig x A1 x' => e2m/comp Sig (C x) (exp/bang A2 D) (C' x')).
 % OP CASE
-e2m/hand Sig (exp/op_case O C H) A (cons O D) (exp/bang B empty) (ml/op_case O (x\ k\ (ml/ret (C' x k))) H') :-
+e2m/hand Sig (exp/op_case O C H) A (cons O D) (exp/bang B empty) (ml/op_case O (x\ k\ (ml/ret (C' x (ml/cast k (ml/fun_coer Y1 (ml/unsafe_coer Y2)))))) H') :-
   e2m/hand Sig H A D (exp/bang B empty) H',
   exp/of_op Sig O A1 A2,
   pi x\ pi x'\ pi k\ pi k'\ (e2m/val Sig x A1 x' => e2m/val Sig k (exp/fun_ty A2 (exp/bang B empty)) k' => e2m/comp Sig (C x k) (exp/bang B empty) (C' x' k')),
-  is_op O.
+  is_op O,
+  e2m/val_refl_coer A2 _ Y1,
+  e2m/val_refl_coer B _ Y2.
 e2m/hand Sig (exp/op_case O C H) A (cons O D) (exp/bang B DB) (ml/op_case O C' H') :-
   e2m/full_dirt DB,
   e2m/hand Sig H A D (exp/bang B DB) H',
