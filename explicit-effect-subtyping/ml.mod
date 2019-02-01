@@ -385,6 +385,11 @@ ml/normal V (ml/qual_ty (ml/ty_coer_ty A1 A2) A) :-
 % Logical Relations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+ml/steps T T.
+ml/steps T1 T3 :-
+  ml/step T1 T2,
+  ml/steps T2 T3.
+
 ml/lr_val Sig A V1 V2 :-
   ml/val V1,
   ml/val V2,
@@ -408,9 +413,9 @@ ml/lr_val' Sig (ml/comp_ty A) (ml/op O V11 B2 V12) (ml/op O V21 B2 V22) :-
   ml/lr_val Sig B1 V11 V21,
   pi x1\ pi x2\ ml/lr_val Sig B2 x1 x2 => ml/lr_exp Sig (ml/comp_ty A) (V12 x1) (V22 x2).
 
-ml/lr_exp Sig A V1 V2 :-
-  ml/of_term Sig V1 A,
-  ml/of_term Sig V2 A,
-  ml/steps V1 V1',
-  ml/steps V2 V2',
-  ml/lr_val Sig A V1' V2'.
+ml/lr_exp Sig A T1 T2 :-
+  ml/of_term Sig T1 A,
+  ml/of_term Sig T2 A,
+  ml/steps T1 V1,
+  ml/steps T2 V2,
+  ml/lr_val Sig A V1 V2.
