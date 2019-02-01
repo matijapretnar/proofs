@@ -105,7 +105,7 @@ type  ml/normal                ml/term -> ml/ty -> o.
 % logical relations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-type ml/lr_val		       ml/ty -> ml/term -> ml/term -> o.
-type ml/lr_val'		       ml/ty -> ml/term -> ml/term -> o.
-type ml/lr_exp		       ml/ty -> ml/term -> ml/term -> o.
-type ml/lr_exp'		       ml/ty -> ml/term -> ml/term -> o.
+type ml/lr_val		       ml/sig -> ml/ty -> ml/term -> ml/term -> o.
+type ml/lr_val'		       ml/sig -> ml/ty -> ml/term -> ml/term -> o.
+type ml/lr_exp		       ml/sig -> ml/ty -> ml/term -> ml/term -> o.
+type ml/lr_exp'		       ml/sig -> ml/ty -> ml/term -> ml/term -> o.
