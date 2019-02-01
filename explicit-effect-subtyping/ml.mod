@@ -380,3 +380,37 @@ ml/normal V (ml/qual_ty (ml/ty_coer_ty A1 A2) A) :-
     ml/wf_ty A1,
     ml/wf_ty A2,
     pi w\ ml/of_coer w (ml/ty_coer_ty A1 A2) => ml/normal (ml/app_coer V w) A.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Logical Relations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ml/lr_val A V1 V2 :-
+  ml/val V1,
+  ml/val V2,
+  ml/of_term V1 A,
+  ml/of_term V2 A,
+  ml/lr_val' A V1 V2.
+
+ml/lr_val' ml/unit_ty ml/unit ml/unit.
+ml/lr_val' (ml/fun_ty A B) V1 V2 :-
+  pi x1\ pi x2\  ml/lr_val A x1 x2 => ml/lr_exp B (ml/app V1 x1) (ml/app V2 x2).
+ml/lr_val' (ml/all_ty T) V1 V2 :-
+  pi a\ ml/lr_exp (T a) (ml/ty_app V1 a) (ml/ty_app V2 a).
+ml/lr_val' (ml/hand_ty A B) V1 V2 :-
+  pi x1\ pi x2\ ml/lr_val (ml/comp_ty A) x1 x2 => ml/lr_exp (ml/comp_ty B) (ml/with x1 V1) (ml/with x2 V2).
+ml/lr_val' (ml/qual_ty Pi A) V1 V2 :-
+  pi y\ ml/of_coer Y Pi => ml/lr_exp A (ml/app_coer V1 y) (ml/app_coer V2 y).
+ml/lr_val' (ml/comp_ty A) (ml/ret V1) (ml/ret V2) :-
+  ml/lr_val A V1 V2.
+ml/lr_val' (ml/comp_ty A) (ml/op O V11 B2 V12) (ml/op O V21 B2 V22) :-
+  ml/of_op Sig O B1 B2,
+  ml/lr_val B1 V11 V21,
+  pi x1\ pi x2\ lr_val B2 x1 x2 => lr_exp (ml/comp_ty A) (V12 x1) (V22 x2).
+
+ml/lr_exp A V1 V2 :-
+  ml/of_term V1 A,
+  ml/of_term V2 A,
+  ml/steps V1 V1',
+  ml/steps V2 V2',
+  ml/lr_val A V1' V2'.

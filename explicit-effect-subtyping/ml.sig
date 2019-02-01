@@ -90,6 +90,7 @@ type  ml/of_hand'              ml/sig -> ml/hand -> ml/ty -> ml/ty -> o.
  
 type  ml/val                   ml/term -> o.
 type  ml/step                  ml/term -> ml/term -> o.
+type  ml/steps                 ml/term -> ml/term -> o.
 
 type  ml/result                ml/term -> o.
 type  ml/get_ret_case          ml/hand -> (ml/term -> ml/term) -> o.
@@ -99,3 +100,12 @@ type  ml/progress              ml/term -> o.
 
 type  ml/converges             ml/term -> o.
 type  ml/normal                ml/term -> ml/ty -> o.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% logical relations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+type ml/lr_val		       ml/ty -> ml/term -> ml/term -> o.
+type ml/lr_val'		       ml/ty -> ml/term -> ml/term -> o.
+type ml/lr_exp		       ml/ty -> ml/term -> ml/term -> o.
+type ml/lr_exp'		       ml/ty -> ml/term -> ml/term -> o.
