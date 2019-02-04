@@ -93,6 +93,12 @@ intros Hctx. case H2.
       apply e2m/from_impure_val_member to _ _ _.
     % all_skel
     case H1.
+      apply IH to _ H4 with A1 = A1, S = S1 n1.
+      inst H3 with n1 = n3, n2 = n4.
+      inst H6 with n3 = n2, n4 = n1.
+      apply H5 to H7.
+      search.
+      % backchain case
       apply e2m/from_impure_val_member to _ _ _.
     % all_ty
     case H1.
@@ -120,6 +126,12 @@ intros Hctx. case H2.
       apply ctx_e2m_member to _ H4. case H7.
         case H3.
         case H3. case H8.
+        case H3.
+        case H3.
+        case H3.
+      apply ctx_e2m_member to _ H4. case H6.
+        case H3.
+        case H3. case H7.
         case H3.
         case H3.
         case H3.
@@ -171,6 +183,12 @@ intros Hctx. case H2.
       apply e2m/to_impure_val_member to _ _ _.
     % all_skel
     case H1.
+      apply IH2 to _ H4 with A1 = A1, S = S1 n1.
+      inst H3 with n1 = n3, n2 = n4.
+      inst H6 with n3 = n2, n4 = n1.
+      apply H5 to H7.
+      search.
+      % backchain case
       apply e2m/to_impure_val_member to _ _ _.
     % all_ty
     case H1.
@@ -198,6 +216,12 @@ intros Hctx. case H2.
       apply ctx_e2m_member to _ H4. case H7.
         case H3.
         case H3. case H8.
+        case H3.
+        case H3.
+        case H3.
+      apply ctx_e2m_member to _ H4. case H6.
+        case H3.
+        case H3. case H7.
         case H3.
         case H3.
         case H3.

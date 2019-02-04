@@ -321,11 +321,15 @@ from_impure/val (d\ exp/unit_ty) D (ml/unit_refl_coer).
 from_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
   to_impure/val A D Ya,
   from_impure/comp C D Yc.
+from_impure/val (d\ exp/all_skel (A d)) D Y :-
+  pi s\ from_impure/val (d \ (A d s)) D Y.
 
 to_impure/val (d\ exp/unit_ty) D (ml/unit_refl_coer).
 to_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
   from_impure/val A D Ya,
   to_impure/comp C D Yc.
+to_impure/val (d\ exp/all_skel (s\ A s d)) D Y :-
+  pi s\ to_impure/val (A s) D Y.
 
 from_impure/comp (d\ exp/bang (A d) d) empty (ml/unsafe_coer Y) :-
   from_impure/val A empty Y.
