@@ -120,6 +120,15 @@ search.
       apply e2m/from_impure_val_member to _ _ _.
     % all_dirt
     case H1.
+      assert (e2m/ctx Sig_e Sig_m (e2m/full_dirt n1 :: Ctx_e2m) Ctx_m).
+      apply IH to H5 H4 with A1 = A1, S = S.
+      inst H3 with n1 = n3, n2 = n4.
+      inst H7 with n3 = n2, n4 = n1.
+      monotone H8 with (e2m/full_dirt n2 ::e2m/full_dirt n1 :: Ctx_e2m). 
+      apply H6 to H9.
+      exists A3. split.
+        search.
+        search.
       apply e2m/from_impure_val_member to _ _ _.
     % qual_ty ty
     case H1.
@@ -141,6 +150,12 @@ search.
       apply ctx_e2m_member to _ H4. case H7.
         case H3.
         case H3. case H8.
+        case H3.
+        case H3.
+        case H3.
+      apply ctx_e2m_member to _ H4. case H6.
+        case H3.
+        case H3. case H7.
         case H3.
         case H3.
         case H3.
@@ -231,6 +246,15 @@ search.
       apply e2m/to_impure_val_member to _ _ _.
     % all_dirt
     case H1.
+      assert (e2m/ctx Sig_e Sig_m (e2m/full_dirt n1 :: Ctx_e2m) Ctx_m).
+      apply IH2 to H5 H4 with A1 = A1, S = S.
+      inst H3 with n1 = n3, n2 = n4.
+      inst H7 with n3 = n2, n4 = n1.
+      monotone H8 with (e2m/full_dirt n2 ::e2m/full_dirt n1 :: Ctx_e2m). 
+      apply H6 to H9.
+      exists A3. split.
+        search.
+        search.
       apply e2m/to_impure_val_member to _ _ _.
     % qual_ty ty
     case H1.
@@ -252,6 +276,12 @@ search.
       apply ctx_e2m_member to _ H4. case H7.
         case H3.
         case H3. case H8.
+        case H3.
+        case H3.
+        case H3.
+      apply ctx_e2m_member to _ H4. case H6.
+        case H3.
+        case H3. case H7.
         case H3.
         case H3.
         case H3.
