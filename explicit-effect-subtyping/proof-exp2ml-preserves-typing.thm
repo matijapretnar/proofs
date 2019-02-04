@@ -102,6 +102,21 @@ intros Hctx. case H2.
       apply e2m/from_impure_val_member to _ _ _.
     % all_ty
     case H1.
+      apply IH to _ H4 with A1 = (A' n2), S = S.
+      inst H3 with n1 = n5, n2 = n6, n3 = n7.
+      monotone H6 with (e2m/full_dirt n5 :: e2m/val_ty n6 S1 n7 :: Ctx_e2m). 
+        intros. case H7. 
+          search.
+          case H8.
+            search.
+            search.
+      inst H7 with n6 = n1, n7 = n2, n5 = n3.
+      apply H5 to H8.
+      exists (ml/all_ty A3). split.
+        search.
+        assert (e2m/ctx Sig_e Sig_m (e2m/val_ty n1 S n2 ::Ctx_e2m) (ml/wf_ty n2 :: Ctx_m)).
+        apply e2m/wf_of_coer to H11 H10.
+search.
       apply e2m/from_impure_val_member to _ _ _.
     % all_dirt
     case H1.
@@ -126,6 +141,12 @@ intros Hctx. case H2.
       apply ctx_e2m_member to _ H4. case H7.
         case H3.
         case H3. case H8.
+        case H3.
+        case H3.
+        case H3.
+      apply ctx_e2m_member to _ H4. case H6.
+        case H3.
+        case H3. case H7.
         case H3.
         case H3.
         case H3.
@@ -192,6 +213,21 @@ intros Hctx. case H2.
       apply e2m/to_impure_val_member to _ _ _.
     % all_ty
     case H1.
+      apply IH2 to _ H4 with A1 = (A' n2), S = S.
+      inst H3 with n1 = n5, n2 = n6, n3 = n7.
+      monotone H6 with (e2m/full_dirt n5 :: e2m/val_ty n6 S1 n7 :: Ctx_e2m). 
+        intros. case H7. 
+          search.
+          case H8.
+            search.
+            search.
+      inst H7 with n6 = n1, n7 = n2, n5 = n3.
+      apply H5 to H8.
+      exists (ml/all_ty A3). split.
+        search.
+        assert (e2m/ctx Sig_e Sig_m (e2m/val_ty n1 S n2 ::Ctx_e2m) (ml/wf_ty n2 :: Ctx_m)).
+        apply e2m/wf_of_coer to H11 H10.
+search.
       apply e2m/to_impure_val_member to _ _ _.
     % all_dirt
     case H1.
@@ -216,6 +252,12 @@ intros Hctx. case H2.
       apply ctx_e2m_member to _ H4. case H7.
         case H3.
         case H3. case H8.
+        case H3.
+        case H3.
+        case H3.
+      apply ctx_e2m_member to _ H4. case H6.
+        case H3.
+        case H3. case H7.
         case H3.
         case H3.
         case H3.
