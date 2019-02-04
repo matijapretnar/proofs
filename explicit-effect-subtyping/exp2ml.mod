@@ -327,6 +327,13 @@ from_impure/val (d\ exp/all_ty S (A d)) D (ml/lam_ty_coer Y) :-
   pi a\ pi a'\ e2m/val_ty a S a' => from_impure/val (d\ (A d a)) D (Y a').
 from_impure/val (d\ exp/all_dirt (A d)) D Y :-
   pi d'\ e2m/full_dirt d' => from_impure/val (d\ A d d') D Y.
+from_impure/val (d\ exp/qual_ty (exp/val_ty_coer_ty A1 A2) (A d)) D (ml/lam_coer_coer (ml/ty_coer_ty A1' A2') Y) :-
+  e2m/val_ty A1 T A1',
+  e2m/val_ty A2 T A2',
+  from_impure/val A D Y.
+% skip case for comp_ty_coer_ty because it can be decomposed
+from_impure/val (d\ exp/qual_ty (exp/dirt_coer_ty _ _) (A d)) D Y :-
+  from_impure/val A D Y.
 
 to_impure/val (d\ exp/unit_ty) D (ml/unit_refl_coer).
 to_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
@@ -338,6 +345,13 @@ to_impure/val (d\ exp/all_ty S (A d)) D (ml/lam_ty_coer Y) :-
   pi a\ pi a'\ e2m/val_ty a S a' => to_impure/val (d\ (A d a)) D (Y a').
 to_impure/val (d\ exp/all_dirt (A d)) D Y :-
   pi d'\ e2m/full_dirt d' => to_impure/val (d\ A d d') D Y.
+to_impure/val (d\ exp/qual_ty (exp/val_ty_coer_ty A1 A2) (A d)) D (ml/lam_coer_coer (ml/ty_coer_ty A1' A2') Y) :-
+  e2m/val_ty A1 T A1',
+  e2m/val_ty A2 T A2',
+  to_impure/val A D Y.
+% skip case for comp_ty_coer_ty because it can be decomposed
+to_impure/val (d\ exp/qual_ty (exp/dirt_coer_ty _ _) (A d)) D Y :-
+  to_impure/val A D Y.
 
 from_impure/comp (d\ exp/bang (A d) d) empty (ml/unsafe_coer Y) :-
   from_impure/val A empty Y.
