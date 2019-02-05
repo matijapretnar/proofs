@@ -106,6 +106,9 @@ case H2. case H6. case H8. case H10. case H12. case H14. case H9. case H13. case
 assert {ml/of_term Sig (ml/cast V1 Y1) (ml/comp_ty B4)}.
 assert {ml/of_term Sig (ml/with (ml/cast V1 Y1) V2) (ml/comp_ty B1')}.
 search.
+% WITH CAST FUN2HAND_COER
+case H2. case H6. case H8. case H10. case H12. case H14. case H9. case H13. case H19.
+skip.
 % APP CAST HAND2FUN_COER
 case H2. case H6. case H7. case H10. case H12. case H14. case H9. case H11. case H19.
 assert {ml/of_term Sig (ml/ret (ml/cast V2 Y1)) (ml/comp_ty B1)}.

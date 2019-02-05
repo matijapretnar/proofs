@@ -119,6 +119,9 @@ ml/of_coer' (ml/hand_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/hand_ty 
 ml/of_coer' (ml/hand2fun_coer Y1 Y2) (ml/ty_coer_ty (ml/hand_ty B1 B1') (ml/fun_ty B2 B2')) :-
   ml/of_coer Y1 (ml/ty_coer_ty B2 B1),
   ml/of_coer Y2 (ml/ty_coer_ty (ml/comp_ty B1') B2').
+ml/of_coer' (ml/fun2hand_coer Y1 Y2) (ml/ty_coer_ty (ml/fun_ty B1 B1') (ml/hand_ty B2 B2')) :-
+  ml/of_coer Y1 (ml/ty_coer_ty B2 B1),
+  ml/of_coer Y2 (ml/ty_coer_ty B1' (ml/comp_ty B2')).
 
 ml/of_coer' (ml/lam_ty_coer Y) (ml/ty_coer_ty (ml/all_ty A) (ml/all_ty B)) :-
   pi x\ (ml/wf_ty x => ml/of_coer (Y x) (ml/ty_coer_ty (A x) (B x))).
@@ -200,6 +203,8 @@ ml/val (ml/cast V (ml/hand_coer Y1 Y2)) :-
   ml/val V.
 ml/val (ml/cast V (ml/hand2fun_coer Y1 Y2)) :-
   ml/val V.
+ml/val (ml/cast V (ml/fun2hand_coer Y1 Y2)) :-
+  ml/val V.
 ml/val (ml/cast V (ml/lam_ty_coer Y)) :-
   ml/val V.
 ml/val (ml/cast V (ml/lam_coer_coer Pi Y)) :-
@@ -279,6 +284,10 @@ ml/step (ml/app (ml/cast V1 (ml/fun_coer Y1 Y2)) V2) (ml/cast (ml/app V1 (ml/cas
   ml/val V1.
 
 ml/step (ml/with V1 (ml/cast V2 (ml/hand_coer Y1 Y2))) (ml/cast (ml/with (ml/cast V1 Y1) V2) Y2) :-
+  ml/val V1,
+  ml/val V2.
+
+ml/step (ml/with V1 (ml/cast V2 (ml/fun2hand_coer Y1 Y2))) (ml/cast (ml/app V2 (ml/cast V1 (ml/comp_ty_coer Y1))) Y2) :-
   ml/val V1,
   ml/val V2.
 

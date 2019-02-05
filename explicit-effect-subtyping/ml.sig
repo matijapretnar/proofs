@@ -27,6 +27,7 @@ type ml/unit_refl_coer         ml/coer.
 type  ml/fun_coer              ml/coer -> ml/coer -> ml/coer.
 type  ml/hand_coer             ml/coer -> ml/coer -> ml/coer.
 type  ml/hand2fun_coer         ml/coer -> ml/coer -> ml/coer.
+type  ml/fun2hand_coer         ml/coer -> ml/coer -> ml/coer.
 type  ml/lam_ty_coer           (ml/ty -> ml/coer) -> ml/coer.
 type  ml/lam_coer_coer         ml/coer_ty -> ml/coer -> ml/coer.
 type  ml/comp_ty_coer          ml/coer -> ml/coer.
