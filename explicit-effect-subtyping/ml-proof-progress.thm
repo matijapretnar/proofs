@@ -216,7 +216,20 @@ apply IH to H5. case H6.
         search.
         case H5. case H12. case H14. case H16.
         case H5. case H12. case H14. case H16.
-        search.
+        case H9.
+          case H4. case H20.
+          case H4. case H20.
+          case H4. case H20.
+          case H4. case H20.
+          case H4. case H20.
+          case H4. case H21. case H23. case H25.
+          case H4. case H21. case H23. case H25.
+          case H4. case H21. case H23. case H25.
+          case H4. case H21. case H23. case H25.
+          case H4. case H21. case H23. case H25.
+          case H4. case H21. case H23. case H25.
+          search.
+          search.
         case H5. case H12. case H14. case H16.
         case H5. case H12. case H14. case H16.
         case H5. case H12.
