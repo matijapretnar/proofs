@@ -366,19 +366,17 @@ to_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
 to_impure/val (d\ exp/hand_ty (exp/bang (A d) empty) (C d)) D (ml/fun_coer Y1 Y2)  :-
   from_impure/val A D Y1,
   to_impure/comp C D Y2.
-% %
-% from_impure/val (d\exp/hand_ty (exp/bang (A d) d) (exp/bang (B d) empty)) empty (ml/hand2fun_coer Y1 (ml/unsafe_coer Y2)) :-
-%   to_impure/val A empty Y1,
-%   from_impure/val B empty Y2.
-
-% from_impure/val (d\exp/hand_ty (exp/bang (A d) d) (exp/bang (B d) d)) empty (ml/hand2fun_coer Y1 (ml/unsafe_coer Y2)) :-
-%   to_impure/val A empty Y1,
-%   from_impure/val B empty Y2.
-% from_impure/val (d\exp/hand_ty (exp/bang (A d) d) (exp/bang (B d) (D d))) empty (ml/hand2fun_coer Y1 (ml/comp_ty_coer Y2)) :-
-%   to_impure/val A empty Y1,
-%   e2m/full_dirt (D empty),
-%   from_impure/val B empty Y2.
-
+%
+to_impure/val (d\exp/hand_ty (exp/bang (A d) d) (exp/bang (B d) empty)) empty (ml/fun2hand_coer Y1 (ml/return_coer Y2)) :-
+  from_impure/val A empty Y1,
+  to_impure/val B empty Y2.
+to_impure/val (d\exp/hand_ty (exp/bang (A d) d) (exp/bang (B d) d)) empty (ml/fun2hand_coer Y1 (ml/return_coer Y2)) :-
+  from_impure/val A empty Y1,
+  to_impure/val B empty Y2.
+to_impure/val (d\exp/hand_ty (exp/bang (A d) d) (exp/bang (B d) (D d))) empty (ml/fun2hand_coer Y1 (ml/comp_ty_coer Y2)) :-
+  from_impure/val A empty Y1,
+  e2m/full_dirt (D empty),
+  to_impure/val B empty Y2.
 %
 to_impure/val (d\exp/hand_ty (exp/bang (A d) d) (exp/bang (B d) _)) D (ml/hand_coer Y1 Y2) :-
   e2m/full_dirt D,
