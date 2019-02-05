@@ -322,7 +322,7 @@ from_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
   to_impure/val A D Ya,
   from_impure/comp C D Yc.
 from_impure/val (d\ exp/all_skel (A d)) D Y :-
-  pi s\ from_impure/val (d \ (A d s)) D Y.
+  pi s\ from_impure/val (d\ A d s) D Y.
 from_impure/val (d\ exp/all_ty S (A d)) D (ml/lam_ty_coer Y) :-
   pi a\ pi a'\ e2m/val_ty a S a' => from_impure/val (d\ (A d a)) D (Y a').
 from_impure/val (d\ exp/all_dirt (A d)) D Y :-
@@ -339,8 +339,8 @@ to_impure/val (d\ exp/unit_ty) D (ml/unit_refl_coer).
 to_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
   from_impure/val A D Ya,
   to_impure/comp C D Yc.
-to_impure/val (d\ exp/all_skel (s\ A s d)) D Y :-
-  pi s\ to_impure/val (A s) D Y.
+to_impure/val (d\ exp/all_skel (A d)) D Y :-
+  pi s\ to_impure/val (d\ A d s) D Y.
 to_impure/val (d\ exp/all_ty S (A d)) D (ml/lam_ty_coer Y) :-
   pi a\ pi a'\ e2m/val_ty a S a' => to_impure/val (d\ (A d a)) D (Y a').
 to_impure/val (d\ exp/all_dirt (A d)) D Y :-
