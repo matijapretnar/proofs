@@ -287,7 +287,10 @@ ml/step (ml/with V1 (ml/cast V2 (ml/hand_coer Y1 Y2))) (ml/cast (ml/with (ml/cas
   ml/val V1,
   ml/val V2.
 
-ml/step (ml/with V1 (ml/cast V2 (ml/fun2hand_coer Y1 Y2))) (ml/cast (ml/app V2 (ml/cast V1 (ml/comp_ty_coer Y1))) Y2) :-
+ml/step (ml/with (ml/ret V1) (ml/cast V2 (ml/fun2hand_coer Y1 Y2))) (ml/cast (ml/app V2 (ml/cast V1 Y1)) Y2) :-
+  ml/val V1,
+  ml/val V2.
+ml/step (ml/with (ml/op O V1 A M) (ml/cast V2 (ml/fun2hand_coer Y1 Y2))) (ml/op O V1 A (z\ ml/with (M z) (ml/cast V2 (ml/fun2hand_coer Y1 Y2)))) :-
   ml/val V1,
   ml/val V2.
 
