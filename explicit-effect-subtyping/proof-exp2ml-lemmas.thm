@@ -130,6 +130,23 @@ induction on 1. intros. case H1 (keep).
       search.
 % QED
 
+
+Theorem e2m/full_dirt_monotone:
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m D1 D,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {Ctx_e2m |- e2m/full_dirt (D1 empty)} ->
+    {Ctx_e2m |- e2m/full_dirt (D1 D)}.
+% PROOF
+induction on 2. intros. case H2.
+  case H3.
+    search.
+    apply ctx_e2m_member to H1 H4. case H5.
+      case H3.
+      case H3.
+      case H3. case H6. case H7. search.
+      case H3.
+      case H3.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % wf_ty preservation
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -270,7 +287,19 @@ Theorem ctx_m_member:
 intros. apply e2m_to_m_context to H1.
 apply m_ctx_m_member to H3 H2. search.
 % QED
-      
+
+Theorem ml/wf_comp_ty :
+  forall Sig_e Sig_ml Ctx_e2m Ctx_m A,
+    e2m/ctx Sig_e Sig_ml Ctx_e2m Ctx_m ->
+    {Ctx_m |- ml/wf_ty (ml/comp_ty A)} ->
+    {Ctx_m |- ml/wf_ty A}.
+% PROOF.
+intros. case H2.
+  search.
+  apply ctx_m_member to H1 H4. case H5.
+    case H3. case H3. case H6. case H3.
+% QED
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Strenghtening Lemma
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
