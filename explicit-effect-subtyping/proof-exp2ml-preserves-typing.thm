@@ -105,61 +105,36 @@ intros Hctx. case H2.
     case H1 (keep).
       % absurd case
       apply e2m/empty_dirt_is_not_full to _ H4.
-      % interesting case 1
-      apply IH2 to _ H7 with A1 = A', S = S1.
+      % interesting case 1a
+      apply IH2 to _ H6 with A1 = A', S = S1.
+      apply H8 to _.
+      apply IH to _ H7 with A1 = B', S = S2.
+      apply H11 to _.
+      exists (ml/fun_ty A3 A4). split.
+        search.
+        apply e2m/wf_of_coer to _ H10.
+        apply e2m/wf_of_coer to _ H13.
+        search.
+      % interesting case 1b
+      apply IH2 to _ H6 with A1 = A', S = S1.
+      apply H8 to _.
+      apply IH to _ H7 with A1 = B', S = S2.
+      apply H11 to _.
+      exists (ml/fun_ty A3 A4). split.
+        search.
+        apply e2m/wf_of_coer to _ H10.
+        apply e2m/wf_of_coer to _ H13.
+        search.
+      % interesting case 1c
+      apply IH2 to _ H6 with A1 = A', S = S1.
       apply H9 to _.
-      .
-      apply IH1 to _ H8 with A1 = (ml/comp_ty B'), S = S2.
+      apply IH to _ H8 with A1 = B', S = S2.
       apply H12 to _.
-      case H13.
-        % interesting case
-        % BEGIN LEMMA
-        assert forall Ctx A1 A2 S2 A'1,
-          A1 = A2 ->
-          {Ctx |- e2m/val_ty A1 S2 A'1} ->
-          {Ctx |- e2m/val_ty A2 S2 A'1}.
-        % END LEMMA
-        apply H18 to H15 H17.
-        inst H19 with n1 = cons z_op empty.
-        cut H20.
-        % BEGIN LEMMA
-        assert forall D,
-          {Ctx_e2m |- is_dirt D} ->
-          exists BD',
-          {Ctx_e2m |- e2m/comp_ty (exp/bang (B empty) D) S2 BD'}.
-          intros. case H22.
-            search.
-            search.
-            apply ctx_e2m_member to _ H24. case H25. case H23. case H23. case H23. case H23. case H23.
-        % END LEMMA
-        apply H22 to H6.
-        case H23 (keep).
-        apply H18 to H24 H25.
-          % the codomain is pure
-          apply e2m/val_ty_unique to _ H21 H26.
-          exists ml/fun_ty A3 BD'. split.
-            search.
-            apply e2m/wf_of_coer to _ H11.
-            apply e2m/wf_of_coer to _ H14.
-            apply ml/wf_comp_ty to _ H29.
-            apply ml/wf_comp_ty to _ H30.
-            .
-            skip.
-          % the codomain is impure
-          apply e2m/val_ty_unique to _ H21 H25.
-          exists ml/fun_ty A3 (ml/comp_ty A'2). split.
-            search.
-            apply e2m/wf_of_coer to _ H11.
-            apply e2m/wf_of_coer to _ H14.
-            apply ml/wf_comp_ty to _ H28.
-            apply ml/wf_comp_ty to _ H29.
-            search.
-        % backchain case
-        apply ctx_e2m_member to _ H25. case H26. case H24. case H24. case H24. case H24. case H24.
-        % backchain case
-        case H16.
-          case H15.
-          apply ctx_e2m_member to _ H17. case H18. case H15. case H15. case H15. case H15. case H15.
+      exists (ml/fun_ty A3 (ml/comp_ty A4)). split.
+        search.
+        apply e2m/wf_of_coer to _ H11.
+        apply e2m/wf_of_coer to _ H14.
+        search.
       % interesting case 2
       inst H3 with n1 = D.
       cut H9.
