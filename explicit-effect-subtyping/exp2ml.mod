@@ -321,6 +321,20 @@ from_impure/val (d\ exp/unit_ty) D (ml/unit_refl_coer).
 from_impure/val (d\ exp/fun_ty (A d) (C d)) D (ml/fun_coer Ya Yc) :-
   to_impure/val A D Ya,
   from_impure/comp C D Yc.
+from_impure/val (d\ exp/hand_ty (exp/bang (A d) empty) (C d)) D (ml/fun_coer Y1 Y2)  :-
+  from_impure/val A D Y1,
+  from_impure/comp C D Y2.
+from_impure/val (d\exp/hand_ty (exp/bang (A d) d) (exp/bang (B d) _) empty (ml/hand2fun_coer Y1 Y2) :-
+  to_impure/val A empty Y1,
+  pi d' \ e2m/full_dirt d' => from_impure/comp (d\ exp/bang (B d) d') empty Y2.
+from_impure/val (d\exp/hand_ty (exp/bang (A d) d) (exp/bang (B d) _) D (ml/hand_coer Y1 Y2) :-
+  e2m/full_dirt D,
+  to_impure/comp (d\ (exp/bang (A d) d)) D Y1,
+  pi d' \ e2m/full_dirt d' => from_impure/comp (d\ exp/bang (B d) d') empty Y2.
+from_impure/val (d\exp/hand_ty (exp/bang (A d) (D1 d)) (exp/bang (B d) _) D (ml/hand_coer Y1 Y2) :-
+  e2m/full_dirt (D1 empty), 
+  to_impure/comp (d\(exp/bang (A d) (D1 d)) D Y1,
+  pi d\ e2m/full_dirt d' => from_impure/comp (d\ (exp/bang (B d) d')) D Y2.
 from_impure/val (d\ exp/all_skel (A d)) D Y :-
   pi s\ from_impure/val (d \ (A d s)) D Y.
 from_impure/val (d\ exp/all_ty S (A d)) D (ml/lam_ty_coer Y) :-
