@@ -93,6 +93,7 @@ intros Hctx. case H2.
       apply e2m/from_impure_val_member to _ _ _.
     % all_skel
     case H1.
+      % interesting case
       apply IH to _ H4 with A1 = A1, S = S1 n1.
       inst H3 with n1 = n3, n2 = n4.
       inst H6 with n3 = n2, n4 = n1.
@@ -102,6 +103,7 @@ intros Hctx. case H2.
       apply e2m/from_impure_val_member to _ _ _.
     % all_ty
     case H1.
+      % interesting case
       apply IH to _ H4 with A1 = (A' n2), S = S.
       inst H3 with n1 = n5, n2 = n6, n3 = n7.
       monotone H6 with (e2m/full_dirt n5 :: e2m/val_ty n6 S1 n7 :: Ctx_e2m). 
@@ -116,62 +118,67 @@ intros Hctx. case H2.
         search.
         assert (e2m/ctx Sig_e Sig_m (e2m/val_ty n1 S n2 ::Ctx_e2m) (ml/wf_ty n2 :: Ctx_m)).
         apply e2m/wf_of_coer to H11 H10.
-search.
+      search.
+      % backchain case
       apply e2m/from_impure_val_member to _ _ _.
     % all_dirt
     case H1.
+      % interesting case
       assert (e2m/ctx Sig_e Sig_m (e2m/full_dirt n1 :: Ctx_e2m) Ctx_m).
       apply IH to H5 H4 with A1 = A1, S = S.
       inst H3 with n1 = n3, n2 = n4.
       inst H7 with n3 = n2, n4 = n1.
-      monotone H8 with (e2m/full_dirt n2 ::e2m/full_dirt n1 :: Ctx_e2m). 
+      monotone H8 with (e2m/full_dirt n2 :: e2m/full_dirt n1 :: Ctx_e2m). 
       apply H6 to H9.
       exists A3. split.
         search.
         search.
+      % backchain case
       apply e2m/from_impure_val_member to _ _ _.
     % qual_ty ty
     case H1.
+      % interesting case
+      apply IH to Hctx H8 with A1 = A', S = S.
+      apply H9 to H5.
+      inst H3 with n1 = cons z_op empty.
+      cut H12.
+      inst H4 with n1 = cons z_op empty.
+      cut H14.
+      apply e2m/val_ty_unique to _ H6 H13.
+      apply e2m/val_ty_unique to _ H7 H15.
+      apply e2m/wf_of_coer to _ H11.
+      apply e2m/preserve_wf_val_ty to _ H13.
+      apply e2m/preserve_wf_val_ty to _ H15.
+      exists (ml/qual_ty (ml/ty_coer_ty A1'1 A2'1) A5). split.
+        search.
+        search.
+      % backchain case
       apply e2m/from_impure_val_member to _ _ _.
     % qual_ty comp
     case H1.
+      % backchain case
       apply e2m/from_impure_val_member to _ _ _.
     % qual_ty dirt
     case H1.
-      apply e2m/from_impure_val_member to _ _ _.
+      % interesting case
+      apply IH to _ H4 with A1 = A1, S = S.
+      apply H5 to H3.
+      search.
+      % backchain case
+      apply e2m/from_impure_val_member to Hctx H4 H5.
     % backchain 
-    case H1.
-      apply ctx_e2m_member to _ H4. case H5.
-        case H3.
-        case H3. case H6.
-        case H3.
-        case H3.
-        case H3.
-      apply ctx_e2m_member to _ H4. case H7.
-        case H3.
-        case H3. case H8.
+    case H4.
+      case H3.
+      apply ctx_e2m_member to Hctx H5.
+      case H6.
         case H3.
         case H3.
-        case H3.
-      apply ctx_e2m_member to _ H4. case H6.
-        case H3.
-        case H3. case H7.
+          case H7.
+          case H1.
+          apply e2m/from_impure_val_member to Hctx H10 H11.
         case H3.
         case H3.
         case H3.
-      apply ctx_e2m_member to _ H4. case H6.
-        case H3.
-        case H3. case H7.
-        case H3.
-        case H3.
-        case H3.
-      apply ctx_e2m_member to _ H4. case H6.
-        case H3.
-        case H3. case H7.
-        case H3.
-        case H3.
-        case H3.
-      apply e2m/from_impure_val_member to _ _ _.
 
 % from_impure/comp
 intros Hctx. case H2.
@@ -219,6 +226,7 @@ intros Hctx. case H2.
       apply e2m/to_impure_val_member to _ _ _.
     % all_skel
     case H1.
+      % interesting case
       apply IH2 to _ H4 with A1 = A1, S = S1 n1.
       inst H3 with n1 = n3, n2 = n4.
       inst H6 with n3 = n2, n4 = n1.
@@ -228,6 +236,7 @@ intros Hctx. case H2.
       apply e2m/to_impure_val_member to _ _ _.
     % all_ty
     case H1.
+      % interesting case
       apply IH2 to _ H4 with A1 = (A' n2), S = S.
       inst H3 with n1 = n5, n2 = n6, n3 = n7.
       monotone H6 with (e2m/full_dirt n5 :: e2m/val_ty n6 S1 n7 :: Ctx_e2m). 
@@ -242,62 +251,67 @@ intros Hctx. case H2.
         search.
         assert (e2m/ctx Sig_e Sig_m (e2m/val_ty n1 S n2 ::Ctx_e2m) (ml/wf_ty n2 :: Ctx_m)).
         apply e2m/wf_of_coer to H11 H10.
-search.
+      search.
+      % backchain case
       apply e2m/to_impure_val_member to _ _ _.
     % all_dirt
     case H1.
+      % interesting case
       assert (e2m/ctx Sig_e Sig_m (e2m/full_dirt n1 :: Ctx_e2m) Ctx_m).
       apply IH2 to H5 H4 with A1 = A1, S = S.
       inst H3 with n1 = n3, n2 = n4.
       inst H7 with n3 = n2, n4 = n1.
-      monotone H8 with (e2m/full_dirt n2 ::e2m/full_dirt n1 :: Ctx_e2m). 
+      monotone H8 with (e2m/full_dirt n2 :: e2m/full_dirt n1 :: Ctx_e2m). 
       apply H6 to H9.
       exists A3. split.
         search.
         search.
+      % backchain case
       apply e2m/to_impure_val_member to _ _ _.
     % qual_ty ty
     case H1.
+      % interesting case
+      apply IH2 to Hctx H8 with A1 = A', S = S.
+      apply H9 to H5.
+      inst H3 with n1 = cons z_op empty.
+      cut H12.
+      inst H4 with n1 = cons z_op empty.
+      cut H14.
+      apply e2m/val_ty_unique to _ H6 H13.
+      apply e2m/val_ty_unique to _ H7 H15.
+      apply e2m/wf_of_coer to _ H11.
+      apply e2m/preserve_wf_val_ty to _ H13.
+      apply e2m/preserve_wf_val_ty to _ H15.
+      exists (ml/qual_ty (ml/ty_coer_ty A1'1 A2'1) A5). split.
+        search.
+        search.
+      % backchain case
       apply e2m/to_impure_val_member to _ _ _.
     % qual_ty comp
     case H1.
+      % backchain case
       apply e2m/to_impure_val_member to _ _ _.
     % qual_ty dirt
     case H1.
-      apply e2m/to_impure_val_member to _ _ _.
+      % interesting case
+      apply IH2 to _ H4 with A1 = A1, S = S.
+      apply H5 to H3.
+      search.
+      % backchain case
+      apply e2m/to_impure_val_member to Hctx H4 H5.
     % backchain 
-    case H1.
-      apply ctx_e2m_member to _ H4. case H5.
-        case H3.
-        case H3. case H6.
-        case H3.
-        case H3.
-        case H3.
-      apply ctx_e2m_member to _ H4. case H7.
-        case H3.
-        case H3. case H8.
+    case H4.
+      case H3.
+      apply ctx_e2m_member to Hctx H5.
+      case H6.
         case H3.
         case H3.
-        case H3.
-      apply ctx_e2m_member to _ H4. case H6.
-        case H3.
-        case H3. case H7.
+          case H7.
+          case H1.
+          apply e2m/to_impure_val_member to Hctx H10 H11.
         case H3.
         case H3.
         case H3.
-      apply ctx_e2m_member to _ H4. case H6.
-        case H3.
-        case H3. case H7.
-        case H3.
-        case H3.
-        case H3.
-      apply ctx_e2m_member to _ H4. case H6.
-        case H3.
-        case H3. case H7.
-        case H3.
-        case H3.
-        case H3.
-      apply e2m/to_impure_val_member to _ _ _.
 
 % to_impure/comp
 intros Hctx. case H2.
