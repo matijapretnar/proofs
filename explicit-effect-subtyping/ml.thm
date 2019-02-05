@@ -83,7 +83,6 @@ inst H18 with n1 = V1, n2 = (ml/fun B (y\ml/with (C y) (ml/hand H))).
 cut H19 with H15.
 apply ml/of_op_wf to H14.
 cut H20. search.
-
 % CAST 1
 case H2 (keep). case H5. apply IH to H3 H6. search.
 % CAST UNIT_REFL
@@ -106,9 +105,14 @@ case H2. case H6. case H8. case H10. case H12. case H14. case H9. case H13. case
 assert {ml/of_term Sig (ml/cast V1 Y1) (ml/comp_ty B4)}.
 assert {ml/of_term Sig (ml/with (ml/cast V1 Y1) V2) (ml/comp_ty B1')}.
 search.
-% WITH CAST FUN2HAND_COER
-case H2. case H6. case H8. case H10. case H12. case H14. case H9. case H13. case H19.
-skip.
+% WITH CAST FUN2HAND_COER RETURN
+case H2. case H6. case H7. case H8. case H10. case H11. case H12. case H17. case H18. case H19. case H20.
+assert {ml/of_term Sig (ml/cast V1 Y1) B4}.
+search.
+% WITH CAST FUN2HAND_COER OP
+case H2. case H6. case H7. case H8. case H10. case H11. case H12. case H20. case H22. case H21. case H25.
+assert {ml/of_term Sig (ml/cast V2 (ml/fun2hand_coer Y1 Y2)) (ml/hand_ty B1 B2)}.
+search.
 % APP CAST HAND2FUN_COER
 case H2. case H6. case H7. case H10. case H12. case H14. case H9. case H11. case H19.
 assert {ml/of_term Sig (ml/ret (ml/cast V2 Y1)) (ml/comp_ty B1)}.
