@@ -401,14 +401,18 @@ to_impure/val (d\ exp/qual_ty (exp/val_ty_coer_ty A1 A2) (A d)) D (ml/lam_coer_c
 to_impure/val (d\ exp/qual_ty (exp/dirt_coer_ty _ _) (A d)) D Y :-
   to_impure/val A D Y.
 
+from_impure/comp (d\ exp/bang (A d) empty) D Y :-
+  from_impure/val A D Y.
 from_impure/comp (d\ exp/bang (A d) d) empty (ml/unsafe_coer Y) :-
   from_impure/val A empty Y.
-from_impure/comp (d\ exp/bang (A d) d) D (ml/comp_ty_coer Y) :-
+from_impure/comp (d\ exp/bang (A d) (D' d)) D (ml/comp_ty_coer Y) :-
   from_impure/val A D Y,
-  e2m/full_dirt D.
+  e2m/full_dirt (D' D).
 
+to_impure/comp (d\ exp/bang (A d) empty) D Y :-
+  to_impure/val A D Y.
 to_impure/comp (d\ exp/bang (A d) d) empty (ml/return_coer Y) :-
   to_impure/val A empty Y.
-to_impure/comp (d\ exp/bang (A d) d) D (ml/comp_ty_coer Y) :-
+to_impure/comp (d\ exp/bang (A d) (D' d)) D (ml/comp_ty_coer Y) :-
   to_impure/val A D Y,
-  e2m/full_dirt D.
+  e2m/full_dirt (D' D).

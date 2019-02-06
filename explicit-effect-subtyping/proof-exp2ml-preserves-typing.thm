@@ -290,16 +290,30 @@ intros Hctx. case H2.
 
 % from_impure/comp
 intros Hctx. case H2.
-  % bang empty.
+  % bang empty
   case H1.
+    % bang empty
+    apply IH to _ H4 with A1 = A1, S = S.
+    apply H5 to _.
+    search.
+    % bang full
+    apply e2m/empty_dirt_is_not_full to _ H5.
+    % backchain case
     apply e2m/from_impure_comp_member to _ _ _.
   % bang full dirt
   case H1.
-    % interesting case
-    apply IH to _ H5 with A1 = A', S = S. apply H6 to _. 
-      apply lemma_27 to _ _. search.
-    apply IH to _ H5 with A1 = A', S = S. apply H7 to _. 
-      apply lemma_27 to _ _. search.
+    % bang empty
+    apply e2m/empty_dirt_is_not_full to _ H3.
+    % bang parameter
+    apply IH to _ H5 with A1 = A', S = S.
+    apply H6 to _.
+    apply e2m/wf_of_coer to _ H8.
+    search.
+    % bang full dirt
+    apply IH to _ H5 with A1 = A', S = S.
+    apply H7 to _.
+    apply e2m/wf_of_coer to _ H9.
+    search.
     % backchain case
     apply e2m/from_impure_comp_member to _ _ _.
   % backchain case
@@ -533,15 +547,32 @@ intros Hctx. case H2.
 intros Hctx. case H2.
   % bang empty
   case H1.
+    % bang empty
+    apply IH2 to _ H4 with A1 = A1, S = S.
+    apply H5 to _.
+    search.
+    % bang full
+    apply e2m/empty_dirt_is_not_full to _ H5.
+    % backchain case
     apply e2m/to_impure_comp_member to _ _ _.
   % bang full dirt
   case H1.
-    apply IH2 to _ H5 with A1 = A', S = S. apply H6 to _.
-      apply lemma_27 to _ _. search.
-    apply IH2 to _ H5 with A1 = A', S = S. apply H7 to _.
-      apply lemma_27 to _ _. search.
+    % bang empty
+    apply e2m/empty_dirt_is_not_full to _ H3.
+    % bang parameter
+    apply IH2 to _ H5 with A1 = A', S = S.
+    apply H6 to _.
+    apply e2m/wf_of_coer to _ H8.
+    search.
+    % bang full dirt
+    apply IH2 to _ H5 with A1 = A', S = S.
+    apply H7 to _.
+    apply e2m/wf_of_coer to _ H9.
+    search.
+    % backchain case
     apply e2m/to_impure_comp_member to _ _ _.
-    apply e2m/comp_ty_member to _ H3 H4. 
+  % backchain case
+  apply e2m/comp_ty_member to _ H3 H4.
 % QED
 
 Split e2m/from_impure as e2m/from_impure_val, e2m/from_impure_comp, e2m/to_impure_val, e2m/to_impure_comp.
