@@ -424,6 +424,9 @@ induction on 2. intros Hctx.
       apply IH to Hctx H7 H9. apply IH to Hctx H8 H10. search.
       apply wf_ty_ctx_member to Hctx H10. case H9.
     case H6.
+      apply IH to Hctx H7 H9. apply IH to Hctx H8 H10. search.
+      apply wf_ty_ctx_member to Hctx H10. case H9.
+    case H6.
       apply IH to _ H7 H8. search.
       apply wf_ty_ctx_member to Hctx H9. case H8.
     case H6.
