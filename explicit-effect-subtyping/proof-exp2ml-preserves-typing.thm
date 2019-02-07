@@ -1254,19 +1254,23 @@ case H2 (keep).
     % it came from the context
     apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H7. case H7. case H7.
   % DO -> DO
-  apply IH1 to _ H3.
-  case H5. % how was the A ! FullDirt translated?
+  apply IH1 to _ H4.
+  case H6. % how was the A ! FullDirt translated?
+    % it was empty
+    apply e2m/empty_dirt_is_not_full to _ H3.
     % it was comp_ty A' - interesting case
-    apply IH1 to _ H4 with Ctx_m = (ml/of_term Sig_ml n2 A' :: Ctx_m), Sig_ml = Sig_ml.
-    apply ml/strengthen_comp_ty to _ H9.
-    apply e2m/preserve_wf_comp_ty to _ H11.
-    case H11. % how was B ! FullDirt translated?
+    apply IH1 to _ H5 with Ctx_m = (ml/of_term Sig_ml n2 A' :: Ctx_m), Sig_ml = Sig_ml.
+    apply ml/strengthen_comp_ty to _ H10.
+    apply e2m/preserve_wf_comp_ty to _ H12.
+    case H12. % how was B ! FullDirt translated?
+      % maybe it was empty?
+      apply e2m/empty_dirt_is_not_full to _ H8.
       % comp_ty B' - no surprise
       search.
       % it came from the context
-      apply ctx_e2m_member to _ H14. case H15. case H13. case H13. case H13. case H13. case H13.
+      apply ctx_e2m_member to _ H15. case H16. case H14. case H14. case H14. case H14. case H14.
     % it came from the context
-    apply ctx_e2m_member to _ H8. case H9. case H7. case H7. case H7. case H7. case H7.
+    apply ctx_e2m_member to _ H9. case H10. case H8. case H8. case H8. case H8. case H8.
   % HANDLE -> APP
   apply IH1 to _ H3.
   apply IH to _ H4.

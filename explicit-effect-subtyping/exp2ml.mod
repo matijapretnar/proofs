@@ -169,9 +169,10 @@ e2m/comp Sig (exp/op O Vt At2 Ct) (exp/bang At D) (ml/op O Vm Am2 Cm) :-
 e2m/comp Sig (exp/do Ct1 Ct2) (exp/bang At2 empty) (ml/let Cm1 Cm2) :-
   e2m/comp Sig Ct1 (exp/bang At1 empty) Cm1,
   pi x\ pi x'\ (e2m/val Sig x At1 x' => e2m/comp Sig (Ct2 x) (exp/bang At2 empty) (Cm2 x')).
-e2m/comp Sig (exp/do Ct1 Ct2) (exp/bang At2 (cons O D)) (ml/do Cm1 Cm2) :-
-  e2m/comp Sig Ct1 (exp/bang At1 (cons O D)) Cm1,
-  pi x\ pi x'\ (e2m/val Sig x At1 x' => e2m/comp Sig (Ct2 x) (exp/bang At2 (cons O D)) (Cm2 x')).
+e2m/comp Sig (exp/do Ct1 Ct2) (exp/bang At2 D) (ml/do Cm1 Cm2) :-
+  e2m/full_dirt D,
+  e2m/comp Sig Ct1 (exp/bang At1 D) Cm1,
+  pi x\ pi x'\ (e2m/val Sig x At1 x' => e2m/comp Sig (Ct2 x) (exp/bang At2 D) (Cm2 x')).
 % % HANDLE
 e2m/comp Sig (exp/with C V) B2 (ml/app V' C') :-
   e2m/comp Sig C (exp/bang A1 empty) C',
