@@ -89,7 +89,7 @@ search.
 % DO C1-step
 case H2. apply IH to H3 H4. search.
 % DO value
-case H2. apply exp/extract_value_preservation to H4 H3. inst H5 with n1 = V. cut H7. search.
+case H2. apply exp/extract_value_preservation to H5 H3. inst H6 with n1 = V. cut H8. search.
 % DO op
 case H2. case H4. search.
 % HANDLE V-step
@@ -99,7 +99,7 @@ case H2. case H5. case H7. search.
 % HANDLE C-step
 case H2. apply IH to H4 H5. search.
 % HANDLE value
-case H2. case H6. apply exp/extract_value_preservation to H5 H3. apply of/valcase to H7 H4. inst H9 with n1 = V. cut H10. search.
+case H2. case H7. apply exp/extract_value_preservation to H6 H3. apply of/valcase to H8 H4. inst H10 with n1 = V. cut H11. search.
 % HANDLE op
 case H2. case H6. case H5. apply of/exp/op_case to H7 H4 H8 H11 H12.
 assert {exp/of_val Sig (exp/fun B (y\exp/with (C1 y) (exp/hand H))) (exp/fun_ty B A)}.

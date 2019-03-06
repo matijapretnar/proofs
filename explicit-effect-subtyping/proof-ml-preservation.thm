@@ -1,10 +1,6 @@
 Specification "ml".
 Import "common".
 
-Close ml/ty, ml/coer_ty.
-
-Set subgoals off.
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Theorem ml/of_op_unique : forall Sig O A A' B B',

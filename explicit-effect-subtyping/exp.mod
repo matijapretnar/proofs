@@ -156,17 +156,7 @@ exp/term_val (exp/lam_coer Pi M).
 
 exp/result_val V :-
   exp/term_val V.
-exp/result_val (exp/val_cast V (exp/fun_coer _ _)) :-
-  exp/result_val V.
-exp/result_val (exp/val_cast V (exp/hand_coer _ _)) :-
-  exp/result_val V.
-exp/result_val (exp/val_cast V (exp/lam_skel_coer _)) :-
-  exp/result_val V.
-exp/result_val (exp/val_cast V (exp/lam_ty_coer _)) :-
-  exp/result_val V.
-exp/result_val (exp/val_cast V (exp/lam_dirt_coer _)) :-
-  exp/result_val V.
-exp/result_val (exp/val_cast V (exp/lam_coer_coer _ _)) :-
+exp/result_val (exp/val_cast V Y) :-
   exp/result_val V.
 
 exp/terminal_comp (exp/ret V) :-

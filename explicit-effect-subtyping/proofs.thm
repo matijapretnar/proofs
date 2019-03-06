@@ -1,8 +1,10 @@
 Specification "proofs".
 Import "common".
-Import "proof-imp2exp-preserves-typing".
-Import "proof-exp2skel-preserves-semantics".
-Import "proof-exp2skel-preserves-typing".
-% Import "proof-exp2ml-preserves-typing".
 Import "proof-exp-progress".
 Import "proof-exp-preservation".
+Import "proof-imp2exp-preserves-typing".
+Import "proof-exp2skel-preserves-typing".
+Import "proof-exp2skel-preserves-semantics".
+Import "proof-ml-progress".
+Import "proof-ml-preservation".
+Import "proof-exp2ml-preserves-typing".

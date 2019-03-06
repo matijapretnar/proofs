@@ -1,10 +1,6 @@
 Specification "ml".
 Import "common".
 
-Close ml/ty, ml/coer_ty.
-
-Set subgoals off.
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Theorem ml/progress_get_ret_case :
   forall Sig H A B,
@@ -34,7 +30,7 @@ induction on 1. intros. case H1 (keep). case H5.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Theorem ml/progress_thm :
+Theorem ml/progress  :
   forall Sig V A,
     {ml/of_term Sig V A} -> {ml/progress V}.
 induction on 1. intros. case H1 (keep). case H3.

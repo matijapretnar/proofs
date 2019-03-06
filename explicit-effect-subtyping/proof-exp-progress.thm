@@ -45,11 +45,7 @@ induction on 1. intros. case H1.
     case H2. case H2. % boring case
   % V is a cast value
   case H2. case H7.
-  case H2. case H7.
-  search. 
-  case H2. case H7.
-  case H2. case H7.
-  case H2. case H7.
+  search.
   % V makes a step.
   search.
 % LAM TY
@@ -63,11 +59,7 @@ search.
     case H2. case H2. case H2.% boring cases
   % V is a cast value
   case H2. case H8. 
-  case H2. case H8. 
-  case H2. case H8.
   search.
-  case H2. case H8.
-  case H2. case H8.
   % V makes a step.
   search.
 % LAM DIRT
@@ -81,11 +73,7 @@ search.
     case H2. % boring cases
   % V is a cast value
   case H2. case H7.
-  case H2. case H7.
-  case H2. case H7.
-  case H2. case H7.
   search.
-  case H2. case H7.
   % V makes a step.
   search.
 % LAM COER
@@ -97,10 +85,6 @@ search.
     case H2. case H2. case H2. case H2. case H2. case H2.
     search. % interesting case
   % V is a cast value
-  case H2. case H8.
-  case H2. case H8.
-  case H2. case H8.
-  case H2. case H8.
   case H2. case H8.
   search.
   % V makes a step.
@@ -117,7 +101,7 @@ search.
    search.
  search.
 
-Theorem exp/extract_value : forall M, {exp/terminal_comp M} -> exists V, {exp/extract_value M V}. %  /\ {exp/result_val V}.
+Theorem exp/extract_value : forall M, {exp/terminal_comp M} -> exists V, {exp/extract_value M V} /\ {exp/result_val V}.
 induction on 1. intros. case H1.
   search.
   apply IH to H2. search.
@@ -146,22 +130,12 @@ induction on 1. intros. case H1.
       search.
     % V1 is a cast value
       case H2. case H8. search.
-      case H2. case H8.
-      case H2. case H8.
-      case H2. case H8.
-      case H2. case H8.
-      case H2. case H8.
   % V1 makes a step
     search.
 % LET
   apply exp/progress_val to H2. case H4. search. search.
 % RET
   apply exp/progress_val to H2. case H3. case H4. search. search. search.
-    search.
-    search.
-    search.
-    search.
-    search.
 % OP
   apply exp/progress_val to H3. case H7. search. search.
 % DO
@@ -199,10 +173,6 @@ induction on 1. intros. case H1.
       search.
     % V is a coerced value
     case H3. case H8. search.
-    case H3. case H8.
-    case H3. case H8.
-    case H3. case H8.
-    case H3. case H8.
   % V makes a step
     search.
 % CAST

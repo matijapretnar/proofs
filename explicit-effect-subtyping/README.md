@@ -1,22 +1,24 @@
 # Explicit Effect Subtyping
 
 Abella formalisation of proofs that appear in the paper
-> Amr Hany Saleh, Georgios Karachalias, Matija Pretnar, Tom Schrijvers:
+> Georgios Karachalias, Matija Pretnar, Amr Hany Saleh, Tom Schrijvers:
 > *Explicit Effect Subtyping*,
-> submitted to ESOP 2018
+> submitted to JFP
 
 
 ## Evaluating proofs
 
 Proofs in the paper correspond to the following Abella proofs:
 
-* Theorem 1 (Type Safety):
+* Theorem 4.1:
     `exp/progress_val` and `exp/progress_comp` in `proof-exp-progress.thm`;
     `exp/val_preservation` and `exp/comp_preservation` in `proof-exp-preservation.thm`
-* Theorem 2 (Type Preservation of Elaboration): `i2e/of` in `proof-imp2exp-preserves-typing.thm`
-* Theorem 6 (Type Preservation of Erasure): `e2s/of` in `proof-exp2skel-preserves-typing.thm`
-* Theorem 7 (Semantic Preservation):
-    `e2s/val_preservation` and `e2s/comp_preservation` in `proof-exp2skel-preserves-semantics.thm`
+* Theorem 5.1: `i2e/of` in `proof-imp2exp-preserves-typing.thm`
+* Theorem 6.1: `e2s/of` in `proof-exp2skel-preserves-typing.thm`
+* Theorem 6.2: `e2s/val_preservation` and `e2s/comp_preservation` in `proof-exp2skel-preserves-semantics.thm`
+* Theorem 7.1: `ml/preservation` in `proof-ml-preservation.thm`
+* Theorem 7.2: `ml/progress` in `proof-ml-progress.thm`
+* Theorem 7.3: `e2m/of` in `proof-exp2ml-preserves-typing.thm`
 
 To evaluate all the proofs, run:
 
