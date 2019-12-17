@@ -66,8 +66,6 @@ exp/of_coer (exp/comp_ty_coer Y1 Y2) (exp/comp_ty_coer_ty (exp/bang A1 D1) (exp/
   exp/of_coer Y1 (exp/val_ty_coer_ty A1 A2),
   exp/of_coer Y2 (exp/dirt_coer_ty D1 D2).
 
-exp/of_coer (exp/dirt_coer D) (exp/dirt_coer_ty D D) :-
-  is_dirt D.
 exp/of_coer (exp/empty_coer D) (exp/dirt_coer_ty empty D).
 exp/of_coer (exp/cons_coer O Y) (exp/dirt_coer_ty (cons O D1) (cons O D2)) :-
   exp/of_coer Y (exp/dirt_coer_ty D1 D2).
