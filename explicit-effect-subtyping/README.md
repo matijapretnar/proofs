@@ -24,5 +24,5 @@ To evaluate all the proofs, run:
 
     abella proofs.thm
 
-The command sequentially loads all of the above files and, if all proofs are correct,
-terminates without an error.
+using Abella 2.0.4 or higher, The command sequentially loads all of the above files and,
+if all proofs are correct, terminates without an error.
