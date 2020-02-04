@@ -39,6 +39,7 @@ type  exp/lam_ty_coer           (exp/val_ty -> exp/coer) -> exp/coer.
 type  exp/lam_dirt_coer         (dirt -> exp/coer) -> exp/coer.
 type  exp/lam_coer_coer         exp/coer_ty -> exp/coer -> exp/coer.
 type  exp/comp_ty_coer          exp/coer -> exp/coer -> exp/coer.
+type  exp/dirt_coer             dirt -> exp/coer.
 type  exp/empty_coer            dirt -> exp/coer.
 type  exp/cons_coer             op -> exp/coer -> exp/coer.
 

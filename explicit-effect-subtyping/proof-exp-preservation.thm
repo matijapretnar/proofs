@@ -22,8 +22,8 @@ induction on 2. intros. case H2.
 Theorem in_less_dirt :
   forall O Y D1 D2, {in_dirt O D1} -> {exp/of_coer Y (exp/dirt_coer_ty D1 D2)} -> {in_dirt O D2}.
 induction on 1. intros. case H1.
- case H2. search.
- case H2. apply IH to H3 H4. search.
+ case H2. search. search.
+ case H2. search. apply IH to H3 H4. search.
 
 Set subgoals off.
 

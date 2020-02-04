@@ -11,9 +11,3 @@ induction on 1. intros. case H1.
   case H2.
     apply apart_not_reflexive to H4.
     apply IH to H3 H5. search.
-
-Theorem exp/dirt_coer_refl : forall D,
-  {is_dirt D} -> exists Y, {exp/of_coer Y (exp/dirt_coer_ty D D)}.
-induction on 1. intros. case H1.
-  search.
-  apply IH to H2. search.
